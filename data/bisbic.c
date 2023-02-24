@@ -7,6 +7,8 @@
 int bis(int x, int m);
 int bic(int x, int m);
 
+// do nothing when m is 0
+
 /* $end boolop-template */
 /* $end boolop-ans */
 
