@@ -27,6 +27,10 @@ void show_pointer(void *x) {
 }
 /* $end show-bytes */
 
+void show_short(short x) {
+  show_bytes((byte_pointer)&x, sizeof(short));  // line:data:show_bytes_amp3
+}
+
 /* $begin test-show-bytes */
 void test_show_bytes(int val) {
   int ival = val;
@@ -95,6 +99,7 @@ void show_twocomp() {
   show_bytes((byte_pointer)&mx, sizeof(short));
   /* $end show-twocomp */
 }
+//  test little-ending
 
 int main(int argc, char *argv[]) {
   int val = 12345;
@@ -120,17 +125,17 @@ int main(int argc, char *argv[]) {
     string_leg();
   }
 
-  const char *m = "mnopqr";
-  show_bytes((byte_pointer)m, strlen(m));
+  // const char *m = "mnopqr";
+  // show_bytes((byte_pointer)m, strlen(m));
 
-  // 112
-  printf("test %d %d %x %x %x\n", -1 < 0u, 2147483647 > (int)2147483648U,
-         2147483648U, 2147483647, (int)2147483648U);
-  //   116
-  short sx = -12345;
-  printf("%x %d %x\n", (short)-12345, (int16_t)0xffc7, sx);
-  //   119
-  printf("%d %d\n", (unsigned short)4 - (unsigned short)5, (unsigned short)-1);
+  // // 112
+  // printf("test %d %d %x %x %x\n", -1 < 0u, 2147483647 > (int)2147483648U,
+  //        2147483648U, 2147483647, (int)2147483648U);
+  // //   116
+  // short sx = -12345;
+  // printf("%x %d %x\n", (short)-12345, (int16_t)0xffc7, sx);
+  // //   119
+  // printf("%d %d\n", (unsigned short)4 - (unsigned short)5, (unsigned short)-1);
 
   return 0;
 }
