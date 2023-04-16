@@ -7,6 +7,5 @@ extern void *_GLOBAL_OFFSET_TABLE_;
 int main(int argc, char **argv) {
   puts("Hello world!");
   puts("Hello world!");
-  printf("_GLOBAL_OFFSET_TABLE = %p\n", &_GLOBAL_OFFSET_TABLE_);
   exit(0);
 }
