@@ -60,6 +60,7 @@ GOT protection: Partial RELRO | GOT functions: 2
 - [_rtld_global_ro](https://comp.os.linux.development.apps.narkive.com/sVzevUx4/rtld-global-ro-glibc-private) related with ld,'ro' maybe 'readonly' 
 - [fast code](http://www.c-jump.com/CIS77/ASM/Instructions/I77_0080_fast_code.htm)
 - [_ITM_deregisterTMCloneTable](https://gcc.gnu.org/onlinedocs/gcc-7.1.0/libitm/The-libitm-ABI.html) [seems](https://gcc.gnu.org/onlinedocs/libitm/Enabling-libitm.html#Enabling-libitm) used in c++ not c
+  - [Transactional Memory](https://www.ibm.com/docs/en/xffbg/121.141?topic=fortran-transactional-memory)
 ```bash
 # https://stackoverflow.com/questions/6045809/link-error-undefined-reference-to-gxx-personality-v0-and-g
 $ gcc -fPIE -no-pie -fgnu-tm test_got.c -o test_got -lstdc++
@@ -1357,6 +1358,352 @@ mov eax, dword [r9 + 4]
 [0x00000100]> rasm2 -a x86 -b 64 "mov eax, dword [r9 + 4]"
 448b4a04
 ```
+## 11 `printf` (int & double)
+```bash
+  0x40115b<main+37>   mov    eax,1
+  0x401160<main+42>   call   printf@plt                      <printf@plt>
+  # here eax is to check xmm reg, if not 0 then not skip
+pwndbg> pdisass 
+ ►0x7ffff7dc7e00<printf>      endbr64 
+  0x7ffff7dc7e04<printf+4>    sub    rsp,0xd8
+  0x7ffff7dc7e24<printf+36>   test   al,al
+  0x7ffff7dc7e26<printf+38>   je     printf+95                <printf+95>
+pwndbg> pdisass 0x7ffff7dc7e26
+ ►0x7ffff7dc7e26<printf+38>   je     printf+95                <printf+95>
+ 
+  0x7ffff7dc7e28<printf+40>   movaps xmmwordptr[rsp+0x50],xmm0
+  0x7ffff7dc7e2d<printf+45>   movaps xmmwordptr[rsp+0x60],xmm1
+  0x7ffff7dc7e32<printf+50>   movaps xmmwordptr[rsp+0x70],xmm2
+  0x7ffff7dc7e37<printf+55>   movaps xmmwordptr[rsp+0x80],xmm3
+  0x7ffff7dc7e3f<printf+63>   movaps xmmwordptr[rsp+0x90],xmm4
+```
+- [xmm/ymm](https://wiki.osdev.org/AVX2)/[zmm](https://wiki.osdev.org/CPU_Registers_x86) , ymm [pdf p538](../references/intel_64.pdf) zmm [pdf p603](../references/intel_64.pdf), see 
+## fs/gs and SS segment(rsp/rbp)
+[pdf p86](../references/intel_64.pdf), see [this (fs != fs_base)](https://stackoverflow.com/questions/59797987/how-is-effective-address-calculated-with-fs-and-gs-registers)
+```bash
+pwndbg> x/g $fs_base+0x28
+0x7ffff7c8d768: 0x6bdb9d77fe8c7e00
+────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
+  0x40113a<main+4>    mov    rax,qwordptrfs:[0x28]
+ ►0x401143<main+13>   mov    qwordptr[rsp+8],rax
+pwndbg> p *(long long*)($fs_base+0x28)==$rax
+$7 = 0x1
+pwndbg> x $fs+0x28
+0x28:   Cannot access memory at address 0x28
+```
+### how fs:[0x28] canary check overflow [similar check method maybe in old gcc / other assembler](https://sourceware.org/pipermail/gdb/2020-March/048428.html)
+```bash
+pwndbg> dga main
+Dump of assembler code for function main:
+   0x0000000000401136 <+0>:     48 83 ec 18             sub    rsp,0x18
+   0x000000000040113a <+4>:     64 48 8b 04 25 28 00 00 00      mov    rax,QWORD PTR fs:0x28
+   0x0000000000401143 <+13>:    48 89 44 24 08          mov    QWORD PTR [rsp+0x8],rax
+   0x0000000000401148 <+18>:    31 c0                   xor    eax,eax
+  #  begin move parameter
+   0x000000000040114a <+20>:    f2 0f 10 05 de 0e 00 00 movsd  xmm0,QWORD PTR [rip+0xede]        # 0x402030
+   ...
+   0x0000000000401160 <+42>:    e8 db fe ff ff          call   0x401040 <printf@plt>
+  #  after every call the stack should look same as when `0x000000000040114a`
+=> 0x0000000000401165 <+47>:    48 89 e2                mov    rdx,rsp
+──────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdfb0 ◂— 0x0
+# `0xace30b97c80c7c00` is canary `fs:[0x28]`
+01:0008│     0x7fffffffdfb8 ◂— 0xace30b97c80c7c00
+02:0010│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+# return address (the next instruction)
+03:0018│     0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+pwndbg> dga main
+...
+   0x000000000040119d <+103>:   48 8b 44 24 08          mov    rax,QWORD PTR [rsp+0x8]
+   0x00000000004011a2 <+108>:   64 48 2b 04 25 28 00 00 00      sub    rax,QWORD PTR fs:0x28
+  #  [rsp+0x8] should same as fs:0x28 if no overflow
+   0x00000000004011ab <+117>:   75 0a                   jne    0x4011b7 <main+129>
+   ...
+   0x00000000004011b7 <+129>:   e8 74 fe ff ff          call   0x401030 <__stack_chk_fail@plt>
+
+pwndbg> info br
+Num     Type           Disp Enb Address            What
+3       acc watchpoint keep y                      *0x7fffffffdfb0
+        breakpoint already hit 4 times
+4       acc watchpoint keep y                      *0x7fffffffdfb8
+        breakpoint already hit 2 times
+#  after debug,only read between call,except '<+47>', see below 'use rsp to access function call result'
+   0x0000000000401165 <+47>:    48 89 e2                mov    rdx,rsp
+   0x0000000000401168 <+50>:    be 03 00 00 00          mov    esi,0x3
+   0x000000000040116d <+55>:    bf 02 00 00 00          mov    edi,0x2
+   0x0000000000401172 <+60>:    e8 4d 00 00 00          call   0x4011c4 <multstore>
+   0x0000000000401177 <+65>:    48 8b 34 24             mov    rsi,QWORD PTR [rsp]
+   0x000000000040117b <+69>:    bf 1c 20 40 00          mov    edi,0x40201c
+   0x0000000000401180 <+74>:    b8 00 00 00 00          mov    eax,0x0
+   0x0000000000401185 <+79>:    e8 b6 fe ff ff          call   0x401040 <printf@plt>
+# so '►0x4011a2' just to check overflow.
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+ ►0x4011a2<main+108>   sub    rax,qwordptrfs:[0x28]
+  0x4011ab<main+117>   jne    main+129                      <main+129>
+
+```
+## use rsp to access function call result
+```bash
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rdx rsp 0x7fffffffdfb0 ◂— 0x0
+01:0008│         0x7fffffffdfb8 ◂— 0xb30961705bab4800
+02:0010│         0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+03:0018│         0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+04:0020│         0x7fffffffdfd0 —▸ 0x7fffffffe0c0 —▸ 0x7fffffffe0c8 ◂— 0x38 /* '8' */
+05:0028│         0x7fffffffdfd8 —▸ 0x401136 (main) ◂— sub rsp,0x18
+06:0030│         0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
+07:0038│         0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x401165<main+47>   mov    rdx,rsp
+ ►0x401168<main+50>   mov    esi,3
+# RDX the third parameter -> result
+   0x0000000000401165 <+47>:    48 89 e2                mov    rdx,rsp
+   0x0000000000401168 <+50>:    be 03 00 00 00          mov    esi,0x3
+   0x000000000040116d <+55>:    bf 02 00 00 00          mov    edi,0x2
+   0x0000000000401172 <+60>:    e8 4d 00 00 00          call   0x4011c4 <multstore>
+  #  pass to printf second param
+   0x0000000000401177 <+65>:    48 8b 34 24             mov    rsi,QWORD PTR [rsp]
+   0x000000000040117b <+69>:    bf 1c 20 40 00          mov    edi,0x40201c
+   0x0000000000401180 <+74>:    b8 00 00 00 00          mov    eax,0x0
+   0x0000000000401185 <+79>:    e8 b6 fe ff ff          call   0x401040 <printf@plt>
+
+pwndbg> dr main
+Dump of assembler code for function multstore:
+   0x00000000004011c4 <+0>:     53                      push   rbx
+=> 0x00000000004011c5 <+1>:     48 89 d3                mov    rbx,rdx
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdfa0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+01:0008│     0x7fffffffdfa8 —▸ 0x401177 (main+65) ◂— mov rsi,qwordptr[rsp]
+02:0010│ rdx 0x7fffffffdfb0 ◂— 0x0
+pwndbg> dr
+Dump of assembler code for function multstore:
+  #  push callee reg
+   0x00000000004011c4 <+0>:     53                      push   rbx
+  # use caller reg
+   0x00000000004011c5 <+1>:     48 89 d3                mov    rbx,rdx
+=> 0x00000000004011c8 <+4>:     e8 ef ff ff ff          call   0x4011bc <mult2>
+  # here is just to rdx -> rsp before/after call multstore
+   0x00000000004011cd <+9>:     48 89 03                mov    QWORD PTR [rbx],rax
+  #  rbx is just at top, restore it
+   0x00000000004011d0 <+12>:    5b                      pop    rbx
+   0x00000000004011d1 <+13>:    c3                      ret
+End of assembler dump.
+# mult2 no change to stack
+pwndbg> dga mult2
+Dump of assembler code for function mult2:
+   0x00000000004011bc <+0>:     48 89 f8                mov    rax,rdi
+   0x00000000004011bf <+3>:     48 0f af c6             imul   rax,rsi
+   0x00000000004011c3 <+7>:     c3                      ret
+End of assembler dump.
+
+```
+### here `rbx` is redundant to use, use `r2` to change binary exe because [not](https://stackoverflow.com/questions/44534733/why-copy-the-same-value-to-rax-that-he-already-has) optimized to be better debugged
+```asm
+$ r2 -AAq -c 'db sym.multstore;dc;wx 90909090@0x004011c4;wx 488902@0x004011cd;wx 90@0x004011d0;db 0x000000000040118a;dc;pd 4@0x004011cd;pd 8@0x004011c4;pd-- 1@0x004011d0;dc;dc' -d /mnt/ubuntu/home/czg/csapp3e/asm/prog 
+2 * 3 --> 0
+test: 2.468000
+INFO: hit breakpoint at: 0x4011c4
+2 * 3 --> 6
+INFO: hit breakpoint at: 0x40118a
+│           0x004011cd      488902         mov qword [rdx], rax        ; stdc-predef.h:6    License as published by the Free Software Foundation; either ; moves data from src to dst
+│           0x004011d0      90             nop                         ; stdc-predef.h:7    version 2.1 of the License, or (at your option) any later version. ; no operation
+╰           0x004011d1      c3             ret                         ; return from subroutine. pop 4 bytes from esp and jump there.
+            0x004011d2      0000           add byte [rax], al          ; adds src and dst, stores result on dst
+        ╎   ;-- multstore:
+        ╎   ; CALL XREF from dbg.main @ 0x401172(x)
+╭ 14: dbg.multstore (int64_t arg1, int64_t arg3);
+│       ╎   ; arg int64_t arg1 @ rdi
+│       ╎   ; arg int64_t arg3 @ rdx
+│       ╎   0x004011c4 b    53             push rbx                    ; stdio.h:20 #define _BITS_STDIO_H 1 ; push word, doubleword or quadword onto the stack; void multstore(long int x,long int y,long int * dest);
+│       ╎   0x004011c5      90             nop                         ; no operation; arg3
+│       ╎   0x004011c6      90             nop                         ; no operation
+│       ╎   0x004011c7      90             nop                         ; no operation
+│       ╰─< 0x004011c8      e8efffffff     call dbg.mult2              ; stdc-predef.h:5    modify it under the terms of the GNU Lesser General Public ; calls a subroutine, push eip into the stack (esp)
+│           0x004011cd      488902         mov qword [rdx], rax        ; stdc-predef.h:6    License as published by the Free Software Foundation; either ; moves data from src to dst
+│           0x004011d0      90             nop                         ; stdc-predef.h:7    version 2.1 of the License, or (at your option) any later version. ; no operation
+╰           0x004011d1      c3             ret                         ; return from subroutine. pop 4 bytes from esp and jump there.
+│           0x004011cd      488902         mov qword [rdx], rax        ; stdc-predef.h:6    License as published by the Free Software Foundation; either ; moves data from src to dst
+│           0x004011d0      90             nop                         ; stdc-predef.h:7    version 2.1 of the License, or (at your option) any later version. ; no operation
+ERROR: Run `aeim` to initialize a stack for the ESIL vm
+2 * 3 --> 6
+(6664) Process terminated with status 0
+INFO: ==> Process finished
+ERROR: Cannot continue, run ood?
+```
+## [eh_frame_hdr](https://stackoverflow.com/questions/14091231/what-do-the-eh-frame-and-eh-frame-hdr-sections-store-exactly)(hdr->header) -> linux [foundation](https://refspecs.linuxfoundation.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html)
+[also](https://github.com/nbdd0121/unwinding) 
+```bash
+   0x000000000040114a <+20>:    f2 0f 10 05 de 0e 00 00 movsd  xmm0,QWORD PTR [rip+0xede]        # 0x402030
+   0x0000000000401152 <+28>:    48 8b 34 24             mov    rsi,QWORD PTR [rsp]
+pwndbg> telescope 0x401152+0xede
+00:0000│  0x402030 ◂— 0x4003be76c0000000
+01:0008│  0x402038 (__GNU_EH_FRAME_HDR) ◂— 0x3c3b031b01
+```
+## how xmm save [pdf p52](../references/intel_64.pdf)
+[pdf p67](../references/intel_64.pdf) -> 8 regs when non-64 mode
+16 regs [pdf p70](../references/intel_64.pdf)
+- related with stack
+```bash
+# 64/8=8 byte, can test with hexdump
+   0x00007ffff7dc7e0b <+11>:    48 89 74 24 28          mov    QWORD PTR [rsp+0x28],rsi
+   0x00007ffff7dc7e10 <+16>:    48 89 54 24 30          mov    QWORD PTR [rsp+0x30],rdx
+  #  similar
+   0x00007ffff7dc7e28 <+40>:    0f 29 44 24 50          movaps XMMWORD PTR [rsp+0x50],xmm0
+```
+- xmm
+```bash
+   0x000000000040114a <+20>:    f2 0f 10 05 de 0e 00 00 movsd  xmm0,QWORD PTR [rip+0xede]        # 0x402030
+   0x0000000000401152 <+28>:    48 8b 34 24             mov    rsi,QWORD PTR [rsp]
+
+pwndbg> hexdump 0x0000000000401152+0xede
++0000 0x402030  00 00 00 c0 76 be 03 40  01 1b 03 3b 3c 00 00 00  │....v..@│...;<...│
+# so 0x0->minimal memory address and then grow to 0x4,etc
+pwndbg> p $ymm0
+$1 = {
+  v16_bfloat16 = {[0x0] = 0, [0x1] = -2, [0x2] = -0.2402, [0x3] = 2.047, [0x4] = 0 <repeats 12 times>},
+  v16_half = {[0x0] = 0, [0x1] = -2, [0x2] = -1.6152, [0x3] = 2.0059, [0x4] = 0 <repeats 12 times>},
+  v8_float = {[0x0] = -2, [0x1] = 2.05849981, [0x2] = 0, [0x3] = 0, [0x4] = 0, [0x5] = 0, [0x6] = 0, [0x7] = 0},
+  v4_double = {[0x0] = 2.4679999351501465, [0x1] = 0, [0x2] = 0, [0x3] = 0},
+  v32_int8 = {[0x0] = 0x0, [0x1] = 0x0, [0x2] = 0x0, [0x3] = 0xc0, [0x4] = 0x76, [0x5] = 0xbe, [0x6] = 0x3, [0x7] = 0x40, [0x8] = 0x0 <repeats 24 times>},
+  v16_int16 = {[0x0] = 0x0, [0x1] = 0xc000, [0x2] = 0xbe76, [0x3] = 0x4003, [0x4] = 0x0 <repeats 12 times>},
+  v8_int32 = {[0x0] = 0xc0000000, [0x1] = 0x4003be76, [0x2] = 0x0, [0x3] = 0x0, [0x4] = 0x0, [0x5] = 0x0, [0x6] = 0x0, [0x7] = 0x0},
+  v4_int64 = {[0x0] = 0x4003be76c0000000, [0x1] = 0x0, [0x2] = 0x0, [0x3] = 0x0},
+  v2_int128 = {[0x0] = 0x4003be76c0000000, [0x1] = 0x0}
+}
+```
+## printf with `xmm`
+- test: only read xmm0 (TODO libc too many calls，read C source code) 
+```bash
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffded0 ◂— 0x0
+01:0008│     0x7fffffffded8 ◂— 0x8000
+02:0010│     0x7fffffffdee0 —▸ 0x7fffffffdf78 —▸ 0x7fffffffe8c3 ◂— '/usr/lib/liblua5.4.so'
+03:0018│     0x7fffffffdee8 ◂— 0x80000
+04:0020│     0x7fffffffdef0 ◂— 0x300000
+05:0028│     0x7fffffffdef8 ◂— 0x0
+06:0030│     0x7fffffffdf00 —▸ 0x7fffffffe0e8 —▸ 0x7fffffffe570 ◂— 'BEMENU_BACKEND=wayland'
+07:0038│     0x7fffffffdf08 —▸ 0x403df0 —▸ 0x401100 ◂— endbr64 
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+ ►0x7ffff7dc7e32<printf+50>   movaps xmmwordptr[rsp+0x70],xmm2
+  0x7ffff7dc7e37<printf+55>   movaps xmmwordptr[rsp+0x80],xmm3
+  0x7ffff7dc7e3f<printf+63>   movaps xmmwordptr[rsp+0x90],xmm4
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pwndbg> info br
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x00007ffff7dc7e00 <printf>
+        breakpoint already hit 1 time
+2       breakpoint     keep y   0x00007fffffffdc48 
+3       breakpoint     keep y   0x00007ffff7e6e9c0 <write>
+4       acc watchpoint keep y                      *(0x7fffffffded0+0x50)
+        breakpoint already hit 1 time
+5       acc watchpoint keep y                      *(0x7fffffffded0+0x60)
+        breakpoint already hit 1 time
+```
+### parameter scratch
+```bash
+pwndbg> dga 0x00007ffff7dc7e68,0x00007ffff7dc7ea7+0x1
+Dump of assembler code from 0x7ffff7dc7e68 to 0x7ffff7dc7ea8:
+   0x00007ffff7dc7e68 <printf+104>:     48 89 44 24 18          mov    QWORD PTR [rsp+0x18],rax
+   0x00007ffff7dc7e6d <printf+109>:     31 c0                   xor    eax,eax
+   0x00007ffff7dc7e6f <printf+111>:     48 8d 84 24 e0 00 00 00 lea    rax,[rsp+0xe0]
+   0x00007ffff7dc7e77 <printf+119>:     48 89 e2                mov    rdx,rsp
+   0x00007ffff7dc7e7a <printf+122>:     31 c9                   xor    ecx,ecx
+   0x00007ffff7dc7e7c <printf+124>:     48 89 44 24 08          mov    QWORD PTR [rsp+0x8],rax
+   0x00007ffff7dc7e81 <printf+129>:     48 8d 44 24 20          lea    rax,[rsp+0x20]
+   0x00007ffff7dc7e86 <printf+134>:     48 89 fe                mov    rsi,rdi
+   0x00007ffff7dc7e89 <printf+137>:     48 89 44 24 10          mov    QWORD PTR [rsp+0x10],rax
+   0x00007ffff7dc7e8e <printf+142>:     48 8b 05 f3 7e 18 00    mov    rax,QWORD PTR [rip+0x187ef3]        # 0x7ffff7f4fd88
+   0x00007ffff7dc7e95 <printf+149>:     c7 04 24 08 00 00 00    mov    DWORD PTR [rsp],0x8
+   0x00007ffff7dc7e9c <printf+156>:     48 8b 00                mov    rax,QWORD PTR [rax]
+   0x00007ffff7dc7e9f <printf+159>:     c7 44 24 04 30 00 00 00 mov    DWORD PTR [rsp+0x4],0x30
+   0x00007ffff7dc7ea7 <printf+167>:     48 89 c7                mov    rdi,rax
+pwndbg> telescope $rsp 0x1f
+00:0000│ rsp 0x7fffffffdfa8 —▸ 0x40107f (main+47) ◂— mov rdx,rsp
+01:0008│     0x7fffffffdfb0 ◂— 0x0
+02:0010│     0x7fffffffdfb8 ◂— 0xd0c30a3adaf82800
+03:0018│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+04:0020│     0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+05:0028│     0x7fffffffdfd0 —▸ 0x7fffffffe0c0 —▸ 0x7fffffffe0c8 ◂— 0x38 /* '8' */
+06:0030│     0x7fffffffdfd8 —▸ 0x401050 (main) ◂— sub rsp,0x18
+07:0038│     0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
+08:0040│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+09:0048│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+0a:0050│     0x7fffffffdff8 ◂— 0xee0fb9aaeca58ca7
+0b:0058│     0x7fffffffe000 ◂— 0x0
+0c:0060│     0x7fffffffe008 —▸ 0x7fffffffe0e8 —▸ 0x7fffffffe570 ◂— 'BEMENU_BACKEND=wayland'
+0d:0068│     0x7fffffffe010 —▸ 0x403df0 —▸ 0x401180 ◂— endbr64 
+0e:0070│     0x7fffffffe018 —▸ 0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 ◂— 0x0
+0f:0078│     0x7fffffffe020 ◂— 0x11f0465553078ca7
+10:0080│     0x7fffffffe028 ◂— 0x11f05619822f8ca7
+11:0088│     0x7fffffffe030 ◂— 0x0
+... ↓        2 skipped
+14:00a0│     0x7fffffffe048 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+15:00a8│     0x7fffffffe050 ◂— 0x1
+16:00b0│     0x7fffffffe058 ◂— 0xd0c30a3adaf82800
+17:00b8│     0x7fffffffe060 ◂— 0x0
+18:00c0│     0x7fffffffe068 —▸ 0x7ffff7d9b84a (__libc_start_main+138) ◂— mov r15,qwordptr[rip+0x1b4737]
+19:00c8│     0x7fffffffe070 —▸ 0x401050 (main) ◂— sub rsp,0x18
+1a:00d0│     0x7fffffffe078 —▸ 0x403df0 —▸ 0x401180 ◂— endbr64 
+1b:00d8│     0x7fffffffe080 ◂— 0x0
+... ↓        2 skipped
+1e:00f0│     0x7fffffffe098 —▸ 0x4010d0 (_start) ◂— endbr64 
+```
+- `rsp+0x18` -> ... -> '/mnt/ubuntu/home/czg/csapp3e/asm/prog' which is overwrited by `rax = 0x1`
+- clear rax after save it
+- `rsp+0xe0` addr -> rax -> `rsp+0x8`
+- `rsp` -> `rdx` (caller reg save)
+- clear `ecx` param
+- `rsp+0x20` addr -> rax -> `rsp+0x10`
+- `rip+0x187ef3` -> rax; rax -> rax -> rdi, so `rdi` -> `_IO_2_1_stdout_` , which probably is to call
+```bash
+pwndbg> telescope 0x00007ffff7dc7e95+0x187ef3
+00:0000│  0x7ffff7f4fd88 —▸ 0x7ffff7f51688 (stdout) —▸ 0x7ffff7f515a0 (_IO_2_1_stdout_) ◂— 0xfbad2084
+```
+- 0x8 -> rsp, 0x30 -> rsp+0x4
+> above rsp+0x0/4/8/10/18 is overrided after `0x00007ffff7dc7e68`, 20~c0 -> params with printf TODO 0xd0 maybe used when exit, 0xe0 is saved
+```bash
+pwndbg> telescope rsp+0xd0
+00:0000│  0x7fffffffe078 —▸ 0x403df0 —▸ 0x401180 ◂— endbr64 
+01:0008│  0x7fffffffe080 ◂— 0x0
+pwndbg> | maintenance info sections |grep 403df0
+
+ [18]     0x00403de8->0x00403df0 at 0x00002de8: .init_array ALLOC LOAD DATA HAS_CONTENTS
+ [19]     0x00403df0->0x00403df8 at 0x00002df0: .fini_array ALLOC LOAD DATA HAS_CONTENTS
+pwndbg> telescope 0x00403de8
+
+00:0000│         0x403de8 —▸ 0x4011b0 ◂— endbr64 
+01:0008│ rcx r14 0x403df0 —▸ 0x401180 ◂— endbr64 
+02:0010│         0x403df8 (_DYNAMIC) ◂— 0x1
+```
+[pdf p249](../references/intel_64.pdf) -> `67h` -> addr32 prefix here `e8` -> rel , no mem op(erand)
+```bash
+# here addr32 no use https://stackoverflow.com/questions/72892152/whats-addr32-in-assembly-means
+   0x00007ffff7dc7ec7 <+199>:   67 e8 53 7d 0c 00       addr32 call 0x7ffff7e8fc20 <__stack_chk_fail>
+```
+## nopie when exit
+```bash
+pwndbg> d-- 0x401110
+   0x0000000000401100 <_dl_relocate_static_pie+0>:      f3 0f 1e fa             endbr64
+   0x0000000000401104 <_dl_relocate_static_pie+4>:      c3                      ret
+
+   0x0000000000401180:  f3 0f 1e fa             endbr64
+   0x0000000000401184:  80 3d 95 2e 00 00 00    cmp    BYTE PTR [rip+0x2e95],0x0        # 0x404020
+=> 0x000000000040118b:  75 13                   jne    0x4011a0
+   0x000000000040118d:  55                      push   rbp
+   0x000000000040118e:  48 89 e5                mov    rbp,rsp
+   0x0000000000401191:  e8 7a ff ff ff          call   0x401110
+   0x0000000000401196:  c6 05 83 2e 00 00 01    mov    BYTE PTR [rip+0x2e83],0x1        # 0x404020
+   0x000000000040119d:  5d                      pop    rbp
+   0x000000000040119e:  c3                      ret
+pwndbg> bt
+#0  0x000000000040118b in ?? ()
+#1  0x00007ffff7fcb0e2 in ?? () from /lib64/ld-linux-x86-64.so.2
+#2  0x00007ffff7fcef4e in ?? () from /lib64/ld-linux-x86-64.so.2
+#3  0x00007ffff7db3445 in ?? () from /usr/lib/libc.so.6
+#4  0x00007ffff7db35b0 in exit () from /usr/lib/libc.so.6
+#5  0x00007ffff7d9b797 in ?? () from /usr/lib/libc.so.6
+#6  0x00007ffff7d9b84a in __libc_start_main () from /usr/lib/libc.so.6
+```
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
 ## voltron
@@ -1395,6 +1742,7 @@ l-wx------ 1 czg czg 64 Apr 14 11:43 12 -> 'pipe:[138023]'
 ### tip
 - GDB's set directories <path> parameter can be used to debug e.g. glibc sources like the malloc/free functions!
 ## gdb
+- [LWP](https://stackoverflow.com/questions/4691031/getting-info-about-threads-in-gdb-ddd)
 - breakpoint source [code](https://gitlab.com/git-mirrors/binutils/-/blob/master/gdb/python/lib/gdb/dap/events.py) or [API](https://sourceware.org/gdb/onlinedocs/gdb/Breakpoints-In-Python.html#Breakpoints-In-Python)
   (recommend read API firts, **if not understand** then go to source code [not to adhere to understandign all source codes])
 - memory [watchpoint](https://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb) [more](https://sourceware.org/gdb/download/onlinedocs/gdb/Set-Watchpoints.html#Set-Watchpoints)
@@ -1405,6 +1753,7 @@ l-wx------ 1 czg czg 64 Apr 14 11:43 12 -> 'pipe:[138023]'
 - [wiki](https://r2wiki.readthedocs.io/en/latest/home/misc/cheatsheet/) or [blog](https://rehex.ninja/posts/radare2-rizin-cheatsheet/)
   - also can see official book
 - meson [build](https://book.rada.re/first_steps/compilation_portability.html)
+### web: [1](https://radareorg.github.io/blog/) [2](https://rada.re/n/) [3](https://www.radare.org/r/me.html)
 ### installation
 - capstone need build from source to make `/usr/include/capstone` version right (python all version is fine) (here `$?` [return](https://stackoverflow.com/questions/7248031/meaning-of-dollar-question-mark-in-shell-scripts) 'exit status of the most recently executed foreground pipeline.' from description in 'Special Parameters' in `man bash`)
 ```bash
