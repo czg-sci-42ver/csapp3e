@@ -1,3 +1,5 @@
+# miscs
+- hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
 # TODO
 - `.-multstore` meaning
 - [ROP](https://tc.gts3.org/cs6265/tut/tut06-01-rop.html)
@@ -37,6 +39,86 @@ GOT protection: Partial RELRO | GOT functions: 2
 ## blogs
 - [1](https://reverseengineering.stackexchange.com/questions/1992/what-is-plt-got)
 - [elf](https://stackoverflow.com/questions/43048932/why-does-the-plt-exist-in-addition-to-the-got-instead-of-just-using-the-got) and shared library
+## weird problems
+- [1 (Viewed 10 times when 23/4/17)](https://stackoverflow.com/questions/76033107/why-same-instruction-have-different-result-with-same-input-elags-regs-etc)
+## miscs
+- how to avoid gcc omit substraction or not generate weird 'cmp,jcc' pair
+```c++
+$ cat seta_setg.c
+// Build with: gcc -m32 -no-pie -g -o plt plt.c
+#include <stdio.h>
+
+typedef unsigned int src_t ;
+typedef int dest_t;
+
+//3
+//typedef unsigned char src_t ;
+//typedef long dest_t;
+
+//4
+//typedef int src_t ;
+//typedef char dest_t;
+
+int main() {
+        src_t test_src=-1;
+        dest_t test_dest=-1;
+        long sub;
+        sub = -2-(-1);
+        sub = -2-(unsigned int)(-1);
+        if(sub<-1){
+                putchar(1);
+        }
+        if(test_src>=(unsigned int)-1){
+                //test_src=2;
+                printf("1");
+        }
+        if(test_dest>-1){
+                test_dest=2;
+        }
+}
+
+// https://stackoverflow.com/questions/38552116/how-to-remove-noise-from-gcc-clang-assembly-output
+$ gcc  seta_setg.c -S seta_setg.s -fno-asynchronous-unwind-tables
+$ cat seta_setg.s                                                                           
+        .file   "seta_setg.c"
+        .text
+        .globl  main
+        .type   main, @function
+main:
+        pushq   %rbp
+        movq    %rsp, %rbp
+        subq    $16, %rsp
+        movl    $-1, -16(%rbp)
+        movl    $-1, -12(%rbp)
+        movq    $-1, -8(%rbp)
+        // here omit '-2-(unsigned int)(-1)'
+        movl    $4294967295, %eax
+        movq    %rax, -8(%rbp)
+        cmpq    $-1, -8(%rbp)
+        jge     .L2
+        movl    $1, %edi
+        call    putchar@PLT
+.L2:
+        cmpl    $-1, -16(%rbp)
+        // weird jne, I use >= in .c
+        jne     .L3
+        movl    $49, %edi
+        call    putchar@PLT
+.L3:
+        cmpl    $0, -12(%rbp)
+        js      .L4
+        movl    $2, -12(%rbp)
+.L4:
+        movl    $0, %eax
+        leave
+        ret
+        .size   main, .-main
+        .ident  "GCC: (GNU) 12.2.1 20230201"
+        .section        .note.GNU-stack,"",@progbits
+```
+### [debug](http://www.ece.uah.edu/~milenka/docs/milenkovic_WDDD02.pdf) BPT(branch predictor table)
+## computer basics
+- stack always [multiple of eight](https://stackoverflow.com/questions/66816732/memory-allocation-in-the-power-of-two-vs-multiple-of-eight)
 # resources
 ## categories
 - [registers](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture) [or](https://wiki.osdev.org/CPU_Registers_x86-64) 
@@ -44,6 +126,7 @@ GOT protection: Partial RELRO | GOT functions: 2
 - how to [interpret](https://stackoverflow.com/questions/28664856/how-to-interpret-x86-opcode-map) opcode
 - gdb [rc tutorial](https://sourceware.org/gdb/onlinedocs/gdb/Process-Record-and-Replay.html) or [target](https://sourceware.org/gdb/onlinedocs/gdb/Target-Commands.html#Target-Commands) in [this](https://sourceware.org/gdb/onlinedocs/gdb/index.html#SEC_Contents)
   - [this is out-dated](https://sourceware.org/gdb/wiki/ProcessRecord)
+- [wiki](https://stackoverflow.com/tags/sse/info) in stackoverflow
 ## miscs
 - `as` used by `gcc` assembly code comment [definition](https://sourceware.org/binutils/docs/as/index.html#SEC_Contents), also [see](https://stackoverflow.com/questions/24787769/what-are-lfb-lbb-lbe-lvl-loc-in-the-compiler-generated-assembly-code) [source](https://github.com/gcc-mirror/gcc/blob/releases/gcc-4.8.2/gcc/dwarf2out.c) code
   - [`L..`](https://slowstarter80.github.io/gcc/labels_in_assembly_code/) like [`.LFB0`](https://sourceware.org/binutils/docs/as/Symbol-Names.html)
@@ -75,8 +158,11 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
   - from [this](https://stackoverflow.com/questions/56905811/what-does-the-endbr64-instruction-actually-do), some keywords are ‘control flow violations’， ‘WAIT_FOR_ENDBRANCH’， ‘state machine’
   > from [this](https://en.wikipedia.org/wiki/Return-oriented_programming) , [above](#rop) maybe related with return address overwriting， so related with instructions like `jmp` -> related with `ENDBR64`.
   - TODO see kernel code related with above gist.
+- [cache,memory,register](https://www.geeksforgeeks.org/difference-between-cache-memory-and-register/)
+  - why no [two](https://www.quora.com/Why-can%E2%80%99t-two-operands-both-be-memory-operands-in-assembly-language) memory operand (related with cache) [also](https://stackoverflow.com/questions/14510280/why-cant-mov-have-both-operands-as-memory-locations)
 ## registers
 - r9 save parameter and [rax](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/x64-architecture) save return [pdf p7](../references/x64_cheatsheet.pdf) [save order](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+- whether [callee pdf p26](../references/abi.pdf)
 ### [r9,etc Caller-saved registers](https://stackoverflow.com/questions/9268586/what-are-callee-and-caller-saved-registers)
 - according to [this](https://web.stanford.edu/class/archive/cs/cs107/cs107.1174/guide_x86-64.html), although it said `Caller-saved`， but it doesn't mean **must to save**
   - more [intuitive p4 and in p6 caller and callee save can both exist with the same call ( see below "'r12-15' is used ( except r14-15 )to save caller")](https://courses.cs.washington.edu/courses/cse410/17wi/lectures/CSE410-L13-procedures-II_17wi.pdf)
@@ -84,6 +170,7 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
     - p12 why caller/ee save
       - po here caller not use but callee use register, caller‐save is better(then the reg can be tweaked all as what callee want and after ret, caller would restore all)
     - p23,24 show `rbp` `rsp` relation
+      - also [csapp](http://csapp.cs.cmu.edu/3e/waside/waside-ia32.pdf), showed condition with rsp or not.
 ```bash
 # here only have `mov` to pass parameter, but no `push` because `main` don't use these regs like `esi` anymore. `push   rbp` is generated by `-pg`
 pwndbg> dr
@@ -384,6 +471,17 @@ pwndbg> stack
 ## [why](https://stackoverflow.com/questions/6212665/why-is-eax-zeroed-before-a-call-to-printf#:~:text=Since%20the%20compiler%20doesn't,defined%20as%20having%20variable%20arguments.) clear `$rax` ('it might be the case that the function is defined as having variable arguments')
 ## terms
 - [macro-operation MOP/µOP](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro%2Doperations%20are%20a%20fixed%2Dlength,%2C%20modify%2C%20and%20write%20operation.)
+- [exclusive or `^`](https://en.wikipedia.org/wiki/Exclusive_or)
+  - or -> 1,0 / 0,1 / 1,1; then exclusive 1,1 , get `^`
+## manuals
+- [1](https://www.chessprogramming.org/X86-64#Agner_Fog)
+- security
+  - IEEE Security and Privacy
+- [ATT](https://docs.oracle.com/cd/E19253-01/817-5477/)  diffs [this](../references/att_x86.pdf) especially SSE&AVX instruction prefix `v`
+  - also [1](https://docs.oracle.com/cd/E19253-01/817-5477/) [2](https://stackoverflow.com/tags/att/info) from [this](https://stackoverflow.com/questions/1776570/is-there-a-complete-x86-assembly-language-reference-that-uses-att-syntax)
+    - above 2: says att is 'destination-last order'
+## visual asm
+- [this](https://godbolt.org/z/BzhckE)
 # blogs
 - [this](http://pwnable.kr/) from [this](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
 ## radare 2 [pdf](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
@@ -416,6 +514,7 @@ printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
   - Internal Fragmentation is caused by being used by process. [whereas](https://www.tutorialspoint.com/difference-between-internal-fragmentation-and-external-fragmentation#:~:text=Internal%20Fragmentation%20occurs%20when%20a,removed%20from%20the%20main%20memory.&text=Best%20Fit%20Block%20Search%20is,the%20solution%20for%20external%20fragmentation.) External Fragmentation is cauesd by small unused spaces between used spaces.
   - [secondary](https://en.wikipedia.org/wiki/Computer_data_storage) memory
   - paging [diffs with](https://www.tutorialspoint.com/difference-between-paging-and-segmentation) segmentation 
+  - [pdf p72](../references/intel_64.pdf) Real-Address Mode Model -> 'Real mode' in x86
 # elf
 ## `.fini` [explanation](http://ftp.math.utah.edu/u/ma/hohn/linux/misc/elf/node3.html) and `.init`
 - can check by debugger 
@@ -1019,6 +1118,7 @@ uint32  8
 ```
 #### `print` can print func location (most of `dmi libc` / `dmi prog` in `r2`)
 ### fs/gs register (other segment register no use in 64-bit mode [pdf p73,74 Canonical Addressing,79](../references/intel_64.pdf) [1 TODO:'CS/DS/ES/SS are only useful for padding to make instructions longer?'](https://stackoverflow.com/questions/50400274/why-is-the-use-of-the-ds-segment-override-illegal-in-64-bit-mode)) mainly based on [this](https://reverseengineering.stackexchange.com/questions/19979/what-does-fs-and-gs-registers-provide-in-linux)
+[pdf p75](../references/intel_64.pdf) register size
 > TODO more [datailed](https://unix.stackexchange.com/questions/453749/what-sets-fs0x28-stack-canary) with TLS
 > > how fs:0x28 check overflow (try making program overflow and see)
 ```bash
@@ -1355,8 +1455,16 @@ Dump of assembler code for function main:
 [0x00000100]> rasm2 -d 418b4104
 mov eax, dword [r9 + 4]
 # the above is right
-[0x00000100]> rasm2 -a x86 -b 64 "mov eax, dword [r9 + 4]"
+[0x00000100]> rasm2 -a x86 -b 64 "mov eax, dword [r9 + 4]" # ignore this
 448b4a04
+$ rasm2 -L
+...
+# no x86 but x86.nasm
+a__ 16 32 64    x86.nasm    LGPL3   X86 nasm assembler
+a__ 16 32 64    x86.nz      LGPL3   x86 handmade assembler (by pancake)
+...
+$ rasm2 -a x86.nasm -b 64 "mov eax, dword [r9 + 4]" 
+418b4104
 ```
 ## 11 `printf` (int & double)
 ```bash
@@ -1530,7 +1638,7 @@ ERROR: Run `aeim` to initialize a stack for the ESIL vm
 INFO: ==> Process finished
 ERROR: Cannot continue, run ood?
 ```
-## [eh_frame_hdr](https://stackoverflow.com/questions/14091231/what-do-the-eh-frame-and-eh-frame-hdr-sections-store-exactly)(hdr->header) -> linux [foundation](https://refspecs.linuxfoundation.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html)
+## [eh_frame_hdr](https://stackoverflow.com/questions/14091231/what-do-the-eh-frame-and-eh-frame-hdr-sections-store-exactly)(hdr->header) -> linux [foundation](https://refspecs.linuxfoundation.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html) (`eh` maybe mean 'exception header')
 [also](https://github.com/nbdd0121/unwinding) 
 ```bash
    0x000000000040114a <+20>:    f2 0f 10 05 de 0e 00 00 movsd  xmm0,QWORD PTR [rip+0xede]        # 0x402030
@@ -1675,6 +1783,28 @@ pwndbg> telescope 0x00403de8
 01:0008│ rcx r14 0x403df0 —▸ 0x401180 ◂— endbr64 
 02:0010│         0x403df8 (_DYNAMIC) ◂— 0x1
 ```
+above param save is similar to how env saved in stack
+```bash
+pwndbg> telescope 0x7fffffffe0d8 0xff
+02:0010│ rcx  0x7fffffffe0e8 —▸ 0x7fffffffe56f ◂— 'BEMENU_BACKEND=wayland'
+03:0018│      0x7fffffffe0f0 —▸ 0x7fffffffe586 ◂— 'BROWSER=google-chrome-stable'
+04:0020│      0x7fffffffe0f8 —▸ 0x7fffffffe5a3 ◂— 'COLORFGBG=0;15'
+05:0028│      0x7fffffffe100 —▸ 0x7fffffffe5b2 ◂— 'COLORTERM=truecolor'
+06:0030│      0x7fffffffe108 —▸ 0x7fffffffe5c6 ◂— 'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus'
+07:0038│      0x7fffffffe110 —▸ 0x7fffffffe5fc ◂— 'DEBUGINFOD_URLS=https://debuginfod.archlinux.org'
+08:0040│      0x7fffffffe118 —▸ 0x7fffffffe62d ◂— 'DESKTOP_SESSION=plasmawayland'
+09:0048│      0x7fffffffe120 —▸ 0x7fffffffe64b ◂— 'DISPLAY=:1'
+0a:0050│      0x7fffffffe128 —▸ 0x7fffffffe656 ◂— 'GBM_BACKEND=nvidia-drm'
+...
+93:0498│      0x7fffffffe570 ◂— 'EMENU_BACKEND=wayland'
+94:04a0│      0x7fffffffe578 ◂— 'CKEND=wayland'
+95:04a8│      0x7fffffffe580 ◂— 0x524200646e616c79 /* 'yland' */
+96:04b0│      0x7fffffffe588 ◂— 'OWSER=google-chrome-stable'
+97:04b8│      0x7fffffffe590 ◂— 'ogle-chrome-stable'
+98:04c0│      0x7fffffffe598 ◂— 'ome-stable'
+99:04c8│      0x7fffffffe5a0 ◂— 0x524f4c4f4300656c /* 'le' */
+9a:04d0│      0x7fffffffe5a8 ◂— 'FGBG=0;15'
+```
 [pdf p249](../references/intel_64.pdf) -> `67h` -> addr32 prefix here `e8` -> rel , no mem op(erand)
 ```bash
 # here addr32 no use https://stackoverflow.com/questions/72892152/whats-addr32-in-assembly-means
@@ -1703,6 +1833,90 @@ pwndbg> bt
 #4  0x00007ffff7db35b0 in exit () from /usr/lib/libc.so.6
 #5  0x00007ffff7d9b797 in ?? () from /usr/lib/libc.so.6
 #6  0x00007ffff7d9b84a in __libc_start_main () from /usr/lib/libc.so.6
+```
+## hlt last to stop current running logical processor and `endbr64` always first(although the latter not supported in old cpu)
+```bash
+pwndbg> dr
+Dump of assembler code for function _start:
+...
+   0x00000000004010f8 <+24>:    48 c7 c7 60 10 40 00    mov    rdi,0x401060
+   0x00000000004010ff <+31>:    ff 15 c3 2e 00 00       call   QWORD PTR [rip+0x2ec3]        # 0x403fc8
+   0x0000000000401105 <+37>:    f4                      hlt
+pwndbg> telescope 0x401060
+00:0000│  0x401060 (main) ◂— sub rsp,0x18
+pwndbg> telescope 0x403fc8
+00:0000│  0x403fc8 —▸ 0x7ffff7d9b7c0 (__libc_start_main) ◂— endbr64
+```
+## TODO why vdso&vdrr location diff between gdb and r2
+- [maybe this](https://manpages.ubuntu.com/manpages/xenial/man7/vdso.7.html), but why location state related with [stack] always same.
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ pstree -apnh | grep prog     
+  |   |       |   `-r2,18110 -AA -c db sym.multstore;dc -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+  |   |       |       `-prog,18111
+  |   |       |   `-gdb,19446 -q ./prog -ex starti -ex set record full stop-at-limit off -nx -iex ...
+  |   |       |       `-prog,19480
+  |   |           `-grep,19619 --color=auto prog
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ sudo cat /proc/19480/maps -vv
+00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+7ffff7c8d000-7ffff7c90000 rw-p 00000000 00:00 0 
+...
+7ffff7f7d000-7ffff7f85000 r--p 00000000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7ffff7f85000-7ffff7fb3000 r-xp 00008000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7ffff7fb3000-7ffff7fbf000 r--p 00036000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7ffff7fbf000-7ffff7fc1000 r--p 00042000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7ffff7fc1000-7ffff7fc2000 rw-p 00044000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7ffff7fc2000-7ffff7fc4000 rw-p 00000000 00:00 0 
+7ffff7fc4000-7ffff7fc8000 r--p 00000000 00:00 0                          [vvar]
+7ffff7fc8000-7ffff7fca000 r-xp 00000000 00:00 0                          [vdso]
+7ffff7fca000-7ffff7fcb000 r--p 00000000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffff7fcb000-7ffff7ff1000 r-xp 00001000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffff7ff1000-7ffff7ffb000 r--p 00027000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffff7ffb000-7ffff7ffd000 r--p 00031000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffff7ffd000-7ffff7fff000 rw-p 00033000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffffffde000-7ffffffff000 rw-p 00000000 00:00 0                          [stack]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
+
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ sudo cat /proc/18111/maps -vv
+00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+012bb000-012dc000 rw-p 00000000 00:00 0                                  [heap]
+...
+7f9e67f5b000-7f9e67f5c000 rw-p 00044000 00:18 333519                     /usr/lib/liblua.so.5.4.4
+7f9e67f5c000-7f9e67f5e000 rw-p 00000000 00:00 0 
+7f9e67f5e000-7f9e67f5f000 r--p 00000000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7f9e67f5f000-7f9e67f85000 r-xp 00001000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7f9e67f85000-7f9e67f8f000 r--p 00027000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7f9e67f8f000-7f9e67f91000 r--p 00031000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7f9e67f91000-7f9e67f93000 rw-p 00033000 00:18 3960                       /usr/lib/ld-linux-x86-64.so.2
+7ffd32f83000-7ffd32fa4000 rw-p 00000000 00:00 0                          [stack]
+7ffd32fe7000-7ffd32feb000 r--p 00000000 00:00 0                          [vvar]
+7ffd32feb000-7ffd32fed000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
+# same with in r2 and pwndbg
+[0x004011e0]> dm
+...
+0x00007ffd32f83000 - 0x00007ffd32fa4000 - usr   132K s rw- [stack] [stack] ; map._stack_.rw_
+0x00007ffd32fe7000 - 0x00007ffd32feb000 - usr    16K s r-- [vvar] [vvar] ; map._vvar_.r__
+0x00007ffd32feb000 - 0x00007ffd32fed000 - usr     8K s r-x [vdso] [vdso] ; map._vdso_.r_x
+0xffffffffff600000 - 0xffffffffff601000 - usr     4K s --x [vsyscall] [vsyscall] ; map._vsyscall_.__x
+pwndbg> vmmap
+    0x7ffff7fc4000     0x7ffff7fc8000 r--p     4000      0 [vvar]
+    0x7ffff7fc8000     0x7ffff7fca000 r-xp     2000      0 [vdso]
+    0x7ffff7fca000     0x7ffff7fcb000 r--p     1000      0 /usr/lib/ld-linux-x86-64.so.2
+    0x7ffff7fcb000     0x7ffff7ff1000 r-xp    26000   1000 /usr/lib/ld-linux-x86-64.so.2
+    0x7ffff7ff1000     0x7ffff7ffb000 r--p     a000  27000 /usr/lib/ld-linux-x86-64.so.2
+    0x7ffff7ffb000     0x7ffff7ffd000 r--p     2000  31000 /usr/lib/ld-linux-x86-64.so.2
+    0x7ffff7ffd000     0x7ffff7fff000 rw-p     2000  33000 /usr/lib/ld-linux-x86-64.so.2
+    0x7ffffffde000     0x7ffffffff000 rw-p    21000      0 [stack]
+0xffffffffff600000 0xffffffffff601000 --xp     1000      0 [vsyscall]
+
 ```
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
@@ -1842,6 +2056,7 @@ F2 -> br
 /aa jbe|head # search instruction, but below it‘s better
 
 # https://github.com/radareorg/radare2/blob/master/doc/intro.md#rop from http://archive.hack.lu/2015/radare2-workshop-slides.pdf from https://r2wiki.readthedocs.io/en/latest/home/resources/
+# which would output all possible gadget, may be not original asm
 /R push rax
 
 # check func refs http://archive.hack.lu/2015/radare2-workshop-slides.pdf p63
@@ -1860,6 +2075,16 @@ rasm2 -d 418b4104
 - [this](https://www.megabeets.net/a-journey-into-radare-2-part-1/)
 ### notice
 - with [large](https://reverseengineering.stackexchange.com/questions/16112/how-to-make-radare2-work-for-a-large-binary/16115#16115) binary
+### `dsb`
+- [this](https://reverseengineering.stackexchange.com/questions/31804/can-radare2-skip-syscall-when-db-maindtsdc/31805#31805)
+```bash
+r2 -c "dcu main;dsu -1;ood;dcu main;dts+;3ds;dr rip;dr edi;dsb;dsb;dr rip;dr edi" -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+...
+0x00401071
+0x00402004 # edi modified
+0x00401064
+0x00000001
+```
 # gcc tweak
 ## parameter use
 ```bash
@@ -1872,3 +2097,434 @@ $ gcc -fPIE -fPIC -no-pie -fgnu-tm test_got.c -o test_got -lstdc++
 ```bash
 $ gcc check_cet_supported.c -o check_cet_supported.out -g -no-pie -fno-pic -p -pg
 ```
+# csapp -> intel manual
+- zero extended [pdf p77](../references/intel_64.pdf)
+  - tested: above not apply to condition when dest is memory
+- att manual 
+  - map with intel[pdf p38](../references/att_x86.pdf)
+```bash
+   0x0000555555555150 <+23>:    c6 45 e3 01             mov    BYTE PTR [rbp-0x1d],0x1
+   0x0000555555555154 <+27>:    c7 45 e4 04 00 00 00    mov    DWORD PTR [rbp-0x1c],0x4
+=> 0x000055555555515b <+34>:    48 8d 45 e3             lea    rax,[rbp-0x1d]
+...
+End of assembler dump.
+pwndbg> x $rbp-0x1c
+0x7fffffffdfa4: 0x00000004
+pwndbg> x/g $rbp-0x1c
+0x7fffffffdfa4: 0xf7fe638000000004
+```
+## Problem 3.3 (show how to disassemble & assemble att syntax without `rasm2`(it doesn't support att))
+- although access 32bit mem %ebx is a bit weird in 64bit, but if possible having the rights, no problem. 
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ gcc -g -no-pie -nostdlib test_ebx.s && ./a.out
+zsh: segmentation fault (core dumped)  ./a.out # here is because no rights to write 0x1 mem
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ objdump -d ./a.out                            
+
+./a.out:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000401000 <_start>:
+  401000:       48 c7 c0 01 00 00 00    mov    $0x1,%rax
+  401007:       48 c7 c7 01 00 00 00    mov    $0x1,%rdi
+  40100e:       67 c6 03 01             movb   $0x1,(%ebx)
+  401012:       c6 07 01                movb   $0x1,(%rdi)
+```
+### use `sed` to [test](https://stackoverflow.com/questions/32223572/sed-copy-lines-from-a-file-to-specific-line-in-another-file)
+- see how sed [work](https://www.gnu.org/software/sed/manual/html_node/sed-script-overview.html) (similar to vim) 
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_4_add.s 
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+# note above has 2 blank lines;test whether work
+$ sed -n -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e '/\(movq\t%rax, -16(%rbp)\)/,+20p' 3_4.s 
+        movq    %rax, -16(%rbp)
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+        movl    $0, %eax
+        movq    -8(%rbp), %rdx
+        subq    %fs:40, %rdx
+        je      .L3
+        call    __stack_chk_fail@PLT
+# not use egrep,https://stackoverflow.com/questions/1825552/grep-a-tab-in-unix
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_4.s|grep -P 'movq\t%rax, -16' -A 20
+        movq    %rax, -16(%rbp)
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+
+        movq    -24(%rbp),%rdi
+        movq    -16(%rbp),%rsi
+        movsbl (%rdi), %eax
+        movl %eax, (%rsi)
+
+        movl    $0, %eax
+        movq    -8(%rbp), %rdx
+        subq    %fs:40, %rdx
+        je      .L3
+        call    __stack_chk_fail@PLT
+# begin use sed
+$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie
+$ sed -n -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e 'p' 3_4.s > 3_4_char_int.s
+$ file="3_4_char_int";gcc -g $file.s -o $file;pwngdb ./$file -ex 'start' -ex 'target record-full'
+```
+- here `rdi,rsi` is used, a bit of difficult to [call](https://cs.lmu.edu/~ray/notes/gasexamples/) `printf`
+### `unsigned char long`
+```bash
+$ cat problem_3_4.c
+// Build with: gcc -m32 -no-pie -g -o plt plt.c
+
+//typedef char src_t ;
+//typedef int dest_t;
+typedef unsigned char src_t ;
+typedef long dest_t;
+
+int main() {
+        src_t *sp;
+        dest_t *dp;
+        //src_t test_src=-1;
+        src_t test_src=1;
+        dest_t test_dest=1<<63;
+        sp=&test_src;
+        dp=&test_dest;
+}
+# important， see above 'weird problems' -> '1...'
+$ cat ./sed_3_4.sh
+s/\(leaq\t-32(%rbp), \)%rax/\1%rdx/g
+#s/\(leaq\t-\)32\((%rbp), \)%rax/\140\2%rdx\n\t\132\2%rdx/g
+$ cat ./3_4_add.s
+# test
+        movq    -24(%rbp), %rdi
+        #sometimes weird fail,but above works...
+        #movq   -16(%rbp),%rdx
+
+        #weird the before lea work,the latter fail
+        #leaq    -32(%rbp), %rdx
+        #leaq    -40(%rbp), %rdx
+
+        #book answer
+        #movsbl (%rdi), %eax
+        #movl %eax, (%rdx)
+        #self
+        #movb (%rdi), %al
+        ## movsbl dest should be reg https://www.felixcloutier.com/x86/movsx:movsxd
+        #movsbl %al,(%rdx)
+
+        movzbl (%rdi), %eax
+        movq %rax, (%rdx)
+# end
+$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie;sed -n -f ./sed_3_4.sh -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e 'p' 3_4.s > 3_4_char_int.s;file="3_4_char_int";gcc -g $file.s -o $file;pwngdb ./$file -ex 'start' -ex 'target record-full' -ex 'br *0x0000555555555173' -ex '' -ex 'si 2' -ex 'x/b $rdi' -ex 'x/w $rsi' -ex 'wa $rdx' -ex 'c'
+...
+```
+### subquesion 4
+```bash
+$ cat problem_3_4.c
+...
+	src_t test_src=-1;
+	dest_t test_dest=3;
+# 
+   0x0000555555555150 <+23>:    c7 45 e4 ff ff ff ff    mov    DWORD PTR [rbp-0x1c],0xffffffff
+   0x0000555555555157 <+30>:    c6 45 e3 03             mov    BYTE PTR [rbp-0x1d],0x3
+   0x000055555555515b <+34>:    48 8d 45 e4             lea    rax,[rbp-0x1c]
+   0x000055555555515f <+38>:    48 89 45 e8             mov    QWORD PTR [rbp-0x18],rax
+   0x0000555555555163 <+42>:    48 8d 45 e3             lea    rax,[rbp-0x1d]
+   0x0000555555555167 <+46>:    48 89 45 f0             mov    QWORD PTR [rbp-0x10],rax
+   0x000055555555516b <+50>:    48 8b 7d e8             mov    rdi,QWORD PTR [rbp-0x18]
+  #  here test with src '-1'
+   0x000055555555516f <+54>:    8a 07                   mov    al,BYTE PTR [rdi]
+   0x0000555555555171 <+56>:    88 06                   mov    BYTE PTR [rsi],al
+=> 0x0000555555555173 <+58>:    b8 00 00 00 00          mov    eax,0x0
+pwndbg> x/b $rsi
+0x7fffffffe0b8: 0xff
+pwndbg> x/b $rdi
+0x7fffffffdf84: 0xff
+```
+## use as to check how att syntax assembly generate obj ([also](https://stackoverflow.com/questions/55674190/is-it-possible-to-create-a-shared-object-using-only-as-and-ld) can use `ld` to generate exe, but more troublesome than `gcc` directly)
+```bash
+$ gcc -S -o 3_4.s problem_3_4.c -no-pie
+$ cat 3_4.s
+        .file   "problem_3_4.c"
+        .text
+        .globl  main
+        .type   main, @function
+main:
+.LFB0:
+        .cfi_startproc
+        pushq   %rbp
+        .cfi_def_cfa_offset 16
+        .cfi_offset 6, -16
+        movq    %rsp, %rbp
+        .cfi_def_cfa_register 6
+        subq    $32, %rsp
+        movq    %fs:40, %rax
+        movq    %rax, -8(%rbp)
+        xorl    %eax, %eax
+        movb    $-1, -29(%rbp)
+        movl    $3, -28(%rbp)
+        leaq    -29(%rbp), %rax
+        movq    %rax, -24(%rbp)
+        leaq    -28(%rbp), %rax
+        movq    %rax, -16(%rbp)
+        movl    $0, %eax
+        movq    -8(%rbp), %rdx
+        subq    %fs:40, %rdx
+        je      .L3
+        call    __stack_chk_fail@PLT
+.L3:
+        leave
+        .cfi_def_cfa 7, 8
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   main, .-main
+        .ident  "GCC: (GNU) 12.2.1 20230201"
+        .section        .note.GNU-stack,"",@progbits
+# use as
+$ as 3_4.s -o 3_4.o;objdump -d 3_4.o
+```
+- directly `gcc` (`gcc 3_4.s -o 3_4.o;./3_4.o`)
+## instruction test
+### imul
+```bash
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x55555555516e<main+53>   imul   rcx
+ ►0x555555555171<main+56>   mov    eax,0
+Watchpoint 2: $rdx
+
+Old value = 0x7fffffffe0c8
+New value = 0x2aaaaaaa
+
+Watchpoint 3: $rax
+
+Old value = 0x7fffffffdf84
+New value = 0xb417fffffadc0b60
+
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64
+```
+- calculation see [this](./bfloat16_half.py)
+- usage `rdx` with param -> csapp p235
+### `idiv`
+- [why](https://stackoverflow.com/questions/72152783/why-do-x86-mul-and-div-instructions-only-take-a-source-operand) `idiv` instruction no two operand -> not to 'hard-coded'
+- `rax` as Quotient -> (po) maybe to just as return value conveniently, just as `imul` save low 64-bit because it is probably to return.
+## EFLAGS
+- why CF flag is only [the last bit](https://stackoverflow.com/questions/71771188/why-is-the-overflow-flag-only-set-when-single-shifts-are-used) shifted, based on design (more economical)
+- [why](https://stackoverflow.com/questions/13435142/why-do-the-inc-and-dec-instructions-not-affect-the-carry-flag-cf) `dec` not influence carry flag, because [redundant (ZF & OF can do the same thing)](https://stackoverflow.com/questions/13435142/why-do-the-inc-and-dec-instructions-not-affect-the-carry-flag-cf#comment86749885_13435722) and economical
+### OF flag & CF
+- [carry in](https://www.quora.com/What-does-carry-in-and-carry-out-mean-in-electronics#:~:text=The%20%E2%80%9Ccarry%20out%E2%80%9D%20is%20the,add%20into%20the%20next%20column.)
+  - what is [overflow](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0010_overflow), just unable to represent result correctly.
+  - ~~TODO , so how to use in this condition~~ useful [example](https://stackoverflow.com/questions/15245762/carries-in-and-out-of-most-significant-bits-in-binary-addition)
+    - so
+      - [1](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0080_overfow_output): 0100b+1100b has carry in `1` (because 100+100=1000, carry out from third column to fourth [carry in to fourth]) and result is 10000b -> carry out `1` to fifth column
+        - the fouth column is `0+1=1`, so with carry in to fourth, must have carry out to fifth.
+        - the rest is similar
+      - [this](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0120_signed_overflow_cont) -> must have carry in and carry out **counterbalanced**
+  - because `OF` is to test whether can be represented, it doesn't care about whether negative.
+```bash
+$ cat seta_setg_custom.s
+        movw $0x1,%ax
+        pushw %ax
+        subw $2,(%rsp) ## set CF no OF
+
+        movw $0x7fff,%ax
+        pushw %ax
+        subw $0xffff,(%rsp) ## would always seen as -1, not unsigned... 0xfffff obviouly no use to generate overflow; 0x7fff-0xffff=0x7fff+1=0x8000 would set CF and OF
+```
+## simple explanation of some terms
+- dereference: because data is saved in memory or reg, so memory is just reference to data(similar to alias), so `*ptr` is dereferencing.
+- oct word -> ['double quadword operand' pdf p602](../references/intel_64.pdf)
+- [compiler](https://english.stackexchange.com/questions/212566/etymology-of-compiler-computer-term) just 'compile' things from lib
+  - [assembler](https://en.wikipedia.org/wiki/Assembly_language) 'consisting of several sections'
+  - compiler may [use](https://www.quora.com/Are-assemblers-compilers) assembler
+    - [cc1](https://unix.stackexchange.com/questions/77779/relationship-between-cc1-and-gcc)
+    - [collect2](https://en.wikibooks.org/wiki/GNU_C_Compiler_Internals/GNU_C_Compiler_Architecture)
+  - [relation](https://erg.abdn.ac.uk/users/gorry/eg2068/course/comp.html)
+  - also see `man gcc` -> `/^ +-S` (where ~~compilation is a little different from above ‘compiler’ because it not directly to machine code~~ is [specfic](https://en.wikipedia.org/wiki/Compiler) to ‘assembly language’)
+  - linker is [necessary](https://stackoverflow.com/questions/845355/do-programming-language-compilers-first-translate-to-assembly-or-directly-to-mac) to get object code.
+```bash
+$ gcc -v -o 3_4.o problem_3_4.c -no-pie
+ /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/cc1 -quiet -v problem_3_4.c -quiet -dumpdir 3_4.o- -dumpbase problem_3_4.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/ccLtBlXL.s
+...
+ as -v --64 -o /tmp/ccGChgzd.o /tmp/ccLtBlXL.s
+ /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/cctTz5hJ.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o 3_4.o /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/crt1.o /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/crtbegin.o -L/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1 -L/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../.. /tmp/ccGChgzd.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/crtend.o /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/crtn.o
+```
+## `seta`and`setg`
+```bash
+$ cat seta_setg_custom.s
+...
+        #add
+        movl $2,%eax
+        movq $-1,%rdx 
+        sub $-1,%eax
+        # 2-(-1) need borrow -> 10..(7 bytes)2-0xf..(8 bytes) = 0x3
+        setg %cl
+        sub $2,%rdx
+        # (-1)-2 no borrow, keep sign bit set
+        setb %cl
+        #end
+...
+$ gcc seta_setg_custom.s -o seta_setg_custom.o -g;record_pwngdb seta_setg_custom.o -ex 'start'
+```
+## `rep ret`
+- [pdf p144](../references/amd_opt.pdf) -> branch [prediction](https://en.wikipedia.org/wiki/Branch_predictor#Next_line_prediction) related with cpu design
+  - in new cpu, this is [no needed](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean), (only old `gcc` [generate](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean#comment52568460_20526918) this instruction, clang [not](https://repzret.org/p/repzret/))
+## `&&` [label](https://stackoverflow.com/questions/1777990/is-it-possible-to-store-the-address-of-a-label-in-a-variable-and-use-goto-to-jum) address
+## book problem notes
+### 3.5
+```bash
+$ gcc problem_3_5.c -S -o problem_3_5.s -O3
+
+$ cat problem_3_5.s
+        .file   "problem_3_5.c"
+        .text
+        .p2align 4
+        .globl  decode1
+        .type   decode1, @function
+decode1:
+.LFB0:
+        .cfi_startproc
+        movq    (%rdi), %r8
+        movq    (%rsi), %rcx
+        movq    (%rdx), %rax
+        movq    %r8, (%rsi)
+        movq    %rcx, (%rdx)
+        movq    %rax, (%rdi)
+        ret
+        .cfi_endproc
+
+```
+### `3.34`
+- actual behavior
+```bash
+pwndbg> dr
+Dump of assembler code for function main:
+   0x00005555555551ea <+92>:    41 51                   push   r9
+   0x00005555555551ec <+94>:    41 50                   push   r8
+   0x00005555555551ee <+96>:    57                      push   rdi
+...
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rbp rsp 0x7fffffffdf38 —▸ 0x7fffffffdfb0 ◂— 0x1
+01:0008│         0x7fffffffdf40 —▸ 0x5555555551fc (main+110) ◂— add rsp,0x18
+02:0010│         0x7fffffffdf48 ◂— 0x6
+03:0018│         0x7fffffffdf50 ◂— 0x7
+04:0020│         0x7fffffffdf58 ◂— 0x8
+pwndbg> dr
+Dump of assembler code for function test_mul_args:
+   0x0000555555555149 <+0>:     55                      push   rbp
+   0x000055555555514a <+1>:     48 89 e5                mov    rbp,rsp # caused above rbp relocation
+...
+   0x000055555555517d <+52>:    8b 45 10                mov    eax,DWORD PTR [rbp+0x10]
+   0x0000555555555180 <+55>:    01 c2                   add    edx,eax
+   0x0000555555555182 <+57>:    8b 45 18                mov    eax,DWORD PTR [rbp+0x18]
+   0x0000555555555185 <+60>:    01 c2                   add    edx,eax
+   0x0000555555555187 <+62>:    8b 45 20                mov    eax,DWORD PTR [rbp+0x20]
+   0x000055555555518a <+65>:    01 d0                   add    eax,edx
+# clearly in 
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ file=3_34;gcc $file.c -o $file.s -S -fverbose-asm                        
+[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_34.s 
+        movl    -16(%rbp), %r9d # test[8], _1
+        movl    -20(%rbp), %r8d # test[7], _2
+        movl    -24(%rbp), %edi # test[6], _3
+        movl    -28(%rbp), %r11d        # test[5], _4
+        movl    -32(%rbp), %r10d        # test[4], _5
+        movl    -36(%rbp), %ecx # test[3], _6
+        movl    -40(%rbp), %edx # test[2], _7
+        movl    -44(%rbp), %esi # test[1], _8
+        movl    -48(%rbp), %eax # test[0], _9
+        pushq   %r9     # _1
+        pushq   %r8     # _2
+        pushq   %rdi    # _3
+        movl    %r11d, %r9d     # _4,
+        movl    %r10d, %r8d     # _5,
+        movl    %eax, %edi      # _9,
+...
+```
+- first push last argument
+### `3.45`
+```bash
+        movq    %rax, -64(%rbp) # tmp84, test.a
+        movss   .LC0(%rip), %xmm0       #, tmp85
+        movss   %xmm0, -56(%rbp)        # tmp85, test.b
+        movb    $1, -52(%rbp)   #, test.c
+        movw    $1, -50(%rbp)   #, test.d
+        movq    $1, -48(%rbp)   #, test.e
+        movsd   .LC1(%rip), %xmm0       #, tmp86
+        movsd   %xmm0, -40(%rbp)        # tmp86, test.f
+        movl    $1, -32(%rbp)   #, test.g
+        leaq    -69(%rbp), %rax #, tmp87
+        movq    %rax, -24(%rbp) # tmp87, test.h
+# require 64-24+8=48 bytes
+```
+### 3.46
+- [strlen](https://codebrowser.dev/glibc/glibc/string/strlen.c.html)
+```cpp
+    if (*char_ptr == '\0')
+      return char_ptr - str; // not count '\0' in 
+```
+### 3.49
+- see fig  2.29&30
+### 3.51 
+- TODO: why gcc not use [CVTSS2SD](https://stackoverflow.com/questions/16597587/why-dont-gcc-and-clang-use-cvtss2sd-memory)
+### 3.69
+- movslq not `MOVSD` in [pdf p44](../references/att_x86.pdf) but `movsxd`
+```bash
+$ rasm2 -d '4863c9'
+movsxd rcx, ecx
+```
+### 4.49
+- mainly based on the following:
+if `a!=b` -> `(a^b)^a=b;(a^b)^b=a`
+## miscs
+- better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
+- see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
+  - [VCVTPS2PD](https://www.felixcloutier.com/x86/cvtps2pd#vcvtps2pd--vex-128-encoded-version-) -> `cvtps2pd`
+  - `cvtsi2ss` second operand -> [SRC1](https://www.felixcloutier.com/x86/cvtsi2ss#vcvtsi2ss--vex-128-encoded-version-)
+```asm
+$ cat jmp_test.s| grep vcvts -A 3 -B 1                           
+        jmp *%rax
+        vcvtsi2ss %edi, %xmm1, %xmm2
+        vmulsd %xmm0, %xmm1, %xmm0 #Multiply a by x
+        vcvtsi2sd %edi, %xmm1, %xmm1 #Convert i to double
+        vdivsd %xmm1, %xmm2, %xmm2
+;att
+vcvtsi2ss %edi, %xmm1, %xmm2
+;intel
+    115d:       c5 f2 2a d7             vcvtsi2ss xmm2,xmm1,edi
+```
+- qnan/snan [pdf p94](../references/intel_64.pdf)
+  - why define two types of [nan](https://softwareengineering.stackexchange.com/questions/392179/should-nan-default-to-snan-or-qnan)
+- alignment is based on [base](https://stackoverflow.com/questions/381244/purpose-of-memory-alignment), -> offset should be multiply of alignment size.
+- xmm1 return [pdf p26](../references/abi.pdf) / homework 3.75
+- y86-64 online [simulator](https://boginw.github.io/js-y86-64/)
+- Obviously, there will be more hazards if stages is above 5.
+## TODO
+- redo 3.68 homework after understanding stack better.
+- 3.73 use asm not __asm__ direct.
+- relearn digital circuits and relearn chapter 4 and try designing circuits.
+# directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
+# att syntax
+- [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)
+  - [also](https://godbolt.org/) [from](https://www.felixcloutier.com/documents/gcc-asm.html#examples) 

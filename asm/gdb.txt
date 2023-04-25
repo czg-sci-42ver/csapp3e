@@ -1,0 +1,194 @@
+Process record: failed to record execution log.
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
+In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+   36         idivq %rsi #Divide by y
+ ► 37         movq %rax, (%r8) #Store quotient at qp
+   38         movq %rdx, (%rcx)
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x55555555518a main+81
+   f 1   0x7ffff7d9b790
+   f 2   0x7ffff7d9b84a __libc_start_main+138
+   f 3   0x555555555065 _start+37
+────────────────────────────────────────────────────────────────[ REGISTERS / show-flags on / show-compact-regs on ]─────────────────────────────────────────────────────────────────
+ RAX  0x0                                                                                    RBX  0x0
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64                                            RDX  0xffffffffffffffff
+ RDI  0xffffffffffffffff                                                                     RSI  0x2
+ R8   0x2aaaaaaa                                                                             R9   0x7ffff7fced70 ◂— endbr64 
+ R10  0x7fffffffdcc0 ◂— 0x800000                                                             R11  0x202
+ R12  0x0                                                                                    R13  0x7fffffffe0c8 —▸ 0x7fffffffe557 ◂— 'BEMENU_BACKEND=wayland'
+ R14  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64 
+ R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 —▸ 0x555555554000 ◂— 0x10102464c457f
+ RBP  0x7fffffffdfa0 ◂— 0x1                                                                  RSP  0x7fffffffdf80 ◂— 0x3ff000000
+ RIP  0x55555555518a (main+81) ◂— mov qwordptr[r8],rax                                       EFLAGS 0xa13 [ CF pf AF zf sf IF df OF ]
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdf80 ◂— 0x3ff000000
+01:0008│     0x7fffffffdf88 —▸ 0x7fffffffdf83 ◂— 0xffdf8300000003ff
+02:0010│     0x7fffffffdf90 —▸ 0x7fffffffdf84 ◂— 0xffffdf8300000003
+03:0018│     0x7fffffffdf98 ◂— 0xa35fa447f7f4f800
+04:0020│ rbp 0x7fffffffdfa0 ◂— 0x1
+05:0028│     0x7fffffffdfa8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+06:0030│     0x7fffffffdfb0 —▸ 0x7fffffffe0a0 —▸ 0x7fffffffe0a8 ◂— 0x38 /* '8' */
+07:0038│     0x7fffffffdfb8 —▸ 0x555555555139 (main) ◂— push rbp
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x555555555187<main+78>   idiv   rsi
+ ►0x55555555518a<main+81>   mov    qwordptr[r8],rax
+  0x55555555518d<main+84>   mov    qwordptr[rcx],rdx
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Process record: failed to record execution log.
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
+In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+   36         idivq %rsi #Divide by y
+ ► 37         movq %rax, (%r8) #Store quotient at qp
+   38         movq %rdx, (%rcx)
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x55555555518a main+81
+   f 1   0x7ffff7d9b790
+   f 2   0x7ffff7d9b84a __libc_start_main+138
+   f 3   0x555555555065 _start+37
+────────────────────────────────────────────────────────────────[ REGISTERS / show-flags on / show-compact-regs on ]─────────────────────────────────────────────────────────────────
+ RAX  0x0                                                                                    RBX  0x0
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64                                            RDX  0xffffffffffffffff
+ RDI  0xffffffffffffffff                                                                     RSI  0x2
+ R8   0x2aaaaaaa                                                                             R9   0x7ffff7fced70 ◂— endbr64 
+ R10  0x7fffffffdcc0 ◂— 0x800000                                                             R11  0x202
+ R12  0x0                                                                                    R13  0x7fffffffe0c8 —▸ 0x7fffffffe557 ◂— 'BEMENU_BACKEND=wayland'
+ R14  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64 
+ R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 —▸ 0x555555554000 ◂— 0x10102464c457f
+ RBP  0x7fffffffdfa0 ◂— 0x1                                                                  RSP  0x7fffffffdf80 ◂— 0x3ff000000
+ RIP  0x55555555518a (main+81) ◂— mov qwordptr[r8],rax                                       EFLAGS 0xa13 [ CF pf AF zf sf IF df OF ]
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdf80 ◂— 0x3ff000000
+01:0008│     0x7fffffffdf88 —▸ 0x7fffffffdf83 ◂— 0xffdf8300000003ff
+02:0010│     0x7fffffffdf90 —▸ 0x7fffffffdf84 ◂— 0xffffdf8300000003
+03:0018│     0x7fffffffdf98 ◂— 0xa35fa447f7f4f800
+04:0020│ rbp 0x7fffffffdfa0 ◂— 0x1
+05:0028│     0x7fffffffdfa8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+06:0030│     0x7fffffffdfb0 —▸ 0x7fffffffe0a0 —▸ 0x7fffffffe0a8 ◂— 0x38 /* '8' */
+07:0038│     0x7fffffffdfb8 —▸ 0x555555555139 (main) ◂— push rbp
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x555555555187<main+78>   idiv   rsi
+ ►0x55555555518a<main+81>   mov    qwordptr[r8],rax
+  0x55555555518d<main+84>   mov    qwordptr[rcx],rdx
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Already logging to gdb.txt.
+Process record: failed to record execution log.
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
+In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+   36         idivq %rsi #Divide by y
+ ► 37         movq %rax, (%r8) #Store quotient at qp
+   38         movq %rdx, (%rcx)
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x55555555518a main+81
+   f 1   0x7ffff7d9b790
+   f 2   0x7ffff7d9b84a __libc_start_main+138
+   f 3   0x555555555065 _start+37
+────────────────────────────────────────────────────────────────[ REGISTERS / show-flags on / show-compact-regs on ]─────────────────────────────────────────────────────────────────
+ RAX  0x0                                                                                    RBX  0x0
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64                                            RDX  0xffffffffffffffff
+ RDI  0xffffffffffffffff                                                                     RSI  0x2
+ R8   0x2aaaaaaa                                                                             R9   0x7ffff7fced70 ◂— endbr64 
+ R10  0x7fffffffdcc0 ◂— 0x800000                                                             R11  0x202
+ R12  0x0                                                                                    R13  0x7fffffffe0c8 —▸ 0x7fffffffe557 ◂— 'BEMENU_BACKEND=wayland'
+ R14  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64 
+ R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 —▸ 0x555555554000 ◂— 0x10102464c457f
+ RBP  0x7fffffffdfa0 ◂— 0x1                                                                  RSP  0x7fffffffdf80 ◂— 0x3ff000000
+ RIP  0x55555555518a (main+81) ◂— mov qwordptr[r8],rax                                       EFLAGS 0xa13 [ CF pf AF zf sf IF df OF ]
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdf80 ◂— 0x3ff000000
+01:0008│     0x7fffffffdf88 —▸ 0x7fffffffdf83 ◂— 0xffdf8300000003ff
+02:0010│     0x7fffffffdf90 —▸ 0x7fffffffdf84 ◂— 0xffffdf8300000003
+03:0018│     0x7fffffffdf98 ◂— 0xa35fa447f7f4f800
+04:0020│ rbp 0x7fffffffdfa0 ◂— 0x1
+05:0028│     0x7fffffffdfa8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+06:0030│     0x7fffffffdfb0 —▸ 0x7fffffffe0a0 —▸ 0x7fffffffe0a8 ◂— 0x38 /* '8' */
+07:0038│     0x7fffffffdfb8 —▸ 0x555555555139 (main) ◂— push rbp
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x555555555187<main+78>   idiv   rsi
+ ►0x55555555518a<main+81>   mov    qwordptr[r8],rax
+  0x55555555518d<main+84>   mov    qwordptr[rcx],rdx
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Quit
+Quit
+Process record is stopped and all execution logs are deleted.
+Process record: failed to record execution log.
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
+In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+   36         idivq %rsi #Divide by y
+ ► 37         movq %rax, (%r8) #Store quotient at qp
+   38         movq %rdx, (%rcx)
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x55555555518a main+81
+   f 1   0x7ffff7d9b790
+   f 2   0x7ffff7d9b84a __libc_start_main+138
+   f 3   0x555555555065 _start+37
+────────────────────────────────────────────────────────────────[ REGISTERS / show-flags on / show-compact-regs on ]─────────────────────────────────────────────────────────────────
+ RAX  0x0                                                                                    RBX  0x0
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64                                            RDX  0xffffffffffffffff
+ RDI  0xffffffffffffffff                                                                     RSI  0x2
+ R8   0x2aaaaaaa                                                                             R9   0x7ffff7fced70 ◂— endbr64 
+ R10  0x7fffffffdcc0 ◂— 0x800000                                                             R11  0x202
+ R12  0x0                                                                                    R13  0x7fffffffe0c8 —▸ 0x7fffffffe557 ◂— 'BEMENU_BACKEND=wayland'
+ R14  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64 
+ R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 —▸ 0x555555554000 ◂— 0x10102464c457f
+ RBP  0x7fffffffdfa0 ◂— 0x1                                                                  RSP  0x7fffffffdf80 ◂— 0x3ff000000
+ RIP  0x55555555518a (main+81) ◂— mov qwordptr[r8],rax                                       EFLAGS 0xa13 [ CF pf AF zf sf IF df OF ]
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdf80 ◂— 0x3ff000000
+01:0008│     0x7fffffffdf88 —▸ 0x7fffffffdf83 ◂— 0xffdf8300000003ff
+02:0010│     0x7fffffffdf90 —▸ 0x7fffffffdf84 ◂— 0xffffdf8300000003
+03:0018│     0x7fffffffdf98 ◂— 0xa35fa447f7f4f800
+04:0020│ rbp 0x7fffffffdfa0 ◂— 0x1
+05:0028│     0x7fffffffdfa8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+06:0030│     0x7fffffffdfb0 —▸ 0x7fffffffe0a0 —▸ 0x7fffffffe0a8 ◂— 0x38 /* '8' */
+07:0038│     0x7fffffffdfb8 —▸ 0x555555555139 (main) ◂— push rbp
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x555555555187<main+78>   idiv   rsi
+ ►0x55555555518a<main+81>   mov    qwordptr[r8],rax
+  0x55555555518d<main+84>   mov    qwordptr[rcx],rdx
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Process record is stopped and all execution logs are deleted.
+
+Program received signal SIGSEGV, Segmentation fault.
+main () at test_att_calc.s:37
+37		movq %rax, (%r8) #Store quotient at qp
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
+In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+   36         idivq %rsi #Divide by y
+ ► 37         movq %rax, (%r8) #Store quotient at qp
+   38         movq %rdx, (%rcx)
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x55555555518a main+81
+   f 1   0x7ffff7d9b790
+   f 2   0x7ffff7d9b84a __libc_start_main+138
+   f 3   0x555555555065 _start+37
+────────────────────────────────────────────────────────────────[ REGISTERS / show-flags on / show-compact-regs on ]─────────────────────────────────────────────────────────────────
+ RAX  0x0                                                                                    RBX  0x0
+ RCX  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64                                            RDX  0xffffffffffffffff
+ RDI  0xffffffffffffffff                                                                     RSI  0x2
+ R8   0x2aaaaaaa                                                                             R9   0x7ffff7fced70 ◂— endbr64 
+ R10  0x7fffffffdcc0 ◂— 0x800000                                                             R11  0x202
+ R12  0x0                                                                                    R13  0x7fffffffe0c8 —▸ 0x7fffffffe557 ◂— 'BEMENU_BACKEND=wayland'
+ R14  0x555555557dd8 —▸ 0x5555555550e0 ◂— endbr64 
+ R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 —▸ 0x555555554000 ◂— 0x10102464c457f
+ RBP  0x7fffffffdfa0 ◂— 0x1                                                                  RSP  0x7fffffffdf80 ◂— 0x3ff000000
+ RIP  0x55555555518a (main+81) ◂— mov qwordptr[r8],rax                                      *EFLAGS 0x10a13 [ CF pf AF zf sf IF df OF ]
+──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdf80 ◂— 0x3ff000000
+01:0008│     0x7fffffffdf88 —▸ 0x7fffffffdf83 ◂— 0xffdf8300000003ff
+02:0010│     0x7fffffffdf90 —▸ 0x7fffffffdf84 ◂— 0xffffdf8300000003
+03:0018│     0x7fffffffdf98 ◂— 0xa35fa447f7f4f800
+04:0020│ rbp 0x7fffffffdfa0 ◂— 0x1
+05:0028│     0x7fffffffdfa8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
+06:0030│     0x7fffffffdfb0 —▸ 0x7fffffffe0a0 —▸ 0x7fffffffe0a8 ◂— 0x38 /* '8' */
+07:0038│     0x7fffffffdfb8 —▸ 0x555555555139 (main) ◂— push rbp
+────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
+  0x555555555187<main+78>   idiv   rsi
+ ►0x55555555518a<main+81>   mov    qwordptr[r8],rax
+  0x55555555518d<main+84>   mov    qwordptr[rcx],rdx
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+quit
