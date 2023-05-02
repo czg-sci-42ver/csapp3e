@@ -28,32 +28,37 @@ void *malloc(size_t size)
     char *error;
 
     mallocp = dlsym(RTLD_NEXT, "malloc"); /* Get address of libc malloc */
-    if ((error = dlerror()) != NULL) {
-        fputs(error, stderr);
-        exit(1);
-    }
+    // if ((error = dlerror()) != NULL) {
+    //     fputs(error, stderr);
+    //     // exit(1);
+    // }
     char *ptr = mallocp(size); /* Call libc malloc */
-    printf("malloc(%d) = %p\n", (int)size, ptr);
+    if(size==4096 || size==1024)
+        return ptr;
+    // printf("malloc(%d) = %p\n", (int)size, ptr);
+    fprintf(stderr, "fprintf malloc(%d) = %p\n", size, ptr);
+    printf("printf malloc(%d) = %p\n", size, ptr);
     return ptr;
 }
 
 /* free wrapper function */
-void free(void *ptr)
-{
-    void (*freep)(void *) = NULL;
-    char *error;
+// void free(void *ptr)
+// {
+//     void (*freep)(void *) = NULL;
+//     char *error;
 
-    if (!ptr)
-        return;
+//     if (!ptr)
+//         return;
 
-    freep = dlsym(RTLD_NEXT, "free"); /* Get address of libc free */
-    if ((error = dlerror()) != NULL) {
-        fputs(error, stderr);
-        exit(1);
-    }
-    freep(ptr); /* Call libc free */
-    printf("free(%p)\n", ptr);
-}
+//     freep = dlsym(RTLD_NEXT, "free"); /* Get address of libc free */
+//     // if ((error = dlerror()) != NULL) {
+//     //     fputs(error, stderr);
+//     //     // exit(1);
+//     // }
+//     freep(ptr); /* Call libc free */
+//     printf("free(%p)\n", ptr);
+// }
+
 #endif
 /* $end interposer */
 

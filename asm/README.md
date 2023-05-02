@@ -2503,6 +2503,261 @@ if `a!=b` -> `(a^b)^a=b;(a^b)^b=a`
 - ~~TODO why example A not left chain critical?~~
   example A: two address reading can be parallel and register reading can use aliasing, so left can be seen as one operation. -> critical is left / right, but right is more intuitive.
   compared with former multiplication critical path, the multiplication is more complex than read and addition here, so it is seen as critical path.
+### Figure 7.11
+- see [this](#reloc)
+> notice in newer GCC, `R_X86_64_PLT32` is [just](https://sourceware.org/git/?p=binutils-gdb.git;a=commitdiff;h=bd7ab16b4537788ad53521c45469a1bdae84ad4a;hp=80c96350467f23a54546580b3e2b67a65ec65b66) `R_X86_64_PC32`
+```bash
+$ gcc -c main.o main.c sum.c
+$ objdump -dr main.o
+...
+   d:   48 8d 05 00 00 00 00    lea    rax,[rip+0x0]        # 14 <main+0x14>
+                        10: R_X86_64_PC32       array-0x4
+  14:   48 89 c7                mov    rdi,rax
+  17:   e8 00 00 00 00          call   1c <main+0x1c>
+                        18: R_X86_64_PLT32      sum-0x4
+...
+$ readelf -a main.o | grep rel -A 20
+...
+Relocation section '.rela.text' at offset 0x1a0 contains 2 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000000010  000300000002 R_X86_64_PC32     0000000000000000 array - 4
+000000000018  000500000004 R_X86_64_PLT32    0000000000000000 sum - 4
+
+Relocation section '.rela.eh_frame' at offset 0x1d0 contains 1 entry:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000000020  000200000002 R_X86_64_PC32     0000000000000000 .text + 0
+...
+$ readelf -a main.o | grep symtab\' -A 20
+Symbol table '.symtab' contains 6 entries:
+   Num:    Value          Size Type    Bind   Vis      Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS main.c
+     2: 0000000000000000     0 SECTION LOCAL  DEFAULT    1 .text
+     3: 0000000000000000     8 OBJECT  GLOBAL DEFAULT    3 array
+     4: 0000000000000000    36 FUNC    GLOBAL DEFAULT    1 main
+     5: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND sum
+# here 3 point to above '000300000002' higher 32bit '0x3', others similar
+...
+$ file main.o
+main.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped # relocatable object file
+```
+after linker, calculate relocation
+> see [more](https://stackoverflow.com/questions/64424692/how-does-the-address-of-r-x86-64-plt32-computed)
+```bash
+$ gcc -o main_link.o main.c sum.c
+$ readelf -a main_link.o | grep sum -A 20 -B 5
+    16: 000000000000113d    68 FUNC    GLOBAL DEFAULT   12 sum # so S=0x113d
+$ objdump -dx main_link.o
+...
+Disassembly of section .text:
+
+0000000000001020 <_start>:
+    1020:       f3 0f 1e fa             endbr64
+...
+0000000000001119 <main>:
+    1119:       55                      push   rbp
+    111a:       48 89 e5                mov    rbp,rsp
+    111d:       48 83 ec 10             sub    rsp,0x10
+    1121:       be 02 00 00 00          mov    esi,0x2
+    1126:       48 8d 05 e3 2e 00 00    lea    rax,[rip+0x2ee3]        # 4010 <array>
+    112d:       48 89 c7                mov    rdi,rax
+    1130:       e8 08 00 00 00          call   113d <sum> # P=0x1131
+$ readelf -a main_link.o | grep -i header -A 40
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+...
+  [12] .text             PROGBITS         0000000000001020  00001020
+$ r2 -
+[0x00000000]> ? 0x113d-0x1131-0x4
+hex     0x8
+# so reloc is 0x8 ->   e8 08 00 00 00 (0x0...08)
+[0x00000000]> ? 0x1131-0x18
+hex     0x1119 # so ADDR(s)=ADDR(main) not referenced 'ADDR(.text)'
+```
+similarly to `array`
+```bash
+$ readelf -a main_link.o | grep -i array -A 40 -B 20
+    10: 0000000000004010     8 OBJECT  GLOBAL DEFAULT   22 array
+$ objdump -dx main_link.o
+    1126:       48 8d 05 e3 2e 00 00    lea    rax,[rip+0x2ee3]        # 4010 <array>
+$ r2 -
+[0x00000000]> ? 0x4010-(0x1119+0x10)-0x4
+...
+hex     0x2ee3
+...
+```
+#### Figure 7.14
+- rel diff
+```bash
+$ readelf -e main_link.o | grep rel
+  [10] .rela.dyn         RELA             0000000000000538  00000538
+   02     .interp .note.gnu.property .note.gnu.build-id .note.ABI-tag .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn 
+$ readelf -e main.o | grep rel     
+  [ 2] .rela.text        RELA             0000000000000000  000001a0
+  [ 9] .rela.eh_frame    RELA             0000000000000000  000001d0
+```
+### Figure 7.19 with `-rdynamic`
+```bash
+$ gcc -rdynamic -no-pie -o prog2r dll.c
+$ record_pwngdb prog2r -ex 'start' -ex 'telescope 403fc8 0x1f'
+00:0000│  0x403fc8 —▸ 0x7ffff7d9b7c0 (__libc_start_main) ◂— endbr64 
+01:0008│  0x403fd0 ◂— 0x0
+... ↓     2 skipped
+04:0020│  0x403fe8 (_GLOBAL_OFFSET_TABLE_) —▸ 0x403df8 (_DYNAMIC) ◂— 0x1
+05:0028│  0x403ff0 (_GLOBAL_OFFSET_TABLE_+8) —▸ 0x7ffff7ffe2c0 ◂— 0x0
+06:0030│  0x403ff8 (_GLOBAL_OFFSET_TABLE_+16) —▸ 0x7ffff7fdcb50 ◂— endbr64
+
+$ r2 -c 'dcu main;dm~ld;pxr 0x18 @0x00403fe8;iS~dyna' -d prog2r
+0x00007ff47d4da000 - 0x00007ff47d4db000 - usr     4K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
+0x00007ff47d4db000 - 0x00007ff47d501000 - usr   152K s r-x /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r_x
+0x00007ff47d501000 - 0x00007ff47d50b000 - usr    40K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r__
+0x00007ff47d50b000 - 0x00007ff47d50d000 - usr     8K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.rw_
+0x00007ff47d50d000 - 0x00007ff47d50f000 - usr     8K s rw- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/link/prog2r .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403ff0 0x00007ff47d50e2c0   ..P}.... /usr/lib/ld-linux-x86-64.so.2 library R W 0x0
+0x00403ff8 0x00007ff47d4ecb50   P.N}.... /usr/lib/ld-linux-x86-64.so.2 library R X 'endbr64' 'ld-linux-x86-64.so.2'
+21  0x00002df8  0x1d0 0x00403df8  0x1d0 -rw- DYNAMIC     .dynamic
+```
+TODO seems no addvec plt in `.plt`
+```bash
+$ gcc -rdynamic -o prog2r dll.c
+$ r2 -c 'dcu main;dm~ld;pxr 0x18 @0x00403fe8;iS~dyna' -d prog2r
+[0x00401186]> iS~plt
+11  0x00000820   0xa8 0x00400820   0xa8 -r-- RELA        .rela.plt
+13  0x00001020   0x80 0x00401020   0x80 -r-x PROGBITS    .plt
+23  0x00002fe8   0x50 0x00403fe8   0x50 -rw- PROGBITS    .got.plt
+[0x00401186]> pd 0x20@0x00401020
+            ;-- section..plt:
+  ╭╭╭╭╭╭╭─> 0x00401020      ff35ca2f0000   push qword [0x00403ff0]     ; push word, doubleword or quadword onto the stack; [13] -r-x section size 128 named .plt
+  ╎╎╎╎╎╎╎   0x00401026      ff25cc2f0000   jmp qword [0x00403ff8]      ; [0x403ff8:8]=0x7fc7c4b5fb50 ; jump
+  ╎╎╎╎╎╎╎   0x0040102c      0f1f4000       nop dword [rax]             ; no operation
+  ╎╎╎╎╎╎╎   ;-- dlerror: # here plt 1 not __libc_start_main
+  ╎╎╎╎╎╎╎   0x00401030      ff25ca2f0000   jmp qword [reloc.dlerror]   ; [0x404000:8]=0x401036 ; "6\x10@" ; jump
+  ╎╎╎╎╎╎╎   0x00401036      6800000000     push 0                      ; push word, doubleword or quadword onto the stack
+  ╰───────< 0x0040103b      e9e0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+   ╎╎╎╎╎╎   ;-- printf:
+   ╎╎╎╎╎╎   0x00401040      ff25c22f0000   jmp qword [reloc.printf]    ; [0x404008:8]=0x401046 ; "F\x10@" ; jump
+   ╎╎╎╎╎╎   0x00401046      6801000000     push 1                      ; rbp ; push word, doubleword or quadword onto the stack
+   ╰──────< 0x0040104b      e9d0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+    ╎╎╎╎╎   ;-- dlopen:
+    ╎╎╎╎╎   0x00401050      ff25ba2f0000   jmp qword [reloc.dlopen]    ; [0x404010:8]=0x401056 ; "V\x10@" ; jump
+    ╎╎╎╎╎   0x00401056      6802000000     push 2                      ; 2 ; push word, doubleword or quadword onto the stack
+    ╰─────< 0x0040105b      e9c0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+     ╎╎╎╎   ;-- fprintf:
+     ╎╎╎╎   0x00401060      ff25b22f0000   jmp qword [reloc.fprintf]   ; [0x404018:8]=0x401066 ; "f\x10@" ; jump
+     ╎╎╎╎   0x00401066      6803000000     push 3                      ; 3 ; push word, doubleword or quadword onto the stack
+     ╰────< 0x0040106b      e9b0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+      ╎╎╎   ;-- dlsym:
+      ╎╎╎   0x00401070      ff25aa2f0000   jmp qword [reloc.dlsym]     ; [0x404020:8]=0x401076 ; "v\x10@" ; jump
+      ╎╎╎   0x00401076      6804000000     push 4                      ; 4 ; push word, doubleword or quadword onto the stack
+      ╰───< 0x0040107b      e9a0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+       ╎╎   ;-- exit:
+       ╎╎   0x00401080      ff25a22f0000   jmp qword [reloc.exit]      ; [0x404028:8]=0x401086 ; jump
+       ╎╎   0x00401086      6805000000     push 5                      ; 5 ; push word, doubleword or quadword onto the stack
+       ╰──< 0x0040108b      e990ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+        ╎   ;-- dlclose:
+        ╎   0x00401090      ff259a2f0000   jmp qword [reloc.dlclose]   ; [0x404030:8]=0x401096 ; jump
+        ╎   0x00401096      6806000000     push 6                      ; 6 ; push word, doubleword or quadword onto the stack
+        ╰─< 0x0040109b      e980ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7fffe1560d38, 0x7fffe1560d48, 0x403df0)
+[0x7fd4dbbf7ed0]> pd 2@0x0
+            ;-- section.:
+            ;-- section..comment:
+            ;-- section..symtab:
+            ;-- section..strtab:
+            ;-- section..shstrtab:
+            ;-- segment.GNU_STACK:
+            ;-- elf_header:
+            ;-- __libc_start_main:
+[0x00401186]> is~start_main
+2   ---------- 0x00000000 GLOBAL FUNC   16       imp.__libc_start_main
+pwndbg> p __libc_start_main
+$1 = {<text variable, no debug info>} 0x7ffff7d9b7c0 <__libc_start_main>
+```
+here obviously no `addvec` in `plt`, because it is loaded by `dlsym`
+### Figure 7.19 without `-rdynamic`
+still no `__libc_start_main`
+```bash
+$ r2 -c 'dcu main;dm~ld;pxr 0x58 @0x00403fe8;iS~dyna;iS~plt;db sym.imp.addvec;pd 0xf@0x00401020' -d prog2l
+0x00007f857547f000 - 0x00007f8575480000 - usr     4K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
+0x00007f8575480000 - 0x00007f85754a6000 - usr   152K s r-x /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r_x
+0x00007f85754a6000 - 0x00007f85754b0000 - usr    40K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r__
+0x00007f85754b0000 - 0x00007f85754b2000 - usr     8K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.rw_
+0x00007f85754b2000 - 0x00007f85754b4000 - usr     8K s rw- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
+0x00403fe8 0x0000000000403de8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210152 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403ff0 0x00007f85754b32c0   .2Ku.... /usr/lib/ld-linux-x86-64.so.2 library R W 0x0
+0x00403ff8 0x00007f8575491b50   P.Iu.... /usr/lib/ld-linux-x86-64.so.2 library R X 'endbr64' 'ld-linux-x86-64.so.2'
+0x00404000 0x0000000000401036   6.@..... @ reloc.printf 4198454 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .plt program R X 'push 0' 'prog2l'
+0x00404008 0x0000000000401046   F.@..... @ reloc.addvec 4198470 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .plt program R X 'push 1' 'prog2l'
+...
+21  0x00002de8  0x1e0 0x00403de8  0x1e0 -rw- DYNAMIC     .dynamic
+11  0x000005c0   0x30 0x004005c0   0x30 -r-- RELA        .rela.plt
+13  0x00001020   0x30 0x00401020   0x30 -r-x PROGBITS    .plt
+23  0x00002fe8   0x28 0x00403fe8   0x28 -rw- PROGBITS    .got.plt
+            ;-- section..plt:
+       ╭╭─> 0x00401020      ff35ca2f0000   push qword [0x00403ff0]     ; push word, doubleword or quadword onto the stack; [13] -r-x section size 48 named .plt
+       ╎╎   0x00401026      ff25cc2f0000   jmp qword [0x00403ff8]      ; [0x403ff8:8]=0x7f8575491b50 ; jump
+       ╎╎   0x0040102c      0f1f4000       nop dword [rax]             ; no operation
+       ╎╎   ;-- printf:
+       ╎╎   0x00401030      ff25ca2f0000   jmp qword [reloc.printf]    ; [0x404000:8]=0x401036 ; "6\x10@" ; jump
+       ╎╎   0x00401036      6800000000     push 0                      ; push word, doubleword or quadword onto the stack
+       ╰──< 0x0040103b      e9e0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7ffee98af2f8, 0x7ffee98af308, 0x403de0)
+        ╎   ;-- addvec:
+        ╎   0x00401040 b    ff25c22f0000   jmp qword [reloc.addvec]    ; [0x404008:8]=0x401046 ; "F\x10@" ; jump
+        ╎   0x00401046      6801000000     push 1                      ; 1 ; push word, doubleword or quadword onto the stack
+        ╰─< 0x0040104b      e9d0ffffff     jmp section..plt            ; jump ; section..plt(0x1, 0x7ffee98af2f8, 0x7ffee98af308, 0x403de0)
+...
+```
+### `7.13.3`
+- original `mymalloc.c` :LD_PRELOAD with `printf` will stuck in infinite loop (seen by `sudo coredumpctl gdb` where `bt` is too too long ) and caused segmentation fault
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/link/interpose]$ gcc -DRUNTIME -shared -fpic -ldl -o mymalloc.so mymalloc.c
+$ cat mymalloc.c | grep RUN -A 20
+...
+    fprintf(stderr, "fprintf malloc(%d) = %p\n", size, ptr);
+    printf("printf malloc(%d) = %p\n", (int)size, ptr);
+$ LD_PRELOAD=./mymalloc.so ./intr
+...
+fprintf malloc(4096) = 0x564743d29440
+fprintf malloc(4096) = 0x564743d2a450
+fprintf malloc(4096) = 0x564743d2b460
+zsh: segmentation fault (core dumped)  LD_PRELOAD=./mymalloc.so ./intr
+# small modify 
+$ cat mymalloc.c | grep RUN -A 25
+...
+    if(size==4096 || size==1024)
+        return ptr;
+    // printf("malloc(%d) = %p\n", (int)size, ptr);
+    fprintf(stderr, "fprintf malloc(%d) = %p\n", size, ptr);
+    printf("printf malloc(%d) = %p\n", size, ptr);
+$ gcc -g -o intr int.c
+$ gcc -DRUNTIME -shared -fpic -ldl -o mymalloc.so mymalloc.c -g
+# https://stackoverflow.com/questions/10448254/how-to-use-gdb-with-ld-preload
+$ record_pwngdb ./intr -ex 'set environment LD_PRELOAD ./mymalloc.so' -ex 'start' -ex 'br mymalloc.c:37' -ex 'c' -ex 'bt'
+Breakpoint 2, malloc (size=0x400) at mymalloc.c:37
+37              return ptr;
+#0  malloc (size=0x400) at mymalloc.c:37
+#1  0x00007ffff7e28471 in _IO_file_doallocate () from /usr/lib/libc.so.6
+#2  0x00007ffff7e37570 in _IO_doallocbuf () from /usr/lib/libc.so.6
+#3  0x00007ffff7e365d8 in _IO_file_overflow () from /usr/lib/libc.so.6
+#4  0x00007ffff7e356ee in _IO_file_xsputn () from /usr/lib/libc.so.6
+#5  0x00007ffff7e08709 in ?? () from /usr/lib/libc.so.6
+#6  0x00007ffff7e087c4 in ?? () from /usr/lib/libc.so.6
+#7  0x00007ffff7e122aa in ?? () from /usr/lib/libc.so.6
+#8  0x00007ffff7e07eaf in printf () from /usr/lib/libc.so.6
+#9  0x00007ffff7fbe1bf in malloc (size=0x20) at mymalloc.c:40
+#10 0x000055555555515b in main () at int.c:14
+#11 0x00007ffff7ddb790 in ?? () from /usr/lib/libc.so.6
+#12 0x00007ffff7ddb84a in __libc_start_main () from /usr/lib/libc.so.6
+#13 0x0000555555555075 in _start ()
+
+# here printf caused infinite loop of 'malloc -> printf -> malloc'
+
+# deal with https://www.jayconrod.com/posts/23/tutorial--function-interposition-in-linux
+$ LD_PRELOAD=./libjmalloc.so ./intr                                                                         
+malloc(32) = 0x55d10a69f2a0
+```
+above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-common/fprintf.c.html) while the other to [stdout](https://codebrowser.dev/glibc/glibc/stdio-common/printf.c.html) (both use `__vfprintf_internal`).
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -2543,6 +2798,26 @@ vcvtsi2ss %edi, %xmm1, %xmm2
   - p630 : 1 circle -> 400 sectors/track, so 1/400 circle time -> 1 sector
 - when use [col major](https://craftofcoding.wordpress.com/2017/02/03/column-major-vs-row-major-arrays-does-it-matter/#:~:text=In%20a%20large%202D%20array,%2Dfetches%20data%20required%20next).
 - [when](https://computerscience.chemeketa.edu/cs160Reader/Binary/Bytes.html) use 2 or 10 with KB
+- [common](https://binarydodo.wordpress.com/2016/05/09/investigating-linking-with-common-symbols-in-elf/) symbol which 'are present only for backward-compatibility with old source files'
+- [reference](https://stackoverflow.com/questions/46515755/exactly-what-is-a-symbol-reference-in-an-object-file) is similar to call but also applies to variable.
+- Relocation entries <a id="reloc"></a>
+  - [structure](https://docs.oracle.com/cd/E19683-01/817-3677/chapter6-54839/index.html) (more [specific](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-54839.html)) or  x64 [type](https://www.intezer.com/blog/malware-analysis/executable-and-linkable-format-101-part-3-relocations/) 
+  - symbol [index](https://stackoverflow.com/questions/19593883/understanding-the-relocation-table-output-from-readelf) ; symbol [value](https://stackoverflow.com/questions/48942103/how-to-understand-fields-of-relocation-section-rela-plt)
+- [symtab](https://stackoverflow.com/questions/3065535/what-are-the-meanings-of-the-columns-of-the-symbol-table-displayed-by-readelf) describe 'Ndx',etc
+- Virtual Address [diff](https://www.javatpoint.com/virtual-vs-physical-address) with Physical Address
+  - the latter is decided by adding the base address when running (especially PIE)
+- lazy binding, see above got / plt, or `RTLD_LAZY` in `man dlopen` / csapp
+- view [got](https://stackoverflow.com/questions/39785280/how-shared-library-finds-got-section) in shared lib
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/link]$ objdump -R libvector.so
+$ LD_DEBUG=all ./prog2r 2>&1 |less
+```
+### C syntax miscs
+- [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
+```cpp
+void (*fun_ptr)(int) = &fun; // here '(*fun_ptr)' is main body; can be seen as '*fun_ptr' -> function 'void foo(int)'
+typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -> char[3]
+```
 ## TODO
 - redo 3.68 homework after understanding stack better.
 - 3.73 use asm not __asm__ direct.
@@ -2550,6 +2825,8 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - [prime](https://stackoverflow.com/questions/67623801/is-it-always-necessary-to-make-hash-table-number-of-buckets-a-prime-number-for-p) hash bucket number
 - [AMDuProf](https://community.amd.com/t5/server-gurus-discussions/intel-vtune-on-amd-processors/m-p/529122/highlight/true) & [callgrind](https://stackoverflow.com/questions/6663614/use-valgrind-to-know-timein-seconds-spent-in-each-function)
 - SRAM DRAM [design](https://www.egr.msu.edu/classes/ece410/mason/files/Ch13.pdf), more [concise  ](https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf)
+- problem 6.34 -> 'typedef' related book referenced in csapp 
+- reread p735 'aside' after chapter 9
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)

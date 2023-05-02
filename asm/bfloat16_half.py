@@ -42,7 +42,7 @@ def my_cache(annotate_str,hex_num,bits,total_bits,tag_size,set_size):
     tag_end=tag_start+tag_size
     set_end=tag_end+set_size
     tag=hex(int(my_hexdata[tag_start:tag_end],2))
-    print("tag: ",tag,my_hexdata[tag_start:tag_end])
+    # print("tag: ",tag,my_hexdata[tag_start:tag_end])
     set_cus=hex(int(my_hexdata[tag_end:set_end],2))
     block=hex(int(my_hexdata[set_end:total_bits],2))
     print(annotate_str,' origin: ',my_hexdata,"tag: ",tag,' set: ',set_cus," block:",block)
@@ -56,6 +56,11 @@ my_cache("cache",0x834,12,12,8,2)
 my_cache("cache",0x836,12,12,8,2)
 my_cache("cache",0xFFD,12,12,8,2)
 # my_cache("cache",0x834,12,13,9,2)
+"""
+6.31
+"""
+my_cache("cache",0x071A,13,16,8,3)
+my_cache("cache",0x16E8,13,16,8,3)
 """
 problem 6.16,6.27
 """
@@ -72,6 +77,10 @@ def my_cache_decode(annotate_str,set_index,tags:list,bits,tag_size,set_size):
         print()
 my_cache_decode("decode ",1,[45,38],13,8,3)
 my_cache_decode("decode ",6,[91],13,8,3)
+"""
+problem 6.33
+"""
+my_cache_decode("decode ",2,['BC','B6'],13,8,3)
 """
 miscs
 """
