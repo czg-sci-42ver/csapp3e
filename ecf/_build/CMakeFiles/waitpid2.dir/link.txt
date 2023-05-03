@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/waitpid2.dir/waitpid2.c.o -o waitpid2  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

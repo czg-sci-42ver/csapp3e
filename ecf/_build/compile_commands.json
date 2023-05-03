@@ -1,0 +1,368 @@
+[
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc -DYourLib_EXPORTS -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -fPIC -g3 -Wall -o CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/clock.c.o -c /mnt/ubuntu/home/czg/csapp3e/src/clock.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/src/clock.c",
+  "output": "CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/clock.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc -DYourLib_EXPORTS -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -fPIC -g3 -Wall -o CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/cpe.c.o -c /mnt/ubuntu/home/czg/csapp3e/src/cpe.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/src/cpe.c",
+  "output": "CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/cpe.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc -DYourLib_EXPORTS -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -fPIC -g3 -Wall -o CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/csapp.c.o -c /mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
+  "output": "CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/csapp.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc -DYourLib_EXPORTS -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -fPIC -g3 -Wall -o CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/fcyc.c.o -c /mnt/ubuntu/home/czg/csapp3e/src/fcyc.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/src/fcyc.c",
+  "output": "CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/fcyc.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc -DYourLib_EXPORTS -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -fPIC -g3 -Wall -o CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/lsquare.c.o -c /mnt/ubuntu/home/czg/csapp3e/src/lsquare.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/src/lsquare.c",
+  "output": "CMakeFiles/YourLib.dir/mnt/ubuntu/home/czg/csapp3e/src/lsquare.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/alarm.dir/alarm.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/alarm.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/alarm.c",
+  "output": "CMakeFiles/alarm.dir/alarm.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/blockone.dir/blockone.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/blockone.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/blockone.c",
+  "output": "CMakeFiles/blockone.dir/blockone.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/cmdline.dir/cmdline.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/cmdline.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/cmdline.c",
+  "output": "CMakeFiles/cmdline.dir/cmdline.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/counterprob.dir/counterprob.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/counterprob.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob.c",
+  "output": "CMakeFiles/counterprob.dir/counterprob.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fork.dir/fork.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
+  "output": "CMakeFiles/fork.dir/fork.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fork1.dir/fork1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fork1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork1.c",
+  "output": "CMakeFiles/fork1.dir/fork1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fork2.dir/fork2.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fork2.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork2.c",
+  "output": "CMakeFiles/fork2.dir/fork2.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fork3.dir/fork3.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fork3.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork3.c",
+  "output": "CMakeFiles/fork3.dir/fork3.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob0.dir/forkprob0.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0.c",
+  "output": "CMakeFiles/forkprob0.dir/forkprob0.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob1.dir/forkprob1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1.c",
+  "output": "CMakeFiles/forkprob1.dir/forkprob1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob2.dir/forkprob2.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2.c",
+  "output": "CMakeFiles/forkprob2.dir/forkprob2.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob3.dir/forkprob3.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3.c",
+  "output": "CMakeFiles/forkprob3.dir/forkprob3.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob4.dir/forkprob4.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4.c",
+  "output": "CMakeFiles/forkprob4.dir/forkprob4.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob5.dir/forkprob5.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5.c",
+  "output": "CMakeFiles/forkprob5.dir/forkprob5.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob6.dir/forkprob6.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6.c",
+  "output": "CMakeFiles/forkprob6.dir/forkprob6.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob7.dir/forkprob7.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7.c",
+  "output": "CMakeFiles/forkprob7.dir/forkprob7.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/forkprob8.dir/forkprob8.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8.c",
+  "output": "CMakeFiles/forkprob8.dir/forkprob8.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fragments.dir/fragments.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
+  "output": "CMakeFiles/fragments.dir/fragments.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/getpid.dir/getpid.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
+  "output": "CMakeFiles/getpid.dir/getpid.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/hello.dir/hello.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/hello.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello.c",
+  "output": "CMakeFiles/hello.dir/hello.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/jmpbuf.dir/jmpbuf.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/jmpbuf.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/jmpbuf.c",
+  "output": "CMakeFiles/jmpbuf.dir/jmpbuf.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/kill.dir/kill.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/kill.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/kill.c",
+  "output": "CMakeFiles/kill.dir/kill.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/myecho.dir/myecho.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/myecho.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/myecho.c",
+  "output": "CMakeFiles/myecho.dir/myecho.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/orphan.dir/orphan.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/orphan.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/orphan.c",
+  "output": "CMakeFiles/orphan.dir/orphan.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/pg.dir/pg.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/pg.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pg.c",
+  "output": "CMakeFiles/pg.dir/pg.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/pgchild.dir/pgchild.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/pgchild.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pgchild.c",
+  "output": "CMakeFiles/pgchild.dir/pgchild.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/procmask.dir/procmask.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/procmask.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask.c",
+  "output": "CMakeFiles/procmask.dir/procmask.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/procmask1.dir/procmask1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/procmask1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask1.c",
+  "output": "CMakeFiles/procmask1.dir/procmask1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/procmask2.dir/procmask2.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/procmask2.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask2.c",
+  "output": "CMakeFiles/procmask2.dir/procmask2.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/psignal.dir/psignal.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/psignal.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/psignal.c",
+  "output": "CMakeFiles/psignal.dir/psignal.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/restart.dir/restart.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/restart.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/restart.c",
+  "output": "CMakeFiles/restart.dir/restart.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/rfork-driver.dir/rfork-driver.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/rfork-driver.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/rfork-driver.c",
+  "output": "CMakeFiles/rfork-driver.dir/rfork-driver.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/rfork.dir/rfork.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/rfork.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/rfork.c",
+  "output": "CMakeFiles/rfork.dir/rfork.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/setjmp.dir/setjmp.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/setjmp.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/setjmp.c",
+  "output": "CMakeFiles/setjmp.dir/setjmp.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/shell.dir/shell.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/shell.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/shell.c",
+  "output": "CMakeFiles/shell.dir/shell.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/shellex.dir/shellex.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/shellex.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/shellex.c",
+  "output": "CMakeFiles/shellex.dir/shellex.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigbus.dir/sigbus.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigbus.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigbus.c",
+  "output": "CMakeFiles/sigbus.dir/sigbus.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigfpe.dir/sigfpe.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe.c",
+  "output": "CMakeFiles/sigfpe.dir/sigfpe.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigint.dir/sigint.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigint.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigint.c",
+  "output": "CMakeFiles/sigint.dir/sigint.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigintsafe.dir/sigintsafe.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe.c",
+  "output": "CMakeFiles/sigintsafe.dir/sigintsafe.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/signal1.dir/signal1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/signal1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal1.c",
+  "output": "CMakeFiles/signal1.dir/signal1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/signal2.dir/signal2.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/signal2.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal2.c",
+  "output": "CMakeFiles/signal2.dir/signal2.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/signal3.dir/signal3.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/signal3.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal3.c",
+  "output": "CMakeFiles/signal3.dir/signal3.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/signal4.dir/signal4.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/signal4.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal4.c",
+  "output": "CMakeFiles/signal4.dir/signal4.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/signalprob0.dir/signalprob0.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0.c",
+  "output": "CMakeFiles/signalprob0.dir/signalprob0.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigsegv.dir/sigsegv.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv.c",
+  "output": "CMakeFiles/sigsegv.dir/sigsegv.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/sigsuspend.dir/sigsuspend.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend.c",
+  "output": "CMakeFiles/sigsuspend.dir/sigsuspend.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/snooze.dir/snooze.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/snooze.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/snooze.c",
+  "output": "CMakeFiles/snooze.dir/snooze.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/stack.dir/stack.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/stack.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/stack.c",
+  "output": "CMakeFiles/stack.dir/stack.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/test.dir/test.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/test.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/test.c",
+  "output": "CMakeFiles/test.dir/test.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitforsignal.dir/waitforsignal.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal.c",
+  "output": "CMakeFiles/waitforsignal.dir/waitforsignal.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitpid1.dir/waitpid1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1.c",
+  "output": "CMakeFiles/waitpid1.dir/waitpid1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitpid2.dir/waitpid2.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2.c",
+  "output": "CMakeFiles/waitpid2.dir/waitpid2.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitprob0.dir/waitprob0.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0.c",
+  "output": "CMakeFiles/waitprob0.dir/waitprob0.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitprob1.dir/waitprob1.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1.c",
+  "output": "CMakeFiles/waitprob1.dir/waitprob1.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitprob3.dir/waitprob3.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
+  "output": "CMakeFiles/waitprob3.dir/waitprob3.c.o"
+}
+]

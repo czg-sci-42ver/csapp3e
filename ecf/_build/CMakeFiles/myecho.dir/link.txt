@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/myecho.dir/myecho.c.o -o myecho  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

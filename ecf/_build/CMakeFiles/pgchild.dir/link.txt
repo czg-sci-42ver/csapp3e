@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/pgchild.dir/pgchild.c.o -o pgchild  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

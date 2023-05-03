@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/restart.dir/restart.c.o -o restart  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

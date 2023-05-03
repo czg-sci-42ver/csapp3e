@@ -2,7 +2,8 @@
 /* bar6.c */ 
 #include <stdio.h>
 
-char main;  
+//char main;  
+unsigned int main;  
 
 void p2()  
 {  

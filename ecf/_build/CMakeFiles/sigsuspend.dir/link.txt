@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/sigsuspend.dir/sigsuspend.c.o -o sigsuspend  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

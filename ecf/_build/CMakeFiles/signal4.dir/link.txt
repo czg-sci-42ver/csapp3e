@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/signal4.dir/signal4.c.o -o signal4  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/forkprob1.dir/forkprob1.c.o -o forkprob1  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/pg.dir/pg.c.o -o pg  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

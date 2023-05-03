@@ -2068,6 +2068,9 @@ f
 # https://reverseengineering.stackexchange.com/questions/18024/rasm2-giving-different-output-each-time-for-x64
 rasm2 -a x86 -b 64 -d "48898D80FEFFFF"
 rasm2 -d 418b4104
+
+# https://book.rada.re/analysis/syscalls.html
+asl read
 ```
 #### TODO
 - https://docs.google.com/document/d/1our_fcFcufIJ13QsZoDuGOEBqftF6o0zEkDsqzAy43U/edit#heading=h.zdmriiaus3dc
@@ -2812,12 +2815,15 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 [czg /mnt/ubuntu/home/czg/csapp3e/link]$ objdump -R libvector.so
 $ LD_DEBUG=all ./prog2r 2>&1 |less
 ```
+- negated [errno](https://softwareengineering.stackexchange.com/questions/170694/why-error-codes-are-negated)
+- syscall [param](https://www.cs.fsu.edu/~langley/CNT5605/2017-Summer/assembly-example/assembly.html)
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
 void (*fun_ptr)(int) = &fun; // here '(*fun_ptr)' is main body; can be seen as '*fun_ptr' -> function 'void foo(int)'
 typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -> char[3]
 ```
+- Exception number [pdf p167](../references/intel_64.pdf)
 ## TODO
 - redo 3.68 homework after understanding stack better.
 - 3.73 use asm not __asm__ direct.

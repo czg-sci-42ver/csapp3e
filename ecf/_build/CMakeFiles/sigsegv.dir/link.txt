@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/sigsegv.dir/sigsegv.c.o -o sigsegv  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 
