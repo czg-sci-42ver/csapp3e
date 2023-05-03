@@ -16,7 +16,6 @@
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/forkprob6.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/forkprob7.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/forkprob8.dir
-/mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/fragments.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/getpid.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/hello.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/jmpbuf.dir
@@ -31,7 +30,6 @@
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/psignal.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/restart.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/rfork-driver.dir
-/mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/rfork.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/setjmp.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/shell.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/shellex.dir

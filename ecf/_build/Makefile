@@ -351,19 +351,6 @@ forkprob8/fast:
 .PHONY : forkprob8/fast
 
 #=============================================================================
-# Target rules for targets named fragments
-
-# Build rule for target.
-fragments: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fragments
-.PHONY : fragments
-
-# fast build rule for target.
-fragments/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fragments.dir/build.make CMakeFiles/fragments.dir/build
-.PHONY : fragments/fast
-
-#=============================================================================
 # Target rules for targets named getpid
 
 # Build rule for target.
@@ -544,19 +531,6 @@ rfork-driver: cmake_check_build_system
 rfork-driver/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork-driver.dir/build.make CMakeFiles/rfork-driver.dir/build
 .PHONY : rfork-driver/fast
-
-#=============================================================================
-# Target rules for targets named rfork
-
-# Build rule for target.
-rfork: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rfork
-.PHONY : rfork
-
-# fast build rule for target.
-rfork/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork.dir/build.make CMakeFiles/rfork.dir/build
-.PHONY : rfork/fast
 
 #=============================================================================
 # Target rules for targets named setjmp
@@ -1265,30 +1239,6 @@ forkprob8.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/forkprob8.dir/build.make CMakeFiles/forkprob8.dir/forkprob8.c.s
 .PHONY : forkprob8.c.s
 
-fragments.o: fragments.c.o
-.PHONY : fragments.o
-
-# target to build an object file
-fragments.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fragments.dir/build.make CMakeFiles/fragments.dir/fragments.c.o
-.PHONY : fragments.c.o
-
-fragments.i: fragments.c.i
-.PHONY : fragments.i
-
-# target to preprocess a source file
-fragments.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fragments.dir/build.make CMakeFiles/fragments.dir/fragments.c.i
-.PHONY : fragments.c.i
-
-fragments.s: fragments.c.s
-.PHONY : fragments.s
-
-# target to generate assembly for a file
-fragments.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fragments.dir/build.make CMakeFiles/fragments.dir/fragments.c.s
-.PHONY : fragments.c.s
-
 getpid.o: getpid.c.o
 .PHONY : getpid.o
 
@@ -1744,30 +1694,6 @@ rfork-driver.s: rfork-driver.c.s
 rfork-driver.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork-driver.dir/build.make CMakeFiles/rfork-driver.dir/rfork-driver.c.s
 .PHONY : rfork-driver.c.s
-
-rfork.o: rfork.c.o
-.PHONY : rfork.o
-
-# target to build an object file
-rfork.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork.dir/build.make CMakeFiles/rfork.dir/rfork.c.o
-.PHONY : rfork.c.o
-
-rfork.i: rfork.c.i
-.PHONY : rfork.i
-
-# target to preprocess a source file
-rfork.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork.dir/build.make CMakeFiles/rfork.dir/rfork.c.i
-.PHONY : rfork.c.i
-
-rfork.s: rfork.c.s
-.PHONY : rfork.s
-
-# target to generate assembly for a file
-rfork.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfork.dir/build.make CMakeFiles/rfork.dir/rfork.c.s
-.PHONY : rfork.c.s
 
 setjmp.o: setjmp.c.o
 .PHONY : setjmp.o
@@ -2347,7 +2273,6 @@ help:
 	@echo "... forkprob6"
 	@echo "... forkprob7"
 	@echo "... forkprob8"
-	@echo "... fragments"
 	@echo "... getpid"
 	@echo "... hello"
 	@echo "... jmpbuf"
@@ -2361,7 +2286,6 @@ help:
 	@echo "... procmask2"
 	@echo "... psignal"
 	@echo "... restart"
-	@echo "... rfork"
 	@echo "... rfork-driver"
 	@echo "... setjmp"
 	@echo "... shell"
@@ -2437,9 +2361,6 @@ help:
 	@echo "... forkprob8.o"
 	@echo "... forkprob8.i"
 	@echo "... forkprob8.s"
-	@echo "... fragments.o"
-	@echo "... fragments.i"
-	@echo "... fragments.s"
 	@echo "... getpid.o"
 	@echo "... getpid.i"
 	@echo "... getpid.s"
@@ -2497,9 +2418,6 @@ help:
 	@echo "... rfork-driver.o"
 	@echo "... rfork-driver.i"
 	@echo "... rfork-driver.s"
-	@echo "... rfork.o"
-	@echo "... rfork.i"
-	@echo "... rfork.s"
 	@echo "... setjmp.o"
 	@echo "... setjmp.i"
 	@echo "... setjmp.s"

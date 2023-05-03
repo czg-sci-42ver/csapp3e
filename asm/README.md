@@ -2817,6 +2817,29 @@ $ LD_DEBUG=all ./prog2r 2>&1 |less
 ```
 - negated [errno](https://softwareengineering.stackexchange.com/questions/170694/why-error-codes-are-negated)
 - syscall [param](https://www.cs.fsu.edu/~langley/CNT5605/2017-Summer/assembly-example/assembly.html)
+- [fflush](https://www.quora.com/Why-do-we-use-the-functions-fflush-stdin-and-fflush-stdout-in-c) just to 'flush' the buffer out ('which is flushed when it is full or when you call fflush')
+  - [`fflush(stdin)`](https://www.geeksforgeeks.org/use-fflushstdin-c/#)
+  - `%[^\n]s` , [this](https://www.geeksforgeeks.org/use-fflushstdin-c/) is wrong, [see](https://stackoverflow.com/questions/40038538/how-does-scanf-n-str-work-in-c-programming) 
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/test]$ cat flush_stdin.c
+$ cat flush_stdin.c                                 
+...
+                //scanf("%[^\n]s", str);
+                scanf("%d", str); # here '\t' is not matched and interpreted as delimiter
+                printf("%s\n", str);
+                fflush(stdin);
+$ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
+67 68
+C
+D
+$ cat flush_stdin.c
+                scanf("%[^\n]s", str); # here '\t' is matched
+                //scanf("%d", str);
+$ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
+67 67
+67 67
+67 67
+```
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp

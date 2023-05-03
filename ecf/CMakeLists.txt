@@ -28,7 +28,8 @@ set_target_properties(YourLib PROPERTIES LINKER_LANGUAGE C)
 #target_link_options(YourLib PRIVATE -shared -fpic -nostartfiles) 
 target_link_options(YourLib PRIVATE -shared -fpic ) 
 
-file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} [^fragments]*.c)
+#file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} (?!fragments)*.c) # not supported https://stackoverflow.com/questions/68325947/cmake-negative-lookahead-regexp-support
+file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c)
 #[[
 weird "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/Scrt1.o: in function `_start':
 (.text+0x1b): undefined reference to `main'" error
@@ -36,10 +37,14 @@ weird "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/Scrt
 ]]
 #string( REPLACE "fragments.c" "" APP_SOURCES ${APP_SOURCES} ) # will mistakenly see '' as testsourcefile
 #message("My test's working directory: ${CMAKE_CURRENT_SOURCE_DIR}")
+message("APP_SOURCES ${APP_SOURCES}")
 #file( RELATIVE_PATH rel ${CMAKE_CURRENT_SOURCE_DIR} ${APP_SOURCES}) # keep seen as wrong parameter number
 foreach( testsourcefile ${APP_SOURCES} )
     # I used a simple string replace, to cut off .cpp.
 	#message("testsourcefile ${testsourcefile}")
+	if( ${testsourcefile} MATCHES fragments.c|rfork.c)
+		continue()
+	endif()
     string( REPLACE ".c" "" testname ${testsourcefile} )
     add_executable( ${testname} ${testsourcefile} )
     # Make sure YourLib is linked to each app

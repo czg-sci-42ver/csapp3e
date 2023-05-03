@@ -133,12 +133,6 @@
 },
 {
   "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
-  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fragments.dir/fragments.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
-  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
-  "output": "CMakeFiles/fragments.dir/fragments.c.o"
-},
-{
-  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
   "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/getpid.dir/getpid.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
   "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
   "output": "CMakeFiles/getpid.dir/getpid.c.o"
@@ -220,12 +214,6 @@
   "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/rfork-driver.dir/rfork-driver.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/rfork-driver.c",
   "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/rfork-driver.c",
   "output": "CMakeFiles/rfork-driver.dir/rfork-driver.c.o"
-},
-{
-  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
-  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/rfork.dir/rfork.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/rfork.c",
-  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/rfork.c",
-  "output": "CMakeFiles/rfork.dir/rfork.c.o"
 },
 {
   "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
