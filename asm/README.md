@@ -2761,6 +2761,9 @@ $ LD_PRELOAD=./libjmalloc.so ./intr
 malloc(32) = 0x55d10a69f2a0
 ```
 above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-common/fprintf.c.html) while the other to [stdout](https://codebrowser.dev/glibc/glibc/stdio-common/printf.c.html) (both use `__vfprintf_internal`).
+### `Figure 8.41`
+- race condition is that if child exit too fast, then `SIGCHLD` will be triggered too fast, then `pid` will always be zero and stuck in while loop.
+  - if `block`, then according to `man 7 signal`, `SIGCHLD` will be pending ('Between the time when it is generated and when it is delivered a signal'), so must be processed and `pid` will change.
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -2840,6 +2843,7 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 67 67
 67 67
 ```
+- [async-signal-safe](https://docs.oracle.com/cd/E19455-01/806-5257/gen-26/index.html#:~:text=A%20concept%20similar%20to%20thread,operation%20that%20is%20being%20interrupted.)
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
@@ -2856,6 +2860,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - SRAM DRAM [design](https://www.egr.msu.edu/classes/ece410/mason/files/Ch13.pdf), more [concise  ](https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf)
 - problem 6.34 -> 'typedef' related book referenced in csapp 
 - reread p735 'aside' after chapter 9
+- time travel [debug](https://pspdfkit.com/blog/2021/time-travel-debugging-for-c/) which also temporarily disabled avx to solve 'Process record does not support instruction 0xc4 at address ...'
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)

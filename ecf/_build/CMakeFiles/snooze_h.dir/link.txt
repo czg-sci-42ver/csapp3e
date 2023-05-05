@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/snooze_h.dir/homework/snooze_h.c.o -o snooze_h  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

@@ -182,6 +182,19 @@ counterprob/fast:
 .PHONY : counterprob/fast
 
 #=============================================================================
+# Target rules for targets named counterprob_mod
+
+# Build rule for target.
+counterprob_mod: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 counterprob_mod
+.PHONY : counterprob_mod
+
+# fast build rule for target.
+counterprob_mod/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/counterprob_mod.dir/build.make CMakeFiles/counterprob_mod.dir/build
+.PHONY : counterprob_mod/fast
+
+#=============================================================================
 # Target rules for targets named fork
 
 # Build rule for target.
@@ -831,6 +844,19 @@ waitprob3/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/waitprob3.dir/build.make CMakeFiles/waitprob3.dir/build
 .PHONY : waitprob3/fast
 
+#=============================================================================
+# Target rules for targets named snooze_h
+
+# Build rule for target.
+snooze_h: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 snooze_h
+.PHONY : snooze_h
+
+# fast build rule for target.
+snooze_h/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/snooze_h.dir/build.make CMakeFiles/snooze_h.dir/build
+.PHONY : snooze_h/fast
+
 alarm.o: alarm.c.o
 .PHONY : alarm.o
 
@@ -926,6 +952,30 @@ counterprob.s: counterprob.c.s
 counterprob.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/counterprob.dir/build.make CMakeFiles/counterprob.dir/counterprob.c.s
 .PHONY : counterprob.c.s
+
+counterprob_mod.o: counterprob_mod.c.o
+.PHONY : counterprob_mod.o
+
+# target to build an object file
+counterprob_mod.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/counterprob_mod.dir/build.make CMakeFiles/counterprob_mod.dir/counterprob_mod.c.o
+.PHONY : counterprob_mod.c.o
+
+counterprob_mod.i: counterprob_mod.c.i
+.PHONY : counterprob_mod.i
+
+# target to preprocess a source file
+counterprob_mod.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/counterprob_mod.dir/build.make CMakeFiles/counterprob_mod.dir/counterprob_mod.c.i
+.PHONY : counterprob_mod.c.i
+
+counterprob_mod.s: counterprob_mod.c.s
+.PHONY : counterprob_mod.s
+
+# target to generate assembly for a file
+counterprob_mod.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/counterprob_mod.dir/build.make CMakeFiles/counterprob_mod.dir/counterprob_mod.c.s
+.PHONY : counterprob_mod.c.s
 
 fork.o: fork.c.o
 .PHONY : fork.o
@@ -1286,6 +1336,30 @@ hello.s: hello.c.s
 hello.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello.dir/build.make CMakeFiles/hello.dir/hello.c.s
 .PHONY : hello.c.s
+
+homework/snooze_h.o: homework/snooze_h.c.o
+.PHONY : homework/snooze_h.o
+
+# target to build an object file
+homework/snooze_h.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/snooze_h.dir/build.make CMakeFiles/snooze_h.dir/homework/snooze_h.c.o
+.PHONY : homework/snooze_h.c.o
+
+homework/snooze_h.i: homework/snooze_h.c.i
+.PHONY : homework/snooze_h.i
+
+# target to preprocess a source file
+homework/snooze_h.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/snooze_h.dir/build.make CMakeFiles/snooze_h.dir/homework/snooze_h.c.i
+.PHONY : homework/snooze_h.c.i
+
+homework/snooze_h.s: homework/snooze_h.c.s
+.PHONY : homework/snooze_h.s
+
+# target to generate assembly for a file
+homework/snooze_h.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/snooze_h.dir/build.make CMakeFiles/snooze_h.dir/homework/snooze_h.c.s
+.PHONY : homework/snooze_h.c.s
 
 jmpbuf.o: jmpbuf.c.o
 .PHONY : jmpbuf.o
@@ -2260,6 +2334,7 @@ help:
 	@echo "... blockone"
 	@echo "... cmdline"
 	@echo "... counterprob"
+	@echo "... counterprob_mod"
 	@echo "... fork"
 	@echo "... fork1"
 	@echo "... fork2"
@@ -2302,6 +2377,7 @@ help:
 	@echo "... sigsegv"
 	@echo "... sigsuspend"
 	@echo "... snooze"
+	@echo "... snooze_h"
 	@echo "... stack"
 	@echo "... test"
 	@echo "... waitforsignal"
@@ -2322,6 +2398,9 @@ help:
 	@echo "... counterprob.o"
 	@echo "... counterprob.i"
 	@echo "... counterprob.s"
+	@echo "... counterprob_mod.o"
+	@echo "... counterprob_mod.i"
+	@echo "... counterprob_mod.s"
 	@echo "... fork.o"
 	@echo "... fork.i"
 	@echo "... fork.s"
@@ -2367,6 +2446,9 @@ help:
 	@echo "... hello.o"
 	@echo "... hello.i"
 	@echo "... hello.s"
+	@echo "... homework/snooze_h.o"
+	@echo "... homework/snooze_h.i"
+	@echo "... homework/snooze_h.s"
 	@echo "... jmpbuf.o"
 	@echo "... jmpbuf.i"
 	@echo "... jmpbuf.s"

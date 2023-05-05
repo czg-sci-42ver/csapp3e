@@ -7,6 +7,7 @@ void sigchld_handler(int s)
 {
     int olderrno = errno;
     pid = Waitpid(-1, NULL, 0);
+    printf("child %d\n",pid);
     errno = olderrno;
 }
 
@@ -23,7 +24,8 @@ int main(int argc, char **argv)
     Sigemptyset(&mask);
     Sigaddset(&mask, SIGCHLD);
 
-    while (1) {
+    // while (1) {
+    for (int i=0; i<4; i++) {
         Sigprocmask(SIG_BLOCK, &mask, &prev); /* Block SIGCHLD */
         if (Fork() == 0) /* Child */
             exit(0);

@@ -3,6 +3,7 @@
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/blockone.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/cmdline.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/counterprob.dir
+/mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/counterprob_mod.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/fork.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/fork1.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/fork2.dir
@@ -53,5 +54,6 @@
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/waitprob0.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/waitprob1.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/waitprob3.dir
+/mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/snooze_h.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/edit_cache.dir
 /mnt/ubuntu/home/czg/csapp3e/ecf/_build/CMakeFiles/rebuild_cache.dir

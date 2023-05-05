@@ -55,6 +55,12 @@
 },
 {
   "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/counterprob_mod.dir/counterprob_mod.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/counterprob_mod.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob_mod.c",
+  "output": "CMakeFiles/counterprob_mod.dir/counterprob_mod.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
   "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/fork.dir/fork.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
   "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
   "output": "CMakeFiles/fork.dir/fork.c.o"
@@ -352,5 +358,11 @@
   "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/waitprob3.dir/waitprob3.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
   "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
   "output": "CMakeFiles/waitprob3.dir/waitprob3.c.o"
+},
+{
+  "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf/_build",
+  "command": "/usr/bin/cc  -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../src -isystem /mnt/ubuntu/home/czg/csapp3e/ecf/../include -g3 -Wall -o CMakeFiles/snooze_h.dir/homework/snooze_h.c.o -c /mnt/ubuntu/home/czg/csapp3e/ecf/homework/snooze_h.c",
+  "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/homework/snooze_h.c",
+  "output": "CMakeFiles/snooze_h.dir/homework/snooze_h.c.o"
 }
 ]

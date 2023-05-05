@@ -30,15 +30,19 @@ target_link_options(YourLib PRIVATE -shared -fpic )
 
 #file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} (?!fragments)*.c) # not supported https://stackoverflow.com/questions/68325947/cmake-negative-lookahead-regexp-support
 file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c)
+file( GLOB APP_SOURCES_HOMEWORK RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} homework/*.c)
+set(APP_SOURCES ${APP_SOURCES};${APP_SOURCES_HOMEWORK})
 #[[
-weird "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/Scrt1.o: in function `_start':
+"/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../lib/Scrt1.o: in function `_start':
 (.text+0x1b): undefined reference to `main'" error
+need define 'main()' if not linked with another source which define 'main()'
 #file( GLOB APP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c)
 ]]
 #string( REPLACE "fragments.c" "" APP_SOURCES ${APP_SOURCES} ) # will mistakenly see '' as testsourcefile
 #message("My test's working directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 message("APP_SOURCES ${APP_SOURCES}")
 #file( RELATIVE_PATH rel ${CMAKE_CURRENT_SOURCE_DIR} ${APP_SOURCES}) # keep seen as wrong parameter number
+
 foreach( testsourcefile ${APP_SOURCES} )
     # I used a simple string replace, to cut off .cpp.
 	#message("testsourcefile ${testsourcefile}")
@@ -46,7 +50,9 @@ foreach( testsourcefile ${APP_SOURCES} )
 		continue()
 	endif()
     string( REPLACE ".c" "" testname ${testsourcefile} )
+    string( REPLACE "homework/" "" testname ${testname} )
     add_executable( ${testname} ${testsourcefile} )
+	message("testname ${testname}")
     # Make sure YourLib is linked to each app
 	#target_include_directories( ${testname} INTERFACE ../include ../src)
     target_link_libraries( ${testname} YourLib )

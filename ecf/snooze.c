@@ -25,7 +25,8 @@ int main(int argc, char **argv) {
 
     if (signal(SIGINT, handler) == SIG_ERR) /* Install SIGINT handler */
 	unix_error("signal error\n");
-    (void)snooze(atoi(argv[1]));
+    snooze(atoi(argv[1]));
+    //(void)snooze(atoi(argv[1]));
     exit(0);
 }
 /* $end snoozesignal */
