@@ -2764,6 +2764,8 @@ above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-com
 ### `Figure 8.41`
 - race condition is that if child exit too fast, then `SIGCHLD` will be triggered too fast, then `pid` will always be zero and stuck in while loop.
   - if `block`, then according to `man 7 signal`, `SIGCHLD` will be pending ('Between the time when it is generated and when it is delivered a signal'), so must be processed and `pid` will change.
+### `Figure 9.12`
+- PTEA is calculated with PTER and VPN.
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`

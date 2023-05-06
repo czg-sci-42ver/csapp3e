@@ -62,6 +62,10 @@ my_cache("cache",0xFFD,12,12,8,2)
 my_cache("cache",0x071A,13,16,8,3)
 my_cache("cache",0x16E8,13,16,8,3)
 """
+p859
+"""
+my_cache("cache",0x354,12,12,6,4)
+"""
 problem 6.16,6.27
 """
 def my_cache_decode(annotate_str,set_index,tags:list,bits,tag_size,set_size):
@@ -82,11 +86,63 @@ problem 6.33
 """
 my_cache_decode("decode ",2,['BC','B6'],13,8,3)
 """
+Problem 9.4
+"""
+def binstr_2_hex(bin_str:str):
+    return hex(int(bin_str,2))
+class my_vir:
+    def __init__(self,hex_num,vpo_size,total_size,valid_size,tlbt_size,log: bool):
+        self.x=hex_num
+        self.bin=f'{self.x:0>{total_size}b}'
+        vpn_start=total_size-valid_size
+        self.start_redundant=self.bin[0:vpn_start]
+        vpnend=total_size-vpo_size
+        if log:
+            print("vpn_size: ",vpnend-vpn_start)
+        self.vpn_bin=self.bin[vpn_start:vpnend]
+        self.vpn=binstr_2_hex(self.vpn_bin)
+        self.vpo_bin=self.bin[vpnend:total_size]
+        self.vpo=binstr_2_hex(self.vpo_bin)
+        tlbt_end=vpn_start+tlbt_size
+        tlbi_size=vpnend-tlbt_end
+        self.tlbt=binstr_2_hex(self.bin[vpn_start:tlbt_end])
+        self.tlbi=binstr_2_hex(self.bin[tlbt_end:tlbt_end+tlbi_size])
+    def virtual_addr_decode_vpn_o(self):
+        print('vpn: ',self.vpn,"vpo: ",self.vpo,"")
+    def virtual_addr_decode_tlbt_i(self):
+        print("tlbt: ",self.tlbt,"tlbi: ",self.tlbi)
+    def virtual_addr_bin(self):
+        print("bin: ",self.bin,"\nredundant: ",self.start_redundant,"vpn_bin: ",self.vpn_bin,"vpo_bin: ",self.vpo_bin)
+    def ppn_to_phyaddr(self,ppn: int,ppn_valid_size,ppn_size,ct_size,ci_size,phyaddr_size,debug:bool):
+        """
+        int should be hex
+        """
+        self.ppo_bin=self.vpo_bin
+        ppn_bin=f'{int(ppn):0>{ppn_size}b}'
+        self.ppn_bin=ppn_bin[ppn_size-ppn_valid_size:len(ppn_bin)]
+        self.phy_addr=self.ppn_bin+self.ppo_bin
+        self.ct=binstr_2_hex(self.phy_addr[0:ct_size])
+        ci_end=ct_size+ci_size
+        self.ci=binstr_2_hex(self.phy_addr[ct_size:ci_end])
+        self.co=binstr_2_hex(self.phy_addr[ci_end:phyaddr_size])
+        print("phy_addr: ",self.phy_addr,"ct: ",self.ct,"ci: ",self.ci,"co: ",self.co)
+        if debug:
+            print("int(str(ppn),16) ",int(ppn),"ppn_bin_orig: ",ppn_bin,"ppn_bin: ",self.ppn_bin)
+            print("self.phy_addr[ci_end:phyaddr_size] ",self.phy_addr[ci_end:phyaddr_size])
+
+vir1=my_vir(0x03d7,6,16,14,6,True)
+vir1.virtual_addr_bin()
+vir1.virtual_addr_decode_vpn_o()
+vir1.virtual_addr_decode_tlbt_i()
+vir1.ppn_to_phyaddr(0x0d,6,8,6,4,12,False)
+"""
 miscs
 """
-print("size ",(len("0xc007ec92")-2)*4)
-print("byte size ",len("0008000000000000")/2)
-print("byte size ",len("000d000d000d")/2)
-print("byte size ",len("0c0200000000000000")/2)
-import math
-print("factorial 14!",math.factorial(14),": equal to 87178291200",87178291200==math.factorial(14))
+MISC=False
+if MISC:
+    print("size ",(len("0xc007ec92")-2)*4)
+    print("byte size ",len("0008000000000000")/2)
+    print("byte size ",len("000d000d000d")/2)
+    print("byte size ",len("0c0200000000000000")/2)
+    import math
+    print("factorial 14!",math.factorial(14),": equal to 87178291200",87178291200==math.factorial(14))

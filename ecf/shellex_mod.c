@@ -1,4 +1,8 @@
 /* $begin shellmain */
+#include <setjmp.h>
+#include <signal.h>
+#include <stdio.h>
+
 #include "csapp.h"
 #define MAXARGS 128
 
@@ -6,6 +10,16 @@
 void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
+struct job_element {
+  int job_id;
+  int job_pid;
+  char *cmd_str;
+};
+static int total_job = 0;
+static struct job_element *jobs;
+jmp_buf jmpbuf;
+
+int bg; /* Should the job run in bg or fg? */
 
 int main() {
   char cmdline[MAXLINE]; /* Command line */
@@ -27,12 +41,15 @@ int main() {
 void eval(char *cmdline) {
   char *argv[MAXARGS]; /* Argument list execve() */
   char buf[MAXLINE];   /* Holds modified command line */
-  int bg;              /* Should the job run in bg or fg? */
   pid_t pid;           /* Process id */
 
   strcpy(buf, cmdline);
   bg = parseline(buf, argv);
   if (argv[0] == NULL) return; /* Ignore empty lines */
+  sigset_t mask, prev;
+  Sigemptyset(&mask);
+  Sigaddset(&mask, SIGINT);
+  Sigaddset(&mask, SIGTSTP);
 
   if (!builtin_command(argv)) {
     if ((pid = Fork()) == 0) { /* Child runs user job */
@@ -48,6 +65,21 @@ void eval(char *cmdline) {
       if (waitpid(pid, &status, 0) < 0) unix_error("waitfg: waitpid error");
     } else
       printf("%d %s", pid, cmdline);
+    if ((pid && bg)) {
+      if (sigsetjmp(jmpbuf, 1)) {
+        for (int i = 0; i < sizeof(jobs); i++) {
+            int target_pid = (jobs + i)->job_pid;
+            kill(target_pid, SIGCONT);
+            printf("continue %d", target_pid);
+        }
+      }
+      Sigprocmask(SIG_BLOCK, &mask, &prev);
+      *jobs->cmd_str = *argv[0];
+      (*jobs).job_id = total_job;
+      jobs++;
+      total_job++;
+      printf("block in pid: %d", pid);
+    }
   }
   return;
 }
@@ -56,6 +88,44 @@ void eval(char *cmdline) {
 int builtin_command(char **argv) {
   if (!strcmp(argv[0], "quit")) /* quit command */
     exit(0);
+  if (!strcmp(argv[0], "jobs")) {
+    printf("jobs:");
+    for (int i = 0; i < sizeof(jobs_list); i++) {
+      printf("job %d: %s\n", i, *(jobs_list + i));
+    }
+  }
+  if (!strcmp(argv[0], "bg")) {
+    if (argv[1]) {
+      int target_pid_jid = atoi(argv[1]);
+      for (int i = 0; i < sizeof(jobs); i++) {
+        if ((jobs + i)->job_id == target_pid_jid ||
+            (jobs + i)->job_pid == target_pid_jid) {
+          int target_pid = (jobs + i)->job_pid;
+          kill(target_pid, SIGCONT);
+          printf("continue %d", target_pid);
+        }
+      }
+    } else {
+      Sio_error("need one param");
+    }
+    siglongjmp(jmpbuf, 1);
+  }
+  if (!strcmp(argv[0], "fg")) {
+    if (argv[1]) {
+      int target_pid_jid = atoi(argv[1]);
+      for (int i = 0; i < sizeof(jobs); i++) {
+        if ((jobs + i)->job_id == target_pid_jid ||
+            (jobs + i)->job_pid == target_pid_jid) {
+          int target_pid = (jobs + i)->job_pid;
+          kill(target_pid, SIGCONT);
+          printf("continue %d", target_pid);
+        }
+      }
+    } else {
+      Sio_error("need one param");
+    }
+    if (waitpid(pid, &status, 0) < 0) unix_error("waitfg: waitpid error");
+  }
   if (!strcmp(argv[0], "&")) /* Ignore singleton & */
     return 1;
   return 0; /* Not a builtin command */
@@ -88,7 +158,9 @@ int parseline(char *buf, char **argv) {
     return 1;
 
   /* Should the job run in the background? */
-  if ((bg = (*argv[argc - 1] == '&')) != 0) argv[--argc] = NULL;
+  if ((bg = (*argv[argc - 1] == '&')) != 0) {
+    argv[--argc] = NULL;
+  }
 
   return bg;
 }
