@@ -127,6 +127,7 @@ class my_vir:
         self.co=binstr_2_hex(self.phy_addr[ci_end:phyaddr_size])
         print("phy_addr: ",self.phy_addr,"ct: ",self.ct,"ci: ",self.ci,"co: ",self.co)
         if debug:
+            print("str(ppn) ",str(ppn)," ",str(ppn).encode())
             print("int(str(ppn),16) ",int(ppn),"ppn_bin_orig: ",ppn_bin,"ppn_bin: ",self.ppn_bin)
             print("self.phy_addr[ci_end:phyaddr_size] ",self.phy_addr[ci_end:phyaddr_size])
 
@@ -135,6 +136,27 @@ vir1.virtual_addr_bin()
 vir1.virtual_addr_decode_vpn_o()
 vir1.virtual_addr_decode_tlbt_i()
 vir1.ppn_to_phyaddr(0x0d,6,8,6,4,12,False)
+"""
+9.11
+"""
+vir1=my_vir(0x027c,6,16,14,6,True)
+vir1.virtual_addr_bin()
+vir1.virtual_addr_decode_vpn_o()
+vir1.virtual_addr_decode_tlbt_i()
+vir1.ppn_to_phyaddr(0x17,6,8,6,4,12,False)
+"""
+9.12,13
+"""
+vir1=my_vir(0x03a9,6,16,14,6,True)
+vir1.virtual_addr_bin()
+vir1.virtual_addr_decode_vpn_o()
+vir1.virtual_addr_decode_tlbt_i()
+vir1.ppn_to_phyaddr(0x11,6,8,6,4,12,False)
+vir1=my_vir(0x0040,6,16,14,6,True)
+vir1.virtual_addr_bin()
+vir1.virtual_addr_decode_vpn_o()
+vir1.virtual_addr_decode_tlbt_i()
+# vir1.ppn_to_phyaddr(0x11,6,8,6,4,12,False)
 """
 miscs
 """

@@ -2766,6 +2766,14 @@ above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-com
   - if `block`, then according to `man 7 signal`, `SIGCHLD` will be pending ('Between the time when it is generated and when it is delivered a signal'), so must be processed and `pid` will change.
 ### `Figure 9.12`
 - PTEA is calculated with PTER and VPN.
+### p868
+- victim page exists because virtual memory address is larger than physical memory address.
+### 9.11.6
+- Suffix decrement `--` is more [precedent](https://en.cppreference.com/w/c/language/operator_precedence) than dereference `*` 
+### problem 9.18
+- here `prev_alloc` is just function as `footer` although no size info.
+### problem 9.19
+- 1.a csapp p901 rounded up
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -2846,6 +2854,22 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 67 67
 ```
 - [async-signal-safe](https://docs.oracle.com/cd/E19455-01/806-5257/gen-26/index.html#:~:text=A%20concept%20similar%20to%20thread,operation%20that%20is%20being%20interrupted.)
+- page table [entry](https://wiki.osdev.org/Paging#Page_Directory), more extended with [64-bit](https://wiki.osdev.org/Paging#64-Bit_Paging)
+  - [page](https://en.wikipedia.org/wiki/Page_(computer_memory)) is just one unit, see csapp p841, similar to block as minimum transfer unit between cache memory,etc.
+- why use set-block with cache memory?
+> detailed is related how cache memory hardware designed.
+  - block is minimum transfer unit to accelerate based on spatial locality.
+  - set is related with replacement frequency. see [p34](https://courses.cs.washington.edu/courses/cse378/09wi/lectures/lec15.pdf) about expensive cost or csapp p649 working set.
+  - tag is to check whether one cache memory block without being cleared in advance should be used.
+- [mm_struct (recommended linux reference doc)](https://docs.huihoo.com/doxygen/linux/kernel/3.7/mm__types_8h_source.html#l00348) 
+- [high-water mark](https://stackoverflow.com/questions/45489405/what-are-high-and-low-water-marks-in-bit-streaming)
+- [thrashing](https://www.techopedia.com/definition/4766/thrashing) or csapp p887
+- [(void *) -1](https://stackoverflow.com/questions/38550401/significance-of-void-1)
+- [Buddy systems p2](http://www.cs.cmu.edu/afs/cs/academic/class/15213-s01/lectures/class15.4up.pdf)
+  - [fragmentation](https://www.geeksforgeeks.org/buddy-system-memory-allocation-technique/)
+- [mmap](https://www.clear.rice.edu/comp321/html/laboratories/lab10/)
+- address order [Explicit Free List](https://courses.cs.washington.edu/courses/cse351/10sp/lectures/15-memallocation.pdf) and [video](https://www.youtube.com/watch?v=rhLk2lf6QXA)
+- [strace brk(NULL) -> sbrk](https://unix.stackexchange.com/questions/75638/why-is-brk0-called)
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
@@ -2863,6 +2887,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - problem 6.34 -> 'typedef' related book referenced in csapp 
 - reread p735 'aside' after chapter 9
 - time travel [debug](https://pspdfkit.com/blog/2021/time-travel-debugging-for-c/) which also temporarily disabled avx to solve 'Process record does not support instruction 0xc4 at address ...'
+- page table entry (pte) [kernel](https://github.com/lorenzo-stoakes/linux-vm-notes/blob/master/sections/page-tables.md) code
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)
