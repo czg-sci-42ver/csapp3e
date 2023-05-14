@@ -158,6 +158,37 @@ vir1.virtual_addr_decode_vpn_o()
 vir1.virtual_addr_decode_tlbt_i()
 # vir1.ppn_to_phyaddr(0x11,6,8,6,4,12,False)
 """
+11.1
+"""
+class Net:
+    def __init__(self) -> None:
+        pass
+net = Net()
+
+def dot2hex(dot_addrs: list[str]):
+    for dot_addr in dot_addrs:
+        bytes = dot_addr.split('.')
+        hex_addr = '0x'
+        for byte in bytes:
+            hex_addr+=f'{int(byte):0>2x}'
+        print(dot_addr,':',hex_addr)
+def hex2dot(hex_nums: list[int]):
+    """
+    should be hex str
+    """
+    for hex in hex_nums:
+        hex_str = f'0x{hex:0>8x}'
+        hex_str_no_prefix = hex_str[2:]
+        byte_addr = ''
+        for index in range(4):
+            start = index*2
+            byte_addr +=str(int(hex_str_no_prefix[start:start+2],16))
+            if index != 3:
+                byte_addr += '.'
+        print(hex_str,': '+byte_addr)
+dot2hex(['107.212.122.205','64.12.149.13','107.212.96.29'])      
+hex2dot([0x00000080,0xFFFFFF00,0x0A010140])
+"""
 miscs
 """
 MISC=False

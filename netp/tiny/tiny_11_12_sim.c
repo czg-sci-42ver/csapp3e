@@ -4,9 +4,12 @@
  *     GET method to serve static and dynamic content.
  */
 #include "csapp.h"
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
 
 void doit(int fd);
-void read_requesthdrs(rio_t *rp);
+void read_requesthdrs(rio_t *rp,char *method,char *buffer);
 int parse_uri(char *uri, char *filename, char *cgiargs);
 void serve_static(int fd, char *filename, int filesize);
 void get_filetype(char *filename, char *filetype);
@@ -57,12 +60,15 @@ void doit(int fd) {
     return;
   printf("%s", buf);
   sscanf(buf, "%s %s %s", method, uri, version);  // line:netp:doit:parserequest
-  if (strcasecmp(method, "GET")) {  // line:netp:doit:beginrequesterr
+  int not_post = strcasecmp(method, "POST");
+  if (strcasecmp(method, "GET") && not_post) {  // line:netp:doit:beginrequesterr
     clienterror(fd, method, "501", "Not Implemented",
                 "Tiny does not implement this method");
     return;
   }                        // line:netp:doit:endrequesterr
-  read_requesthdrs(&rio);  // line:netp:doit:readrequesthdrs
+  read_requesthdrs(&rio,method,buf);  // line:netp:doit:readrequesthdrs
+  // Rio_readnb(&rio, buf, len);
+  printf("buf: %s",buf);
 
   /* Parse URI from GET request */
   is_static = parse_uri(uri, filename, cgiargs);  // line:netp:doit:staticcheck
@@ -87,7 +93,12 @@ void doit(int fd) {
                   "Tiny couldn't run the CGI program");
       return;
     }
-    serve_dynamic(fd, filename, cgiargs);  // line:netp:doit:servedynamic
+    if (not_post) {
+      serve_dynamic(fd, filename, cgiargs);  // line:netp:doit:servedynamic
+    }else {
+      serve_dynamic(fd, filename, buf);
+    }
+    
   }
 }
 /* $end doit */
@@ -96,8 +107,9 @@ void doit(int fd) {
  * read_requesthdrs - read HTTP request headers
  */
 /* $begin read_requesthdrs */
-void read_requesthdrs(rio_t *rp) {
-  char buf[MAXLINE];
+void read_requesthdrs(rio_t *rp,char *method,char * buffer) {
+  char buf[MAXLINE],*test;
+  int len;
 
   Rio_readlineb(rp, buf, MAXLINE);
   printf("%s", buf);
@@ -105,7 +117,24 @@ void read_requesthdrs(rio_t *rp) {
     Rio_readlineb(rp, buf, MAXLINE);
     printf("%s", buf);
   }
-  return;
+  if (!strcasecmp(method, "POST")) {
+    /*
+    here use telnet to generate '\n' to be compatible with `Rio_readlineb`
+    $ ./tiny_11_12_sim 1111
+    $ telnet localhost 1111 << EOF
+    heredoc> POST /cgi-bin/adder HTTP/1.1 
+    heredoc> Host: localhost
+    heredoc> 
+    heredoc> 1&2
+    heredoc> EOF
+    */
+    len = Rio_readlineb(rp, buffer, MAXLINE);
+    test = buffer;
+    /*
+    here is ‘\r\n’, so '1<enter>' -> '1\r\n', so len = 3
+    */
+  }
+  return ;
 }
 /* $end read_requesthdrs */
 

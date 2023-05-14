@@ -15,6 +15,7 @@ PROGS =	echo.o\
 	echoserveri\
 	tiny/tiny\
 	netpfragments.o\
+	inet_ntop_hostinfo
 
 all: $(CSAPP_SRC)/csapp.o $(PROGS) 
 $(PROGS): $(CSAPP_SRC)/csapp.o

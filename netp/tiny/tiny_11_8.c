@@ -3,6 +3,8 @@
  * tiny.c - A simple, iterative HTTP/1.0 Web server that uses the
  *     GET method to serve static and dynamic content.
  */
+#include <signal.h>
+
 #include "csapp.h"
 
 void doit(int fd);
@@ -13,6 +15,8 @@ void get_filetype(char *filename, char *filetype);
 void serve_dynamic(int fd, char *filename, char *cgiargs);
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg,
                  char *longmsg);
+void child_handle(int sig);
+volatile sig_atomic_t pid;
 
 int main(int argc, char **argv) {
   int listenfd, connfd;
@@ -179,10 +183,22 @@ void get_filetype(char *filename, char *filetype) {
     strcpy(filetype, "image/png");
   else if (strstr(filename, ".jpg"))
     strcpy(filetype, "image/jpeg");
+  else if (strstr(filename, ".mpg"))
+    strcpy(filetype, "video/mpeg");
   else
     strcpy(filetype, "text/plain");
 }
 /* $end serve_static */
+
+void child_handle(int sig) {
+  int olderrno = errno;
+  while (waitpid(-1, NULL, 0) > 0) {
+    Sio_puts("Handler reaped child\n");
+  }
+  if (errno != ECHILD) Sio_error("waitpid error");
+  Pause();
+  errno = olderrno;
+}
 
 /*
  * serve_dynamic - run a CGI program on behalf of the client
@@ -190,23 +206,31 @@ void get_filetype(char *filename, char *filetype) {
 /* $begin serve_dynamic */
 void serve_dynamic(int fd, char *filename, char *cgiargs) {
   char buf[MAXLINE], *emptylist[] = {NULL};
+  sigset_t mask, prev;
+  Signal(SIGCHLD, child_handle);
+  Sigprocmask(SIG_BLOCK, &mask, &prev); /* Block SIGCHLD */
 
   /* Return first part of HTTP response */
   sprintf(buf, "HTTP/1.0 200 OK\r\n");
   Rio_writen(fd, buf, strlen(buf));
   sprintf(buf, "Server: Tiny Web Server\r\n");
   Rio_writen(fd, buf, strlen(buf));
+  
 
   if (Fork() == 0) { /* Child */  // line:netp:servedynamic:fork
     /* Real server would set all CGI vars here */
     setenv("QUERY_STRING", cgiargs, 1);  // line:netp:servedynamic:setenv
     Dup2(fd, STDOUT_FILENO);
-        /* Redirect stdout to client */  // line:netp:servedynamic:dup2
+    /* Redirect stdout to client */  // line:netp:servedynamic:dup2
     Execve(filename, emptylist, environ);
-        /* Run CGI program */  // line:netp:servedynamic:execve
+    /* Run CGI program */  // line:netp:servedynamic:execve
   }
-  Wait(NULL);
-      /* Parent waits for and reaps child */  // line:netp:servedynamic:wait
+  pid = 0;
+  Sigprocmask(SIG_SETMASK, &prev, NULL); /* Unblock SIGCHLD */
+  while (!pid)
+  ;
+  // Wait(NULL);
+  /* Parent waits for and reaps child */  // line:netp:servedynamic:wait
 }
 /* $end serve_dynamic */
 

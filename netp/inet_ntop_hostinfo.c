@@ -24,7 +24,8 @@ int main(int argc, char **argv)
     /* Walk the list and display each IP address */
     flags = NI_NUMERICHOST; /* Display address string instead of domain name */
     for (p = listp; p; p = p->ai_next) {
-        Getnameinfo(p->ai_addr, p->ai_addrlen, buf, MAXLINE, NULL, 0, flags);
+        // Getnameinfo(p->ai_addr, p->ai_addrlen, buf, MAXLINE, NULL, 0, flags);
+        Inet_pton(AF_INET, &(p->ai_addr->sa_data[2]), buf);
         printf("%s\n", buf);
     } 
 

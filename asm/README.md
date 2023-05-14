@@ -1961,6 +1961,7 @@ l-wx------ 1 czg czg 64 Apr 14 11:43 12 -> 'pipe:[138023]'
   (recommend read API firts, **if not understand** then go to source code [not to adhere to understandign all source codes])
 - memory [watchpoint](https://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb) [more](https://sourceware.org/gdb/download/onlinedocs/gdb/Set-Watchpoints.html#Set-Watchpoints)
 - [probe](https://docs.rs/probe/latest/probe/)
+- [args](https://stackoverflow.com/a/29741504/21294350) (`--args` may no use)
 ## rizin(version:`9ab709bc34843f04ffde3b63322c809596123e77`)
 - history in `/home/czg/.cache/rizin/history` or `/home/czg/.cache/radare2/history`
 ## r2(radare2)
@@ -2774,6 +2775,33 @@ above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-com
 - here `prev_alloc` is just function as `footer` although no size info.
 ### problem 9.19
 - 1.a csapp p901 rounded up
+### Figure 10.11
+- here `readdir` will change both `streamp` and `dep` based on [source code](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/readdir.c.html), based on `typedef struct __dirstream DIR`, see [__dirstream](https://github.com/lattera/glibc/blob/master/sysdeps/posix/dirstream.h) for definition of `dirp->offset`
+```bash
+struct dirent *
+__readdir_unlocked (DIR *dirp)
+...
+      dp = (struct dirent *) &dirp->data[dirp->offset];
+      reclen = dp->d_reclen;
+      dirp->offset += reclen;
+struct dirent *
+__readdir (DIR *dirp)
+...
+#endif
+  dp = __readdir_unlocked (dirp);
+#if ...
+```
+### 10.10
+- standard IO is in `man 2 ...` although it says `Standard C library (libc, -lc)` which seems to conflict with 'The library (libc) provides' in csapp p947 
+### p948
+- [see](https://stackoverflow.com/questions/24903442/i-o-between-input-and-output-in-c-programme) [or](https://stackoverflow.com/questions/54067462/why-input-functions-cannot-follow-output-functions-or-vice-versa-in-c), if output follows input with the same file, should 'save the data from the buffer into the file'
+  - if input follows output with the same file, should change file pos because ‘in the last position of the file’
+### 11.4
+- see [`gni_host_inet_numeric`](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html#gni_host_inet_numeric) called by callee ... of [gni_host](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html)
+### open_listenfd
+- from `man setsockopt`, 'optlen is a value-result argument, initially containing the size of the buffer pointed to by optval, and modified', so here `optlen` set as `sizeof(int)` initially, although unmodifiable.
+### echoserveri.c
+- `Accept(listenfd, (SA *)&clientaddr, &clientlen);`: from `man 2 Accept`, `&clientaddr` is 'The exact format of the address returned addr' to save connected socket addr.
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -2870,6 +2898,33 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - [mmap](https://www.clear.rice.edu/comp321/html/laboratories/lab10/)
 - address order [Explicit Free List](https://courses.cs.washington.edu/courses/cse351/10sp/lectures/15-memallocation.pdf) and [video](https://www.youtube.com/watch?v=rhLk2lf6QXA)
 - [strace brk(NULL) -> sbrk](https://unix.stackexchange.com/questions/75638/why-is-brk0-called)
+- [view](https://linux-kernel-labs.github.io/refs/heads/master/labs/device_drivers.html#majors-and-minors) [Character vs. block devices](https://tldp.org/LDP/khg/HyperNews/get/devices/basics.html)
+- get [predefined macro](https://stackoverflow.com/questions/2224334/gcc-dump-preprocessor-defines) ` echo | gcc -dM -E -` [or](https://stackoverflow.com/questions/19409847/how-does-eclipse-cdt-understand-size-type)
+- stat structure not shown in `man 2 stat` in archlinux, shown in [man7](https://man7.org/linux/man-pages/man2/stat.2.html)
+  - [S_ISREG](https://linux.die.net/man/2/stat)
+  - or [`man inode`](https://stackoverflow.com/questions/40163270/what-is-s-isreg-and-what-does-it-do)
+- `<` [redirection](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
+- Descriptor table Open file table [detailed](https://www.usna.edu/Users/cs/wcbrown/courses/IC221/classes/L09/Class.html) [simplified](https://biriukov.dev/docs/fd-pipe-session-terminal/1-file-descriptor-and-open-file-description/)
+- [why](https://stackoverflow.com/questions/985051/what-is-the-purpose-of-fork) use fork()
+- reap to [release](https://stackoverflow.com/questions/58885831/what-does-reaping-children-imply) process table slot at least.
+- CGI standard defines [?](https://datatracker.ietf.org/doc/html/rfc3875)('"?" <query-string>') also
+  - `%` as escape of ascii in [2.3](https://datatracker.ietf.org/doc/html/rfc3875#section-2.3) 
+  - 'QUERY_STRING = query-string'
+  - TODO & definition
+- [difference](https://stackoverflow.com/questions/3581585/whats-the-difference-between-a-null-pointer-and-a-void-pointer#:~:text=A%20null%20pointer%20points%20has,the%20pointer%20has%20been%20nullified.) between a Null pointer & a Void pointer
+### network
+- [ai_flags](https://www.akkadia.org/drepper/userapi-ipv6.html)
+  - [addrinfo](https://www.qnx.com/developers/docs/6.5.0SP1.update/com.qnx.doc.neutrino_lib_ref/a/addrinfo.html)
+- `##family` [meaning](https://stackoverflow.com/questions/28225972/what-is-the-meaning-of-family)
+- get `EOF` [relation](https://unix.stackexchange.com/questions/110240/why-does-ctrl-d-eof-exit-the-shell) with `Ctrl+D`
+- errno on [different](https://www.ioplex.com/~miallen/errcmp.html) from [this](https://stackoverflow.com/questions/7003234/which-systems-define-eagain-and-ewouldblock-as-different-values/7003379#7003379) of [1](https://stackoverflow.com/questions/49049430/difference-between-eagain-or-ewouldblock) platforms
+- [MIME](https://www.digipres.org/formats/mime-types/) [or](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+- HTTP standard text line [ending](https://stackoverflow.com/questions/5757290/http-header-line-break-style) `\r\n`
+  - HTTP [Request](https://www.ibm.com/docs/en/cics-ts/5.3?topic=protocol-http-requests) ([responses](https://www.ibm.com/docs/en/cics-ts/5.2?topic=protocol-http-responses)), more [detailed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages)
+    - [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers#proxies)
+    - HTTP request [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+- CGI [env](https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html)
+- http/1.1 [rfc](https://datatracker.ietf.org/doc/html/rfc2616)
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
@@ -2888,6 +2943,10 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - reread p735 'aside' after chapter 9
 - time travel [debug](https://pspdfkit.com/blog/2021/time-travel-debugging-for-c/) which also temporarily disabled avx to solve 'Process record does not support instruction 0xc4 at address ...'
 - page table entry (pte) [kernel](https://github.com/lorenzo-stoakes/linux-vm-notes/blob/master/sections/page-tables.md) code
+- show `__builtin_bswap32` definition
+- [defining](https://stackoverflow.com/questions/47377745/c89-c99-say-theyre-macros-make-them-happy) a macro that does essentially nothing `#define stdin stdin`
+- SOCK_RAW SOCK_DGRAM [diff](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream) csapp p975
+- why rio... in csapp robust?
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)

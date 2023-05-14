@@ -4,6 +4,9 @@
  *     GET method to serve static and dynamic content.
  */
 #include "csapp.h"
+// #include <cstring>
+#include <stdio.h>
+#include <unistd.h>
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
@@ -101,9 +104,15 @@ void read_requesthdrs(rio_t *rp) {
 
   Rio_readlineb(rp, buf, MAXLINE);
   printf("%s", buf);
+  printf("buf size: %ld\n strlen: %ld\n",sizeof(buf),strlen(buf));
+  Rio_writen(rp->rio_fd, buf,strlen(buf));
+  /*
+  TODO may occur Rio_writen error: Connection reset by peer
+  */
   while (strcmp(buf, "\r\n")) {  // line:netp:readhdrs:checkterm
     Rio_readlineb(rp, buf, MAXLINE);
     printf("%s", buf);
+    Rio_writen(rp->rio_fd, buf,strlen(buf));
   }
   return;
 }

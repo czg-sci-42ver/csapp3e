@@ -4,6 +4,8 @@
  *     GET method to serve static and dynamic content.
  */
 #include "csapp.h"
+#include <stdbool.h>
+#include <stdio.h>
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
@@ -57,7 +59,8 @@ void doit(int fd) {
     return;
   printf("%s", buf);
   sscanf(buf, "%s %s %s", method, uri, version);  // line:netp:doit:parserequest
-  if (strcasecmp(method, "GET")) {  // line:netp:doit:beginrequesterr
+  bool is_head =strcasecmp(method, "HEAD");
+  if (strcasecmp(method, "GET") && is_head) {  // line:netp:doit:beginrequesterr
     clienterror(fd, method, "501", "Not Implemented",
                 "Tiny does not implement this method");
     return;
@@ -71,6 +74,20 @@ void doit(int fd) {
                 "Tiny couldn't find this file");
     return;
   }  // line:netp:doit:endnotfound
+  if (!is_head) {
+    printf("is head\n");
+    char * filetype[MAXLINE];
+    get_filetype(filename, filetype);     // line:netp:servestatic:getfiletype
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");  // line:netp:servestatic:beginserve
+    sprintf(buf, "%sServer: Tiny Web Server\r\n", buf);
+    sprintf(buf, "%sConnection: close\r\n", buf);
+    sprintf(buf, "%sContent-length: %d\r\n", buf, (int)sbuf.st_size);
+    sprintf(buf, "%sContent-type: %s\r\n\r\n", buf, filetype);
+    Rio_writen(fd, buf, strlen(buf));  // line:netp:servestatic:endserve
+    printf("Response headers:\n");
+    printf("%s", buf);
+    return;
+  }
 
   if (is_static) { /* Serve static content */
     if (!(S_ISREG(sbuf.st_mode)) ||

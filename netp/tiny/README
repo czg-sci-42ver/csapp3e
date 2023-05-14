@@ -36,3 +36,5 @@ Files:
   cgi-bin/adder.c	CGI program that adds two numbers
   cgi-bin/Makefile	Makefile for adder.c
 
+Czg add:
+  tiny_mod 11.6 homework

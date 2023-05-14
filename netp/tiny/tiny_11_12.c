@@ -4,9 +4,12 @@
  *     GET method to serve static and dynamic content.
  */
 #include "csapp.h"
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
 
 void doit(int fd);
-void read_requesthdrs(rio_t *rp);
+void read_requesthdrs(rio_t *rp,char *method,char *buffer);
 int parse_uri(char *uri, char *filename, char *cgiargs);
 void serve_static(int fd, char *filename, int filesize);
 void get_filetype(char *filename, char *filetype);
@@ -57,12 +60,15 @@ void doit(int fd) {
     return;
   printf("%s", buf);
   sscanf(buf, "%s %s %s", method, uri, version);  // line:netp:doit:parserequest
-  if (strcasecmp(method, "GET")) {  // line:netp:doit:beginrequesterr
+  int not_post = strcasecmp(method, "POST");
+  if (strcasecmp(method, "GET") && not_post) {  // line:netp:doit:beginrequesterr
     clienterror(fd, method, "501", "Not Implemented",
                 "Tiny does not implement this method");
     return;
   }                        // line:netp:doit:endrequesterr
-  read_requesthdrs(&rio);  // line:netp:doit:readrequesthdrs
+  read_requesthdrs(&rio,method,buf);  // line:netp:doit:readrequesthdrs
+  // Rio_readnb(&rio, buf, len);
+  printf("buf: %s",buf);
 
   /* Parse URI from GET request */
   is_static = parse_uri(uri, filename, cgiargs);  // line:netp:doit:staticcheck
@@ -87,7 +93,13 @@ void doit(int fd) {
                   "Tiny couldn't run the CGI program");
       return;
     }
-    serve_dynamic(fd, filename, cgiargs);  // line:netp:doit:servedynamic
+    if (not_post) {
+      serve_dynamic(fd, filename, cgiargs);  // line:netp:doit:servedynamic
+    }else {
+      printf("pass buf:%s",buf);
+      serve_dynamic(fd, filename, buf);
+    }
+    
   }
 }
 /* $end doit */
@@ -96,8 +108,9 @@ void doit(int fd) {
  * read_requesthdrs - read HTTP request headers
  */
 /* $begin read_requesthdrs */
-void read_requesthdrs(rio_t *rp) {
-  char buf[MAXLINE];
+void read_requesthdrs(rio_t *rp,char *method,char * buffer) {
+  char buf[MAXLINE],*test;
+  int len;
 
   Rio_readlineb(rp, buf, MAXLINE);
   printf("%s", buf);
@@ -105,7 +118,19 @@ void read_requesthdrs(rio_t *rp) {
     Rio_readlineb(rp, buf, MAXLINE);
     printf("%s", buf);
   }
-  return;
+  if (!strcasecmp(method, "POST")) {
+    len = Rio_readlineb(rp, buffer, MAXLINE);
+    test = buffer;
+    printf("\nlen: %d\n",len);
+    for (; *test!=0; test++) {
+      printf("get char: %d\n",*test);
+    }
+    /*
+    here is ‘\r\n’
+    */
+    printf("arg: %s len: %d", buffer,len);
+  }
+  return ;
 }
 /* $end read_requesthdrs */
 
@@ -200,6 +225,7 @@ void serve_dynamic(int fd, char *filename, char *cgiargs) {
   if (Fork() == 0) { /* Child */  // line:netp:servedynamic:fork
     /* Real server would set all CGI vars here */
     setenv("QUERY_STRING", cgiargs, 1);  // line:netp:servedynamic:setenv
+    printf("cgiargs: %s",cgiargs);
     Dup2(fd, STDOUT_FILENO);
         /* Redirect stdout to client */  // line:netp:servedynamic:dup2
     Execve(filename, emptylist, environ);

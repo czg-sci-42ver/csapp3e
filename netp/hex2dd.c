@@ -1,5 +1,5 @@
 /* $begin hex2dd */
-#include "csapp.h"
+#include "../include/csapp.h"
 
 int main(int argc, char **argv) 
 {
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     
     if (!inet_ntop(AF_INET, &inaddr, buf, MAXBUF))
         unix_error("inet_ntop");
-    printf("%s\n", buf);
+    printf("%x %d %s\n", inaddr.s_addr,inaddr.s_addr,buf);
 
     exit(0);
 }

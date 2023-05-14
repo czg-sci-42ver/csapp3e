@@ -4,6 +4,7 @@
  *     GET method to serve static and dynamic content.
  */
 #include "csapp.h"
+#include <stdlib.h>
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
@@ -146,6 +147,7 @@ int parse_uri(char *uri, char *filename, char *cgiargs) {
 void serve_static(int fd, char *filename, int filesize) {
   int srcfd;
   char *srcp, filetype[MAXLINE], buf[MAXBUF];
+  struct stat *file_buf;
 
   /* Send response headers to client */
   get_filetype(filename, filetype);     // line:netp:servestatic:getfiletype
@@ -160,11 +162,13 @@ void serve_static(int fd, char *filename, int filesize) {
 
   /* Send response body to client */
   srcfd = Open(filename, O_RDONLY, 0);  // line:netp:servestatic:open
-  srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd,
-              0);                  // line:netp:servestatic:mmap
+  // Stat(filename, file_buf);
+  // unsigned long int file_size = file_buf->st_size;
+  void *save_buf= malloc(filesize);
+  Rio_readn(srcfd, save_buf, filesize);
   Close(srcfd);                    // line:netp:servestatic:close
-  Rio_writen(fd, srcp, filesize);  // line:netp:servestatic:write
-  Munmap(srcp, filesize);          // line:netp:servestatic:munmap
+  Rio_writen(fd, save_buf, filesize);  // line:netp:servestatic:write
+  free(save_buf);
 }
 
 /*
