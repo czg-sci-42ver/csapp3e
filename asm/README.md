@@ -1918,6 +1918,145 @@ pwndbg> vmmap
 0xffffffffff600000 0xffffffffff601000 --xp     1000      0 [vsyscall]
 
 ```
+## view virtual address space structure
+```bash
+$ cc -Og -Wall -I ../include -I . select.c ../src/csapp.o echo.o  -lpthread -lm -o select
+$ /mnt/ubuntu/home/czg/csapp3e/conc/select 1111
+$ ps aux | grep sele                           
+czg         5263  0.0  0.0   3704  2048 pts/2    S+   09:40   0:00 ./select 1111
+$ cat /proc/5263/maps                          
+562935e6d000-562935e6f000 r--p 00000000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562935e6f000-562935e71000 r-xp 00002000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562935e71000-562935e73000 r--p 00004000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562935e73000-562935e74000 r--p 00005000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562935e74000-562935e75000 rw-p 00006000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562936ba1000-562936bc2000 rw-p 00000000 00:00 0                          [heap]
+$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep ptr -A 20 -B 20
+Disassembly of section .bss:
+
+0000000000007280 <stderr@GLIBC_2.2.5>:
+        ...
+
+0000000000007290 <ptr>:
+        ...
+
+0000000000007298 <cnt.0>:
+$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep text -A 20     
+Disassembly of section .text:
+
+0000000000002500 <_start>:
+```
+- below is wrong calculation
+check in `python`:
+```python
+$ python
+Python 3.10.10 (main, Mar  5 2023, 22:26:53) [GCC 12.2.1 20230201] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> hex(0x7290-0x2500)
+'0x4d90'
+>>> hex(0x0000562935e6d000+0x4d90)
+'0x562935e71d90' # in 562935e71000-562935e73000 r--p -> /mnt/ubuntu/home/czg/csapp3e/conc/select
+```
+### need using `-fno-pic -no-pie` to view
+```bash
+$ cc -Og -Wall -I ../include -I . -fno-pic -no-pie select.c ../src/csapp.o ../src/echo.o  -lpthread -lm -o select
+...
+$ cat /proc/9152/maps 
+00400000-00402000 r--p 00000000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+00402000-00404000 r-xp 00002000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+00404000-00406000 r--p 00004000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+00406000-00407000 r--p 00005000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+00407000-00408000 rw-p 00006000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+01cee000-01d0f000 rw-p 00000000 00:00 0                                  [heap]
+# here is largely different from above with `pic` especially with segment size.
+$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep bss -A 20        
+Disassembly of section .bss:
+
+0000000000407280 <stderr@GLIBC_2.2.5>:
+        ...
+
+0000000000407290 <ptr>:
+        ...
+
+0000000000407298 <cnt.0>:
+# so bss is 00407000-00408000 rw-p
+
+# 00402000-00404000 r-xp begin
+$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep 402000 -A 20 
+0000000000402000 <_init>:
+```
+## bigger return value unable fit in `rax`
+- fpu [pdf p206 Figure 8-2.](../references/intel_64.pdf)
+### long double(8 byte) returned by fpu
+- `fld` is similar to `push` although push to another stack `fpu`
+```bash
+pwndbg> c
+Continuing.
+
+Watchpoint 2: $st0
+
+Old value = 3.1400000000000000001
+New value = 6.13999999999999999988
+
+Watchpoint 3: $st1
+
+Old value = 0
+New value = 3.1400000000000000001
+pwndbg> dr
+   0x000055555555515b <+4>:     db 2d af 0e 00 00       fld    TBYTE PTR [rip+0xeaf]        # 0x555555556010
+   0x0000555555555161 <+10>:    db 2d b9 0e 00 00       fld    TBYTE PTR [rip+0xeb9]        # 0x555555556020
+=> 0x0000555555555167 <+16>:    d9 ee                   fldz
+```
+### bigger struct is passed by stack (below test with `O1` will drop `test1` implementation in `main`)
+```bash
+$ cat test_return_struct.c
+struct object_t
+{
+  long long m1;
+  long long m2;
+  long long m3;
+};
+...
+int main(){
+  ...
+        struct object_t c=test1();
+        printf("%lld\n",c.m1);
+}
+# -Og
+$ cat Makefile 
+CFLAGS = -g -Wall -Og
+...
+$ objdump test_return_struct -dr
+0000000000001149 <test1>:
+    1149:       48 89 f8                mov    rax,rdi
+    114c:       48 b9 00 00 00 00 00    movabs rcx,0x10000000000
+    1153:       01 00 00 
+    1156:       48 89 4c 24 d8          mov    QWORD PTR [rsp-0x28],rcx
+    115b:       48 be 00 00 00 00 00    movabs rsi,0x20000000000
+    1162:       02 00 00 
+    1165:       48 89 74 24 e0          mov    QWORD PTR [rsp-0x20],rsi
+    116a:       48 ba 00 00 00 00 00    movabs rdx,0x30000000000
+    1171:       03 00 00 
+    1174:       48 89 54 24 e8          mov    QWORD PTR [rsp-0x18],rdx
+# here use `xmm0` to pack two long long(8byte)
+    1179:       66 0f 6f 44 24 d8       movdqa xmm0,XMMWORD PTR [rsp-0x28]
+    117f:       0f 11 07                movups XMMWORD PTR [rdi],xmm0
+    1182:       48 89 57 10             mov    QWORD PTR [rdi+0x10],rdx
+...
+0000000000001190 <main>:
+...
+    1194:       64 48 8b 04 25 28 00    mov    rax,QWORD PTR fs:0x28
+    119b:       00 00 
+    119d:       48 89 44 24 18          mov    QWORD PTR [rsp+0x18],rax
+    11a2:       31 c0                   xor    eax,eax
+    11a4:       48 89 e7                mov    rdi,rsp
+    11a7:       e8 9d ff ff ff          call   1149 <test1>
+    11ac:       48 8b 34 24             mov    rsi,QWORD PTR [rsp]
+    11b0:       48 8d 3d 4d 0e 00 00    lea    rdi,[rip+0xe4d]        # 2004 <_IO_stdin_used+0x4>
+    11b7:       b8 00 00 00 00          mov    eax,0x0
+    11bc:       e8 7f fe ff ff          call   1040 <printf@plt>
+```
+above: `main:rsp` -> `rdi`, then `test1:rsp-0x28` -> `xmm0` -> `rdi`
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
 ## voltron
@@ -2100,6 +2239,15 @@ $ gcc -fPIE -fPIC -no-pie -fgnu-tm test_got.c -o test_got -lstdc++
 ## [view](https://stackoverflow.com/questions/12697081/what-is-the-gmon-start-symbol) `__gmon_start__`
 ```bash
 $ gcc check_cet_supported.c -o check_cet_supported.out -g -no-pie -fno-pic -p -pg
+```
+## makefile -> `compile_commands.json`
+```bash
+# https://stackoverflow.com/questions/21134120/how-to-turn-makefile-into-json-compilation-database
+$ make --always-make --dry-run \
+ | grep -wE 'cc|gcc|g\+\+' \
+ | jq -nR '[inputs|{directory:".", command:., file: match("[a-z-]+\\.c").string[0:]}]' > compile_commands.json # maybe no use with complex project 
+# https://gist.github.com/gtors/effe8eef7dbe7052b22a009f3c7fc434
+$ bear -- make --always-make # work
 ```
 # csapp -> intel manual
 - zero extended [pdf p77](../references/intel_64.pdf)
@@ -2791,17 +2939,67 @@ __readdir (DIR *dirp)
   dp = __readdir_unlocked (dirp);
 #if ...
 ```
-### 10.10
+### C(hapter) 10.10
 - standard IO is in `man 2 ...` although it says `Standard C library (libc, -lc)` which seems to conflict with 'The library (libc) provides' in csapp p947 
 ### p948
 - [see](https://stackoverflow.com/questions/24903442/i-o-between-input-and-output-in-c-programme) [or](https://stackoverflow.com/questions/54067462/why-input-functions-cannot-follow-output-functions-or-vice-versa-in-c), if output follows input with the same file, should 'save the data from the buffer into the file'
   - if input follows output with the same file, should change file pos because ‘in the last position of the file’
-### 11.4
-- see [`gni_host_inet_numeric`](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html#gni_host_inet_numeric) called by callee ... of [gni_host](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html)
+### problem 11.4
+- why can use `(struct sockaddr_in *)` cast: see [`gni_host_inet_numeric`](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html#gni_host_inet_numeric) called by callee ... of [gni_host](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html)
 ### open_listenfd
 - from `man setsockopt`, 'optlen is a value-result argument, initially containing the size of the buffer pointed to by optval, and modified', so here `optlen` set as `sizeof(int)` initially, although unmodifiable.
 ### echoserveri.c
 - `Accept(listenfd, (SA *)&clientaddr, &clientlen);`: from `man 2 Accept`, `&clientaddr` is 'The exact format of the address returned addr' to save connected socket addr.
+### problem 12.3
+- global: wrong -> no 'may stop' because keyboard can't be caught at all.
+  and socket doesn't recognize ^D (can be seen by defining `DEBUG_ASCII` in `csapp.c`)
+- original book version: right because 'it is blocked in the call'
+### Figure 12.26
+- here if one reader call `reader` func , then it must update `w` and it will block when use `w` next time，i.e. one writer call `writer`.
+  but one writer will never update `mutex`, so it will never influence reader.
+### p932
+- why use rio
+  - TODO complex [`read`](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/read.c.html) may not append EOF if reading something (also implied by `man 2 read`: 'the  number of bytes read is returned (zero indicates end of file)' -> so splitted to two return.)
+  so use multiple `read` in `rio_readn` with `nleft`.
+### p1049
+- most `while(1)` is related with state machine.
+### Figure 12.14
+- p1030: although thread has its own stack area but all thread stacks are resided in ‘stack area of the virtual address space’, so can be **shared** by pointer.
+```cpp
+/*
+here `connfd` is located in main thread stack and `&connfd` is same for all peer threads, so results in race condition.
+*/
+connfd = Accept(listenfd, (SA *) &clientaddr, &clientlen);
+Pthread_create(&tid, NULL, thread, &connfd);
+```
+### Figure 12.36
+- $T_1$: 
+  sequential version -> 1 core 1 thread
+  'running on one core' -> maybe 1 core multiple threads
+### C 12.7.1
+- although at first glance, case 1 seems to be same as case 2 because they both change one global variable.
+  but it is not if thinking more deeply.
+  case 1:
+  1. variable must be shared to calculate count of all threads.
+  2. thread order don't influence result and main thread use the last result after all threads terminate.
+  case 2:
+  1. not, and its aim is just to offer one temporary rand number, so not a must to share one global variable.  
+  2. thread order influence result, because it uses every thread result.
+  because **thread order** is decided by kernel and may **change** every time the program runs, so (p1059) must change the code to be **reentrant** and not influence by other threads at all with regard to **global** variable.
+  case 3 vs case 2:
+  1. (p1060) the former returns static variable (see `man 3 gethostbyaddr`), the [latter](https://stackoverflow.com/questions/6161322/using-stdlibs-rand-from-multiple-threads) use static state (variable) inside function.
+### p1059
+- 'arguments are passed by value'
+  because local variable all stays at current caller thread stack, and parameter is passed by predefined (conventionally by cpu manufacturer) register set after transferring stack data to registers, so nothing at current caller thread stack is modified except that manually use assign return value to caller local variable.
+### Figure 12.44
+- the weird graph: 
+  in the bottom-left corner, where one runs `P(s)` and `P(t)` both based on `s,t=1 (initally)`,
+  then it can't run `P(s)` or `P(t)`, so can't forward anymore.
+### Figure 12.45
+- more precisely see [this pdf](../conc/12_45.pdf) by [this tex](../conc/12_45.tex) (based on csapp Figure 12.22)
+  here works mainly because of they all blocks 'region k'(see above pdf figure one) where maybe `P(s)/P(t)` runs twice without running `V()` once.
+  - [problem_12-15](../conc/problem_12-15.pdf) with [tex](../conc/problem_12_15.tex)
+
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -2906,7 +3104,7 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - `<` [redirection](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 - Descriptor table Open file table [detailed](https://www.usna.edu/Users/cs/wcbrown/courses/IC221/classes/L09/Class.html) [simplified](https://biriukov.dev/docs/fd-pipe-session-terminal/1-file-descriptor-and-open-file-description/)
 - [why](https://stackoverflow.com/questions/985051/what-is-the-purpose-of-fork) use fork()
-- reap to [release](https://stackoverflow.com/questions/58885831/what-does-reaping-children-imply) process table slot at least.
+- use `wait()` without `SIGCHLD` or `waitpid()` with `SIGCHLD` to reap: [release](https://stackoverflow.com/questions/58885831/what-does-reaping-children-imply) process table slot at least.
 - CGI standard defines [?](https://datatracker.ietf.org/doc/html/rfc3875)('"?" <query-string>') also
   - `%` as escape of ascii in [2.3](https://datatracker.ietf.org/doc/html/rfc3875#section-2.3) 
   - 'QUERY_STRING = query-string'
@@ -2925,6 +3123,34 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
     - HTTP request [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
 - CGI [env](https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html)
 - http/1.1 [rfc](https://datatracker.ietf.org/doc/html/rfc2616)
+### threads
+- [asynchronous](https://unix.stackexchange.com/questions/386814/what-do-asynchronous-and-synchronous-mean-in-notifying-processes-of-system-event) event
+- CPU Context Switching [save](https://www.scaler.com/topics/operating-system/context-switching-in-os/) CPU state in cooperation with separate virtual memory.
+- p1010 -> `man 7 signal` :'The signal being delivered  is also added to the signal mask...These signals are thus blocked while the handler executes'
+- [clean](https://www.pluralsight.com/blog/software-development/10-steps-to-clean-code) code
+- [shared](https://www.softprayog.in/programming/interprocess-communication-using-posix-shared-memory-in-linux#:~:text=Shared%20memory%20is%20an%20inter,segment%20to%20its%20address%20space.) memory
+- [cancellation point](https://stackoverflow.com/questions/27374707/what-exactly-is-a-cancellation-point) may be simply some point where OS can cancel the thread ('The write function is a cancellation').
+- [closed-form solution](https://stats.stackexchange.com/questions/70848/what-does-a-closed-form-solution-mean)
+- although `pthread_join()` blocks, but it doesn't influence peer thread running and only blocks main thread.
+- [`time`](https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1) usage (here user bigger than real because of [`threads`](https://stackoverflow.com/questions/15928334/user-time-larger-than-real-time))
+```bash
+$ bash -c 'time ./psum-array 32 30'
+
+real    0m0.867s
+user    0m12.934s
+sys     0m0.007s
+```
+#### processes (a), I/O multiplexing (b), and threads (c) diffs
+1.  (a) doesn't use other data structure to control flow, just let kernel decide process instructions running order
+    (b) use `fd_set` to control I/O fd
+    one process and one thread promises that no running **order** is needed to be concerned.
+    (c) use `semaphore` to control function instructions behavior to exclude wrong behavior subsets.
+    and thread order may be different and is needed to be concerned.
+#### summary
+- class 1: use `semaphore` to protect.
+  class 2: rewrite p1059
+  class 3/4 : at least by lock-and-copy
+- producer and consumer [original source](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html)
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
@@ -2947,7 +3173,60 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - [defining](https://stackoverflow.com/questions/47377745/c89-c99-say-theyre-macros-make-them-happy) a macro that does essentially nothing `#define stdin stdin`
 - SOCK_RAW SOCK_DGRAM [diff](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream) csapp p975
 - why rio... in csapp robust?
+- memory [circuit](https://lwn.net/Articles/250967/) and virtual memory related with [vm](https://lwn.net/Articles/253361/)
+- how [semaphore](https://www.shiksha.com/online-courses/articles/mutex-vs-semaphore-what-are-the-differences/) is used differently from mutex with regard to ‘several processes’
+  - one difference for illustration ('It cannot be locked or unlocked by any context other than the context that **acquired** it.'):
+    see csapp Figure 12.26 -> `rw1.c`, if we prepend `P(&w)` in `writer(void)` with `V(&w)` (although this is insane but it is able to do it), then can run Critical section between `V(&w)` and `P(&w)`.
+
+    but it may be not for `mutex`,
+  - difference with [`Java Monitor`](https://www.javatpoint.com/semaphore-vs-monitor#:~:text=Semaphore%20is%20an%20integer%20variable%2C%20whereas%20monitor%20is%20an%20abstract,crucial%20section%20at%20a%20time.) 
+    po, java Monitor implementation is mostly encapsulated (i.e. abstraction) without too much care. 
+- why r7 4800h can run 32 [threads](https://unix.stackexchange.com/questions/342014/hyperthreading-is-there-a-way-to-know-from-the-command-line-if-it-is-enabled-in)
+```bash
+# https://unix.stackexchange.com/questions/33450/checking-if-hyperthreading-is-enabled-or-not
+$ sudo dmidecode -t processor | grep -e 'HTT\|cor\|th' -i
+                HTT (Multi-threading)
+        Version: AMD Ryzen 7 4800H with Radeon Graphics         
+        Core Count: 8
+        Core Enabled: 8
+        Thread Count: 16
+                Multi-Core
+                Hardware Thread
+$ bash -c 'time ./psum-array 32 30'                
+
+real    0m0.855s
+user    0m12.746s
+sys     0m0.000s
+$ bash -c 'time ./psum-array 16 30'
+
+real    0m1.589s
+user    0m19.608s
+sys     0m0.003s
+$ bash -c 'time ./psum-array 8 30' 
+
+real    0m1.735s
+user    0m13.123s
+sys     0m0.001s
+[czg /mnt/ubuntu/home/czg/csapp3e/conc]$ bash -c 'time ./psum-array 4 30'
+
+real    0m3.352s
+user    0m12.626s
+sys     0m0.000s
+```
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
-- [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage)
+- [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage) 
+  - more [detailed](https://stackoverflow.com/questions/3250277/how-to-use-rip-relative-addressing-in-a-64-bit-assembly-program) 'the address of your string'(also see 'disassembler gave 0x10(%rip) because distance from current rip and msg is 0x10 byts' [here](https://stackoverflow.com/questions/3250277/how-to-use-rip-relative-addressing-in-a-64-bit-assembly-program#comment46433871_3260178))
+```bash
+$ cc -O1 -Wall -I ../include -S badcnt.c -masm=intel -o badcnt_intel.s
+$ cat badcnt_intel.s
+...
+lea rbx, thread[rip]
+$ objdump -D badcnt | grep 2609 -A 20
+0000000000002609 <thread>:
+    2609:       48 8b 0f                mov    rcx,QWORD PTR [rdi]
+    ....
+    268f:       48 8d 1d 73 ff ff ff    lea    rbx,[rip+0xffffffffffffff73]        # 2609 <thread>
+    2696:       48 89 da                mov    rdx,rbx
+```
   - [also](https://godbolt.org/) [from](https://www.felixcloutier.com/documents/gcc-asm.html#examples) 

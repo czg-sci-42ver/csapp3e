@@ -3,42 +3,44 @@
 	.globl	thread
 	.type	thread, @function
 thread:
-.LFB92:
+.LFB27:
 	.cfi_startproc
-	pushq	%rbp
+	pushq	%r12
 	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	pushq	%rbx
+	.cfi_offset 12, -16
+	pushq	%rbp
 	.cfi_def_cfa_offset 24
-	.cfi_offset 3, -24
-	subq	$8, %rsp
+	.cfi_offset 6, -24
+	pushq	%rbx
 	.cfi_def_cfa_offset 32
-	movl	(%rdi), %ebp
-	testl	%ebp, %ebp
+	.cfi_offset 3, -32
+	movl	(%rdi), %r12d
+	testl	%r12d, %r12d
 	jle	.L2
 	movl	$0, %ebx
+	leaq	mutex(%rip), %rbp
 .L3:
-	movl	$mutex, %edi
-	call	P
+	movq	%rbp, %rdi
+	call	P@PLT
 	movq	cnt(%rip), %rax
 	addq	$1, %rax
 	movq	%rax, cnt(%rip)
-	movl	$mutex, %edi
-	call	V
+	movq	%rbp, %rdi
+	call	V@PLT
 	addl	$1, %ebx
-	cmpl	%ebp, %ebx
+	cmpl	%ebx, %r12d
 	jne	.L3
 .L2:
 	movl	$0, %eax
-	addq	$8, %rsp
-	.cfi_def_cfa_offset 24
 	popq	%rbx
-	.cfi_def_cfa_offset 16
+	.cfi_def_cfa_offset 24
 	popq	%rbp
+	.cfi_def_cfa_offset 16
+	popq	%r12
 	.cfi_def_cfa_offset 8
 	ret
 	.cfi_endproc
-.LFE92:
+.LFE27:
 	.size	thread, .-thread
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .LC0:
@@ -51,76 +53,88 @@ thread:
 	.globl	main
 	.type	main, @function
 main:
-.LFB91:
+.LFB26:
 	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	pushq	%rbx
+	.cfi_def_cfa_offset 24
+	.cfi_offset 3, -24
 	subq	$40, %rsp
-	.cfi_def_cfa_offset 48
+	.cfi_def_cfa_offset 64
+	movq	%fs:40, %rax
+	movq	%rax, 24(%rsp)
+	xorl	%eax, %eax
 	cmpl	$2, %edi
-	je	.L6
-	movq	(%rsi), %rdx
-	movl	$.LC0, %esi
-	movl	$1, %edi
-	movl	$0, %eax
-	call	__printf_chk
+	je	.L7
+	movq	(%rsi), %rsi
+	leaq	.LC0(%rip), %rdi
+	call	printf@PLT
 	movl	$0, %edi
-	call	exit
-.L6:
+	call	exit@PLT
+.L7:
 	movq	8(%rsi), %rdi
 	movl	$10, %edx
 	movl	$0, %esi
-	call	strtol
-	movl	%eax, 12(%rsp)
+	call	strtol@PLT
+	movl	%eax, 4(%rsp)
 	movl	$1, %edx
 	movl	$0, %esi
-	movl	$mutex, %edi
-	call	Sem_init
-	leaq	12(%rsp), %rcx
-	movl	$thread, %edx
+	leaq	mutex(%rip), %rdi
+	call	Sem_init@PLT
+	leaq	4(%rsp), %rbp
+	leaq	8(%rsp), %rdi
+	movq	%rbp, %rcx
+	leaq	thread(%rip), %rbx
+	movq	%rbx, %rdx
 	movl	$0, %esi
+	call	Pthread_create@PLT
 	leaq	16(%rsp), %rdi
-	call	Pthread_create
-	leaq	12(%rsp), %rcx
-	movl	$thread, %edx
+	movq	%rbp, %rcx
+	movq	%rbx, %rdx
 	movl	$0, %esi
-	leaq	24(%rsp), %rdi
-	call	Pthread_create
+	call	Pthread_create@PLT
+	movl	$0, %esi
+	movq	8(%rsp), %rdi
+	call	Pthread_join@PLT
 	movl	$0, %esi
 	movq	16(%rsp), %rdi
-	call	Pthread_join
-	movl	$0, %esi
-	movq	24(%rsp), %rdi
-	call	Pthread_join
-	movq	cnt(%rip), %rax
-	movl	12(%rsp), %ecx
-	leal	(%rcx,%rcx), %edx
-	movslq	%edx, %rdx
-	cmpq	%rax, %rdx
-	je	.L7
+	call	Pthread_join@PLT
 	movq	cnt(%rip), %rdx
-	movl	$.LC1, %esi
-	movl	$1, %edi
+	movl	4(%rsp), %eax
+	addl	%eax, %eax
+	cltq
+	cmpq	%rdx, %rax
+	je	.L8
+	movq	cnt(%rip), %rsi
+	leaq	.LC1(%rip), %rdi
 	movl	$0, %eax
-	call	__printf_chk
-	jmp	.L8
-.L7:
-	movq	cnt(%rip), %rdx
-	movl	$.LC2, %esi
-	movl	$1, %edi
-	movl	$0, %eax
-	call	__printf_chk
-.L8:
+	call	printf@PLT
+.L9:
 	movl	$0, %edi
-	call	exit
+	call	exit@PLT
+.L8:
+	movq	cnt(%rip), %rsi
+	leaq	.LC2(%rip), %rdi
+	movl	$0, %eax
+	call	printf@PLT
+	jmp	.L9
 	.cfi_endproc
-.LFE91:
+.LFE26:
 	.size	main, .-main
-	.comm	mutex,32,32
-	.globl	cnt
+	.globl	mutex
 	.bss
+	.align 32
+	.type	mutex, @object
+	.size	mutex, 32
+mutex:
+	.zero	32
+	.globl	cnt
 	.align 8
 	.type	cnt, @object
 	.size	cnt, 8
 cnt:
 	.zero	8
-	.ident	"GCC: (Ubuntu 4.8.1-2ubuntu1~12.04) 4.8.1"
+	.ident	"GCC: (GNU) 12.2.1 20230201"
 	.section	.note.GNU-stack,"",@progbits

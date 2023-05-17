@@ -1,0 +1,596 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "../src/csapp.o",
+      "../src/csapp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "hello",
+      "hello.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/hello.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/hello"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-O1",
+      "-Wall",
+      "-I",
+      "../include",
+      "../src/csapp.o",
+      "-o",
+      "badcnt",
+      "badcnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-O1",
+      "-Wall",
+      "-I",
+      "../include",
+      "-S",
+      "badcnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-O1",
+      "-Wall",
+      "-I",
+      "../include",
+      "-S",
+      "-masm=intel",
+      "-o",
+      "badcnt_intel.s",
+      "badcnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt_intel.s"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-O1",
+      "-Wall",
+      "-I",
+      "../include",
+      "../src/csapp.o",
+      "-o",
+      "goodcnt",
+      "goodcnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-O1",
+      "-Wall",
+      "-I",
+      "../include",
+      "-S",
+      "goodcnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "echoclient",
+      "echoclient.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoclient.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoclient"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echoservers.o",
+      "echoservers.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservers.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservers.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echo.o",
+      "echo.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echo.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echoserverp.o",
+      "echoserverp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoserverp.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoserverp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echoservert.o",
+      "echoservert.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echoservert_cnt.o",
+      "echoservert_cnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_cnt.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_cnt.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echo_cnt.o",
+      "echo_cnt.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echo_cnt.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echo_cnt.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "echoservert_pre.o",
+      "echoservert_pre.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_pre.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_pre.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "sbuf.o",
+      "sbuf.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/sbuf.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/sbuf.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "ctime_ts",
+      "ctime_ts.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/ctime_ts.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/ctime_ts"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "race",
+      "race.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/race.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/race"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "norace",
+      "norace.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/norace.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/norace"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sharing",
+      "sharing.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/sharing.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/sharing"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "rand",
+      "rand.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rand.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rand"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "rand_r",
+      "rand_r.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rand_r.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rand_r"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "threadunsafe",
+      "threadunsafe.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/threadunsafe.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/threadunsafe"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "hellobug",
+      "hellobug.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/hellobug.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/hellobug"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "tfgets-main.o",
+      "tfgets-main.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/tfgets-main.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/tfgets-main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "select.o",
+      "select.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/select.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/select.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "psum-mutex",
+      "psum-mutex.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-mutex.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-mutex"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "psum-array",
+      "psum-array.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-array.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-array"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "psum-local",
+      "psum-local.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-local.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-local"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "rw0.o",
+      "rw0.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw0.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw0.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "rw1.o",
+      "rw1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "rw2.o",
+      "rw2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw2.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-Og",
+      "-Wall",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "rw3.o",
+      "rw3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw3.o"
+  }
+]

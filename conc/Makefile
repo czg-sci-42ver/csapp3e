@@ -3,7 +3,8 @@ psuCC = gcc
 CSAPP_INC = ../include
 CSAPP_SRC = ../src
 
-CFLAGS = -Og -Wall -I $(CSAPP_INC) -I .
+#CFLAGS = -Og -Wall -I $(CSAPP_INC) -I . -fno-pic -no-pie
+CFLAGS = -Og -Wall -I $(CSAPP_INC) -I . 
 LDLIBS = -lpthread -lm
 
 COUNTERARGS = -O1 -Wall -I $(CSAPP_INC)
@@ -36,8 +37,9 @@ PROGS =	hello\
 	rw2.o\
 	rw3.o\
 
-all: $(CSAPP_SRC)/csapp.o $(PROGS)
+all: $(CSAPP_SRC)/csapp.o $(PROGS) format
 $(PROGS): $(CSAPP_SRC)/csapp.o 
+#$(PROGS): $(CSAPP_SRC)/csapp.c $(CSAPP_INC)/csapp.h
 $(CSAPP_SRC)/csapp.o: $(CSAPP_SRC)/csapp.c $(CSAPP_INC)/csapp.h
 
 # The two programs that we use to illustrate synchronization
@@ -48,6 +50,7 @@ goodcnt: goodcnt.c
 badcnt: badcnt.c
 	$(CC) $(COUNTERARGS) -o badcnt badcnt.c $(CSAPP_SRC)/csapp.o -lpthread
 	$(CC) $(COUNTERARGS) -S badcnt.c
+	$(CC) $(COUNTERARGS) -S badcnt.c -masm=intel -o badcnt_intel.s
 
 run-psum-mutex:
 	/usr/bin/time ./psum-mutex 1 31 
@@ -81,3 +84,5 @@ select: select.o echo.o
 
 clean:
 	rm -f $(PROGS) *.o *~
+format:
+	(clang-format -i *.c --style=Google)

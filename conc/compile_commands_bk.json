@@ -1,0 +1,162 @@
+[
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o ../src/csapp.o ../src/csapp.c",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    hello.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o hello",
+    "file": "hello.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    badcnt.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o badcnt",
+    "file": "badcnt.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    goodcnt.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o goodcnt",
+    "file": "goodcnt.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    echoclient.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o echoclient",
+    "file": "echoclient.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echoservers.o echoservers.c",
+    "file": "echoservers.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echo.o echo.c",
+    "file": "echo.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   echoservers.o ../src/csapp.c ../include/csapp.h echo.o  -lpthread -lm -o echoservers",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echoserverp.o echoserverp.c",
+    "file": "echoserverp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   echoserverp.o ../src/csapp.c ../include/csapp.h echo.o  -lpthread -lm -o echoserverp",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echoservert.o echoservert.c",
+    "file": "echoservert.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   echoservert.o ../src/csapp.c ../include/csapp.h echo.o  -lpthread -lm -o echoservert",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echoservert_cnt.o echoservert_cnt.c",
+    "file": "cnt.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echo_cnt.o echo_cnt.c",
+    "file": "cnt.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   echoservert_cnt.o ../src/csapp.c ../include/csapp.h echo_cnt.o  -lpthread -lm -o echoservert_cnt",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o echoservert_pre.o echoservert_pre.c",
+    "file": "pre.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o sbuf.o sbuf.c",
+    "file": "sbuf.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   echoservert_pre.o ../src/csapp.c ../include/csapp.h echo_cnt.o sbuf.o  -lpthread -lm -o echoservert_pre",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    ctime_ts.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o ctime_ts",
+    "file": "ts.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    race.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o race",
+    "file": "race.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    norace.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o norace",
+    "file": "norace.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    sharing.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o sharing",
+    "file": "sharing.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    rand.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o rand",
+    "file": "rand.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    rand_r.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o rand_r",
+    "file": "r.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    threadunsafe.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o threadunsafe",
+    "file": "threadunsafe.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    hellobug.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o hellobug",
+    "file": "hellobug.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o tfgets-main.o tfgets-main.c",
+    "file": "tfgets-main.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .   -c -o select.o select.c",
+    "file": "select.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc   select.o ../src/csapp.c ../include/csapp.h echo.o  -lpthread -lm -o select",
+    "file": "csapp.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    psum-mutex.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o psum-mutex",
+    "file": "psum-mutex.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    psum-array.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o psum-array",
+    "file": "psum-array.c"
+  },
+  {
+    "directory": ".",
+    "command": "cc -Og -Wall -I ../include -I .    psum-local.c ../src/csapp.c ../include/csapp.h  -lpthread -lm -o psum-local",
+    "file": "psum-local.c"
+  }
+]

@@ -21,6 +21,9 @@
 /* $begin csapp.c */
 #include "../include/csapp.h"
 #include <stdio.h>
+#ifdef DEBUG_ASCII
+#define DEBUG_ASCII
+#endif
 
 /**************************
  * Error-handling functions
@@ -726,10 +729,13 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen) {
   for (n = 1; n < maxlen; n++) {
     if ((rc = rio_read(rp, &c, 1)) == 1) {
       *bufp++ = c;
-      printf("n: %d\n",n);
+      // printf("n: %d\n",n);
+      #ifdef DEBUG_ASCII
+        printf("get char: %d",c);
+      #endif
       if (c == '\n') {
         n++;
-        printf("after \\n n: %d",n);
+        // printf("after \\n n: %d",n);
         break;
       }
     } else if (rc == 0) {
@@ -741,7 +747,7 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen) {
       return -1; /* Error */
   }
   *bufp = 0;
-  printf("before leave, n: %d",n);
+  // printf("before leave, n: %d",n);
   return n - 1;
 }
 /* $end rio_readlineb */
