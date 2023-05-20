@@ -3148,6 +3148,7 @@ Pthread_create(&tid, NULL, thread, &connfd);
 - need `\n` as EOF and return 0 if encounter it even if at the end of line.
   (instead of using `rio_read` to simulate real network where we keep reading after `\n`, fetch multiple lines and block at `Rio_readlineb` in one `connfd`.)
   so that we can receive multiple client requests.
+- this one can't run in browser because server send wrong responce not consistent with the protocal (just echo but not process the messages, detailed see `/mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code/12.22_origin_change.c`).
 ### [12.27](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.27/)
 - here says two condition
   first: the second `fclose` would close one closed fd (paragrph 1).
@@ -3164,6 +3165,164 @@ Pthread_create(&tid, NULL, thread, &connfd);
 ### 12.34
 - see page table (‘Figure 9.26’,9.8.2),file table('Figure 10.14') and 'Figure 12.5' 
   according to [this](https://unix.stackexchange.com/questions/21325/is-the-file-table-in-the-filesystem-or-in-memory), file table should be manipulated by kernel in the kernel memory.
+### 12.38
+- how to accelerate step by step
+`tiny_wrong.c` ->(use mutex by `thread_with_mutex`) `tiny_log.c` -> (comment `printf` syscall,etc ) `tiny.c` -> (check buf in `check_thread`, notice here better to read `sbuf.rear` with mutex to ensure consistency ) `tiny_check_in_thread.c` -> (use `sbuf_full` which is unnecessary although more readable) `tiny_cit_sbuf_full.c` -> (forget what scope means, maybe change `thread_with_mutex *tid_set` to global) `tiny_citsf_scope.c`
+(main reason is to use more threads by decreasing `SBUFSIZE` to make that buf frame full happen more)
+> here, because server not terminate automatically, so `gprof` may not generate output when program terminates by sending the program `SIGKILL`
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_36]$ ./tiny_citsf_scope 5000 1
+
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   235.53us  823.05us  12.40ms   96.15%
+    Req/Sec    25.24k     9.45k   33.48k    87.50%
+  200857 requests in 4.01s, 43.87MB read
+Requests/sec:  50070.09
+Transfer/sec:     10.93MB
+# range from 9-11MB
+
+[czg /mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code]$ ./12.38/main
+
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   412.96us    1.19ms  18.19ms   94.58%
+    Req/Sec    17.88k     9.08k   25.72k    78.75%
+  142375 requests in 4.01s, 31.09MB read
+Requests/sec:  35461.51
+Transfer/sec:      7.74MB
+```
+#### not use `else if` where speed will decrease just as csapp book says by half.
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ export file=tiny_check_in_thread_correct;./$file 5000 1 > ./$file.txt
+
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   783.71us    1.68ms  22.14ms   90.76%
+    Req/Sec    11.06k     8.29k   21.93k    48.75%
+  87988 requests in 4.03s, 19.22MB read
+Requests/sec:  21842.40
+Transfer/sec:      4.77MB
+
+$ export file=tiny_check_in_thread_correct_without_else_if;./$file 5000 1 > ./$file.txt 
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   352.43us    1.13ms  13.44ms   94.35%
+    Req/Sec    21.75k    11.08k   31.95k    75.00%
+  173191 requests in 4.03s, 37.82MB read
+Requests/sec:  43021.12
+Transfer/sec:      9.40MB
+# rerun tiny_check_in_thread_correct_without_else_if
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   263.38us    0.90ms  10.21ms   95.56%
+    Req/Sec    24.71k    10.58k   34.79k    82.50%
+  196770 requests in 4.02s, 42.97MB read
+Requests/sec:  49001.32
+Transfer/sec:     10.70MB
+$ git rev-parse czg/master                                               
+57a7b40bccf3c10049de2982417a03508fd670b3
+```
+#### notice not have logical problem
+see below comments.
+```bash
+$ diff ./tiny_check_in_thread.c ./tiny_check_in_thread_correct.c                 
+--- ./tiny_check_in_thread.c    2023-05-20 20:22:59.184822139 +0800
++++ ./tiny_check_in_thread_correct.c    2023-05-20 20:41:02.772719257 +0800
+@@ -26,36 +26,36 @@
+   pthread_t tid;
+   sem_t mutex;
+ };
+# here can also not global, just pass pointer is enough.
++static struct thread_with_mutex *tid_set;
+ 
+ void *thread(void *vargp) {
+   // Pthread_detach(pthread_self());
+-  sem_t mutex = *((sem_t *)vargp);
+
+# must pass pointer because `P(&mutex);` use pointer which needs to be reentrant.
+
++  sem_t *mutex = ((sem_t *)vargp);
+   int connfd;
+   while (1) {
+-    P(&mutex);
++    P(mutex);
+     connfd = sbuf_remove(&sbuf); /* Remove connfd from buffer */
+     // printf("to read %d\n", connfd);
+     doit(connfd);  // line:netp:tiny:doit
+     // printf("to close %d\n", connfd);
+     Close(connfd);  // line:netp:tiny:close
+     // printf("has closed %d", connfd);
+-    V(&mutex);
++    V(mutex);
+   }
+ }
+ 
+ void *check_thread(void *argp) {
+   int buf_cnt, i;
+-  struct thread_with_mutex *tid_set_arg = (struct thread_with_mutex *)argp;
+   while (1) {
+     buf_cnt = sbuf.rear - sbuf.front;
+     if (buf_cnt == sbuf.n) {
+      # not occur the following logical error, otherwise the thread list may be weird with gap. and if malloc size not big enough,then throw 'segmentation fault' when access unvalid memory.
+-      threads *= 2;
+       if (threads > MAX_THREAD) {
+         fprintf(stderr, "unable to scale");
+         exit(1);
+       }
+       for (i = threads; i < threads * 2; i++) /* Create worker threads */
+-        Pthread_create(&tid_set_arg[i].tid, NULL, thread, NULL);
++        Pthread_create(&tid_set[i].tid, NULL, thread, &tid_set[i].mutex);
++      threads *= 2;
+     } else if (buf_cnt == 0) {
+       // fprintf(stdout, "buffer empty");
+       if (threads < 2) {
+@@ -70,10 +70,11 @@
+         /*
+         need cancel thread because thread itself not exit automatically.
+         */
+-        P(&tid_set_arg[i].mutex);
+-        Pthread_cancel(tid_set_arg[i].tid);
+-        V(&tid_set_arg[i].mutex);
++        P(&tid_set[i].mutex);
++        Pthread_cancel(tid_set[i].tid);
++        V(&tid_set[i].mutex);
+       }
+      #  needs to update，otherwise may cancel duplicate threads. 
++      threads /= 2;
+     }
+   }
+ }
+@@ -83,8 +84,7 @@
+   socklen_t clientlen;
+   struct sockaddr_storage clientaddr;
+   int i;
+-  struct thread_with_mutex *tid_set =
+-      Malloc(sizeof(struct thread_with_mutex) * MAX_THREAD);
++  tid_set = Malloc(sizeof(struct thread_with_mutex) * MAX_THREAD);
+   pthread_t tid;
+ 
+   /* Check command line args */
+@@ -98,7 +98,7 @@
+     exit(1);
+   }
+   sbuf_init(&sbuf, SBUFSIZE);
+-  Pthread_create(&tid, NULL, check_thread, (void *)tid_set);
++  Pthread_create(&tid, NULL, check_thread, NULL);
+ 
+   for (i = 0; i < MAX_THREAD; i++) Sem_init(&tid_set[i].mutex, 0, 1);
+   for (i = 0; i < threads; i++) /* Create worker threads */
+```
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -3315,7 +3474,8 @@ $ stty -icanon && vim
 
   - more detailed see `tiny_sigprocmask.c` comments
   ```bash
-  
+  [/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35]$ git rev-parse czg/master 
+  a517a18def6af63d775dd521c661000490ae9657
   ```
 ### network
 - [ai_flags](https://www.akkadia.org/drepper/userapi-ipv6.html)
@@ -3443,6 +3603,7 @@ sys     0m0.000s
 /* /mnt/ubuntu/home/czg/csapp3e/conc/homework/tfgets-select_comment_1.c */
 printf("%p\npos: %ld\n",readptr,ftell (stream));
 ```
+- check client without closing it after receiving one message, by checking `fd` duplicate after `fd` is manipulated by kernel once `connfd` related with some client is closed by client itself.
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage) 
@@ -3485,3 +3646,23 @@ NOTES
 - /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35/Makefile
   - use [`shell`](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
   - [`+=`](https://stackoverflow.com/questions/55500865/how-to-append-lists-in-makefile-using-loops)
+- why `clean` has [`*~`](https://stackoverflow.com/questions/38002190/what-is-happening-in-this-make-clean) (which is emacs backup)
+- [diff](https://unix.stackexchange.com/questions/100786/why-does-diff-fail-when-invoked-from-a-makefile)
+- clang-format not change Include order<a id="format"></a> [1](https://unix.stackexchange.com/questions/32908/how-to-insert-the-content-of-a-file-into-another-file-before-a-pattern-marker) 2
+```bash
+[/mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code]$ tail makefile 
+        (cd 12.39; make clean)
+        find . -type f -executable -print0 | xargs -0 rm -f --
+
+benchmark:
+        wrk -d4 http://localhost:5000
+format:
+        (clang-format --style=Google -dump-config > ./.clang-format_google)
+        #(cat ./.clang-format >> ./.clang-format_google)
+        (sed -n -e '/.../r ./.clang-format_tmp' ./.clang-format_google > ./.clang-format)
+        (find . -name '*.c' | xargs clang-format --style=file -i )
+$ cat ./.clang-format_tmp
+SortIncludes: false
+```
+## Sed
+- read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)

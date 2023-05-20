@@ -9,7 +9,7 @@ PROGS = $(patsubst %.c,%,$(SRCS))
 TFGETS_PROGS = $(patsubst %.c,%,$(TFGETS_SRCS))
 PROGS_TEST = $(patsubst %.c,%.test,$(SRCS))
 
-all: $(PROGS) tiny
+all: $(PROGS) tiny format
 
 12_22: echo_12_22.o 12_22.o
 	$(CC) $(CFLAGS) -o $@ $?
@@ -33,4 +33,6 @@ clean:
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 #tiny: SHELL:=/bin/bash
 tiny:
-	for i in $$(find . -name tiny*);do cd $$i;make --always-make;done
+	for i in $$(find . -type d -name 'tiny*');do cd $$i;make --always-make;done
+format:
+	(find . -name '*.c' | xargs clang-format -i --style=Google)

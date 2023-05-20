@@ -25,7 +25,7 @@ char *tfgets(char *s, int size, FILE *stream) {
     for (; readptr < readend; readptr++) {
       switch (read(fd, readptr, 1)) {
         case 1:
-          printf("%p\npos: %ld\n",readptr,ftell (stream));
+          printf("%p\npos: %ld\n", readptr, ftell(stream));
           if (*readptr == '\n') {
             readptr++;
             goto break_out;

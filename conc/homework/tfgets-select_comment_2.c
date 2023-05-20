@@ -20,7 +20,7 @@ char *tfgets(char *s, int size, FILE *stream) {
   FD_SET(STDIN_FILENO, &read_set);
   FD_SET(timerfd, &read_set);
   ready_set = read_set;
-  
+
   while (1) {
     Select(timerfd + 1, &ready_set, NULL, NULL, NULL);
 

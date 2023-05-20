@@ -6,8 +6,8 @@
 
 /* $begin reader1 */
 /* Global variables */
-int readcnt,writecnt,writecnt_two;    /* Initially = 0 */
-sem_t mutex, w, w_reach_one,wr; /* Both initially = 1 */
+int readcnt, writecnt, writecnt_two; /* Initially = 0 */
+sem_t mutex, w, w_reach_one, wr;     /* Both initially = 1 */
 
 void reader(void) {
   while (1) {
@@ -22,15 +22,15 @@ void reader(void) {
 
     P(&mutex);
     readcnt--;
-    if (readcnt == 0){ /* Last out */
+    if (readcnt == 0) { /* Last out */
       V(&w);
       // P(&wr);
       if (writecnt_two == 1) { /* buggy */
         V(&w_reach_one);
       }
       // V(&wr);
-    } 
-      
+    }
+
     V(&mutex);
   }
 }
@@ -57,7 +57,8 @@ void writer(void) {
       goto wr_2;
     }
     V(&wr);
-    wr_2: P(&w);
+  wr_2:
+    P(&w);
 
     /* Critical section */
     /* Writing happens  */
@@ -70,4 +71,4 @@ void writer(void) {
 }
 /* $end writer1 */
 
-int main(){}
+int main() {}

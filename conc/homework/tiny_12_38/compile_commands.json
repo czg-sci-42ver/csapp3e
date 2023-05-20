@@ -1,0 +1,68 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      "..",
+      "-o",
+      "adder",
+      "adder.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "-c",
+      "csapp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/csapp.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny",
+      "tiny.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny",
+      "./sbuf.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/sbuf.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny"
+  }
+]
