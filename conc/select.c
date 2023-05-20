@@ -1,4 +1,6 @@
 /* $begin select */
+#include <stdio.h>
+
 #include "../include/csapp.h"
 void echo(int connfd);
 void command(void);
@@ -26,11 +28,15 @@ int main(int argc, char **argv) {
     Select(listenfd + 1, &ready_set, NULL, NULL,
            NULL);                            // line:conc:select:select
     if (FD_ISSET(STDIN_FILENO, &ready_set))  // line:conc:select:stdinready
-      command();                             /* Read command line from stdin */
-    if (FD_ISSET(listenfd, &ready_set)) {    // line:conc:select:listenfdready
+    {
+      printf("begin input");
+      command(); /* Read command line from stdin */
+    }
+    if (FD_ISSET(listenfd, &ready_set)) {  // line:conc:select:listenfdready
       clientlen = sizeof(struct sockaddr_storage);
       connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
       echo(connfd); /* Echo client input until EOF */
+      printf("to close connfd");
       Close(connfd);
     }
   }

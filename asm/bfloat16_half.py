@@ -189,6 +189,20 @@ def hex2dot(hex_nums: list[int]):
 dot2hex(['107.212.122.205','64.12.149.13','107.212.96.29'])      
 hex2dot([0x00000080,0xFFFFFF00,0x0A010140])
 """
+12.34
+"""
+begin = -177168
+print("check 12.34")
+find=False
+for item in range(16):
+    thread_arg_begin = begin+item*11072
+    return_mat_begin = begin+item*11072+10752
+    return_mat_end = return_mat_begin+320
+    if thread_arg_begin < -198720 < return_mat_end:
+        find = True
+        print(thread_arg_begin,return_mat_end)
+print("find:",find)
+"""
 miscs
 """
 MISC=False

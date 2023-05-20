@@ -11,7 +11,7 @@ volatile long counter = 2;
 void handler1(int sig) 
 {
     sigset_t mask, prev_mask;
-
+    // Waitpid(-1, NULL, 0);
     Sigfillset(&mask);
     Sigprocmask(SIG_BLOCK, &mask, &prev_mask);  /* Block sigs */
     Sio_putl(--counter);
@@ -31,6 +31,7 @@ int main()
     signal(SIGUSR1, handler1);
     if ((pid = Fork()) == 0) {
         while(1) {};
+        // _exit(0);
     }
     Kill(pid, SIGUSR1); 
     Waitpid(-1, NULL, 0);

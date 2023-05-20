@@ -4,6 +4,10 @@ CSAPP_SRC = ../src
 CFLAGS = -Wall -Og -I $(CSAPP_INC) -I . 
 LDLIBS = -lpthread
 
+ADD_SRCS=$(shell ls | grep -e 'signalprob0_[_a-zA-Z0-9]*\.c\|sigsuspend_[_a-zA-Z0-9]*\.c')
+ADD_PROGS=$(patsubst %.c,%,$(ADD_SRCS))
+#$(info $(ADD_SRCS) $(ADD_PROGS))
+
 PROGS = fragments.o\
 	waitforsignal\
 	sigsuspend\
@@ -54,14 +58,15 @@ PROGS = fragments.o\
 	pg\
 	pgchild\
 	hello\
-	hello-asm32\
-	hello-asm64\
 	jmpbuf\
 	rfork.o\
 	rfork-driver\
 	cmdline
+	#hello-asm32\
+	#hello-asm64
 
-all: $(CSAPP_SRC)/csapp.o $(PROGS)
+all: $(CSAPP_SRC)/csapp.o $(PROGS) $(ADD_PROGS)
+#	$(info all $(ADD_PROGS))
 
 # confirm that argc and argv are in registers
 cmdline: cmdline.c
@@ -75,13 +80,16 @@ rfork-driver: rfork-driver.c rfork.c
 
 # hello-asm.s is a handwritten asm program for syscalls using the IA32 convention
 hello-asm32: hello-asm32.s
-	$(CC) -m64 -o hello-asm32 hello-asm32.s
+	$(CC) -m64 -o hello-asm32 hello-asm32.s -fPIE
 
 # hello-asm64.s is a handwritten asm program for syscalls using the x86-64 convention
 hello-asm64: hello-asm64.s
-	$(CC) -m64 -o hello-asm64 hello-asm64.s
+	$(CC) -m64 -o hello-asm64 hello-asm64.s -fPIE
 
 $(PROGS): $(CSAPP_SRC)/csapp.o
+
+$(ADD_PROGS): $(CSAPP_SRC)/csapp.o
+#	$(info $(ADD_PROGS))
 
 $(CSAPP_SRC)/csapp.o: $(CSAPP_SRC)/csapp.c $(CSAPP_INC)/csapp.h
 

@@ -13,9 +13,10 @@ int main() {
   int i;
   int args[N];
 
-  for (i = 0; i < N; i++){ // line:conc:race:incri
-    args[i]=i;
-    Pthread_create(&tid[i], NULL, thread, &args[i]);  // line:conc:race:createthread
+  for (i = 0; i < N; i++) {  // line:conc:race:incri
+    args[i] = i;
+    Pthread_create(&tid[i], NULL, thread,
+                   &args[i]);  // line:conc:race:createthread
   }
   for (i = 0; i < N; i++) Pthread_join(tid[i], NULL);
   exit(0);

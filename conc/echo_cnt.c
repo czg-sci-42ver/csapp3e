@@ -28,7 +28,8 @@ void echo_cnt(int connfd) {
            connfd);  // line:conc:pre:cntaccess2
     V(&mutex);
     /*
-    here because that in parent, different `thread` retrieve different connfd, so no race condition occurs.
+    here because that in parent, different `thread` retrieve different connfd,
+    so no race condition occurs.
     */
     Rio_writen(connfd, buf, n);
   }

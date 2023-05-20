@@ -484,6 +484,12 @@ pwndbg> stack
 - [this](https://godbolt.org/z/BzhckE)
 # blogs
 - [this](http://pwnable.kr/) from [this](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
+## personal
+### OI
+- [1](https://blog.baoshuo.ren/post/oi/)
+- [NOI](https://oi.baoshuo.ren/noi-outline/)
+- 我们都是行走在[镜面边缘](https://www.cnblogs.com/cjjsb/p/10203401.html)的人
+- other [links](https://lancern.xyz/category/books/)
 ## radare 2 [pdf](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
 - TODO
   - hack bios & uefi p77
@@ -528,6 +534,8 @@ $ objdump -d check_cet_supported.out
 
 > 1 & 2 is [AT&T](https://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html) syntax which is [reverse](https://stackoverflow.com/questions/43764578/assembler-parameters-type#comment74573539_43764578) from intel . 
 > and they are generated with `-Og` by `gcc -Og -o prog 010-main.c 010-mstore.c -g3`, if no `-Og` may output redundant codes different from listed below.
+>
+> see [this](../references/x64_cheatsheet.pdf) p7 for register convention.
 ## 1
 ```asm
 $ objdump -d 010-mstore.o
@@ -2057,6 +2065,133 @@ $ objdump test_return_struct -dr
     11bc:       e8 7f fe ff ff          call   1040 <printf@plt>
 ```
 above: `main:rsp` -> `rdi`, then `test1:rsp-0x28` -> `xmm0` -> `rdi`
+## 12.33
+- TODO `/*weird sizeof(int)*ARG_ROW*M -> '4*2*64' -> '640'*/` in 12.34_self_test.c (here 'sizeof(int)*ARG_ROW*M' is hardcoded by compiler `gcc`)
+  - check by viewing `bt` when crash, then check whether param of crash func (below is `memcpy`) is right. 
+```bash
+$ cat ./12.34_self_test.c | grep ' BUG' -A 2
+#define BUG
+struct arg{
+    int mat1[ARG_ROW][M];
+--
+        #ifdef BUG
+        memcpy(thread_arg[i].return_mat, mat1,sizeof(int)*ARG_ROW*N);
+        #else
+$ make
+$ ./12.34_self_test
+...
+*** stack smashing detected ***: terminated
+$ cat 12.34_self_test.s | grep 400 -B 2
+        push    rax     # tmp115
+        push    40      #
+        push    400     #
+--
+# 12.34_self_test.c:84:         memcpy(thread_arg[i].return_mat, mat1,sizeof(int)*ARG_ROW*N);
+        lea     rax, -197648[rbp]       # tmp125,
+        mov     edx, 400        #,
+$ cat 12.34_self_test.s | grep -e 'fs:' -A 2
+        mov     rax, QWORD PTR fs:40    # tmp168, MEM[(<address-space-1> long unsigned int *)40B]
+        mov     QWORD PTR -8[rbp], rax  # D.7092, tmp168
+        xor     eax, eax        # tmp168
+--
+        sub     rdx, QWORD PTR fs:40    # tmp169, MEM[(<address-space-1> long unsigned int *)40B]
+        je      .L28    #,
+        call    __stack_chk_fail@PLT    #
+
+# 0x7fffffffdea8 -> -8[rbp]
+$ pwngdb ./12.34_self_test -ex 'start' -ex 'awa *(0x7fffffffdea8)' -ex 'c'
+...
+pwndbg> c
+Thread 1 "12.34_self_test" hit Hardware access (read/write) watchpoint 2: *(0x7fffffffdea8)
+
+Old value = 0xb610ca00
+New value = 0x1
+...
+────────────────────────────────────────────────────────────────────────────────────[ BACKTRACE ]────────────────────────────────────────────────────────────────────────────────────
+ ► f 0   0x7ffff7ec87e2
+   f 1   0x555555556945 main+562
+pwndbg> dga main
+...
+   0x0000555555556907 <+500>:   e9 26 01 00 00          jmp    0x555555556a32 <main+799>
+   0x000055555555690c <+505>:   48 8d 85 f0 4b fd ff    lea    rax,[rbp-0x2b410]
+   0x0000555555556913 <+512>:   8b 95 c0 f7 fc ff       mov    edx,DWORD PTR [rbp-0x30840]
+   0x0000555555556919 <+518>:   48 63 d2                movsxd rdx,edx
+   0x000055555555691c <+521>:   48 69 d2 40 2b 00 00    imul   rdx,rdx,0x2b40
+   0x0000555555556923 <+528>:   48 81 c2 00 2a 00 00    add    rdx,0x2a00
+  #  ignore this: here 'return_mat' of return_mat[ARG_ROW][N] should be at stack bottom and decrease in 'memcpy' to access next element in matrix
+   0x000055555555692a <+535>:   48 8d 0c 10             lea    rcx,[rax+rdx*1]
+   0x000055555555692e <+539>:   48 8d 85 f0 fb fc ff    lea    rax,[rbp-0x30410]
+   0x0000555555556935 <+546>:   ba 90 01 00 00          mov    edx,0x190 # weird 0x190=400
+   0x000055555555693a <+551>:   48 89 c6                mov    rsi,rax
+   0x000055555555693d <+554>:   48 89 cf                mov    rdi,rcx
+   0x0000555555556940 <+557>:   e8 3b f9 ff ff          call   0x555555556280 <memcpy@plt>
+   0x0000555555556945 <+562>:   48 8d 95 f0 4b fd ff    lea    rdx,[rbp-0x2b410]
+...
+   0x0000555555556a32 <+799>:   83 bd c0 f7 fc ff 0f    cmp    DWORD PTR [rbp-0x30840],0xf
+   0x0000555555556a39 <+806>:   0f 8e cd fe ff ff       jle    0x55555555690c <main+505>
+pwndbg> telescope $rbp-0x30840
+00:0000│  0x7ffffffcd670 ◂— 0xf # obviously
+
+pwndbg> p $rcx
+$1 = 0x7fffffffdd60
+pwndbg> p $rbp-0x8
+$2 = (void *) 0x7fffffffdea8
+pwndbg> 0x7fffffffdd60+0x190
+Undefined command: "0x7fffffffdd60+0x190".  Try "help".
+pwndbg> p 0x7fffffffdd60+0x190
+$3 = 0x7fffffffdef0
+pwndbg> p 0x7fffffffdd60+320
+$4 = 0x7fffffffe080
+pwndbg> p 0x7fffffffdd60+0x140
+$5 = 0x7fffffffdea0
+# ignore this: here exactly not allow overflow calculated by compiler
+# here has overwriten other user stack data.
+pwndbg> p 0x7fffffffdea8-(0x7fffffffdd60+0x140)
+$6 = 0x8
+```
+### use `rep movsq` to realize `memcpy`
+```bash
+$ cat 12.34_self_test.s | grep ':81' -A 10
+# 12.34_self_test.c:81:     memcpy(arg_mat, mat1,sizeof(arg_mat));
+        lea     rax, -198160[rbp]       # tmp117,
+        lea     rdx, -197648[rbp]       # tmp118,
+        mov     ecx, 64 # tmp119,
+        mov     rdi, rax        # tmp117, tmp117
+        mov     rsi, rdx        # tmp118, tmp118
+        rep movsq
+pwndbg> ...
+   0x00005555555568e1 <+462>:   48 8d 85 f0 f9 fc ff    lea    rax,[rbp-0x30610]
+   0x00005555555568e8 <+469>:   48 8d 95 f0 fb fc ff    lea    rdx,[rbp-0x30410]
+   0x00005555555568ef <+476>:   b9 40 00 00 00          mov    ecx,0x40
+   0x00005555555568f4 <+481>:   48 89 c7                mov    rdi,rax
+   0x00005555555568f7 <+484>:   48 89 d6                mov    rsi,rdx
+   0x00005555555568fa <+487>:   f3 48 a5                rep movs QWORD PTR es:[rdi],QWORD PTR ds:[rsi]
+```
+### stack can't be overflowed because compiler may use gap among stack to save small data
+```bash
+$ vim 12.34_self_test.s
+276 .L18:
+277 # 12.34_self_test.c:86:         memcpy(thread_arg[i].return_mat, mat1,ret_size);
+278     mov eax, DWORD PTR -198708[rbp] # tmp121, ret_size
+279     movsx   rdx, eax    # _3, tmp121
+280 # 12.34_self_test.c:86:         memcpy(thread_arg[i].return_mat, mat1,ret_size);
+281     lea rax, -177168[rbp]   # tmp122,
+282     mov ecx, DWORD PTR -198720[rbp] # tmp124, i
+283     movsx   rcx, ecx    # tmp123, tmp124
+284     imul    rcx, rcx, 11072 # tmp125, tmp123,
+285     add rcx, 10752  # tmp126,
+286     add rcx, rax    # _4, tmp122
+287 # 12.34_self_test.c:86:         memcpy(thread_arg[i].return_mat, mat1,ret_size);
+288     lea rax, -197648[rbp]   # tmp127,
+289     mov rsi, rax    #, tmp127
+290     mov rdi, rcx    #, _4
+291     call    memcpy@PLT  #
+# check in ./asm/bfloat16_half.py
+$ python ./asm/bfloat16_half.py
+...
+check 12.34
+find: False
+```
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
 ## voltron
@@ -2240,7 +2375,8 @@ $ gcc -fPIE -fPIC -no-pie -fgnu-tm test_got.c -o test_got -lstdc++
 ```bash
 $ gcc check_cet_supported.c -o check_cet_supported.out -g -no-pie -fno-pic -p -pg
 ```
-## makefile -> `compile_commands.json`
+## makefile 
+### -> `compile_commands.json`
 ```bash
 # https://stackoverflow.com/questions/21134120/how-to-turn-makefile-into-json-compilation-database
 $ make --always-make --dry-run \
@@ -2249,6 +2385,9 @@ $ make --always-make --dry-run \
 # https://gist.github.com/gtors/effe8eef7dbe7052b22a009f3c7fc434
 $ bear -- make --always-make # work
 ```
+### miscs
+- [`%`](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
+  - more [general](https://www.gnu.org/software/make/manual/make.html#Text-Functions)
 # csapp -> intel manual
 - zero extended [pdf p77](../references/intel_64.pdf)
   - tested: above not apply to condition when dest is memory
@@ -2913,6 +3052,12 @@ above main diff is one to [stderr](https://codebrowser.dev/glibc/glibc/stdio-com
 ### `Figure 8.41`
 - race condition is that if child exit too fast, then `SIGCHLD` will be triggered too fast, then `pid` will always be zero and stuck in while loop.
   - if `block`, then according to `man 7 signal`, `SIGCHLD` will be pending ('Between the time when it is generated and when it is delivered a signal'), so must be processed and `pid` will change.
+#### 8.5.7 Explicitly Waiting for Signals
+- here `pause()` has no period, so maybe stuck in loop,
+  while `sleep(1)` not,
+  but the period of `sleep()` is difficult to decide.
+
+  here race condition is partly due to `while(1)` so that order may not as expected.
 ### `Figure 9.12`
 - PTEA is calculated with PTER and VPN.
 ### p868
@@ -2959,7 +3104,7 @@ __readdir (DIR *dirp)
   but one writer will never update `mutex`, so it will never influence reader.
 ### p932
 - why use rio
-  - TODO complex [`read`](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/read.c.html) may not append EOF if reading something (also implied by `man 2 read`: 'the  number of bytes read is returned (zero indicates end of file)' -> so splitted to two return.)
+  - TODO complex [`read`](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/read.c.html) may not append EOF if reading something (also implied by `man 2 read`: 'the  number of bytes read is returned (zero indicates end of file)' and 'because fewer bytes are actually available right now (maybe because we were close to end-of-file, or because we are reading from a pipe, or from a terminal' -> so splitted to two return.)
   so use multiple `read` in `rio_readn` with `nleft`.
 ### p1049
 - most `while(1)` is related with state machine.
@@ -2999,7 +3144,26 @@ Pthread_create(&tid, NULL, thread, &connfd);
 - more precisely see [this pdf](../conc/12_45.pdf) by [this tex](../conc/12_45.tex) (based on csapp Figure 12.22)
   here works mainly because of they all blocks 'region k'(see above pdf figure one) where maybe `P(s)/P(t)` runs twice without running `V()` once.
   - [problem_12-15](../conc/problem_12-15.pdf) with [tex](../conc/problem_12_15.tex)
-
+### 12.22
+- need `\n` as EOF and return 0 if encounter it even if at the end of line.
+  (instead of using `rio_read` to simulate real network where we keep reading after `\n`, fetch multiple lines and block at `Rio_readlineb` in one `connfd`.)
+  so that we can receive multiple client requests.
+### [12.27](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.27/)
+- here says two condition
+  first: the second `fclose` would close one closed fd (paragrph 1).
+  second: one thread may close one fd another thread was to use.
+### 12.28 see [12_45.pdf](../conc/homework/12_45.pdf)
+### 12.29 
+- whenever there are 4 (3+1) net `P()` (one `P()` can eliminate one `V()`), there is one `V()`, then no deadlock. (TODO rigorous math proof)
+- (TODO rigorous math proof) why must no deadlock when no overlap? (maybe [this](https://scholarsmine.mst.edu/cgi/viewcontent.cgi?article=2901&context=doctoral_dissertations))
+### 12.32
+- this [comment](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337) not applies to 12.31 because 12.31 use signal instead of fd(stdin) check.
+### 12.33
+- one example to use race condition instead of avoiding.
+- has tested that it is [safe](https://stackoverflow.com/questions/7235392/is-it-safe-to-call-pthread-cancel-on-terminated-thread) to use `pthread_cancel` on terminated thread?
+### 12.34
+- see page table (‘Figure 9.26’,9.8.2),file table('Figure 10.14') and 'Figure 12.5' 
+  according to [this](https://unix.stackexchange.com/questions/21325/is-the-file-table-in-the-filesystem-or-in-memory), file table should be manipulated by kernel in the kernel memory.
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
 - see [operation](https://www.felixcloutier.com/x86/unpcklps#operation) of instruction better than description -> `UNPCKLPS`
@@ -3104,12 +3268,55 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - `<` [redirection](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 - Descriptor table Open file table [detailed](https://www.usna.edu/Users/cs/wcbrown/courses/IC221/classes/L09/Class.html) [simplified](https://biriukov.dev/docs/fd-pipe-session-terminal/1-file-descriptor-and-open-file-description/)
 - [why](https://stackoverflow.com/questions/985051/what-is-the-purpose-of-fork) use fork()
-- use `wait()` without `SIGCHLD` or `waitpid()` with `SIGCHLD` to reap: [release](https://stackoverflow.com/questions/58885831/what-does-reaping-children-imply) process table slot at least.
+- use `wait()` without `SIGCHLD` or `waitpid()` with `SIGCHLD` to reap which is done by kernel: [release](https://stackoverflow.com/questions/58885831/what-does-reaping-children-imply) process table slot at least.
 - CGI standard defines [?](https://datatracker.ietf.org/doc/html/rfc3875)('"?" <query-string>') also
   - `%` as escape of ascii in [2.3](https://datatracker.ietf.org/doc/html/rfc3875#section-2.3) 
   - 'QUERY_STRING = query-string'
   - TODO & definition
 - [difference](https://stackoverflow.com/questions/3581585/whats-the-difference-between-a-null-pointer-and-a-void-pointer#:~:text=A%20null%20pointer%20points%20has,the%20pointer%20has%20been%20nullified.) between a Null pointer & a Void pointer
+- two [same](https://stackoverflow.com/questions/17353461/open-what-happens-if-i-open-twice-the-same-file) `open` not point to same thing in `Open file table`(Figure 10.12) 
+  - vs Problem 12.27
+- [`stty -icanon`](https://man7.org/linux/man-pages/man3/termios.3.html) which disable 'Input is made available line by line' by searching 'stty "canon" line buffering' from [this comment](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337), ~~and can be seen clearly in `vim` with '/<backspace>' where will show '/^?' defaultly.~~ ~~TODO what does `stty -icanon` do?~~
+```bash
+$ stty -a | grep -e '?'  
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
+$ stty erase ^H
+$ stty -icanon && vim
+# /<backspace> -> /^?
+```
+  - noncanonical mode [application](https://stackoverflow.com/questions/358342/canonical-vs-non-canonical-terminal-input)
+### signal
+- whether use `Waitpid(-1, NULL, 0);`
+  - below `signalprob0_mod_0` check after child terminates by receiving `SIGUSR1`, between reception of signal and into handler1, the child may be have been reaped by kernel.
+  ```bash
+  [czg /mnt/ubuntu/home/czg/csapp3e/ecf]$ ./signalprob0_mod_0
+  23Waitpid error: No child processes
+  [czg /mnt/ubuntu/home/czg/csapp3e/ecf]$ ./signalprob0      
+  213%   
+  $ diff signalprob0_mod_0.c signalprob0.c
+  --- signalprob0_mod_0.c 2023-05-20 12:22:57.853316323 +0800
+  +++ signalprob0.c       2023-05-20 12:16:15.879542168 +0800
+  @@ -11,7 +11,7 @@
+  void handler1(int sig) 
+  {
+      sigset_t mask, prev_mask;
+  -    Waitpid(-1, NULL, 0);
+  +    // Waitpid(-1, NULL, 0);
+      Sigfillset(&mask);
+      Sigprocmask(SIG_BLOCK, &mask, &prev_mask);  /* Block sigs */
+      Sio_putl(--counter);
+  @@ -34,7 +34,7 @@
+          // _exit(0);
+      }
+      Kill(pid, SIGUSR1); 
+  -    // Waitpid(-1, NULL, 0);
+  +    Waitpid(-1, NULL, 0);
+  ```
+
+  - more detailed see `tiny_sigprocmask.c` comments
+  ```bash
+  
+  ```
 ### network
 - [ai_flags](https://www.akkadia.org/drepper/userapi-ipv6.html)
   - [addrinfo](https://www.qnx.com/developers/docs/6.5.0SP1.update/com.qnx.doc.neutrino_lib_ref/a/addrinfo.html)
@@ -3123,6 +3330,7 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
     - HTTP request [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
 - CGI [env](https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html)
 - http/1.1 [rfc](https://datatracker.ietf.org/doc/html/rfc2616)
+- [`Connection reset by peer`](https://stackoverflow.com/a/1434592/21294350) [see problem 12.23](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.23/)
 ### threads
 - [asynchronous](https://unix.stackexchange.com/questions/386814/what-do-asynchronous-and-synchronous-mean-in-notifying-processes-of-system-event) event
 - CPU Context Switching [save](https://www.scaler.com/topics/operating-system/context-switching-in-os/) CPU state in cooperation with separate virtual memory.
@@ -3151,6 +3359,23 @@ sys     0m0.007s
   class 2: rewrite p1059
   class 3/4 : at least by lock-and-copy
 - producer and consumer [original source](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html)
+#### miscs
+- from `man 2 select`, bits of `fd_set` should less than `FD_SETSIZE`,
+  from source code, here `__FD_SETSIZE` implies that we can have size equal to `FD_SETSIZE` and index up to `FD_SETSIZE-1`.
+```cpp
+typedef struct
+  {
+    /* XPG4.2 requires this member name.  Otherwise avoid the name
+       from the global namespace.  */
+#ifdef __USE_XOPEN
+    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
+# define __FDS_BITS(set) ((set)->fds_bits)
+#else
+    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
+# define __FDS_BITS(set) ((set)->__fds_bits)
+#endif
+  } fd_set;
+```
 ### C syntax miscs
 - [Function Pointer](https://www.geeksforgeeks.org/function-pointer-in-c/#) similar to ['typedef fixed length array'](https://stackoverflow.com/questions/4523497/typedef-fixed-length-array), etc
 ```cpp
@@ -3213,6 +3438,11 @@ real    0m3.352s
 user    0m12.626s
 sys     0m0.000s
 ```
+- `read` seems to not change file position related with [stream](https://www.gnu.org/software/libc/manual/html_node/File-Positioning.html).
+```cpp
+/* /mnt/ubuntu/home/czg/csapp3e/conc/homework/tfgets-select_comment_1.c */
+printf("%p\npos: %ld\n",readptr,ftell (stream));
+```
 # directly [use](https://cs.lmu.edu/~ray/notes/gasexamples/) syscall with asm to run (this blog get by googling 'use as to assemble')
 # att syntax
 - [label(%rip)](https://stackoverflow.com/questions/69464871/assembly-and-rip-usage) 
@@ -3230,3 +3460,28 @@ $ objdump -D badcnt | grep 2609 -A 20
     2696:       48 89 da                mov    rdx,rbx
 ```
   - [also](https://godbolt.org/) [from](https://www.felixcloutier.com/documents/gcc-asm.html#examples) 
+# misc syntax
+## C
+- struct dot before variable like [`struct timeval t = {.tv_sec = 5};`](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337)
+- not to overlap dst and src str although csapp `tiny.c` use, and here if move `%s` after const str like `sprintf(buf, "Server: Tiny Web Server%s\r\n", buf); ` , then generate weird wrong result. 
+```bash
+[czg /mnt/ubuntu/home/czg/csapp3e/netp/tiny]$ cat tiny.c | grep sprin
+  sprintf(buf, "HTTP/1.0 200 OK\r\n");  // line:netp:servestatic:beginserve
+  sprintf(buf, "%sServer: Tiny Web Server\r\n", buf); 
+$ man sprintf
+NOTES
+       Some programs imprudently rely on code such as the following
+
+           sprintf(buf, "%s some further text", buf);
+           ...
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35]$ cat tiny_bug.c | grep sprin
+    sprintf(buf, "%d", pid);
+    sprintf(buf,"%s reaping",buf);
+    sprintf() 
+    // sprintf(buf,"%s %s","reaping",buf);
+    ...
+```
+## Makefile
+- /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35/Makefile
+  - use [`shell`](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
+  - [`+=`](https://stackoverflow.com/questions/55500865/how-to-append-lists-in-makefile-using-loops)

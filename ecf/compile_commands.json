@@ -1,0 +1,982 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "../src/csapp.o",
+      "../src/csapp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "fragments.o",
+      "fragments.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitforsignal",
+      "waitforsignal.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigsuspend",
+      "sigsuspend.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "orphan",
+      "orphan.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/orphan.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/orphan"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "blockone",
+      "blockone.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/blockone.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/blockone"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "procmask1",
+      "procmask1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "procmask2",
+      "procmask2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "counterprob",
+      "counterprob.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitprob0",
+      "waitprob0.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitprob1",
+      "waitprob1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitprob3",
+      "waitprob3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fork1",
+      "fork1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fork2",
+      "fork2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fork3",
+      "fork3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork3"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob1",
+      "forkprob1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob2",
+      "forkprob2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob3",
+      "forkprob3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob4",
+      "forkprob4.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob5",
+      "forkprob5.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob6",
+      "forkprob6.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob7",
+      "forkprob7.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob8",
+      "forkprob8.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "setjmp",
+      "setjmp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/setjmp.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/setjmp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "alarm",
+      "alarm.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/alarm.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/alarm"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "restart",
+      "restart.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/restart.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/restart"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "signal1",
+      "signal1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "signal2",
+      "signal2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "signal3",
+      "signal3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal3"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "signal4",
+      "signal4.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal4.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal4"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigint",
+      "sigint.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigint.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigint"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigintsafe",
+      "sigintsafe.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "shellex",
+      "shellex.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/shellex.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/shellex"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "kill",
+      "kill.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/kill.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/kill"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "psignal",
+      "psignal.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/psignal.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/psignal"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "getpid",
+      "getpid.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fork",
+      "fork.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitpid1",
+      "waitpid1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "waitpid2",
+      "waitpid2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "myecho",
+      "myecho.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/myecho.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/myecho"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "stack",
+      "stack.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/stack.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/stack"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigfpe",
+      "sigfpe.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigbus",
+      "sigbus.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigbus.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigbus"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sigsegv",
+      "sigsegv.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "forkprob0",
+      "forkprob0.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "signalprob0",
+      "signalprob0.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "snooze",
+      "snooze.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/snooze.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/snooze"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "test",
+      "test.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/test.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "pg",
+      "pg.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pg.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/pg"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "pgchild",
+      "pgchild.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pgchild.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/pgchild"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Og",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "hello",
+      "hello.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-m64",
+      "-o",
+      "hello-asm32",
+      "hello-asm32.s"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello-asm32.s",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello-asm32"
+  }
+]
