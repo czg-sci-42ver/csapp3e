@@ -3957,7 +3957,33 @@ SortIncludes: false
 - sometimes will change the header order and result compile error. [see](https://github.com/clangd/clangd/issues/918)
 ## Sed
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)
-# this repo `.gitignore`
+# `.gitignore`
+## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. glob) although current latest `.gitignore` file not show it. **NOT using regex**
+```bash
+$ git diff .gitignore                     
+diff --git a/.gitignore b/.gitignore
+index 51b072f..756b705 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -55,7 +55,13 @@ dkms.conf
+ 
+ **/[0-9a-z_]*.o
+ [0-9a-z_]*.o
++# this '**/' will match zero dir (https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html), then '?*_?*' will match 'self_test'
++**/?*_?*
++!**/?*_?*.*
++**/?*_?*.o
++!self_test
++# gitignore not use regex, so '+' is wrong
+ # **/[_a-z]+[^.]+
+ ![0-9]_[0-9]*.*
+ # *
+-# **
+\ No newline at end of file
++# **
+
+```
+## this repo 
 ```bash
 # only manipulate added dir
 $ cat ~/.histfile | grep csapp3e | grep cd | grep -v ";" | uniq
@@ -3996,7 +4022,7 @@ $ git status --ignored .
 $ xargs -n 1 cp -v asm/.gitignore <<< "ecf/ vm/ io/ netp/ conc/"
 [czg /mnt/ubuntu/home/czg/csapp3e/conc/homework]$ xargs -n 1 cp -v ../../asm/.gitignore <<< $(ls | grep tiny)
 
-# debug current dir: https://stackoverflow.com/questions/466764/git-command-to-show-which-specific-files-are-ignored-by-gitignore
+# debug current dir: https://stackoverflow.com/questions/466764/git-command-to-show-which-specific-files-are-ignored-by-gitignore,https://stackoverflow.com/questions/46714324/how-to-check-if-a-file-is-git-ignored
 [czg /mnt/ubuntu/home/czg/csapp3e/conc]$ git check-ignore -v *
 # debug start by `.` dir/file
 [czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v .*
@@ -4024,7 +4050,9 @@ $ cat .gitignore
 ![A-Z]*
 # !**                                            
 ```
-## must use suffix or constant name in subdirs so that [`.gitignore`](https://www.golinuxcloud.com/gitignore-examples/) can be used better, then just write in parent `.gitignore` is enough ('it matches files and folders in any folder or subfolder.').
+## must use suffix or constant name in subdirs so that [`.gitignore`]() can be used better, then just write in parent `.gitignore` is enough ('it matches files and folders in any folder or subfolder.').
+-[recommend](https://www.golinuxcloud.com/gitignore-examples/), also [see](https://gist.github.com/chichunchen/970a7e97c74a253a4503)
+- if not suffix, remove exe will be more [complex](https://stackoverflow.com/questions/63590953/gitignore-on-executable) because need deal with every subdir.
 > notice above link 5.2, 5.6
 >
 - here `Tracked files` is not conflict with `Ignored files`, the former is based on history and the latter is based on `.gitignore`.
@@ -4032,6 +4060,6 @@ $ cat .gitignore
    1135         deleted:    ecf/_build/cmake_install.cmake
    1136         deleted:    ecf/_build/compile_commands.json
    1137         deleted:    ecf/_build/libYourLib.so
-   
+
    1863         ecf/_build/
 ```

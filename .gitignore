@@ -55,6 +55,12 @@ dkms.conf
 
 **/[0-9a-z_]*.o
 [0-9a-z_]*.o
+# this '**/' will match zero dir (https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html), then '?*_?*' will match 'self_test'
+**/?*_?*
+!**/?*_?*.*
+**/?*_?*.o
+!self_test
+# gitignore not use regex, so '+' is wrong
 # **/[_a-z]+[^.]+
 ![0-9]_[0-9]*.*
 # *
