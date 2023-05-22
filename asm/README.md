@@ -3223,6 +3223,7 @@ Pthread_create(&tid, NULL, thread, &connfd);
 ### 12.37 
 - this one is even worse than child process version (12.35).
 ### 12.38
+> notice `make` flag of comparison programs should be same. 
 - how to accelerate step by step
 `tiny_wrong.c` ->(use mutex by `thread_with_mutex`) `tiny_log.c` -> (comment `printf` syscall,etc ) `tiny.c` -> (check buf in `check_thread`, notice here better to read `sbuf.rear` with mutex to ensure consistency ) `tiny_check_in_thread.c` -> (use `sbuf_full` which is unnecessary although more readable) `tiny_cit_sbuf_full.c` -> (forget what scope means, maybe change `thread_with_mutex *tid_set` to global) `tiny_citsf_scope.c`
 (main reason is to use more threads by decreasing `SBUFSIZE` to make that buf frame full happen more)
@@ -3952,5 +3953,7 @@ format:
 $ cat ./.clang-format_tmp
 SortIncludes: false
 ```
+## clangd
+- sometimes will change the header order and result compile error. [see](https://github.com/clangd/clangd/issues/918)
 ## Sed
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)

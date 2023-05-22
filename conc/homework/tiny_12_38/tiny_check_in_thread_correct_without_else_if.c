@@ -99,11 +99,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
   sbuf_init(&sbuf, SBUFSIZE);
-  Pthread_create(&tid, NULL, check_thread, NULL);
 
   for (i = 0; i < MAX_THREAD; i++) Sem_init(&tid_set[i].mutex, 0, 1);
   for (i = 0; i < threads; i++) /* Create worker threads */
     Pthread_create(&tid_set[i].tid, NULL, thread, &tid_set[i].mutex);
+  Pthread_create(&tid, NULL, check_thread, NULL);
 
   listenfd = Open_listenfd(argv[1]);
   clientlen = sizeof(clientaddr);
