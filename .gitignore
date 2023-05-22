@@ -63,5 +63,6 @@ dkms.conf
 # gitignore not use regex, so '+' is wrong
 # **/[_a-z]+[^.]+
 ![0-9]_[0-9]*.*
+**/*.so
 # *
 # **

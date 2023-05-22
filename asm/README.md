@@ -3959,7 +3959,7 @@ SortIncludes: false
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)
 # `.gitignore`
 ## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. [glob](https://stackoverflow.com/questions/33189437/explain-gitignore-pattern-matching)) although current latest `.gitignore` file not show it. **NOT using regex**
-- so use [`git check-ignore **/* -v`](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
+- so use [`git check-ignore -v **/* `](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
 - regex `+` by [`?*`](https://stackoverflow.com/questions/28281504/what-is-the-gitignore-equivalent-of-one-or-more-occurrence)
 - [debug](https://stackoverflow.com/questions/2937407/test-whether-a-glob-has-any-matches-in-bash) glob with `compgen`
 - [pattern-list](https://www.linuxjournal.com/content/pattern-matching-bash)
@@ -3986,6 +3986,45 @@ index 51b072f..756b705 100644
 -# **
 \ No newline at end of file
 +# **
+```
+## check whether remove all executable without suffix
+```bash
+$ git ls-files -c | grep -v -e '\.\|README\|Makefile'
+data/2_44
+data/2_54
+data/2_59
+data/bad-sum
+data/bisbic
+data/casting
+data/code
+...
+# check whether current remove cache
+$ git ls-files --ignored --exclude-standard -c
+
+## TODO weird `check-ignore -v` not valid
+$ compgen -G "**/?*_?*" | grep da
+data/2_44
+data/2_44.c
+...
+$ git check-ignore -v **/* | grep data
+$ git ls-files --ignored --exclude-standard -c -v
+H data/2_44
+H data/2_54
+...
+
+# diff two commands https://askubuntu.com/questions/229447/how-do-i-diff-the-output-of-two-commands
+$ diff <(git ls-files --ignored --exclude-standard -c) <(git ls-files -c | grep -v -e '\.\|README\|Makefile')
+--- /proc/self/fd/11    2023-05-22 17:51:48.594727632 +0800
++++ /proc/self/fd/12    2023-05-22 17:51:48.594727632 +0800
+@@ -23,6 +23,7 @@
+ link/interpose/intr
+ mem/matmult/bmm
+ mem/matmult/mm
++mem/memperf/INSTALL
+ mem/memperf/memperf
+ mem/mountain/mountain
+ mem/mountain1x1/mountain
+$ git ls-files -c | grep 'so'
 ```
 ## this repo 
 ```bash

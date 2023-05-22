@@ -1,0 +1,13 @@
+# *
+!*.*
+!**/
+*.so
+*.log
+.cache/
+!Makefile
+*.o
+*.gdb
+*.out
+![A-Z]*
+_build/
+# !**
