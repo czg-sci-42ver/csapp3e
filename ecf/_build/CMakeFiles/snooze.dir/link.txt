@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/snooze.dir/snooze.c.o -o snooze  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

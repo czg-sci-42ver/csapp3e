@@ -1,0 +1,10 @@
+*
+!*.*
+!**/
+.cache/
+!Makefile
+*.o
+*.gdb
+*.out
+![A-Z]*
+# !**

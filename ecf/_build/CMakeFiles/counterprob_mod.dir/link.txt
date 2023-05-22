@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/counterprob_mod.dir/counterprob_mod.c.o -o counterprob_mod  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

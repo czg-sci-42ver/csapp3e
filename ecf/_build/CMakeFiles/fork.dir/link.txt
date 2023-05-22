@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/fork.dir/fork.c.o -o fork  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

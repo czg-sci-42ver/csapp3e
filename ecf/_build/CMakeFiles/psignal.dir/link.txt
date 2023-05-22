@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/psignal.dir/psignal.c.o -o psignal  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

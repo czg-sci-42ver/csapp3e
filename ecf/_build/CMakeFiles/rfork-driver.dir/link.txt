@@ -1,1 +1,0 @@
-/usr/bin/cc "CMakeFiles/rfork-driver.dir/rfork-driver.c.o" -o rfork-driver  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/hello.dir/hello.c.o -o hello  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

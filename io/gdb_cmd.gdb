@@ -1,3 +1,0 @@
-start
-br main
-c

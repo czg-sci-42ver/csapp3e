@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/waitprob1.dir/waitprob1.c.o -o waitprob1  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

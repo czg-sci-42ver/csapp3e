@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/getpid.dir/getpid.c.o -o getpid  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

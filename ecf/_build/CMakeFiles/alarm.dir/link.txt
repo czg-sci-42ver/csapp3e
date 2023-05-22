@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/alarm.dir/alarm.c.o -o alarm  -Wl,-rpath,/mnt/ubuntu/home/czg/csapp3e/ecf/_build libYourLib.so 

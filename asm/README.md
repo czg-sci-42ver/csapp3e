@@ -3957,3 +3957,81 @@ SortIncludes: false
 - sometimes will change the header order and result compile error. [see](https://github.com/clangd/clangd/issues/918)
 ## Sed
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)
+# this repo `.gitignore`
+```bash
+# only manipulate added dir
+$ cat ~/.histfile | grep csapp3e | grep cd | grep -v ";" | uniq
+cd /mnt/ubuntu/home/czg/csapp3e/
+cd /mnt/ubuntu/home/czg/csapp3e/asm
+#cd /mnt/ubuntu/home/czg/csapp3e/asm
+cd /mnt/ubuntu/home/czg/csapp3e/asm
+cd /mnt/ubuntu/home/czg/csapp3e/asm/
+cd /mnt/ubuntu/home/czg/csapp3e
+cd /mnt/ubuntu/home/czg/csapp3e/ecf
+cd /mnt/ubuntu/home/czg/csapp3e/ecf/../include
+cd /mnt/ubuntu/home/czg/csapp3e/ecf/
+cd /mnt/ubuntu/home/czg/csapp3e/ecf/l
+cd /mnt/ubuntu/home/czg/csapp3e/ecf/
+cd /mnt/ubuntu/home/czg/csapp3e/vm
+cd /mnt/ubuntu/home/czg/csapp3e/references/
+cd /mnt/ubuntu/home/czg/csapp3e/vm/malloc/
+cd /mnt/ubuntu/home/czg/csapp3e/io/
+cd /mnt/ubuntu/home/czg/csapp3e/netp
+cd /mnt/ubuntu/home/czg/csapp3e/conc
+cd /mnt/ubuntu/home/czg/csapp3e/ecf
+cd /mnt/ubuntu/home/czg/csapp3e/conc
+cd /mnt/ubuntu/home/czg/csapp3e/ecf
+cd /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38
+cd /mnt/ubuntu/home/czg/csapp3e/io
+cd /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/
+cat ~/.histfile | grep csapp3e | grep cd | uniq
+
+# remove cache to see how work
+
+$ git rm --cached -r .
+# this can show more real state than `git check-ignore`
+$ git status --ignored .
+
+# https://www.cyberciti.biz/faq/linux-unix-copy-a-file-to-multiple-directories-using-cp-command/
+$ xargs -n 1 cp -v asm/.gitignore <<< "ecf/ vm/ io/ netp/ conc/"
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework]$ xargs -n 1 cp -v ../../asm/.gitignore <<< $(ls | grep tiny)
+
+# debug current dir: https://stackoverflow.com/questions/466764/git-command-to-show-which-specific-files-are-ignored-by-gitignore
+[czg /mnt/ubuntu/home/czg/csapp3e/conc]$ git check-ignore -v *
+# debug start by `.` dir/file
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v .*
+conc/homework/.gitignore:3:.cache/      .cache
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v * | grep '\.ca'
+# nothing
+# better use 
+$ ls -a | xargs  git check-ignore -v
+# git check-ignore not check whether file real exists
+$ ls -al data/2_44.c
+ls: cannot access 'data/2_44.c': No such file or directory
+$ git check-ignore data/2_44.c -v
+netp/.gitignore:2:!*.*  data/2_44.c
+
+# template .gitignore
+$ cat .gitignore 
+*
+!*.*
+!**/
+.cache/
+!Makefile
+*.o
+*.gdb
+*.out
+![A-Z]*
+# !**                                            
+```
+## must use suffix or constant name in subdirs so that [`.gitignore`](https://www.golinuxcloud.com/gitignore-examples/) can be used better, then just write in parent `.gitignore` is enough ('it matches files and folders in any folder or subfolder.').
+> notice above link 5.2, 5.6
+>
+- here `Tracked files` is not conflict with `Ignored files`, the former is based on history and the latter is based on `.gitignore`.
+```bash
+   1135         deleted:    ecf/_build/cmake_install.cmake
+   1136         deleted:    ecf/_build/compile_commands.json
+   1137         deleted:    ecf/_build/libYourLib.so
+   
+   1863         ecf/_build/
+```
