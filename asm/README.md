@@ -3958,7 +3958,12 @@ SortIncludes: false
 ## Sed
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)
 # `.gitignore`
-## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. glob) although current latest `.gitignore` file not show it. **NOT using regex**
+## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. [glob](https://stackoverflow.com/questions/33189437/explain-gitignore-pattern-matching)) although current latest `.gitignore` file not show it. **NOT using regex**
+- so use [`git check-ignore **/* -v`](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
+- regex `+` by [`?*`](https://stackoverflow.com/questions/28281504/what-is-the-gitignore-equivalent-of-one-or-more-occurrence)
+- [debug](https://stackoverflow.com/questions/2937407/test-whether-a-glob-has-any-matches-in-bash) glob with `compgen`
+- [pattern-list](https://www.linuxjournal.com/content/pattern-matching-bash)
+- using [make](https://www.codesynthesis.com/~boris/blog/2009/03/23/generating-gitignore/) to generate
 ```bash
 $ git diff .gitignore                     
 diff --git a/.gitignore b/.gitignore
@@ -3981,7 +3986,6 @@ index 51b072f..756b705 100644
 -# **
 \ No newline at end of file
 +# **
-
 ```
 ## this repo 
 ```bash
