@@ -1,0 +1,228 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "../src/csapp.o",
+      "../src/csapp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "statcheck",
+      "statcheck.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/statcheck.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/statcheck"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "openexamples",
+      "openexamples.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/openexamples.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/openexamples"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fdprob1",
+      "fdprob1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/fdprob1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/fdprob1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "fdprob2",
+      "fdprob2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/fdprob2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/fdprob2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "cpfile",
+      "cpfile.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/cpfile.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/cpfile"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "cpstdin",
+      "cpstdin.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/cpstdin.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/cpstdin"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sharing1",
+      "sharing1.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/sharing1.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/sharing1"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sharing2",
+      "sharing2.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/sharing2.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/sharing2"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "sharing3",
+      "sharing3.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/sharing3.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/sharing3"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "../src/csapp.o",
+      "-o",
+      "readdir",
+      "readdir.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/readdir.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/readdir"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-O2",
+      "-I",
+      "../include",
+      "-I",
+      ".",
+      "-c",
+      "-o",
+      "iofragments.o",
+      "iofragments.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/io",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/io/iofragments.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/io/iofragments.o"
+  }
+]

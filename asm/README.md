@@ -2236,6 +2236,61 @@ l-wx------ 1 czg czg 64 Apr 14 11:43 12 -> 'pipe:[138023]'
 - memory [watchpoint](https://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb) [more](https://sourceware.org/gdb/download/onlinedocs/gdb/Set-Watchpoints.html#Set-Watchpoints)
 - [probe](https://docs.rs/probe/latest/probe/)
 - [args](https://stackoverflow.com/a/29741504/21294350) (`--args` may no use)
+- view [fd](https://stackoverflow.com/questions/2231460/gdb-howto-list-open-files) 
+```bash
+# https://sourceware.org/gdb/onlinedocs/gdb/Process-Information.html
+info proc all
+# show process id https://stackoverflow.com/questions/36704270/how-does-one-obtain-the-pid-of-the-currently-debugged-process-in-gdb
+pwndbg> call getpid()
+'getpid' has unknown return type; cast the call to its declared return type
+pwndbg> p (int)getpid()
+$2 = 0x1ef21
+```
+### debug running program <a id="running"></a>
+- [1](https://stackoverflow.com/questions/2308653/can-i-use-gdb-to-debug-a-running-process)
+```bash
+$ cat /proc/sys/kernel/yama/ptrace_scope   
+1
+$ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope                                                         
+0
+$ pstree -apnh | grep 5000 -A 1
+  |   |   |   |   `-grep,109774 --color=auto 5000 -A 1
+  |   |   |   |-zsh,107547
+--
+  |   |   |       `-tiny_proxy_map_,109772 5000 8000
+  |   |   |-chrome,67353
+$ gdb -p 109772 -ex 'handle SIGINT pass' -ex 'p filter_str_list[0]' -ex 'p filter_str_list' -ex 'signal SIGINT'
+...
+The target architecture is set to "i386:x86-64".
+Attaching to process 109772
+Reading symbols from /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_map_heap_to_stack...
+Reading symbols from /usr/lib/liblua5.4.so...
+(No debugging symbols found in /usr/lib/liblua5.4.so)
+...
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+0x00007fd2345f0884 in accept () from /usr/lib/libc.so.6
+Signal        Stop      Print   Pass to program Description
+SIGINT        Yes       Yes     Yes             Interrupt
+$1 = 0x5603c07d7850 "www.baidu.com\n"
+$2 = (char **) 0x5603c07d72a0
+Continuing with signal SIGINT.
+[Inferior 1 (process 109772) exited normally]
+
+...
+# if using `coredumpctl debug` then maybe no `heap` show , just show 'load...'
+$ gdb -p 124802 -ex 'handle SIGINT pass' -ex 'p filter_str_list[0]' -ex 'p filter_str_list' -ex 'vmmap'
+...
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+             Start                End Perm     Size Offset File
+    0x55c1b6a26000     0x55c1b6a28000 r--p     2000      0 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a28000     0x55c1b6a2b000 r-xp     3000   2000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2b000     0x55c1b6a2d000 r--p     2000   5000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2d000     0x55c1b6a2e000 r--p     1000   6000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2e000     0x55c1b6a2f000 rw-p     1000   7000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b7147000     0x55c1b71cd000 rw-p    86000      0 [heap]
+
+```
 ## rizin(version:`9ab709bc34843f04ffde3b63322c809596123e77`)
 - history in `/home/czg/.cache/rizin/history` or `/home/czg/.cache/radare2/history`
 ## r2(radare2)
@@ -3165,6 +3220,8 @@ Pthread_create(&tid, NULL, thread, &connfd);
 ### 12.34
 - see page table (‘Figure 9.26’,9.8.2),file table('Figure 10.14') and 'Figure 12.5' 
   according to [this](https://unix.stackexchange.com/questions/21325/is-the-file-table-in-the-filesystem-or-in-memory), file table should be manipulated by kernel in the kernel memory.
+### 12.37 
+- this one is even worse than child process version (12.35).
 ### 12.38
 - how to accelerate step by step
 `tiny_wrong.c` ->(use mutex by `thread_with_mutex`) `tiny_log.c` -> (comment `printf` syscall,etc ) `tiny.c` -> (check buf in `check_thread`, notice here better to read `sbuf.rear` with mutex to ensure consistency ) `tiny_check_in_thread.c` -> (use `sbuf_full` which is unnecessary although more readable) `tiny_cit_sbuf_full.c` -> (forget what scope means, maybe change `thread_with_mutex *tid_set` to global) `tiny_citsf_scope.c`
@@ -3230,8 +3287,46 @@ Running 4s test @ http://localhost:5000
   196770 requests in 4.02s, 42.97MB read
 Requests/sec:  49001.32
 Transfer/sec:     10.70MB
-$ git rev-parse czg/master                                               
-57a7b40bccf3c10049de2982417a03508fd670b3
+# $ git rev-parse czg/master                                               
+# 57a7b40bccf3c10049de2982417a03508fd670b3
+$ git rev-parse czg/master                         
+6bee37d933eeb23610d97c444d965614978309a9
+```
+##### not add ~~too much calculation~~ `if` conditional block in loop (see `tiny_citcwei_conditional_move.c`)
+- here whether use conditional move is fine all.
+```bash
+$ ./12.38/main
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   542.57us    1.37ms  14.01ms   92.05%
+    Req/Sec    16.29k    11.41k   30.28k    58.75%
+  129661 requests in 4.05s, 28.32MB read
+Requests/sec:  31985.19
+Transfer/sec:      6.99MB
+# without USE_UPDATE_IF in `tiny_citcwei_conditional_move.c`
+$ export file=tiny_citcwei_conditional_move;./$file 5000 1
+[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   525.08us    1.34ms  12.70ms   92.33%
+    Req/Sec    16.27k    10.56k   28.29k    67.50%
+  129452 requests in 4.04s, 28.27MB read
+Requests/sec:  32048.37
+Transfer/sec:      7.00MB
+# with USE_UPDATE_IF
+$ wrk -d4 -c10 http://localhost:5000
+Running 4s test @ http://localhost:5000
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   611.77us    1.11ms  11.69ms   92.55%
+    Req/Sec    10.62k     6.04k   18.00k    66.25%
+  84663 requests in 4.03s, 18.49MB read
+Requests/sec:  21025.37
+Transfer/sec:      4.59MB
+
 ```
 #### notice not have logical problem
 see below comments.
@@ -3322,6 +3417,198 @@ $ diff ./tiny_check_in_thread.c ./tiny_check_in_thread_correct.c
  
    for (i = 0; i < MAX_THREAD; i++) Sem_init(&tid_set[i].mutex, 0, 1);
    for (i = 0; i < threads; i++) /* Create worker threads */
+```
+### 12.39
+`GET /godzilla.gif HTTP/1.1`
+
+- `tiny_proxy_wrong.c` -> (after see reference) `tiny_proxy.c` -> (default 8000) `tiny_proxy_no_server_param.c` -> (forget) `tiny_before_proxy_map.c` (this file may be the most original) -> (fail after try `READ_FILE_MAP` and `READ_FILE_BLOCK`,etc) `tiny_proxy_map.c` (see comments below) -> (see below: `tiny_proxy_map_heap_to_stack_wrong.c` -> `tiny_proxy_map_heap_to_stack.c` -> `tiny_proxy_mhts_free_wrong.c` -> `tiny_proxy_mhts_free_right.c` -> `tiny_proxy_mhtsfr_get_image.c` -> (still wrong)`tiny_proxy_mhtsfrgi_no_map.c` )-> `tiny_proxy_mhtsfrginm_sim.c`
+```bash
+$ diff tiny_proxy_mhtsfrgi_no_map.c tiny_proxy_mhtsfrginm_sim.c
+-#define READ_FILE_BLOCK 1
+-#define READ_FILE_MAP 0
++#define READ_FILE_BLOCK 0  // not use when file big
++#define READ_FILE_MAP \
++  0  // this is not what proxy should do, and maybe not comform to browser
++     // transmission protocal
++#define READ_FILE_LINE 1
++#define LOG_MUT 1
+
+-  Rio_writen(fd, file_buf, strlen(buf));
++  Rio_writen(fd, file_buf, strlen(file_buf));
+
+# more robust to check maybe weird EOF.
+if (!Rio_readlineb(&server_rio, s_buf, MAXLINE)) {
+      Close(connfd);
+      continue;
+    }
+```
+
+- `diff tiny_proxy_wrong.c tiny_proxy.c`
+```bash
+# to conform to that server close fd after serving one connection.
+   listenfd = Open_listenfd(argv[1]);
+-  proxy_client = Open_clientfd("localhost", argv[2]);
+-  printf("open proxy client: %d\n", proxy_client);
++
+   clientlen = sizeof(struct sockaddr_storage);
+   while (1) {
++    proxy_client = Open_clientfd("localhost", argv[2]);
++    printf("open proxy client: %d\n", proxy_client);
+     connfd = Accept(listenfd, (SA *)&clientaddr,
+                     &clientlen);  // line:netp:tiny:accept
+     Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE,
+@@ -111,6 +113,7 @@
+     printf("Accepted connection from (%s, %s)\n", hostname, port);
+     doit(connfd);   // line:netp:tiny:doit
+     Close(connfd);  // line:netp:tiny:close
++    Close(proxy_client);
+# correctly read file like image, TODO but then, next proxy-client server no transmission occured stuck in `open proxy client: 5`.
++    printf("write buf loop: %s", buf);
++#if READ_FILE_BLOCK
++    if (!strcmp(end, buf)) {
++      printf("get header\n");
++      break;
++    }
++#endif
+...
++#if READ_FILE_BLOCK
++  printf("read file\n");
++  Rio_readnb(&rio_client_to_server, buf, MAXLINE);
++  printf("read file end\n");
++  char *file_buf = Malloc(MAXLINE + 1);
++  char null_char = 0;
++  file_buf = strcat(buf, &null_char);
++  Rio_writen(fd, file_buf, strlen(buf));
++  printf("write file_buf:\n %s len: %ld\n", file_buf, strlen(file_buf));
++  // Rio_writen(fd, &null_char, strlen(&null_char));
++  printf("write file end\n");
++#endif
+```
+#### use `write` instead of `printf` to better flush or use [`fsync`](https://stackoverflow.com/questions/259355/how-can-you-flush-a-write-using-a-file-descriptor) to flush.
+#### notice `\0`
+```bash
+$ diff tiny_proxy_mhts_free_right.c tiny_proxy_mhtsfr_get_image.c
+-  if (!strncmp(filetype, image_str, sizeof("image"))) {
++  /*
++  ignore '\0'
++  */
++  int is_image = !strncmp(filetype, image_str, sizeof("image") - 1);
++  printf("filetype: %s image_str: %s substr: %d", filetype, image_str,
++         is_image);
++  if (is_image) {
+
+# this is important, otherwise the program will weirdly stuck when reading image like `gif` or other non plain text.
+$ diff tiny_proxy_mhtsfrgi_no_map.c tiny_proxy_mhtsfrginm_sim.c
++#if READ_FILE_LINE
++  long int len;
++  while ((rc = Rio_readlineb(&rio_client_to_server, buf, MAXLINE)) > 0) {
++    len = strlen(buf);
++    if (len != rc) {
++      printf("write buf loop: %d not equal to %ld\n", rc, len);
++    }
+
+$ diff tiny_proxy_mhtsfrginm_sim.c tiny_proxy_mhtsfrginms_all_work.c
++#define BIG_FILE_SIZE 20000
+...
+ #if READ_FILE_BLOCK
+-  printf("read file\n");
+-  Rio_readnb(&rio_client_to_server, buf, MAXLINE);
+-  printf("read file end\n");
+-  char *file_buf = Malloc(MAXLINE + 1);
+-  char null_char = 0;
+-  file_buf = strcat(buf, &null_char);
+-  Rio_writen(fd, file_buf, strlen(file_buf));
+-  printf("write file_buf:\n %s len: %ld\n", file_buf, strlen(file_buf));
++  /*
++  this is not safe if rc is too big.
++  */
++  char *file_buf = Malloc(BIG_FILE_SIZE);
++  printf("read response header and file\n");
++  /*
++  read until BIG_FILE_SIZE or client close transmission.
++  */
++  rc = Rio_readnb(&rio_client_to_server, file_buf, BIG_FILE_SIZE);
++  printf("read response header and file end\n");
++  Rio_writen(client_fd, file_buf, rc);
++  printf("write file_buf:\n %s len: %ld\n", file_buf, rc);
+```
+#### TODO weird says 'no file'
+```bash
+$ cat tiny_proxy_mhtsfrginm_sim.c
+    /*
+    both 0 and ALL_MODE is right, sometimes weird says no file
+    */
+```
+#### weird heap -> stack when call signal handler
+- can use `printf` in code or `gdb` to attach running process (the latter is better [see](#running)) to debug.
+```bash
+$ cat tiny_proxy_map_heap_to_stack_wrong.c | grep tmp                
+char *tmp, **filter_str_list;
+  printf("in handler: %p\n", tmp);
+  Free(tmp);
+  printf("before alloc: %p\n", tmp);
+  tmp = Malloc(max_line_with_newline); # in heap
+  printf("alloc %p\n", tmp);
+  tmp = strcat(uri, "\n"); # in stack, more seriously, even in callee function stack which may be not valid if reused by other caller/callee. 
+...
+$ diff tiny_proxy_map_heap_to_stack_wrong.c tiny_proxy_map_heap_to_stack.c
+-  tmp = Malloc(max_line_with_newline); 
++  char *end = "\r\n", *tmp; # enough to use stack to save ptr instead of using heap.
+```
+#### handler must exit to avoid unexpected rerun
+```bash
+# without exit(0), will implicitly return to main and continue running, then cause rerun of `free` -> 'double free detected in tcache 2'(https://stackoverflow.com/questions/67359233/what-does-this-error-means-free-double-free-detected-in-tcache-2) /
+$ ./tiny_proxy_mhts_free_wrong  5000 8000
+^C
+ Cannot be terminated using Ctrl+C 
+Catch Interrupt
+close log_fd in handler
+free all filter_str_list
+^C
+ Cannot be terminated using Ctrl+C 
+Catch Interrupt
+Close error: Bad file descriptor
+```
+#### free `char**`
+```bash
+# so Free(filter_str_list); is enough althoug below recommend free nestedly.
+$ diff ./tiny_proxy_mhts_free_right.c ./tiny_proxy_mhts_free_wrong.c 
+--- ./tiny_proxy_mhts_free_right.c      2023-05-21 17:55:46.154375319 +0800
++++ ./tiny_proxy_mhts_free_wrong.c      2023-05-21 17:54:40.336581259 +0800
+@@ -43,10 +43,10 @@
+   printf("close log_fd in handler\n");
+ #endif
+   // https://stackoverflow.com/questions/2483869/how-to-properly-free-a-char-table-in-c
++  Free(filter_str_list);
+   for (int i = 0; i < FILTER_SIZE; i++) {
+     Free(filter_str_list[i]);
+   }
+-  Free(filter_str_list);
+   printf("free all filter_str_list\n");
+   exit(0);
+ }
+```
+#### TODO learn more about network, need response header to communicate
+```bash
+$ cat tiny_proxy_mhtsfrginm_sim.c
+#if RESPONSE_HEADER
+    serve_static(client_fd, filename, sbuf.st_size);
+#else
+    /*
+    both 0 and ALL_MODE is right,sometimes weird says no file
+    */
+    int srcfd = Open(filename, O_RDONLY,
+                     ALL_MODE);  // line:netp:servestatic:open
+
+    int filesize = sbuf.st_size;
+    char *srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd,
+                      0);  // line:netp:servestatic:mmap
+    printf("get file contents:\n%s\n", srcp);
+    Close(srcfd);  // line:netp:servestatic:close
+    printf("write %s, size %d\n", filename, filesize);
+    Rio_writen(client_fd, srcp, filesize);
+    Munmap(srcp, filesize);  // line:netp:servestatic:munmap
+#endif
 ```
 ## miscs
 - better not to use [ddd (archaic)](https://news.ycombinator.com/item?id=32125868)
@@ -3444,6 +3731,7 @@ $ stty -icanon && vim
 # /<backspace> -> /^?
 ```
   - noncanonical mode [application](https://stackoverflow.com/questions/358342/canonical-vs-non-canonical-terminal-input)
+- maps perms `p` [meaning](https://stackoverflow.com/questions/19379793/how-to-identify-stack-and-heap-segments-in-proc-pid-maps-file)
 ### signal
 - whether use `Waitpid(-1, NULL, 0);`
   - below `signalprob0_mod_0` check after child terminates by receiving `SIGUSR1`, between reception of signal and into handler1, the child may be have been reaped by kernel.

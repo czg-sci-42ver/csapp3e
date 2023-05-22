@@ -1,0 +1,122 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      "..",
+      "-o",
+      "adder",
+      "adder.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/cgi-bin",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/cgi-bin/adder.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/cgi-bin/adder"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "-c",
+      "csapp.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/csapp.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny",
+      "tiny.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny_proxy",
+      "tiny_proxy.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny_proxy_map",
+      "tiny_proxy_map.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_map.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_map"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny_proxy_no_server_param",
+      "tiny_proxy_no_server_param.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_no_server_param.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_no_server_param"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-I",
+      ".",
+      "-g",
+      "csapp.o",
+      "-o",
+      "tiny_proxy_wrong",
+      "tiny_proxy_wrong.c"
+    ],
+    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39",
+    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_wrong.c",
+    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_wrong"
+  }
+]
