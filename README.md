@@ -5,3 +5,4 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
 - round to zero -> keep negative number division similar behavior as its absolute (i.e. abs(-5/4)=5/4)
 ### [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
 ## most of notes in this [md](./asm/README.md)
+> how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)

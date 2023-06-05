@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "../CSAPP-3e-Solutions"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../../../home/czg/matrix-matrix-multiply"
+		},
+		{
+			"path": "../automatic_command/arch_linux_init"
+		},
+		{
+			"path": "../../../../../home/czg/pwndbg"
+		},
+		{
+			"path": "../automatic_command"
+		}
+	],
+	"settings": {}
+}

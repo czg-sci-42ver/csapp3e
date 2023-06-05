@@ -26,7 +26,7 @@ GOT protection: Partial RELRO | GOT functions: 2
   - but [this](https://wiki.osdev.org/Global_Descriptor_Table#Segment_Descriptor) says to ignore Segment Descriptor ‘In 64-bit mode’.
 - `GOT` more [specific](http://www.infosecwriters.com/text_resources/pdf/GOT_Hijack.pdf) than '## 8' below.
 - [DIY](https://www.righto.com/2016/06/y-combinators-xerox-alto-restoring.html) old computer
-## [intel reference](../references/intel_64.pdf)
+## [intel reference](../references/x64_ISA_manual/intel_64.pdf)
 - p597 `Op/En` in 'Opcode Column in the Instruction Summary Table (Instructions without VEX Prefix)'
 - p529 ModR/M table
 - 533 REX meaning
@@ -152,7 +152,16 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
 ```
   - [TODO](https://stackoverflow.com/questions/41274482/why-does-register-tm-clones-and-deregister-tm-clones-reference-an-address-past-t)
 - [paddr](https://reverseengineering.stackexchange.com/questions/19782/what-does-paddr-baddr-laddr-haddr-and-hvaddr-refer-to)
-- why segment reg [not](https://stackoverflow.com/questions/21165678/why-64-bit-mode-long-mode-doesnt-use-segment-registers) used in 64, because 'When your normal addressing modes with normal 64-bit registers can already address vastly more memory than your computer can contain...'
+- why segment reg <a id="segment"></a> [not](https://stackoverflow.com/questions/21165678/why-64-bit-mode-long-mode-doesnt-use-segment-registers) used in 64, because 'When your normal addressing modes with normal 64-bit registers can already address vastly more memory than your computer can contain...', 
+  - kw: 'larger addressable memory space than the 16-bit addresses could reach', 'an address **above** the (65536 byte) 16-bit address space.', '**add** the instruction specified address to the appropriate (or specified) "segment register"'
+    - 'something like 40-bits to 48-bits of physical memory','would ever imagine reaching.', 'have a great many purposes, which segment registers do not', 'doubled the number of [truly] general purpose registers when they designed their 64-bit x86_64 CPUs'
+  - more detailed [pdf p78](../references/intel_64.pdf) and register [definition](https://wiki.osdev.org/Segmentation)
+    - module [pdf p162](../references/intel_64.pdf) [also](https://github.com/LordNoteworthy/cpu-internals/blob/master/README.md)
+    - so code segment [not default](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode/49995022#comment87006918_49995022) Intuitively
+      - above `CS segment override` may be not needed because call [default 'code segment'](https://www.felixcloutier.com/x86/jmp) use CS
+      - also [see 'always modify all segment registers except CS (the code segment selector).'](https://en.wikipedia.org/wiki/X86_memory_segmentation#Practices)
+        - here also says about `ES` segment register usage 'extra segment specified by the segment selector held in the ES register.'
+- compare [binary](https://superuser.com/questions/125376/how-do-i-compare-binary-files-in-linux)
 ### cpu specific
 - my cpu 4800h doesn‘t [support](https://gist.github.com/kohnakagawa/fb77904fcc44fc5652ef6d338c35a718) 'CET'， so `ENDBR64` does [nothing](https://vstinner.readthedocs.io/assembly_x86.html), see [pdf p413 INDIRECT BRANCH TRACKING](../references/intel_64.pdf)
   - from [this](https://stackoverflow.com/questions/56905811/what-does-the-endbr64-instruction-actually-do), some keywords are ‘control flow violations’， ‘WAIT_FOR_ENDBRANCH’， ‘state machine’
@@ -470,7 +479,6 @@ pwndbg> stack
 - see [this 28:04 function prologue](https://www.youtube.com/watch?v=LAkYW5ixvhg)
 ## [why](https://stackoverflow.com/questions/6212665/why-is-eax-zeroed-before-a-call-to-printf#:~:text=Since%20the%20compiler%20doesn't,defined%20as%20having%20variable%20arguments.) clear `$rax` ('it might be the case that the function is defined as having variable arguments')
 ## terms
-- [macro-operation MOP/µOP](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro%2Doperations%20are%20a%20fixed%2Dlength,%2C%20modify%2C%20and%20write%20operation.)
 - [exclusive or `^`](https://en.wikipedia.org/wiki/Exclusive_or)
   - or -> 1,0 / 0,1 / 1,1; then exclusive 1,1 , get `^`
 ## manuals
@@ -1202,7 +1210,9 @@ $ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/pro
   - `48` see above `REX.W`
   - rest are MODR/M, same with above
 #### shown in [this](https://www.felixcloutier.com/x86/push.html)
-- [this](http://www.c-jump.com/CIS77/CPU/x86/X77_0240_prefix.htm) and [pdf p532](../references/intel_64.pdf) said `66h` prefix usage in SSE (related with AVX [pdf p537](../references/intel_64.pdf))
+- instruction prefix [this](http://www.c-jump.com/CIS77/CPU/x86/X77_0240_prefix.htm) <a id="prefix"></a>
+  - [pdf p532](../references/intel_64.pdf) said `66h` prefix usage in SSE (related with AVX [pdf p537](../references/intel_64.pdf))
+    - 66h [usage](https://stackoverflow.com/questions/30090566/x64-maskmovdqu-store-selected-bytes-of-double-quadword-and-vex-segment-overrid#comment48338171_30099598) or [table](https://wiki.osdev.org/X86-64_Instruction_Encoding#Operand-size_and_address-size_override_prefix)
   - [multiple](https://stackoverflow.com/questions/2404364/combining-prefixes-in-sse) 66H prefix
 ### [`.rela.plt`](https://reverseengineering.stackexchange.com/questions/21521/pyelftools-relocation-section-symbols) <a id="rela"></a>
 > [TODO .plt.got (it seems no use anymore)](https://systemoverlord.com/2017/03/19/got-and-plt-for-pwning.html)
@@ -2192,6 +2202,44 @@ $ python ./asm/bfloat16_half.py
 check 12.34
 find: False
 ```
+## COD <a id="COD"></a>
+### [see matrix-matrix-multiply](https://github.com/czg-sci-42ver/matrix-matrix-multiply)
+- `data16 cs nop WORD PTR [rax+rax*1+0x0]`
+  - [disable](https://stackoverflow.com/questions/4486301/gcc-function-padding-value) alignment manually
+  - here `cs` just to align, can be any [segment register](#segment) po.
+    - [`2e`](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode) 'addressing mode'
+  - [data16](https://stackoverflow.com/questions/36706280/what-does-data16-mean-in-objdump-output) 'the sixth is the w in the nopw' (i.e. above `nop WORD PTR`), also see [pdf p1385](../references/intel_64.pdf)
+    - here `WORD` or [`DWORD`](https://stackoverflow.com/questions/43991155/what-does-nop-dword-ptr-raxrax-x64-assembly-instruction-do?rq=3) ~~is based on `mode` and how assembler reads instruction bytes~~ see [prefix](#prefix) ‘table’ -> '1	N/A	Yes	16-bit'
+    - more detailed with 
+    [this link](http://john.freml.in/amd64-nopl) from [this](https://stackoverflow.com/questions/4798356/amd64-nopw-assembly-instruction)
+      - this link:nop different bytes [C code](https://chromium.googlesource.com/native_client/nacl-toolchain/+/  feaa0af17a4d4e1a87c7de1d53a72fe19e708286/binutils/gas/config/tc-i386.c)
+        - why to align: 'make sure that the target can be fetched in a single cacheline request is important', 'more efficient than repeatedly exercising the decode logic','the capability to memorize ONE **jump** instruction for every 16 bytes'
+- two `ret` maybe [missed optimisation](https://stackoverflow.com/questions/74700866/why-would-gcc-o3-generate-multiple-ret-instructions) -> [1](https://stackoverflow.com/questions/62556736/why-does-gcc-emit-a-repeated-ret) -> [bug report](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71923)
+  - maybe also to ~~avoid~~ decrese branch prediction penalty in some cases(po not applied to the condition here), 'duplicate any **necessary cleanup**',here two `...` are same.
+    ```asm
+    je lbl0
+    ...
+    ret
+    lbl0:
+    ...
+    ret
+    ```
+    - kw: 'stack-like predictor','tail duplication','results in **fewer dynamic** instructions'
+    - [loop tail duplication](https://www.technovelty.org/c/superblock-scheduling-and-tail-duplication.html) just to decrese branch prediction penalty, 'separately has a dec ecx / jnz .top_of_loop'
+    - TODO: 'like you'd do with jmp fn1 instead of call fn1; ret'
+  - TODO learn rtl, reread above link
+  - bug report
+    - [BB reorder](https://www.gnu.org/software/gcc/news/reorder.html),here just use cpu `always not taken` to optimize.
+    - definition: just [change](https://discourse.llvm.org/t/extending-llvm-basic-block-reordering/33941) small jmp block
+  - [Tail call optimization](https://en.wikipedia.org/wiki/Tail_call#In_assembly) including one optimization to remove unnecessary call and ret, [also 'there is one step that is unnecessary'](https://exploringjs.com/es6/ch_tail-calls.html#_tail-call-optimization)
+# asm thinking from optimization
+- while loop
+  - always [->](https://stackoverflow.com/questions/47783926/why-are-loops-always-compiled-into-do-while-style-tail-jump) do while, called [inversion](https://en.wikipedia.org/wiki/Loop_optimization) which may do one less `jmp` in every loop
+    - above in short, reasons are that 1. Fewer instructions，see ‘cmp     edi, esi’
+    - [SW](https://en.wikipedia.org/wiki/Software_pipelining#Example) pipelining where uses the independence like `A(i)` and `A(i+1)` to OoO by software. 
+    - Loop inversion can at least remove the misprediction penalty mostly of the last execution before exiting because just [dropping out](https://en.wikipedia.org/wiki/Loop_inversion#Example_in_three-address_code) (no 'goto L2' in the latter code) the loop whether take jmp or not.
+      - 'inversion' may refer to ' could change for(i) for(j) a[j][i]++;' from original contents
+    - TODO: 1. 'hiding loop-carried FP latency in a reduction loop' 2. more detailed info to read after 'Benefits with very low iteration count:' 3. 'SPECint2006' meaning 4. different execution ports 5. try [`fprofile`](https://stackoverflow.com/questions/4365980/how-to-use-profile-guided-optimizations-in-g) 6. better reread after more knowledge. 7. instruction 'free' and ‘front-end’ meaning
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
 ## voltron
@@ -2291,6 +2339,13 @@ LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
     0x55c1b7147000     0x55c1b71cd000 rw-p    86000      0 [heap]
 
 ```
+### vmmap(pwndbg)
+- anon -> [Anonymous mappings](https://stackoverflow.com/questions/13024087/what-are-memory-mapped-page-and-anonymous-page)
+  - ‘not backed by a file’,'/dev/zero','there isn't a file specified.' -> just means: not related with one file, also see csapp index
+  - 'heap and stack','guaranteed to be zero filled', 'POSIX shared memory' [with](https://www.geeksforgeeks.org/posix-shared-memory-api/) `mmap`
+### notice
+- `up` and `down` to change frame not change process context, at least most fo registers [unchanged](https://stackoverflow.com/questions/62697912/can-gdb-false-recreate-frames-registers)
+- temporarily header demangle no use, although [old version with specific language](https://sourceware.org/pipermail/gdb-patches/2020-July/170823.html) works
 ## rizin(version:`9ab709bc34843f04ffde3b63322c809596123e77`)
 - history in `/home/czg/.cache/rizin/history` or `/home/czg/.cache/radare2/history`
 ## r2(radare2)
@@ -2371,7 +2426,7 @@ e asm.hint.call=true # show syscall func
 # https://book.rada.re/visual_mode/visual_panels.html?highlight=layout#saving-layouts
 v=test_r2.json # not to format, otherwise, r2 can't recognize
 
-# ?*~...
+?*~... # search all commands fuzzy
 pv1 @ 0x56003724319e # can test view instruction memory
 # 0xe8
 # 0x56003724319e      e88dfeffff     call sym.imp.__stack_chk_fail 
@@ -2442,7 +2497,7 @@ $ bear -- make --always-make # work
 ```
 ### miscs
 - [`%`](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
-  - more [general](https://www.gnu.org/software/make/manual/make.html#Text-Functions)
+  - more [general](https://www.gnu.org/software/make/manual/make.html#Text-Functions) with `subst`
 # csapp -> intel manual
 - zero extended [pdf p77](../references/intel_64.pdf)
   - tested: above not apply to condition when dest is memory
@@ -3938,6 +3993,7 @@ NOTES
 - why `clean` has [`*~`](https://stackoverflow.com/questions/38002190/what-is-happening-in-this-make-clean) (which is emacs backup)
 - [diff](https://unix.stackexchange.com/questions/100786/why-does-diff-fail-when-invoked-from-a-makefile)
 - clang-format not change Include order<a id="format"></a> [1](https://unix.stackexchange.com/questions/32908/how-to-insert-the-content-of-a-file-into-another-file-before-a-pattern-marker) 2
+- using [variable](https://stackoverflow.com/questions/16267379/variables-in-makefile-prerequisites)
 ```bash
 [/mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code]$ tail makefile 
         (cd 12.39; make clean)
@@ -3952,6 +4008,18 @@ format:
         (find . -name '*.c' | xargs clang-format --style=file -i )
 $ cat ./.clang-format_tmp
 SortIncludes: false
+```
+### common derivative
+```bash
+@echo ...
+$(subst ...)
+
+# generate assembly with source code inline https://stackoverflow.com/questions/137038/how-do-you-get-assembler-output-from-c-c-source-in-gcc/137479#137479 from https://stackoverflow.com/questions/12965019/generate-assembly-for-a-target
+# Create assembler code:
+g++ -S -fverbose-asm -g -O2 test.cc -o test.s
+
+# Create asm interlaced with source lines:
+as -alhnd test.s > test.lst
 ```
 ## clangd
 - sometimes will change the header order and result compile error. [see](https://github.com/clangd/clangd/issues/918)
@@ -4007,6 +4075,7 @@ data/2_44
 data/2_44.c
 ...
 $ git check-ignore -v **/* | grep data
+# https://stackoverflow.com/questions/15925079/why-does-git-ls-files-ignore-require-exclude-patterns
 $ git ls-files --ignored --exclude-standard -c -v
 H data/2_44
 H data/2_54
@@ -4024,7 +4093,7 @@ $ diff <(git ls-files --ignored --exclude-standard -c) <(git ls-files -c | grep 
  mem/memperf/memperf
  mem/mountain/mountain
  mem/mountain1x1/mountain
-$ git ls-files -c | grep 'so'
+$ git ls-files -c | grep '\.so'
 ```
 ## this repo 
 ```bash
@@ -4106,3 +4175,440 @@ $ cat .gitignore
 
    1863         ecf/_build/
 ```
+## git miscs
+- caret [`^`](https://stackoverflow.com/questions/1955985/what-does-the-caret-character-mean-in-git) or tilde `~`
+# assembly pseudo instruction
+- TODO dd meaning [here](https://en.wikipedia.org/wiki/Spinlock#Example_implementation) same as [this](https://stackoverflow.com/questions/46513413/x86-asm-dd-being-used-as-an-instruction) ?
+  - dd [example](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html)
+# other books about computer basic architecture
+## [Computer organization and design David A. Patterson](../references/other_resources/dokumen.pub_computer-organization-and-design-mips-edition-the-hardware-software-interface-6nbsped-9780128226742.pdf&) which is generated by [this](https://www.pdf2go.com/result#j=19de2dd4-c818-4a03-93c4-004f44fc35f4) (this one is based on MIPS although it have [RISC-V](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20RISC-V%20edition.pdf) and ARM version)
+> [compared](https://www.quora.com/Why-is-William-stallings-computer-architecture-book-not-as-popular-as-Hennessy-Patterson) with william stallings computer organization and architecture which is referenced in this [zhihu link](https://www.zhihu.com/question/36539741?utm_id=0), see [IPFS](https://www.reddit.com/r/textbookrequest/comments/10aa3b7/computer_organization_and_architecture_eleventh/)
+> RISC-V encoding behavior [reasons](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
+- also see above [COD](#COD)
+- [COD5th](../references/other_resources/COD/CS422-Computer-Architecture-ComputerOrganizationAndDesign5thEdition2014.pdf) rendered more well
+- thought as [bible](https://passlab.github.io/CSE564/resources/#textbook)
+- exercise [solution](https://www.studocu.com/ko/document/konkuk-university/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B5%AC%EC%A1%B0/computerorganizaion-design-5th-solution/9639022)
+- more detailed see [CAAQA](../references/other_resources/CAAQA/Computer_Architecture_A_Quantitative_App.pdf)
+- TODO all ' Self-Study' in better pdf rendering
+- MIPS [register](https://en.wikibooks.org/wiki/MIPS_Assembly/Register_File)
+  - instruction [set](https://edumips64.readthedocs.io/en/latest/instructions.html)
+> [choose](https://www.quora.com/Why-do-we-study-MIPS-in-great-detail-in-Computer-Architecture-instead-of-the-more-common-ISAs-like-ARM-or-x86) MIPS or ARM or [RISC-V](https://www.reddit.com/r/learnprogramming/comments/118vxbk/comment/j9juyma/?utm_source=share&utm_medium=web2x&context=3)
+- TODO where is ’The rest of Section 1.12 is found online.‘ online ?
+### chapter 1
+> p27 show important part subtitle in the book.
+> read subtitle to see whether self scratch that what the book will say
+- mainly introduction without much useful information see p43,45,65,[71](https://www.techinsights.com/blog/teardown/apple-iphone-13-pro-teardown),106->39,128,'Fallacies and Pitfalls',
+> 106->39 means p106 in 'doku..' -> p39 in 'CS422...'
+### chapter 2
+- see 'Design Principle ',242('What is and what is not preserved'),FIGURE 2.12,268,FIGURE 2.21,280,285,290(lazy binding),292(Java bytecode),
+  - 'FIGURE E2.15.1','FIGURE E2.15.2' 'FIGURE E2.15.7'
+    - `Code motion` p321,322(TODO more specific example)
+    - p320 see this [p22](https://cons.mit.edu/fa18/slides/S16-lecture-15.pdf)
+      - p327 [induction variable elimination](http://www.nullstone.com/htmls/category/ive.htm)
+      - TODO related with compiler p329 [p11](https://people.iith.ac.in/ramakrishna/fc5264/global-reg-allocation.pdf), [also](https://www.cs.cornell.edu/courses/cs6120/2019fa/blog/ive/)
+    - p351, 'FIGURE E2.15.12' ([leaf procedure](https://courses.cs.vt.edu/~cs2505/summer2011/Notes/pdf/T27.RecursionInMIPS.pdf) -> not need to push registers, maybe only caused in RISC because of using `$ra` (like [`LR` in ARM](https://developer.arm.com/documentation/dui0801/l/Overview-of-AArch64-state/Link-registers)) instead of stack to save return address) after reading `c++ primer`
+  - mips risc-v [diff](https://stackoverflow.com/questions/67464262/mips-and-risc-v-differences) similar to p362
+  - p365 more detailed of csapp p203 
+    - ~ p368 more compact description of x86(-64)
+  - p380 register [hints](https://www.geeksforgeeks.org/understanding-register-keyword/).
+  - p392 reason why use variable-length instruction
+  - TODO p393 ... history
+  - p396~398 UNIX make C popular, and Sun failure make Oak never heard, but Netscape make Java (descendant of Oak) known with its browser 
+- [frame pointer ‘the base of the stack frame’](https://twilco.github.io/riscv-from-scratch/2019/07/28/riscv-from-scratch-4.html)  like `$rbp`
+#### p360 ARMv7 vs v8, TODO see [linux foundation](https://events.static.linuxfound.org/sites/events/files/slides/KoreaLinuxForum-2014.pdf) or [simplified](https://qr.ae/pyrWZp)
+- [conditional execution field](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/ARM-Instruction-Set-Encoding/ARM-instruction-set-encoding/The-condition-code-field?lang=en)
+- loading [constant](https://community.arm.com/arm-community-blogs/b/architectures-and-processors-blog/posts/how-to-load-constants-in-assembly-for-arm-architecture)
+- instruction [encoding](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/ARM-Instruction-Set-Encoding/ARM-instruction-set-encoding?lang=en)
+- [Load Multiple](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/Instruction-Details/Alphabetical-list-of-instructions/LDM-LDMIA-LDMFD--Thumb-?lang=en) see [example](https://azeria-labs.com/load-and-store-multiple-part-5/) [also](https://keleshev.com/ldm-my-favorite-arm-instruction/) addressing [mode](https://developer.arm.com/documentation/dui0068/b/Writing-ARM-and-Thumb-Assembly-Language/Load-and-store-multiple-register-instructions/LDM-and-STM-addressing-modes) or more [general](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/The-Instruction-Sets/Load-store-instructions/Addressing-modes) addressing mode with [examples](https://www.cs.uregina.ca/Links/class-info/301/ARM-addressing/lecture.html).
+> see 'P.1' for how to read the instruction description.
+> TODO use one real ARMv7 program to see what happen
+```cpp
+if CurrentInstrSet() == InstrSet_ThumbEE then SEE "ThumbEE instructions";
+n = UInt(Rn);  registers = '00000000':register_list;  wback = (registers<n> == '0');
+if BitCount(registers) < 1 then UNPREDICTABLE;
+```
+  - above, things like 'CurrentInstrSet()/SEE' see ['PseudocodeIndex' table Q.1](../references/other_resources/ARMv7/DDI0406C_arm_architecture_reference_manual.pdf)
+  - `Rn` just see web link
+  - 'register_list' see [A8](../references/other_resources/ARMv7/DDI0406C_arm_architecture_reference_manual.pdf)
+    > here 'registers = '00000000':register_list;' can be guessed by other Encoding description like 'registers = P:M:'0':register_list;' or 'registers = register_list;', so ':' just means **concatenation** (':' description maybe not shown in both doc and other web resources.)
+  - 'wback' can be guessed by the web link description 'wback = (W == '1');' and 'Causes the instruction to write a modified value back to <Rn>. Encoded as W = 1. ...', so means **‘write back’**
+```cpp
+if W == '1' && Rn == '1101' then SEE POP (Thumb);
+n = UInt(Rn);  registers = P:M:'0':register_list;  wback = (W == '1');
+if n == 15 || BitCount(registers) < 2 || (P == '1' && M == '1') then UNPREDICTABLE;
+if registers<15> == '1' && InITBlock() && !LastInITBlock() then UNPREDICTABLE;
+if wback && registers<n> == '1' then UNPREDICTABLE;
+```
+  - POP (Thumb) [p532](../references/other_resources/ARMv7/DDI0406C_arm_architecture_reference_manual.pdf)
+> then read **`Operation`** section in web link
+##### more friendly [paper](../references/other_resources/ARMv7/Porting%20to%20ARM%2064-bit%20v4(2).pdf) from [this](https://community.arm.com/support-forums/f/architectures-and-processors-forum/3357/differences-between-armv7-to-armv8/165675#165675) highly recommended
+- show why use `The Zero Register` in arm and not use `PC` in armv8
+#### ARM [registers relation with x86](https://azeria-labs.com/arm-data-types-and-registers-part-2/)
+### below temporarily changed to RISC-V just as [18-447 TODO reason for switching to RISC-V](https://users.ece.cmu.edu/~jhoe/course/ece447/S22handouts/L02.pdf)
+> [ARM-v8 version](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20ARM%20edition.pdf): author use v8 instead of v7 in p17 for more similarity with MIPS.
+#### RISC-V [manual](../references/other_resources/RISC-V/riscv-spec-20191213.pdf), [latest](https://riscv.org/technical/specifications/)
+- TODO SB-format B [meaning](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
+- also green/[reference](https://www.cl.cam.ac.uk/teaching/1617/ECAD+Arch/files/docs/RISCVGreenCardv8-20151013.pdf) card
+- p23: rd(destination), rs(source), funct3(3 bits,p126)
+- XLEN [meaning with other infos](https://www.imperialviolet.org/2016/12/31/riscv.html#:~:text=RISC%2DV%20is%20little%2Dendian,are%20the%20native%20register%20size.) and three modes
+##### ISA doc
+- [online doc (i.e. instruction set list) with description of instructions like `ld`](https://msyksphinz-self.github.io/riscv-isadoc/html/rv64i.html#ld) [all](https://msyksphinz-self.github.io/riscv-isadoc/html/index.html)
+  - [more readable](https://jemu.oscc.cc/SUB)
+#### complement of above
+##### chapter 1
+- p90 [wafer die yield](https://en.wikichip.org/wiki/yield)
+- p123 see my mathexchange [answer](https://math.stackexchange.com/a/4711125/1059606) in ['solved Why geometric mean get a same relative answer rather than arithmetic mean?'](https://math.stackexchange.com/questions/4083719/solved-why-geometric-mean-get-a-same-relative-answer-rather-than-arithmetic-mean)
+##### chapter 2
+- 'FIGURE 2.41': varying popularity of instructions
+- pipeline [vs](https://qr.ae/pyyGJ7) parallel ‘Parallelism involves replicated hardware (exploiting space). Pipelining involves re-using hardware optimally based on dataflows (exploiting time).’
+- load-reserved
+  - ~~based on maunal p48 subsumes the bytes in the addressed word, this will check address~~
+  - p253 both 'atomic compare and swap or atomic fetch-and-increment (semaphore)' and above 'CompareExchange ...' are all **read and a write**
+- [memory model](https://danielmangum.com/risc-v-tips/2022-01-05-rvwmo/) TODO more [detailed](https://riscv.org/wp-content/uploads/2018/05/14.25-15.00-RISCVMemoryModelTutorial.pdf)
+
+- p183 here offset always in instruction imm
+- p184 why linux/unix-like use [LP64](http://archive.opengroup.org/public/tech/aspen/lp64_wp.htm), also [see link2](https://stackoverflow.com/questions/384502/what-is-the-bit-size-of-long-on-64-bit-windows) and [code convention ’avoid using "int" and "long"‘ (at least `long`)](https://stackoverflow.com/questions/7279504/why-do-c-compilers-specify-long-to-be-32-bit-and-long-long-to-be-64-bit)
+  - kw: ’key evaluation‘
+  - 'LLP64 preserves the relationship' , 1- will add 'non-portable scalar datatype' `long long`, so in other operating system, 'related to assumption that a **pointer** will fit in an int' (implicit cast to int because C standard not have long long)
+  - 'ILP64' no 32-bit, 'ignores the portability of data or depends on the addition of a 32-bit datatype' which is not expected when 'The world is currently dominated by 32-bit computers' (? this link is archived, so this may be wrong)
+  > both LLP64 and ILP64 need ’non-standard datatypes‘ to be **compatible** which may be why Microsoft choose LLP64 (their system source code is different from unix.).
+  >> link2 says '32-bit software can be recompiled without change' (also see 'intptr_t')
+  - LP64 'run on 32-bit systems without change'
+- p199 S-type, also see [MIPS](https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html)
+  - also [p7](../references/other_resources/RISC-V/Lecture7.pdf)
+- p210 [bit-field](https://en.cppreference.com/w/cpp/language/bit_field) just to keep data compact , then ' to match an externally enforced interface'
+- p240 [add 1](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) '-4096'
+- p252 load-reserved ... pair is based on ' a memory **read and a write** in a single, uninterruptible instruction.' 
+  - [ABA](https://www.baeldung.com/cs/aba-concurrency#value--vs-reference-based-scenarios) mainly because of Value-Based [TODO](https://www.baeldung.com/cs/aba-concurrency#3-immutability)
+  - so [Load-link/store-conditional](https://en.wikipedia.org/wiki/Load-link/store-conditional) has no ABA, also [see p48 'detects any intervening memory write'](https://people.eecs.berkeley.edu/~krste/papers/EECS-2016-1.pdf) 
+  - TODO [weak](https://liblfds.org/mediawiki/index.php/Article:CAS_and_LL/SC_Implementation_Details_by_Processor_family) (this also shows platform related with cas or LL/sc) LL/SC meaning
+    - based on [this](https://en.wikipedia.org/wiki/Load-link/store-conditional#Implementations) (TODO 'three registers') maybe only one 'cache line' is weak (see manual p51), while 'dependent blocks' is strong
+  - CompareExchange,Load-Linked/Store-Conditional, and Compare-And-Swap [compare](https://stackoverflow.com/questions/7069986/compare-and-swap-atomic-operation-vs-load-link-store-conditional-operation)
+    - kw(keyword): 'except that', '"ABA" problem', 'implemented in terms of', 'though the limited amount'
+    - [live-lock 'Difference between Deadlock, Starvation, and Livelock: '](https://www.geeksforgeeks.org/deadlock-starvation-and-livelock/) (where two process swap locks but not 'do some work',also [see](https://stackoverflow.com/a/1162847/21294350)) which is related with program, maybe not directly related with lock only.
+- p277 why inlining increased the cache miss rate.
+  - highly [recommended](https://isocpp.org/wiki/faq/inline-functions#inline-and-perf) answer from [this](https://stackoverflow.com/questions/33705825/how-do-inline-functions-increase-memory-cache-miss-and-why-is-it-bad-compared-to)
+    - here says 'cache misses' is that reference too many memory ('span across multiple lines of the memory cache') that caused thrashing (which also may caused by 'increase the size of the binary executable')
+- p278
+  - 'C program is 8.3 times faster than the interpreted Java' means `1.0` better than `0.12`, while 'Quicksort beats Bubble Sort by a factor of 50' means `0.05` better than `2.41`
+- p254 TODO?
+#### chapter 3
+- TODO [p394](https://en.wikipedia.org/wiki/Division_algorithm)
+- TODO why use `_mm256_broadcast_sd()` p441
+```bash
+C[i][j] C[i+1][j]
+
+```
+- p375 [Carry Look-Ahead Adder](https://www.geeksforgeeks.org/carry-look-ahead-adder/)
+- p377 more [clear](https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html)
+- p380 may be [(the link show swap and `escape` which the book don't mention)](https://stackoverflow.com/questions/39841223/mips-hardware-multiplication-alu),also [p383](https://electronics.stackexchange.com/questions/56488/parallel-multiplication-hardware?rq=1) also see 'FIGURE 3.6'
+```bash
+# second method in https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html inspired by 'Instead of shifting multiplicand to left, shift product to right?' to make 'least significant bits of product ' can be changed
+step    multiplier  multiplicand    product
+        4           -6
+1       00000100    11111010        00000000 00000000
+2       00000010    11111010        00000000 00000000
+# then left half shift right,
+3       00000001    11111010        11111101 00000000
+4       00000000    11111010        11111110 10000000
+5       00000000    11111010        ...
+6       00000000    11111010        ...
+7       00000000    11111010        ...
+8       00000000    11111010        11111111 11101000
+# book second method (i.e. third method of  https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html)
+step    multiplier  multiplicand    product
+        4           -6
+1       00000100    11111010        00000000 00000100
+2       00000010    11111010        00000000 00000010
+# then left half shift right,
+3       00000001    11111010        11111010 00000001 -(shift right)> 11111101 00000000
+4       00000000    11111010        11111110 10000000
+5       00000000    11111010        ...
+6       00000000    11111010        ...
+7       00000000    11111010        ...
+8       00000000    11111010        11111111 11101000
+```
+- booth's [algorithm](https://en.wikipedia.org/wiki/Booth%27s_multiplication_algorithm#How_it_works) may be redundant
+```cpp
+# https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html
+Example: 2 x 6
+m=2,p=6;
+
+  m = 0010
+  p = 0000 0110 
+
+0000 0110 0 no-op
+0000 0011 0 >> p
+# 1110 0011 0 p = p - m
+# here should be
+1110 0011 0 p = p + -m << 4
+# -m = ~m+1
+
+1111 0001 1 >> p
+1111 0001 1 no-op
+1111 1000 1 >> p
+0001 1000 1 p = p + m
+0000 1100 0 >> p
+
+=12
+```
+- p386 more clear [see p189](../references/other_resources/CS422-Computer-Architecture-ComputerOrganizationAndDesign5thEdition2014.pdf), [also](https://sistenix.com/division.html), also 'FIGURE 3.10',
+  - when 'Rem < Div', better use 'Rem + (-Div)'
+  - FIGURE 3.11 similar to above and because every time quotient is updated by shift one bit
+  - [see](https://people.cs.pitt.edu/~cho/cs0447/currentsemester/handouts/lect-ch3p2_4up.pdf)
+    - Restoring Division p2, also see https://www.geeksforgeeks.org/restoring-division-algorithm-unsigned-integer/ <a id="geeks"></a>
+    - p3 Non-Restoring, see pdf left page 'Left-shifting R by 1 bit and then adding D!'; TODO maybe similar to Booth's Algorithm
+    ```bash
+    0 0010
+    initial values 0000 0111
+    shift remainder left by 1 0000 1110
+    1 0010
+    # here is upper half do minus, so  0000 - 0010 = 1110
+    # the left is similar to above '# then left half shift right,'
+    remainder = remainder – divisor 1110 1110
+    (remainder<0) ⇒ +divisor; shift left; r0=0 0001 1100
+    2 0010
+    remainder = remainder – divisor 1111 1100
+    (remainder<0) ⇒ +divisor; shift left; r0=0 0011 1000
+    3 0010
+    remainder = remainder – divisor 0001 1000
+    (remainder>0) ⇒ shift left; r0=1 shift left; r0=1 0011 000 0011 0001
+    4 0010
+    remainder = remainder – divisor 0001 0001
+    (remainder>0) ⇒ shift left; r0=1 0010 0011
+    done 0010 shift “left half of remainder” right by 1 0001 0011
+    ``` 
+- p395 [jump and link](https://www.sciencedirect.com/topics/computer-science/link-instruction#:~:text=Jump%20and%20link%20(jal)%20and,jumps%20to%20the%20target%20instruction.)
+- p399 floating meaning
+- p411 algorithm diagram -> p414 hardware block diagram
+- p428 [guard digit](https://en.wikipedia.org/wiki/Guard_digit) and [roundoff](https://en.wikipedia.org/wiki/Round-off_error) error
+  - p430 [stiky point](https://pages.cs.wisc.edu/~david/courses/cs552/S12/handouts/guardbits.pdf)
+- 'FIGURE 3.21' AVX parallel [also](https://redirect.cs.umbc.edu/courses/undergraduate/CMSC411/spring18/park/lectures/L16-ILP-Pipeline-Sched.pdf)([this](http://www.cs.umd.edu/class/fall2022/cmsc411/) use Computer Architecture: A Quantitative Approach)
+```cpp
+// here will generate
+C[i][j] C[i][j+1] ...
+A[i][k] A[i][k+1] ...
+B[k][j] B[k][j] ...
+// A should swap with B
+```
+- p410 see p204->~~223~~222 in COD5
+  - why unnormalized operand [not fast](https://stackoverflow.com/questions/36781881/why-denormalized-floats-are-so-much-slower-than-other-floats-from-hardware-arch) mainly is trade-off of CPU architecture (TODO self design referenced in the link).
+- p426 row major vs column major, how to [choose](https://stackoverflow.com/questions/47691785/why-does-julia-uses-column-major-is-it-fast/47734127#comment82352970_47691785) which should be consistent with how to [access](https://cs.stackexchange.com/a/153479), [more](https://comp.lang.fortran.narkive.com/ry8nFrVm/historical-reason-why-fortran-has-chosen-column-major-order)
+- p427 [Newton–Raphson division](https://en.wikipedia.org/wiki/Newton%27s_method#Multiplicative_inverses_of_numbers_and_power_series) more [intuitive](https://wethestudy.com/mathematics/newton-raphson-method-how-calculators-work/)
+#### chapter 4
+- 'FIGURE 4.2' 'FIGURE 4.4'(state element) PC+[4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) although the book says it use 64-bit
+- 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
+- p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
+- [SB-format p7](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf)
+- 'FIGURE 4.15,17'
+- p543 [latency](http://ece-research.unm.edu/jimp/611/slides/chap3_1.html)
+- 'FIGURE 4.31' related with later figures 'FIGURE 4.34/41',etc
+  - ‘FIGURE 4.36’ although here must use 'address' to read memory, but maybe to be distinct with 'FIGURE 4.38' write, so just split.
+- p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
+  - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
+- 'FIGURE 4.49','FIGURE 4.52 '
+- p596 2-bit is still unperfect, although it may deal with the problem listed [here](https://www.youtube.com/watch?v=malQIOtaAuU)
+  - why [two (see 'first and last loop iterations')](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/dynamic-branch-prediction/index.html) wrong
+    - see book p597 answer 'flipped on prior execution of the last iteration of the loop'
+  - more [detailed](https://danluu.com/branch-prediction/) from [here](https://stackoverflow.com/questions/59285260/states-of-a-2-bit-branch-predictor)
+  - [when](https://www.geeksforgeeks.org/correlating-branch-prediction/) 2-bit is better than 1-bit (here Correlating Branch Prediction is just Two-level predictor) ([saturating](https://electronics.stackexchange.com/questions/259436/2-bit-saturating-counter) counter)
+  > also see [row-column](https://www.researchgate.net/figure/General-structure-of-a-two-level-adaptive-branch-prediction_fig3_220055462)
+    - here, 'At location 4': 010 -> the least significant bit means the most recent state (0:not taken), the middle '1' means the one before the most recent is 1 (taken).
+    - so LHT (i.e. the below link GHR, local in p11) saves states of branches, and LPT (i.e. PHT, Global in p11) saves prediction for different branch states. 
+      > why use instruction as index, see book p598(because this can be done in IF stage)
+      - local and global [predictor p11](https://www.inf.ed.ac.uk/teaching/courses/car/Notes/2017-18/lecture05-handling_hazards.pdf) or more [specific](https://en.wikipedia.org/wiki/Branch_predictor#Local_branch_prediction)
+        - here 'disadvantage is that the history is diluted by irrelevant', so better use 'two-level adaptive predictor' to filter branch first
+         - Tournament Predictor p23
+      - branch Target Buffer [BPT p21](https://users.cs.utah.edu/~bojnordi/classes/6810/s18/slides/10-bpred.pdf) is similar as csapp Figure 6.25
+- p611 
+  - [see](http://utenti.dieei.unict.it/users/gascia/COURSES/sist_emb_14_15/download/SE07_Pipeline_Exception.pdf) precise interrupt is just those can be recovered p10 and why may be imprecise p19 
+- p614 [multiple issue](https://www.cs.umd.edu/~meesh/4 11/CA-online/chapter/multiple-issue-processors-i/index.html) , 
+  - detailed see CAAQA p223 & 'Figure 3.19'
+    - p226 [reservation station](https://en.wikipedia.org/wiki/Reservation_station) in each 'Functional Units' which may be used to forwarding (i.e. 'rather than waiting for it to be stored in a register and re-read') by 'listens on a Common Data Bus for the operand to become available'
+    - issue slot or operation slot related with [ROB](https://en.wikipedia.org/wiki/Re-order_buffer) p215 
+- p619 here 'an ALU and a data transfer' still take 'usual hazard detection's in account, see p622 example.
+- p623 loop unrolling to decrease nop at least.
+- 'FIGURE 4.69'
+- p538,630 ‘hide the branch delay’
+- p631 
+  - [see](https://passlab.github.io/CSE564/notes/lecture18_ILP_DynamicMultIssueSpeculationAdvanced.pdf)
+    - p29 comparison of Dynamic Scheduling and Speculation
+      - [RAW](https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Read_after_write_(RAW)),etc
+    - Speculation detailed p39 (i.e. whether use 'prediction scheme' p597)
+- p635 think of energy vs performance, which may also answer csapp why cpu doesn't increase performance when adding cores first time (page location temporarily unfound).
+  - [issue width](https://www.eecg.toronto.edu/~moshovos/ACA06/homework/hw3.htm#:~:text=Issue%2Dwidth%20is%20the%20maximum,processor%20can%20search%20for%20ILP.)
+  - [Store buffer](https://paulcavallaro.com/blog/x86-tso-a-programmers-model-for-x86-multiprocessors/) (see [comment](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer#comment14639780_11130239) it ‘not always inside CPU’ ) same as [ROB](https://stackoverflow.com/questions/40887592/reorder-buffer-commit) located [~~inside~~](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer) CPU
+- p636 [nonblocking caches](https://dl.acm.org/doi/pdf/10.1145/381718.381727) use [MSHR](https://miaochenlu.github.io/2020/10/29/MSHR/) (which is just one **independent** unit and media to fetch memory)as one method to forwarding
+  - see CAQQA p132
+    - multi [bank ’Banking supports simultaneous‘](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/cache-optimizations-iii/index.html) mainly because of store like of array is adjacent.
+      - detailed with [example](https://www.anandtech.com/show/3851/everything-you-always-wanted-to-know-about-sdram-memory-but-were-afraid-to-ask/2), 
+        - kw: '16K pages';'16,384 rows/bank' 'each row (page)' '1KB x 8 contiguous banks' (here related pages are *condensed together* '')
+        - here 1 rank -> 8 ICs ('8 *contiguous* banks' )-> 64 banks ('Each IC contains eight *banks*','*stacked* banks') -> 64\*16,384 rows and 64\*1,024 columns
+          - must differentiate 
+          > each page of memory is segmented *evenly across Bank n* of each IC for the associated *rank*
+          
+          > So when we talk about IC density we are referring to eight distinct *stacked* banks and the total memory space therein, whereas when we talk about page space, we are really working with Bank n spread *across the total number of ICs* per rank. In the end *the math comes out the same* (8 ICs versus 8 banks), but conceptually it's a critical *distinction* worth acknowledging if we are to really grasp the ins and outs of memory addressing.
+
+          here banks should more explicily 'IC(contiguous banks)' and $8$ in $8n$ is because that 8 stacked banks in one IC
+          > We can now see why the DDR3 core has a *8n*-prefetch (where n refers to the number of *banks* per rank)
+
+          >This is because each bank, of which there are eight for DDR3, fetches no less than 8 bits (1 byte) of data per read request - the equivalent of *one column's worth* of data.
+
+  - renaming function (这里是 '功能' 而不是 函数 ) (also googling ‘renaming function cpu architecture’) based on p566 'The function of each of six control signals'
+- (un)conditional branch prediction and (in)direct [relation](https://stackoverflow.com/questions/21787457/branch-target-prediction-in-conjunction-with-branch-prediction) from [this](https://stackoverflow.com/questions/28006386/how-can-unconditional-branches-be-predicted-with-a-2-bit-predictor#comment44493696_28006386)
+- p639
+  - [Indirect predictor](https://developer.arm.com/documentation/ddi0488/c/BABEHAJJ) 'only provides the address' while hybrid predictor 'predictor still predicts the direction' with True or false ...
+    - implementation
+      - [bit-level](https://people.engr.tamu.edu/djimenez/pdfs/p27-garza.pdf) p4 
+        - [hash](http://meseec.ce.rit.edu/eecc722-fall2001/papers/branch-prediction/4/indir_isca24.pdf)
+      - with jump [table](https://llvm.org/devmtg/2017-02-04/Efficient-clustering-of-case-statements-for-indirect-branch-prediction.pdf)
+    - related with cpu IBPB & STIBP [1](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2018/03/07/spectre-mitigation) or [kernel](https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst)
+  - TODO early decode
+- p643
+  - [Anti-dependency](https://en.wikipedia.org/wiki/Data_dependency#Anti-dependency) 'the ordering of these instructions cannot be changed'
+  - [retirement p6](https://www.ece.uvic.ca/~amiralib/courses/p6.pdf) (rrf) stage architecture is just commit also [see](https://en.wikipedia.org/wiki/Register_renaming#Architectural_versus_physical_registers)
+  - see CAQQA p286
+    - loop stream detection just to directly skip some stages by direct fusion
+- p644 
+  - Distributed(decentralized) [v.s.](http://lastweek.io/notes/arch/) Centralized Reservation Station
+    - here whether centralized is mainly dependent on whether all function units **share** something
+  - micro-op is mainly related with ALU ,i.e. functional units.
+  - here shows the **whole process of pipeline** more detailed than csapp.
+- p646
+  :memo: the picture [origin](https://www.bit-tech.net/reviews/tech/cpus/intel-core-i7-nehalem-architecture-dive/5/) from [this](https://stackoverflow.com/questions/4830865/how-many-pipeline-stages-does-the-intel-core-i7-have), 14 stage can also see in agner's doc '7.1 The pipeline in PM' which is similar to Nehalem :'The main stages in the pipeline are:' 
+  - Cache [Associativity  ](https://csillustrated.berkeley.edu/PDFs/handouts/cache-3-associativity-handout.pdf) more [detailed](https://en.wikipedia.org/wiki/Cache_placement_policies)
+    - see 'multiple sets[1] with a single cache line per set' vs 'a single cache set with multiple cache lines'
+    - related with [code](https://en.algorithmica.org/hpc/cpu-cache/associativity/) which csapp not says directly.
+      - kw: 'corresponding to **any** of the N total memory' 'to a single cache line' (similar to above  wikipedia examples); 'prohibitively expensive '; 'doesn’t require storing any additional meta-information associated with a cache line **except its tag**' -> only need tag meta-information, 'in-between'
+        - kw for why not use $2^{12}$ for step: 'different sets in the L3 cache instead of' 'just love using powers of two when indexing arrays' 'binary shift', 'smallest integer exponent' like 
+          $$2^n$$
+          'transitivity divisible' ([i.e.](https://math.stackexchange.com/questions/158492/divisibility-is-transitive-a-mid-b-mid-c-rightarrow-a-mid-c) $2^{n}|10^{n}$),'while searching over arrays of size',
+          - TODO 'divide-and-conquer algorithm'
+      - here L3 cache 8MB is split into two subset, each is '4MB' 'divisible by some large powers of two and map to the same cache line' which should only related with index subbits
+      - figure 'Address composition for a 64-entry', here should use 22bit to encode 2^22 byte->4MB because 'Because the main memory is 16kB, we need a minimum of 14' in wikipedia.
+        - should use '$2^{12}$ cache *sets*' instead of '$2^{12}$ cache *lines*'
+  - [Microcode 'translates machine instructions, state machine data'](https://en.wikipedia.org/wiki/Microcode)
+  - memory order [buffer](https://en.wikipedia.org/wiki/Memory_ordering)
+    - 'A safe reordering' to address 'problem of address aliasing' by using local variable which is also said in csapp. Also applies to $f(*a)$ which may change $*b$
+    - contains load buffer, Store Address Buffer (SAB) and Store Data Buffer (SDB) [p5](../references/other_resources/COD/references/1903.00446.pdf)
+    - recommend this [blog](http://gavinchou.github.io/summary/c++/memory-ordering/) which says all and more like `compare_exchange_strong` about Memory Order.
+    - in `c++` always avoid [std::memory_order_consume](https://stackoverflow.com/questions/19609964/how-do-acquire-and-consume-memory-orders-differ-and-when-is-consume-prefe#comment29108991_19609964) because ['// may or may not fire: data does not carry dependency from ptr'](https://en.cppreference.com/w/cpp/atomic/memory_order#Release-Consume_ordering)
+      - why have `memory_order_consume`, at least [cheaper](https://stackoverflow.com/questions/55741148/memory-order-consume-usage-in-c11)
+      - diff in [code](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/) (this link from [this where also says why not use consume sometimes](https://stackoverflow.com/questions/65336409/what-does-memory-order-consume-really-do)) , consume use pointer and acquire use something like *global* variable.
+    - intel reference p3284 only ensure one processor order, not ensure multi, see figure 9-1
+  - memory barrier
+    - [no needed](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory) in strong memory model [partly](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory#comment88616281_12204320) because 'storeload' still exists.
+    - why use [weak](https://stackoverflow.com/questions/58870009/why-do-weak-memory-models-exist-and-how-is-their-instruction-order-selected) memory model ’big advantage‘
+    - [detailed](https://preshing.com/20120930/weak-vs-strong-memory-models/) where says ' a little disagreement over this question'(i.e. ~~definition ~~ classification of strong memory model)
+      - [loadload](https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/) is just means *load after load* can't be reordered. [related](https://preshing.com/20120913/acquire-and-release-semantics/) with acquire,etc
+  - [dual port](https://en.wikipedia.org/wiki/Alpha_21264#Primary_caches) using 'both the rising and falling edges'
+  - [inclusive](https://en.wikipedia.org/wiki/Cache_inclusion_policy) cache ’inclusive of the higher level cache‘, so here is relative with main memory
+  - uncore(i.e. not in cpu) [arbiter](https://en.wikipedia.org/wiki/Arbiter_(electronics))
+- p649
+  - back-to-[back](https://en.wikipedia.org/wiki/Control_unit#Translating_control_units) operation
+##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
+> recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
+- 1
+  - p3 see [2 https://cs.colby.edu/courses/F17/cs232/notes/outlines27.pdf]() 
+  - TODO read after p15
+- Tomasulo with Common Data Bus (CDB) [vs https://www.cse.iitk.ac.in/users/biswap/CS422-2020/L9.pdf](../references/other_resources/COD/references/L9.pdf) Scoreboarding
+  > also see example [1](https://cseweb.ucsd.edu//classes/wi08/cse240a/ilp2.pdf)
+  - p37 'over Common Data Bus that broadcasts results to all FUs', so can run in parallel which the latter can't -> can [decentralized](https://courses.cs.washington.edu/courses/csep548/00sp/lectures/class3/tsld035.htm) with Function Units
+  - p7 Rj [meaning p3 (may be wrong based on following wikipedia link)](https://web.njit.edu/~sohna/cs650/lec4-2.pdf) `Rj = Yes` [means (here also says 'RAW' solve by Scoreboarding in ‘Read operands’)](https://en.wikipedia.org/wiki/Scoreboarding) 'ready for and are not yet read.'~~not avialable (see p12 vs p11)~~. ~~however,p15 load F2 means **not available**, while mul says `rj` is no which means **available** ~~
+    - so cycle 1,2 `Rk=Yes`, cycle 3 `Rk=No` because has been read; cycle 6 `Rj=No` because not ready for.
+- Dynamic instruction scheduling [overlook](../references/other_resources/COD/references/HY425_L8_ReorderBuffer.pdf) https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf
+  - see p5,14
+- ROB [structure p25](https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf)
+  - also see [1](https://decodezp.github.io/2019/04/06/quickwords24-skylake-pipeline-8/) [2](https://github.com/drharris/cs6290-notes/blob/master/reorder-buffer.md) [video in 2](https://www.youtube.com/watch?v=0w6lXz71eJ8)
+- also see  ROB in [Apple](https://news.ycombinator.com/item?id=25163883)
+###### diff with store buffer
+- CAQQA p230,242(relation with reorder buffer)
+### TODO
+#### when browsing web
+- [Memory Models](https://hpc170063702.wordpress.com/2018/06/21/high-perf-computing-and-concurrency/)
+#### chapter 2
+- p304 IPA
+- p240 'suffices to add 1'
+- p232 Iteration is [better (also show stack version)](https://medium.com/@chenfelix/removal-of-recursion-28ab46c891c7) than Recursion
+- p221 how to [discard 'hard-wired to zero'](https://en.wikichip.org/wiki/zero_register)
+- p202 subi by `addi`
+#### chapter 3
+- p394 TODO [SRT](https://en.wikipedia.org/wiki/Division_algorithm#SRT_division) with prediction.
+- p433 Ordered and UnOrdered compare [diff](https://stackoverflow.com/questions/8627331/what-does-ordered-unordered-comparison-mean)
+- p396 nonperforming restoring division also referenced [above](#geeks)
+- p393 show why round to zero
+- p375 use hardware parallel to carry by [carry lookahead ('reduce')](https://en.wikipedia.org/wiki/Carry-lookahead_adder)
+#### chapter 4
+- TODO how ROB [implemented](https://docs.boom-core.org/en/latest/sections/reorder-buffer.html)
+### COD5 
+- p233 [fixed point](https://stackoverflow.com/questions/7524838/fixed-point-vs-floating-point-number)
+### RISC-V
+> doc [V1](../references/other_resources/RISC-V/riscv-spec-20191213.pdf),[V2](../references/other_resources/RISC-V/riscv-privileged-20211203.pdf),[greencard](../references/other_resources/RISC-V/RISCVGreenCardv8-20151013.pdf) 
+- different format, reference [1](https://danielmangum.com/posts/risc-v-bytes-intro-instruction-formats/)
+  - U-Format -> lui to load [32-bit](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) constant, see 1 'jal         ra,0x10418 <printf>'
+  - SB-Format used ‘for small, local jumps.’ because of 13-bit offset, see 1
+    - [why](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way) this weird encoding, [BL7(berkeley lecture 7) p46](https://inst.eecs.berkeley.edu//~cs61c/resources/su18_lec/Lecture7.pdf) weher inst is ‘instruction’ which is also referenced in the link 'used to store bit 11 of the SB-Format immediate'
+      - keyword: 'sign extension hardware' which is also referenced in BL7 and V1.
+      - TODO: 'wiring the input bits', 'datapath sized wiring', 'two or so (1-bit) wires and one 1-bit mux and a 1-bit control signal'
+  - more detailed why format defined as what it is, based on V1 and greencard
+    - p17 all keep 31~25 where not conflict with register. Because `load` is from mem to reg, `store` is from reg to mem (so no `rd`) and `jmp` will store pc+4. 
+      - Then UJ to be similar to U and B, 'inst[19:12]', 'inst[30:25]' and 'inst[31]' has been put in the slots and based on [‘immediate bit 1’](https://stackoverflow.com/questions/39427092/risc-v-immediate-encoding-variants), bit 24-21 also are put. (TODO )
+- [why](https://stackoverflow.com/questions/62807066/riscv32-vs-riscv64) RV64I
+- why [pc+4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) because instruction length
+- TODO here [`jalr`](https://stackoverflow.com/questions/53036468/what-is-the-definition-of-jal-in-risc-v-and-how-does-one-use-it) maybe just indirect, not return always
+#### [registers](https://en.wikichip.org/wiki/risc-v/registers),see this more [specific](https://msyksphinz-self.github.io/riscv-isadoc/html/regs.html) which is from manual chapter 25
+- [global](https://five-embeddev.com/quickref/global_pointer.html) pointer function like base pointer related with 'Global variables'
+- [thread pointer](https://www.indes.com/embedded/en/news/2020/12/450_Code_size__Closing_the_gap_between_RISC-V_and_Arm_for_embedded_applications/) (see link 'second global base','the model for the thread pointer') only used in 'thread-local' (thread [share](https://stackoverflow.com/questions/1762418/what-resources-are-shared-between-threads) (also see csapp)) 
+- [alternate link register](https://stackoverflow.com/questions/44556354/jal-what-is-the-alternate-link-register-x5-for) ('clobber the link register') used in [Millicode](https://en.wikipedia.org/wiki/Millicode) with [prologue and epilogue](https://en.wikipedia.org/wiki/Function_prologue_and_epilogue)
+  - pdf link [1](https://escholarship.org/uc/item/7zj0b3m7#page=59) or [2](https://news.ycombinator.com/item?id=19165301)
+- here [saved](https://stackoverflow.com/questions/64545005/which-registers-are-saved-and-not-saved-in-risc-v) (similar to x86-64 design) is related with **callee**
+#### manual interpretation
+- p21 jalr still use multiple of 2 bytes by [`&∼1`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jalr), 
+  - 'error checking' because of dropping the least-significant bit which will jump to one non-instruction location.
+  - 'the lowest 2 KiB or highest 2 KiB' -> -2^11 byte ~ 2^11-1 byte = -2KiB(2^10 bytes) ...
+  - when in `while` loop, `jal` 
+  - ['macro-op fusion'](https://en.wikichip.org/wiki/macro-operation_fusion) here first `ra` in `lui ra, imm20` doesn't function as return addr, so not pop to `ra` which isn't expected.
+    - [RAS](https://one2bla.me/cs6290/lesson4/return-address-stack.html#return-address-stack-ras)
+  - why use jmp and [link](https://en.wikipedia.org/wiki/Link_register) see paragraph 1
+- p22 also book p221, 'rd=x0' just to **not pollute** ’conditional-branch prediction tables‘ and ’return-address stack‘ which is **useful**
+### stackoverflow asked questions
+#### 1
+- CAS_weak [diff](https://stackoverflow.com/questions/72766332/c11-how-to-produce-spurious-failures-upon-compare-exchange-weak) CAS_strong. From 'Godbolt' in link, `cbnz    w4, .L5` is main diff which will retry after store failure. (also [see](https://stackoverflow.com/questions/4944771/stdatomic-compare-exchange-weak-vs-compare-exchange-strong) 'overhead to retry' where it says when to use each)
+- COD p254 [question 1](https://stackoverflow.com/questions/76374201/does-lock-can-avoid-lr-sc-spuriously-fail/76384145#76384145) ‘also a benefit to not storing at all when the load sees a non-zero value’ (also [see](https://stackoverflow.com/questions/76285849/what-does-this-compare-exchange-weak-example-loop-do-on-atomic-boolean-from-a))
+  - here 'specific to the LL/SC' means that although `lr/sc` will check write to memory, but it doesn‘t check value in mem. So if mem is already not valid (i.e. lock is used by another thread in here condition) before `lr`, it will not throw error.
+    - 'reduce livelock' is because of 'not storing at all when the load sees a non-zero value', so won't unnecessary try to 'dirty cache line'.
+  - TODO above 'inline' link 
+### macro-op with micro-op
+- definition [macro-operation MOP/µOP](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro%2Doperations%20are%20a%20fixed%2Dlength,%2C%20modify%2C%20and%20write%20operation.)
+- [fused](https://easyperf.net/blog/2018/02/04/Micro-ops-fusion) instruction example
+  - Macro-operation fusion [vs](https://stackoverflow.com/questions/56413517/what-is-instruction-fusion-in-contemporary-x86-processors#comment99423928_56413517) Micro-operation fusion
+    - here based on angle [doc p109](../references/microarchitecture.pdf), 'multiple' should be 'two' and Micro-op is just 'read/write' action,etc while [Macro-op](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro-operations%20are%20a%20fixed-length,%2C%20modify%2C%20and%20write%20operation) is instruction
+    - [TODO](https://easyperf.net/blog/2018/02/15/MicroFusion-in-Intel-CPUs)
+- Macro-Operation Fusion example [`cmpjne`](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Instruction_Queue_.26_MOP-Fusion) (notice: this instruction is not available in ISA set)
+  - here `50` in 'duplicated over for each thread (i.e. 50 total entries)' is mainly because that Broadwell has 2 threads all
+- [better](https://community.intel.com/t5/Software-Tuning-Performance/Macro-fusion-merges-two-instructions-into-a-single-micro-op/m-p/1139693#M6608) to read [Agner‘s microarchitecture doc](../references/Agner/microarchitecture.pdf) '8.9 Execution units' and '8.5，4'
+  - [branch hint](https://stackoverflow.com/questions/14332848/intel-x86-0x2e-0x3e-prefix-branch-prediction-actually-used) not used now.
+  - '16-byte boundry' because COD p645 second step
+  - ’not a memory and an immediate operand‘ because ROB can only store one temporary value (i.e. 'There is not enough space for storing both'), see CAQQA p245.
+    - other with register can store register value in register file.
+  - 'the address of a branch target' see ['Destination (either memory address'](https://en.wikipedia.org/wiki/Re-order_buffer)
+  - 'are split into two μops' ’read instructions have only one μop‘ because in doc above context says 'read-modify instructions' instead of 'read instructions'
+### Agner‘s doc
+#### microarchitecture
+- 10.8 -> 'reorder buffer and the scheduler' so scheduler is [reservation station](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f#comment134711147_76394605) [sometimes](https://www.realworldtech.com/merom/5/), also see COD FIGURE 4.74
+# valgrind
+- using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
+- [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
+  - Still reachable: 'The memory is still reachable, so the program could still be using it' -> can be freed in the program. 'In theory, you could free it at the end of the program, but all memory is freed at the end of the program **anyway**.' -> so can ignore this error if you are the sure the program must be run at the *end*.
+  - ‘possibly lost’ because using `**` pointer which may be unsafe because to free it may be complex which will result in errors, see 'If we kept some extra information', 'used the numbers pointer as a base', 'points to the third block of numbers'(i.e. after runnning `numbers++;`),' theoretically count backward to the beginning'
+  - 'indirectly lost'
+    - 'be **tempted** to fix it by simply clearing the pointer','We should have freed the memory first', 'by iteratively fixing the definitely lost memory leaks, you will eventually fix all indirectly lost memory leaks.'
+    - 'indirectly lost: 24 bytes in 3 blocks' -> `numbers->nums`
+  - 'Suppressed' -> to manually Suppress leak
+    - 'won't show backtraces for where those still **reachable or indirectly** lost blocks','make sense to see whether you can deallocate them early'
+- definition of 'memory leak' [two](https://stackoverflow.com/questions/3840582/still-reachable-leak-detected-by-valgrind)
+- comparison [1](https://github.com/google/sanitizers/wiki/AddressSanitizerComparisonOfMemoryTools) [2](https://valgrind.org/gallery/survey_03/q4.html)
+  - not use `LD_PRELOAD` when using `gcc -fsanitize=address`
+# error debug
+- [double free or corruption](https://stackoverflow.com/questions/12548868/why-am-i-getting-this-memory-access-error-double-free-or-corruption) (!prev)
+- [corrupted top size](https://www.reddit.com/r/cs50/comments/y7gppx/pset_5_malloc_corrupted_top_size_please_help/) meaing 'invalid write'
