@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "../automatic_command"
+		},
+		{
+			"path": "../../../../../home/czg/radare2"
 		}
 	],
 	"settings": {}

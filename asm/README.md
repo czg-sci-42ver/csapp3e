@@ -2232,6 +2232,8 @@ find: False
     - [BB reorder](https://www.gnu.org/software/gcc/news/reorder.html),here just use cpu `always not taken` to optimize.
     - definition: just [change](https://discourse.llvm.org/t/extending-llvm-basic-block-reordering/33941) small jmp block
   - [Tail call optimization](https://en.wikipedia.org/wiki/Tail_call#In_assembly) including one optimization to remove unnecessary call and ret, [also 'there is one step that is unnecessary'](https://exploringjs.com/es6/ch_tail-calls.html#_tail-call-optimization)
+## intel SIMD Intrinsics like avx,etc
+- [see](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_fmadd_pd&ig_expand=3105)
 # asm thinking from optimization
 - while loop
   - always [->](https://stackoverflow.com/questions/47783926/why-are-loops-always-compiled-into-do-while-style-tail-jump) do while, called [inversion](https://en.wikipedia.org/wiki/Loop_optimization) which may do one less `jmp` in every loop
@@ -4506,6 +4508,23 @@ B[k][j] B[k][j] ...
   - uncore(i.e. not in cpu) [arbiter](https://en.wikipedia.org/wiki/Arbiter_(electronics))
 - p649
   - back-to-[back](https://en.wikipedia.org/wiki/Control_unit#Translating_control_units) operation
+- p654
+  - amd turbo core, how to [test](https://bbs.archlinux.org/viewtopic.php?pid=2103636#p2103636)
+  - tips: [check](https://serverfault.com/questions/62316/how-do-i-list-loaded-linux-module-parameter-values) kernel param; 
+  - helpful ['ignore_ppc'](https://askubuntu.com/questions/340626/permanently-change-maximum-cpu-frequency) [2](https://lucraymond.net/2022/04/12/unlock-your-ryzen-cpu-on-linux-and-enable-turbo-boost/)
+  - maybe not set to [specific freq](https://askubuntu.com/questions/459788/how-to-enable-amd-turbo-core-on-ubuntu-14-04) 'The boost is an autonomous decision' 
+    - also from [kernel](https://www.kernel.org/doc/Documentation/cpu-freq/boost.txt) 'Writing a "1" does not explicitly boost the system'
+  - also use 'userspace' to [automate](https://stackoverflow.com/questions/61286774/how-to-set-specific-cpu-frequency-when-using-intel-pstate) which needs running script manually.
+```bash
+# force range to one value
+    sudo cpupower frequency-set -u $UPPER
+    sudo cpupower frequency-set -d $UPPER
+    sudo cpupower frequency-set -f $UPPER
+$ sudo cpupower frequency-info
+  current policy: frequency should be within 2.90 GHz and 2.90 GHz.
+                  The governor "userspace" may decide which speed to use
+```
+  - check kernel whether [support](https://forum.manjaro.org/t/is-the-amd-pstate-driver-included-in-5-17-rc1-kernel/99978/5) amd_pstate
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
@@ -4593,6 +4612,12 @@ B[k][j] B[k][j] ...
     - other with register can store register value in register file.
   - 'the address of a branch target' see ['Destination (either memory address'](https://en.wikipedia.org/wiki/Re-order_buffer)
   - 'are split into two μops' ’read instructions have only one μop‘ because in doc above context says 'read-modify instructions' instead of 'read instructions'
+- COD p645
+  - also see [wikichip](https://en.wikichip.org/wiki/intel/microarchitectures/sandy_bridge_(client)) 'two fused µOPs only occupy a single entry in the ROB'
+    - TODO 'fragmented across 2 MiB entries','with four entries for 1 GiB page'
+  - stackoverflow [Q&A](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f?noredirect=1#comment134713199_76394605)
+    - TODO [performance counters](https://relate.cs.illinois.edu/course/cs598apk-f18/f/demos/upload/perf/Using%20Performance%20Counters.html) for [retire slots ‘td_slots_retired’](https://lore.kernel.org/lkml/1462489447-31832-4-git-send-email-andi@firstfloor.org/), [metric](https://shbakram.github.io/assets/papers/honors-thesis-adi.pdf) understanding
+    - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
 ### Agner‘s doc
 #### microarchitecture
 - 10.8 -> 'reorder buffer and the scheduler' so scheduler is [reservation station](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f#comment134711147_76394605) [sometimes](https://www.realworldtech.com/merom/5/), also see COD FIGURE 4.74
