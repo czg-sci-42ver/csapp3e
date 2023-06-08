@@ -4401,7 +4401,7 @@ B[k][j] B[k][j] ...
 - 'FIGURE 4.2' 'FIGURE 4.4'(state element) PC+[4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) although the book says it use 64-bit
 - 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
 - p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
-- [SB-format p7](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf)
+- [SB-format p7](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf) risc-v format <a id="rformat"></a>
 - 'FIGURE 4.15,17'
 - p543 [latency](http://ece-research.unm.edu/jimp/611/slides/chap3_1.html)
 - 'FIGURE 4.31' related with later figures 'FIGURE 4.34/41',etc
@@ -4491,6 +4491,7 @@ B[k][j] B[k][j] ...
         - should use '$2^{12}$ cache *sets*' instead of '$2^{12}$ cache *lines*'
   - [Microcode 'translates machine instructions, state machine data'](https://en.wikipedia.org/wiki/Microcode)
   - memory order [buffer](https://en.wikipedia.org/wiki/Memory_ordering)
+    > one valuable doc about [RCsc ordering ‘Release Consistency sequentially consistent’](https://developer.arm.com/documentation/102336/0100/Load-Acquire-and-Store-Release-instructions)
     - 'A safe reordering' to address 'problem of address aliasing' by using local variable which is also said in csapp. Also applies to $f(*a)$ which may change $*b$
     - contains load buffer, Store Address Buffer (SAB) and Store Data Buffer (SDB) [p5](../references/other_resources/COD/references/1903.00446.pdf)
     - recommend this [blog](http://gavinchou.github.io/summary/c++/memory-ordering/) which says all and more like `compare_exchange_strong` about Memory Order.
@@ -4637,3 +4638,30 @@ $ sudo cpupower frequency-info
 # error debug
 - [double free or corruption](https://stackoverflow.com/questions/12548868/why-am-i-getting-this-memory-access-error-double-free-or-corruption) (!prev)
 - [corrupted top size](https://www.reddit.com/r/cs50/comments/y7gppx/pset_5_malloc_corrupted_top_size_please_help/) meaing 'invalid write'
+# verilog simple introduction
+- basics different from C, [constant](https://en.wikipedia.org/wiki/Verilog#Definition_of_constants) (underscore [ignored](https://cseweb.ucsd.edu/classes/sp11/cse141L/pdf/01/SV_Part_1.pdf)),[Reduction operator 'convert vectors to scalars'](https://nandland.com/reduction-operators/),[Initial and always 'a common misconception'](https://en.wikipedia.org/wiki/Verilog#Initial_and_always)
+- [Logical equality](https://stackoverflow.com/questions/5927615/what-is-the-difference-between-and-in-verilog) based on [four-states, see list](https://www.verilogpro.com/verilog-reg-verilog-wire-systemverilog-logic/)
+- synthesis -> ['logic synthesis'](https://en.wikipedia.org/wiki/Logic_synthesis)
+- ~~TODO~~ [diff wire and reg](https://inst.eecs.berkeley.edu/~cs150/Documents/Nets.pdf)
+  - [assign](https://www.chipverify.com/verilog/verilog-assign-statement) just to ensure right-hand value is 'constant'.
+  - [Combinational and Sequential Circuits](https://www.geeksforgeeks.org/combinational-and-sequential-circuits/), here Sequential means somewhat *stateful* instead of stateless.
+  - [always@ block =](https://www.chipverify.com/verilog/verilog-always-block) needs *delay* to avoid infinite loop *hang*
+    - output reg -> 'reg elements can be used as *outputs within* an actual module'
+  - [initial block =](https://www.chipverify.com/verilog/verilog-initial-block) 'not synthesizable','do not serve much purpose than to be used in simulations', '$finish' 'tells the simulator to *terminate* the current simulation'
+  - in 1.2, 2 is correspond to 3 and 1 is correspond to 4.
+    - 8->9 because above shows 'Sequential Circuits' is *stateful* which relys on registers.
+- ["non-blocking" assignment](https://www.chipverify.com/verilog/verilog-blocking-non-blocking-statements) means similarly nonblock in unix (i.e. continue running and schedule the current instruction if current instruction not complete) which is also 'relational operator in expressions', 'End of time-step'
+  - conventionally, assignment only occurs when `#num` delay or `end` with `initial`
+## COD p658
+based on 'FIGURE 4.33' p548
+- Verilog Array [Packed Arrays (similar to packed instruction) and Unpacked Arrays (i.e. array size)](https://www.javatpoint.com/verilog-arrays), more [clear](https://www.chipverify.com/verilog/verilog-arrays) where depth is array size and wide (width) means pack size. 
+  - So `reg [63:0] Regs[0:31]` is 32 64-bit regs.
+  - notice [order `[7:0] or [0:7]`](https://stackoverflow.com/questions/16762167/order-of-bits-in-reg-declaration)
+- [data type](https://www.chipverify.com/verilog/verilog-data-types) 'not connected to anything will have a high-impedance' (which is just as book digital circuit says although I forgot most of them ...)
+- `<=` to ensure parallel (see csapp what 'parallel' means) because of non-blocking
+- `PC>>2` because `PC+4` ($1<<2=4$) and use `reg [31:0] Imemory[0:1023]` (instruction is 32 bit at most in risc-v)
+- use Concatenation and Replication to construct imm in risc-v
+- [R-type](#rformat) still p7
+- B register is `rs2`
+### TODO
+- why `EXMEMALOUT >> 2` not `EXMEMALOUT >> 1` to just put `64=32<<1` bit data.
