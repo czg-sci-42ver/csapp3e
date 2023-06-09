@@ -129,7 +129,7 @@ module RISCVCPU;
   wire [11:0] offset_ld, offset_sd;
   wire [63:0] target_addr_ld, target_addr_sd, target_addr_ld_fromIR,offset_EXMEM_sd;
   wire EXMEMIS_LD, EXMEMIS_SD;
-  wire [31:0] DMem_0;
+  wire [31:0] DMem_0,DMem_1;
   assign Regs_rs1_w = Regs[`SD_RS1];
   assign Regs_rs2_w = Regs[`SD_LOAD_REG];
   assign offset_ld = IFIDIR[31:20];
@@ -144,6 +144,7 @@ module RISCVCPU;
   assign EXMEMIS_LD = EXMEMop == LD;
   assign EXMEMIS_SD = EXMEMop == SD;
   assign DMem_0 = DMemory[0];
+  assign DMem_1 = DMemory[1];
   assign Reg_1 = Regs[1];
   assign Reg_30 = Regs[30];
   /*
@@ -347,7 +348,7 @@ module RISCVCPU;
       $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
     end else if (EXMEMop == SD) begin
-      $display("WB_fw:%b, stall_cnt: %b",WB_fw,stall_cnt);
+      $display("WB_fw:%0b, stall_cnt: %0b",WB_fw,stall_cnt);
       DMemory[WB_fw>>2] <= EXMEMB;  //store
       $display("IFIDrs2:%0d", IFIDrs2);
       $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",

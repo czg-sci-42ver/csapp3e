@@ -4560,6 +4560,17 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
     - here, the situation that `stall` uprise when `ld` occurs will maybe make `sd` write to wrong location, so need `wire` directly forward, instead of `reg` which has at least one cycle delay.
     - in `IDEXop`, wire like `Ain` ensures forwarding without delay.
       - in `EXMEMop`, only register value (not memory) will be influenced only by the current `MEMWBop`. Therefore, only `EXMEMALUOut` and `EXMEMB` will be influenced.
+    - see `E4.13.3_mfEXMEM_log.v`. (here only change `EXMEMALUOut` to wire `WB_fw`，`EXMEMB` is similar).
+```bash
+$ num=3_mfEXMEM;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_op.sav
+...
+EXMEMALUOut:1100 load from 3th mem value 11, imm:100
+# here offset step set as 4.
+WB_fw:111, stall_cnt: 1 # here binary 111=100(4)+11(3), right calc.
+IFIDrs2:30
+finish store, cnt: 4,cycle: 9,EXMEMB 11110000 store to 1th mem,EXMEMALUOut: 1100 # store to 111>>2=1, right
+# can see from gtkwave Dmem[1] has been written after the `EXMEMop` when 'stall'
+```
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1

@@ -3,6 +3,12 @@
 - learn systemverilog with `always_ff`,etc
 - [Verilator](https://www.embecosm.com/appnotes/ean6/embecosm-or1k-verilator-tutorial-ean6-issue-1.html)
 - `PULLUP` in verilog same as meaning in circuits?
+- [monitor array](https://www.edaplayground.com/x/2527) like memory conveniently in Systemverilog
+- how to [dump memory](https://stackoverflow.com/questions/20317820/icarus-verilog-dump-memory-array-dumpvars), at least to dump [element](https://sourceforge.net/p/iverilog/bugs/829/) of memory
+  - how to run this [EDA playground](https://www.edaplayground.com/s/4/520)
+  - workaround: just use some wire to view in simulator like gtkwave...
+    - or [write](https://stackoverflow.com/questions/75926901/dumping-a-2d-register-array-into-a-text-file) to file
+- try using [struct](https://stackoverflow.com/questions/25396647/understanding-function-return-values) as return of function
 ## blog
 ### verilog
 - [chipverify](https://www.chipverify.com/verilog/verilog-generate-block) (also have [systemverilog](https://www.chipverify.com/systemverilog/systemverilog-tutorial) version)
@@ -27,6 +33,7 @@
 - [modulus](https://web.engr.oregonstate.edu/~traylor/ece474/beamer_lectures/verilog_operators.pdf) operator which is not listed in [wikipedia](https://en.wikipedia.org/wiki/Verilog#Operators)
 - init array with [for loop](https://stackoverflow.com/questions/29053120/initializing-arrays-in-verilog), maybe unable to directly `= {...}`
   - 'Assignment to an entire array or to an array slice requires SystemVerilog' -> TODO try in SystemVerilog
+- [multiple return](http://www.yang.world/podongii_X2/html/TECHNOTE/TOOL/MANUAL/15i_doc/fndtn/ver/ver5_2.htm)
 ### error debug
 - `Elaboration task '$display' requires SystemVerilog.`: `display` needs to be something like `module`, many other variable also same. Similar to what [this](https://stackoverflow.com/questions/23272054/prevent-systemverilog-compilation-if-certain-macro-isnt-set) say 'The $display still needs to be inside an always block'
 - [`Port declarations without direction error`](https://stackoverflow.com/questions/23037206/port-declarations-without-direction-error), `input a,b` only valid if `a,b` are same size.(i.e. `input a,[4:0]b` is wrong)
