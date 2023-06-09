@@ -1,0 +1,53 @@
+[*]
+[*] GTKWave Analyzer v3.3.115 (w)1999-2023 BSI
+[*] Fri Jun  9 07:23:11 2023
+[*]
+[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_2.vcd"
+[dumpfile_mtime] "Fri Jun  9 07:20:46 2023"
+[dumpfile_size] 5391
+[savefile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/clock_op.sav"
+[timestart] 0
+[size] 1846 1019
+[pos] -1 -1
+*-2.000000 24 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 361
+[signals_width] 291
+[sst_expanded] 1
+[sst_vpaned_height] 297
+@28
+RISCVCPU.clock
+@420
+RISCVCPU.LD
+RISCVCPU.SD
+@22
+RISCVCPU.NOP
+RISCVCPU.IFIDop[6:0]
+RISCVCPU.IDEXop[6:0]
+RISCVCPU.EXMEMop[6:0]
+RISCVCPU.MEMWBop[6:0]
+RISCVCPU.IFIDIR[31:0]
+RISCVCPU.IDEXIR[31:0]
+RISCVCPU.EXMEMIR[31:0]
+RISCVCPU.MEMWBIR[31:0]
+@28
+RISCVCPU.bypassAfromALUinWB
+RISCVCPU.bypassAfromLDinWB
+@29
+RISCVCPU.bypassBfromALUinWB
+@28
+RISCVCPU.bypassBfromLDinWB
+@22
+RISCVCPU.Ain[63:0]
+RISCVCPU.Bin[63:0]
+RISCVCPU.IDEXA[63:0]
+RISCVCPU.IDEXB[63:0]
+RISCVCPU.EXMEMALUOut[63:0]
+RISCVCPU.MEMWBValue[63:0]
+RISCVCPU.MEMWBop[6:0]
+RISCVCPU.IDEXop[6:0]
+RISCVCPU.IDEXrs1[4:0]
+RISCVCPU.IDEXrs2[4:0]
+RISCVCPU.EXMEMrd[4:0]
+RISCVCPU.MEMWBrd[4:0]
+[pattern_trace] 1
+[pattern_trace] 0

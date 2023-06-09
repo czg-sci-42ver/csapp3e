@@ -11,7 +11,9 @@ all: $(PROGS)
 	#(cd floats; make)
 
 %.o: %.v
-	$(IVERILOG) -o $@ $<
+	# echo to make status success if '! test' fails
+	(! test -d build && echo "mkdir build" && mkdir build;echo)
+	$(IVERILOG) -o build/$@ $<
 
 .PHONY : clean
 clean:

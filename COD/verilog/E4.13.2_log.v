@@ -19,17 +19,19 @@
 // `timescale 1s / 50ms
 
 `define CYCLE_TIME 1
+// if use NOP, change to > 2
+`define INSTR_DUP_CYCLE 2
 `timescale 1s / 1s
 
 module RISCVCPU;
   // function automatic [31:0] sd(input [11:0] offset, [5:0] rs2, [5:0] rs1);
   //   sd = {offset[11:5], rs2, rs1, 3'b11, offset[4:0], 7'b0100011};
   // endfunction
-  function [31:0] sd(input [11:0] offset,input [0:4] rs2, rs1);
+  function [31:0] sd(input [11:0] offset, input [0:4] rs2, rs1);
     // see https://www.chipverify.com/verilog/verilog-concatenation wire[2:0] ...
     // input [11:0] offset,[5:0] rs2, rs1; // this is wrong
     begin
-      $display("in sd func, rs2:%b, last element:%b",rs2,rs2[0]);
+      $display("in sd func, rs2:%b, last element:%b", rs2, rs2[0]);
       sd = {offset[11:5], rs2, rs1, 3'b11, offset[4:0], 7'b0100011};
     end
   endfunction
@@ -46,23 +48,51 @@ module RISCVCPU;
       IDEXIR,
       EXMEMIR,
       MEMWBIR;  // pi pe l ine reg i sters
-  wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd;  // Access register fiel ds
-  wire [6 : 0] IDEXop, EXMEMop, MEMWBop,IFIDop;  // Access opcodes
+  wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd, IDEXrs1, IDEXrs2, EXMEMrd;  // Access register fiel ds
+  wire [6 : 0] IDEXop, EXMEMop, MEMWBop, IFIDop;  // Access opcodes
   wire [63 : 0] Ain, Bin;  // the ALU inputs
+
+  // decl are the bypass si gna l s
+  wire bypassAfromMEM,bypassBfromMEM,  bypassAfromALUinWB,bypassBfromALUinWB, bypassAfromLDinWB,bypassBfromLDinWB;
+
   // These assignments define fie l ds from the pipel ine registers
+  assign IFIDop = IFIDIR[6 : 0];
   assign IFIDrsl = IFIDIR[19:15];  // rsl field
   assign IFIDrs2 = IFIDIR[24 : 20];  // rs2 field
-  assign IFIDop = IFIDIR[6 : 0];
   assign IDEXop = IDEXIR[6 : 0];
+  assign IDEXrs1 = IDEXIR[19:15];
+  assign IDEXrs2 = IDEXIR[24:20];
   // the opcode
   assign EXMEMop = EXMEMIR[6 : 0];
+  assign EXMEMrd = EXMEMIR[11:7];
   // the opcode
   assign MEMWBop = MEMWBIR[6 : 0];
   // the opcode
   assign MEMWBrd = MEMWBIR[11 : 7];  // rd field
   // Inputs to the ALU come di rectly from the ID/EX pipeline registers
-  assign Ain = IDEXA;
-  assign Bin = IDEXB;
+  // assign Ain = IDEXA;
+  // assign Bin = IDEXB;
+
+  // The bypass to in put A fro m t he MEM stage for an ALU operation
+  assign bypassAfromMEM = (IDEXrs1 == EXMEMrd) && (IDEXrs1 !== 0) && (EXMEMop == ALUop);
+  // The bypass to i nput B fro m t he MEM stage for an ALU operation
+  assign bypassBfromMEM = (IDEXrs2 == EXMEMrd) && (IDEXrs2 != 0) && (EXMEMop == ALUop);
+  // The bypass to i nput A fro m t he WB stage for an ALU ope r ation
+  assign bypassAfromALUinWB = (IDEXrs1 == MEMWBrd) && (IDEXrs1 != 0) && (MEMWBop == ALUop);
+  // The bypass to i nput B from the WB stage for an ALU operati on
+  assign bypassBfromALUinWB = (IDEXrs2 == MEMWBrd) && (IDEXrs2 != 0) && (MEMWBop == ALUop);
+  // The bypass t o in put A fro m t he WB stage for an LD operati on
+  assign bypassAfromLDinWB = (IDEXrs1 == MEMWBrd) && (IDEXrs1 != 0) && (MEMWBop == LD);
+  // The bypass to in put B fro m t he WB stage for an LD operati on
+  assign bypassBfromLDinWB = (IDEXrs2 == MEMWBrd) && (IDEXrs2 != 0) && (MEMWBop == LD);
+  // The A input to t he ALU is bypassed fro m MEM if t here i s a bypass there .
+  // Otherwise fro m WB if the re i s a bypass the re , and otherwise comes from the !DEX register
+
+  assign Ain = bypassAfromMEM ? EXMEMALUOut : (bypassAfromALUinWB || bypassAfromLDinWB) ? MEMWBValue: IDEXA;
+  // The B input to the ALU i s bypassed from MEM if t here is a bypass t here .
+  // Otherwise fro m WB i f there is a bypass there . and otherwise comes from t he IDEX register IDEXB ;
+  assign Bin = bypassBfromMEM? EXMEMALUOut : (bypassBfromALUinWB || bypassBfromLDinWB) ? MEMWBValue : IDEXB;
+
   integer i;  // used to initialize registers
   initial begin
     PC = 0;
@@ -82,34 +112,37 @@ module RISCVCPU;
   always #(`CYCLE_TIME) clock = ~clock;
   // reg [31 : 0] INSTR_ARRAY[0:(`INSTR_SIZE)-1];
   initial begin
-    $dumpfile("vcd/log.vcd");
+    $dumpfile("vcd/log_2.vcd");
     // must have this
     $dumpvars(1);
     clock = 0;
     offset = 0;
     cnt = 0;
-    $display("sd rs2:%b",`SD_LOAD_REG);
+    $display("sd rs2:%b", `SD_LOAD_REG);
     // IMemory[9] = 32'b00000000000110000000010010100011;
     // $display("in sd, i value: %0d, offset %b IMemory[i] %b, should store %b", 0, 9, IMemory[9],32'b00000000000110000000010010100011);
     for (i = 0; i < `INSTR_SIZE; i = i + 1) begin
       DMemory[i] = i;
       // store first to make load show value
-      if (i % 2 == 1) begin
+      if (i % `INSTR_DUP_CYCLE == 1) begin
         // IMemory[i] =`sd(offset,{5{1'b0}},{5{1'b0}});
-        // store x[31] to M[((x[0]=0)+offset=offset)]
-        IMemory[i] = sd(offset, {`SD_LOAD_REG}, {5{1'b0}});
-        $display("sd instr rs2:%b",IMemory[i][24:20]);
+        // store x[31] to M[((x[1]=?)+offset=offset)]
+        // rs1 = `rd` of load
+        IMemory[i] = sd(offset, {`SD_LOAD_REG}, {5'b1});
+        $display("sd instr rs2:%b", IMemory[i][24:20]);
         // $display("in sd, i value: %0d, offset %b IMemory[i] %b, should store %b", i, offset, IMemory[i],sd(offset, {5{1'b0}}, {5{1'b0}}));
-      end else begin
+      end else if (i % `INSTR_DUP_CYCLE == 0) begin
         /*
         here load and store address are same.
         */
         offset = offset + 4;
         // load from ((x[0]=0)+offset=offset) -> x[1]
-        IMemory[i] = `ld({offset}, {5{1'b0}}, {5'b1});
+        // rd = 1
+        // rs1 = 1 to make ’sd ld sd ld‘ loop, the two ld can influence each other, then bypass.
+        IMemory[i] = `ld({offset}, {5'b1}, {5'b1});
         // $fdisplay("value: %d",{{offset},{5{1'b0}},{5{1'b0}}});
         // $display("ld value: %0d %b %b should store %b", i, offset, IMemory[i],`ld({offset}, {5{1'b0}}, {5{1'b0}}));
-      end
+      end else IMemory[i] = NOP;
     end
     // for (i = 0; i < `INSTR_SIZE; i = i + 1) IMemory[i] =`sd({12{1'b0}},{5{1'b0}},{5{1'b0}});
     // for (i = 0; i < `INSTR_SIZE; i = i + 1) IMemory[i] ={{12{1'b0}},{5{1'b0}},3'b11,{5{1'b0}},7'b11};
@@ -181,14 +214,16 @@ module RISCVCPU;
       MEMWBValue <= DMemory[EXMEMALUOut>>2];
       $display("load from %dth mem value %b, imm:%b", EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {
                IDEXIR[30 : 25], IDEXIR[11 : 7]});
-      $display("last loaded value %b, equal to last stored: %d", DMemory[(EXMEMALUOut>>2)-1],DMemory[(EXMEMALUOut>>2)-1]==Regs[`SD_LOAD_REG]);
+      $display("last loaded value %b, equal to last stored: %d", DMemory[(EXMEMALUOut>>2)-1],
+               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
     end else if (EXMEMop == SD) begin
       DMemory[EXMEMALUOut>>2] <= EXMEMB;  //store
-      $display("IFIDrs2:%d",IFIDrs2);
+      $display("IFIDrs2:%d", IFIDrs2);
       $display("finish store, cnt: %d,cycle: %d,store to %dth mem,EXMEMALUOut: %0b", cnt,
                $time / (`CYCLE_TIME), EXMEMALUOut >> 2, EXMEMALUOut);
       $display("last stored mem %dth mem: %0b, equal to source %dth reg:%d ",
-               (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1],`SD_LOAD_REG,DMemory[(EXMEMALUOut>>2)-1]==Regs[`SD_LOAD_REG]);
+               (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
+               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
       // for (i = 0; i < cnt / 2; i = i + 1) begin
       //   $display("EXMEMALUOut: %b, %dth mem: %b", EXMEMALUOut, i, DMemory[i]);
       // end

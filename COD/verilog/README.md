@@ -13,7 +13,7 @@
 - basic [doc](https://verilogams.com/quickref/basics.html)
 - TODO try [online](https://www.edaplayground.com/x/5gGE)
 ## verilog
-- [generate](https://www.chipverify.com/verilog/verilog-generate-block) used to init *hardware* based on parameter po. (no influence to vvp program running)
+- [generate](https://www.chipverify.com/verilog/verilog-generate-block) ~~used to init *hardware* based on parameter po. (no influence to vvp program running)~~ usde to initiate multiple *modules*
 - display [based on change](https://stackoverflow.com/a/33653849/21294350), similar to monitor.
 - must use [`dumpvars`](https://peterfab.com/ref/verilog/verilog_renerta/mobile/source/vrg00056.htm) with `dumpfile` to choose variables to dump, [example](https://mohduzir.uitm.edu.my/digital/Using%20Icarus%20Verilog.pdf)
   - better use [lxt2](https://iverilog.fandom.com/wiki/GTKWave)
@@ -31,3 +31,4 @@
 - `Elaboration task '$display' requires SystemVerilog.`: `display` needs to be something like `module`, many other variable also same. Similar to what [this](https://stackoverflow.com/questions/23272054/prevent-systemverilog-compilation-if-certain-macro-isnt-set) say 'The $display still needs to be inside an always block'
 - [`Port declarations without direction error`](https://stackoverflow.com/questions/23037206/port-declarations-without-direction-error), `input a,b` only valid if `a,b` are same size.(i.e. `input a,[4:0]b` is wrong)
 - `sd0/sd11`,etc mainly results from variable syntax error. TODO see iverilog source code.
+- show weird `zz` maybe: 1. didn't initiate the value at all. 2. [race condition](https://stackoverflow.com/questions/69511094/why-are-the-bits-in-this-verilog-wire-assigned-as-z)

@@ -3988,6 +3988,8 @@ NOTES
     // sprintf(buf,"%s %s","reaping",buf);
     ...
 ```
+- [near](https://www.geeksforgeeks.org/what-are-near-far-and-huge-pointers/),(type modifiers also applies to variable, not just ptr)[far](https://stackoverflow.com/questions/33373701/use-of-type-modifiersnear-far-huge-with-normal-variables) (A2: '"non-far variables" in the stack' related with stack/local variable),  
+  - 'safely ignore them'
 ## Makefile
 - /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35/Makefile
   - use [`shell`](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
@@ -4278,7 +4280,7 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
   - LP64 'run on 32-bit systems without change'
 - p199 S-type, also see [MIPS](https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html)
   - also [p7](../references/other_resources/RISC-V/Lecture7.pdf)
-- p210 [bit-field](https://en.cppreference.com/w/cpp/language/bit_field) just to keep data compact , then ' to match an externally enforced interface'
+- p210 [bit-field](https://en.cppreference.com/w/cpp/language/bit_field) just to keep data compact , then ' to match an externally enforced interface' <a id="bit-field"></a>
 - p240 [add 1](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) '-4096'
 - p252 load-reserved ... pair is based on ' a memory **read and a write** in a single, uninterruptible instruction.' 
   - [ABA](https://www.baeldung.com/cs/aba-concurrency#value--vs-reference-based-scenarios) mainly because of Value-Based [TODO](https://www.baeldung.com/cs/aba-concurrency#3-immutability)
@@ -4526,6 +4528,28 @@ $ sudo cpupower frequency-info
                   The governor "userspace" may decide which speed to use
 ```
   - check kernel whether [support](https://forum.manjaro.org/t/is-the-amd-pstate-driver-included-in-5-17-rc1-kernel/99978/5) amd_pstate
+- p659
+  - named fields may be just [bit field](#bit-field).
+- p662
+notice: `if (IDEXop ...)` just do what EX should do, instead of just storing what ID has done. 
+  - `IDEXrs2 != 0` because write to zero register (in risc-v) is nonsense.
+    - `IDEXrsl = EXMEMrd` to ensure register are corresponded and `EXMEMop = ALUop` to ensure write one modified register value (also avoid nonsense like writing one nonmodified value.)
+  - notice although here `<=` *nonblocking* is parallel which not ensures running order, with `gtkwave` simulation, order still exists and consistent every time. (if using block, then no parallel)
+    - save gtkwave [view setting](http://billauer.co.il/blog/2017/08/linux-vcd-waveform-viewer/)
+    - change time scale by 'time->zoom ...' from [official doc](https://gtkwave.sourceforge.net/gtkwave.pdf)
+```verilog
+  assign IFIDop = IFIDIR[6 : 0];
+  assign IDEXop = IDEXIR[6 : 0];
+  ...
+    IFIDIR <= IMemory[PC>>2];
+    ...
+    IDEXIR <= IFIDIR;
+// IDEXIR is assigned with old IFIDIR in parallel with old IFIDIR assigned with IMemory[PC>>2]
+// and `assign` ensure direct change of wire `IFIDop`,etc.
+```
+  - only diff with p658 in outside assign block, `always` block no changed.
+- p665
+  - why use stall when already having `forwarding`,p532 (because two cycle lag causes the IDEX has fetched the old reg withou)
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
@@ -4653,7 +4677,7 @@ $ sudo cpupower frequency-info
 - ["non-blocking" assignment](https://www.chipverify.com/verilog/verilog-blocking-non-blocking-statements) means similarly nonblock in unix (i.e. continue running and schedule the current instruction if current instruction not complete) which is also 'relational operator in expressions', 'End of time-step'
   - conventionally, assignment only occurs when `#num` delay or `end` with `initial`
 ## COD p658
-based on 'FIGURE 4.33' p548
+based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - Verilog Array [Packed Arrays (similar to packed instruction) and Unpacked Arrays (i.e. array size)](https://www.javatpoint.com/verilog-arrays), more [clear](https://www.chipverify.com/verilog/verilog-arrays) where depth is array size and wide (width) means pack size. 
   - So `reg [63:0] Regs[0:31]` is 32 64-bit regs.
   - notice [order `[7:0] or [0:7]`](https://stackoverflow.com/questions/16762167/order-of-bits-in-reg-declaration)
