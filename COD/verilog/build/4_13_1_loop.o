@@ -7,11 +7,11 @@
 :vpi_module "/usr/lib/ivl/vhdl_textio.vpi";
 :vpi_module "/usr/lib/ivl/v2005_math.vpi";
 :vpi_module "/usr/lib/ivl/va_math.vpi";
-S_0x55ef9a6b32d0 .scope module, "moduleName" "moduleName" 2 2;
+S_0x5619b30c02d0 .scope module, "moduleName" "moduleName" 2 2;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "ports";
-o0x7f63a60c8018 .functor BUFZ 1, C4<z>; HiZ drive
-v0x55ef9a68ede0_0 .net "ports", 0 0, o0x7f63a60c8018;  0 drivers
+o0x7efedeaf8018 .functor BUFZ 1, C4<z>; HiZ drive
+v0x5619b309bde0_0 .net "ports", 0 0, o0x7efedeaf8018;  0 drivers
 # The file index is used to find the file name in the following table.
 :file_names 3;
     "N/A";

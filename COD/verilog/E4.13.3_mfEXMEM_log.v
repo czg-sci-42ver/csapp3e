@@ -16,7 +16,7 @@
 // rs2 of sd
 `define SD_LOAD_REG 5'd30
 `define SD_RS1 5'd1
-`define IF_CNT 2
+`define IF_CNT 3
 `define STALL_EXMEM
 
 // `define CYCLE_TIME 0.25
@@ -119,7 +119,7 @@ module RISCVCPU;
   wire [63 : 0] Ain, Bin;  // the ALU inputs
   wire [63:0] IDEXA_forward, IDEXB_forward , WB_fw;
   // decl are the bypass si gna l s
-  wire bypassAfromMEM,bypassBfromMEM,  bypassAfromALUinWB,bypassBfromALUinWB, bypassAfromLDinWB,bypassBfromLDinWB;
+  wire bypassAfromMEM,bypassBfromMEM,  bypassAfromALUinWB,bypassBfromALUinWB, bypassAfromLDinWB,bypassBfromLDinWB,bypassAfromLDinMEM,bypassBfromLDinMEM;
   wire stall;  // stall signal
 
   /*
@@ -177,6 +177,10 @@ module RISCVCPU;
   assign bypassAfromMEM = (IDEXrs1 == EXMEMrd) && (IDEXrs1 !== 0) && (EXMEMop == ALUop);
   // The bypass to i nput B fro m t he MEM stage for an ALU operation
   assign bypassBfromMEM = (IDEXrs2 == EXMEMrd) && (IDEXrs2 != 0) && (EXMEMop == ALUop);
+
+  assign bypassAfromLDinMEM = (IDEXrs1 == EXMEMrd) && (IDEXrs1 !== 0) && (EXMEMop == LD);
+  assign bypassBfromLDinMEM = (IDEXrs2 == EXMEMrd) && (IDEXrs2 !== 0) && (EXMEMop == LD);
+
   // The bypass to i nput A fro m t he WB stage for an ALU ope r ation
   assign bypassAfromALUinWB = (IDEXrs1 == MEMWBrd) && (IDEXrs1 != 0) && (MEMWBop == ALUop);
   // The bypass to i nput B from the WB stage for an ALU operati on
@@ -188,10 +192,10 @@ module RISCVCPU;
   // The A input to t he ALU is bypassed fro m MEM if t here i s a bypass there .
   // Otherwise fro m WB if the re i s a bypass the re , and otherwise comes from the !DEX register
 
-  assign Ain = bypassAfromMEM ? EXMEMALUOut : (bypassAfromALUinWB || bypassAfromLDinWB) ? MEMWBValue: IDEXA;
+  assign Ain = bypassAfromMEM ? EXMEMALUOut : bypassAfromLDinMEM ? DMemory[EXMEMALUOut>>2] : (bypassAfromALUinWB || bypassAfromLDinWB) ? MEMWBValue: IDEXA;
   // The B input to the ALU i s bypassed from MEM if t here is a bypass t here .
   // Otherwise fro m WB i f there is a bypass there . and otherwise comes from t he IDEX register IDEXB ;
-  assign Bin = bypassBfromMEM? EXMEMALUOut : (bypassBfromALUinWB || bypassBfromLDinWB) ? MEMWBValue : IDEXB;
+  assign Bin = bypassBfromMEM? EXMEMALUOut : bypassBfromLDinMEM ? DMemory[EXMEMALUOut>>2] : (bypassBfromALUinWB || bypassBfromLDinWB) ? MEMWBValue : IDEXB;
 
   /*
   forward mem
@@ -214,11 +218,11 @@ module RISCVCPU;
   //     $display("",MEMWBop == LD,IDEXrs1 == MEMWBrd)
 
 `ifdef STALL_EXMEM
-  assign stall = (MEMWBop == LD) && (  // source instruction i s a load, 
+  assign stall = (MEMWBop == LD) && (  // source instruction is a load, 
       (((EXMEMop == LD) || (EXMEMop == SD)) && (EXMEMrs1 == MEMWBrd)) ||  // stall for address calc
       ((EXMEMop == ALUop) && ((EXMEMrs1 == MEMWBrd) || (EXMEMrs2 == MEMWBrd))));  // ALU use
 `else
-  assign stall = (MEMWBop == LD) && (  // source instruction i s a load, 
+  assign stall = (MEMWBop == LD) && (  // source instruction is a load, 
       (((IDEXop == LD) || (IDEXop == SD)) && (IDEXrs1 == MEMWBrd)) ||  // stall for address calc
       ((IDEXop == ALUop) && ((IDEXrs1 == MEMWBrd) || (IDEXrs2 == MEMWBrd))));  // ALU use
 `endif
@@ -320,9 +324,9 @@ module RISCVCPU;
       /*
       LD SD: EXMEMALUOut -> target address
       */
-      if (IDEXop == LD) EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
+      if (IDEXop == LD) EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
       else if (IDEXop == SD)
-        EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
+        EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
       else if (IDEXop == ALUop)
         case (IDEXIR[31 : 25])  // case for the various R- type instructions
           0: EXMEMALUOut <= Ain + Bin;  // add operation 658
@@ -337,29 +341,55 @@ module RISCVCPU;
     end
     // Mem stage of pipeline
     $display("EXMEMIR opcode: %0b", EXMEMIR[6:0]);
-    if (EXMEMop == ALUop) MEMWBValue <= WB_fw;  // pass along ALU result
-    /*
-    EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
-    */
-    else if (EXMEMop == LD) begin
-      MEMWBValue <= DMemory[WB_fw>>2];
-      $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
-               EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
-      $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
-               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
-    end else if (EXMEMop == SD) begin
-      $display("WB_fw:%0b, stall_cnt: %0b",WB_fw,stall_cnt);
-      DMemory[WB_fw>>2] <= EXMEMB;  //store
-      $display("IFIDrs2:%0d", IFIDrs2);
-      $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
-               cnt, $time / (`CYCLE_TIME), EXMEMB, WB_fw >> 2, EXMEMALUOut);
-      $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
-               (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
-               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
-      // for (i = 0; i < cnt / 2; i = i + 1) begin
-      //   $display("EXMEMALUOut: %0b, %0dth mem: %0b", EXMEMALUOut, i, DMemory[i]);
-      // end
-    end
+    `ifdef USE_WB_fw
+      if (EXMEMop == ALUop) MEMWBValue <= WB_fw;  // pass along ALU result
+      /*
+      EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
+      */
+      else if (EXMEMop == LD) begin
+        MEMWBValue <= DMemory[WB_fw>>2];
+        $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
+                EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
+        $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+      end else if (EXMEMop == SD) begin
+        $display("WB_fw:%0b, stall_cnt: %0b",WB_fw,stall_cnt);
+        DMemory[WB_fw>>2] <= EXMEMB;  //store
+        $display("IFIDrs2:%0d", IFIDrs2);
+        $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
+                cnt, $time / (`CYCLE_TIME), EXMEMB, WB_fw >> 2, EXMEMALUOut);
+        $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
+                (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+        // for (i = 0; i < cnt / 2; i = i + 1) begin
+        //   $display("EXMEMALUOut: %0b, %0dth mem: %0b", EXMEMALUOut, i, DMemory[i]);
+        // end
+      end
+    `else
+      if (EXMEMop == ALUop) MEMWBValue <= EXMEMALUOut;  // pass along ALU result
+      /*
+      EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
+      */
+      else if (EXMEMop == LD) begin
+        MEMWBValue <= DMemory[EXMEMALUOut>>2];
+        $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
+                EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
+        $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+      end else if (EXMEMop == SD) begin
+        $display("EXMEMALUOut:%0b, stall_cnt: %0b",EXMEMALUOut,stall_cnt);
+        DMemory[EXMEMALUOut>>2] <= EXMEMB;  //store
+        $display("IFIDrs2:%0d", IFIDrs2);
+        $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
+                cnt, $time / (`CYCLE_TIME), EXMEMB, EXMEMALUOut >> 2, EXMEMALUOut);
+        $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
+                (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+        // for (i = 0; i < cnt / 2; i = i + 1) begin
+        //   $display("EXMEMALUOut: %0b, %0dth mem: %0b", EXMEMALUOut, i, DMemory[i]);
+        // end
+      end
+    `endif
     MEMWBIR <= EXMEMIR;  // pass along IR
     // WB stage
     if (((MEMWBop == LD) || (MEMWBop == ALUop)) && (MEMWBrd != 0)) // update registers if load/ALU operation and destination not 0

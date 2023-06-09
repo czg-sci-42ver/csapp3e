@@ -316,9 +316,9 @@ module RISCVCPU;
       /*
       LD SD: EXMEMALUOut -> target address
       */
-      if (IDEXop == LD) EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
+      if (IDEXop == LD) EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
       else if (IDEXop == SD)
-        EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
+        EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
       else if (IDEXop == ALUop)
         case (IDEXIR[31 : 25])  // case for the various R- type instructions
           0: EXMEMALUOut <= Ain + Bin;  // add operation 658

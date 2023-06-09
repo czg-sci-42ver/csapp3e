@@ -4561,16 +4561,51 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
     - in `IDEXop`, wire like `Ain` ensures forwarding without delay.
       - in `EXMEMop`, only register value (not memory) will be influenced only by the current `MEMWBop`. Therefore, only `EXMEMALUOut` and `EXMEMB` will be influenced.
     - see `E4.13.3_mfEXMEM_log.v`. (here only change `EXMEMALUOut` to wire `WB_fw`，`EXMEMB` is similar).
-```bash
-$ num=3_mfEXMEM;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_op.sav
-...
-EXMEMALUOut:1100 load from 3th mem value 11, imm:100
-# here offset step set as 4.
-WB_fw:111, stall_cnt: 1 # here binary 111=100(4)+11(3), right calc.
-IFIDrs2:30
-finish store, cnt: 4,cycle: 9,EXMEMB 11110000 store to 1th mem,EXMEMALUOut: 1100 # store to 111>>2=1, right
-# can see from gtkwave Dmem[1] has been written after the `EXMEMop` when 'stall'
-```
+      ```bash
+      $ num=3_mfEXMEM;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_op.sav
+      ...
+      EXMEMALUOut:1100 load from 3th mem value 11, imm:100
+      # here offset step set as 4.
+      WB_fw:111, stall_cnt: 1 # here binary 111=100(4)+11(3), right calc.
+      IFIDrs2:30
+      finish store, cnt: 4,cycle: 9,EXMEMB 11110000 store to 1th mem,EXMEMALUOut: 1100 # store to 111>>2=1, right
+      # can see from gtkwave Dmem[1] has been written after the `EXMEMop` when 'stall'
+      ```
+    - how csapp solve the above problem
+      - p470, by many stall, from decode (where will add detection which is *same* as above ’IDEXrs1‘).
+      - p472&473, detect when MEMWB and EXMEM
+      - p474, change when *decode* (i.e. `IFID`) which is different from COD.
+      - p477, just *same* as above situation `ld,sd...`
+        - p478, use one stall *same* as COD, 
+          - difference: 
+            1. csapp forward to *`IFID`* (which can ensure update of register is always new. po I think this is the *main reason* why csapp will work.) when generating tmp register value instead of forwarding to `IDEX` which may be *too late*.
+               1. So csapp also check `IDEXrd`  
+               2. above COD `ld,sd...` fails because it ~~stalls after running `IFID`~~ runs `IDEX` of `sd` and `EXMEM` of `ld` meanwhile, so update of `ld` won't influence `sd` at all although having forwarding,
+                  1. except that like in `3_mfEXMEM_log.v` using `WB_fw` to directly forward to `EXMEMop` of `sd`...
+            2. ~~also it check adjacent cycle instead of bypassing one cycle(i.e. instead of checking IDEXrs1)~~
+      - p479, no needed to be considered in risc-v because risc-v has *return register* (most RISC has it)
+      - p491 conclusion of when to use stall.
+      - p492,494 the fetch stage stalls, just meaning it is unchanged which can be viewed conveniently in *`gtkwave`*.
+        - ' injecting *bubbles* into the *memory* stage and *stalling* the excepting instruction in the write-back stage', notice here differences between bubble and stalling.
+      - p493 *’stalling the write-back* stage when it has an excepting instruction‘, this can be done based on ROB and Retirement Unit.
+      - p494 TODO how COD implements about condition code with exception.
+      - p495 so COD ~~use bubble when stalling~~ use bubble instead of stalling (p496 'an *error* to set *both* the bubble and the stall signals to 1', po `bubble` is stronger than `stalling`) ~~which is weird, because ~~
+        - p496 so Mispredicted branch only bubble no stall to save resources. (see COD verilog code, NOP nothing done, also can be seen from doc.)
+      - p496 'blocks of combinational logic' which can be seen from COD `assign ... = ?:?:...` (here signal is just `wire` in verilog).
+        here arrow in figure is same as `<=` in verilog and 'pass along IR' in COD.
+        - ret -> p492, fetch `stall` no big influence, even no influence (i.e. no need to read memory) if with ~~memory ~~ cache in the cpu.
+          - from COD, the bubble will make all ~~subsequent~~ instructions ~~of~~ running after bubbled instruction ~~cancelled~~ (i.e. here is `F` for `D` in `ret`, ) unchanged (not consuming computer resources).
+          - here stall next instruction instead of bubble (i.e. drop) maybe because ret target is just next instruction. <a id="target"></a>
+        - `Load/use hazard` stall at `D` because `D` use register which load will maybe update.
+          - po here stall to still run repeated instructions maybe to make *cache* updated to date.
+          - (p478) the `D` stalled cause `E` bubbled.
+            - although in COD where `bubble` in `EXMEMop` of `sd` seems to cause `stall` of subsequent `ld,sd` (see in `E4.13.3_mfEXMEM_log.v`).
+        - `Mispredicted branch`: just all bubble (corresponds to cycle 5 of p480)
+          - compared with `ret` where no new instruction fetched, here will fetch the correct branch.
+      - p498
+        - here `bubble+stall` -> `stall` to avoid `use hazard` if [1](#target).
+      - p506
+        - TODO whether cache miss stall in COD 
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
