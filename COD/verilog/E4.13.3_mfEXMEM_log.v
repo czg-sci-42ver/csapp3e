@@ -17,7 +17,7 @@
 `define SD_LOAD_REG 5'd30
 `define SD_RS1 5'd1
 `define IF_CNT 3
-`define STALL_EXMEM
+// `define STALL_EXMEM
 
 // `define CYCLE_TIME 0.25
 // `timescale 1s / 50ms
@@ -324,13 +324,16 @@ module RISCVCPU;
       /*
       LD SD: EXMEMALUOut -> target address
       */
-      if (IDEXop == LD) EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
+      if (IDEXop == LD) begin
+        EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
+        $display("IDEXop LD, Ain:%0b offset:%0b",Ain,{{53{IDEXIR[31]}}, IDEXIR[30 : 20]});
+      end
       else if (IDEXop == SD)
         EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
       else if (IDEXop == ALUop)
         case (IDEXIR[31 : 25])  // case for the various R- type instructions
           0: EXMEMALUOut <= Ain + Bin;  // add operation 658
-          default: ;  // other R-type operations : subtract , SLT, etc ,
+          default: ;  // other R-typAine operations : subtract , SLT, etc ,
         endcase
       EXMEMIR <= IDEXIR;
       EXMEMB  <= IDEXB;  // pass along the IR & B register

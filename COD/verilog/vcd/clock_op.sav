@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.115 (w)1999-2023 BSI
-[*] Fri Jun  9 13:20:29 2023
+[*] Fri Jun  9 18:51:51 2023
 [*]
-[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_3_ms.vcd"
-[dumpfile_mtime] "Fri Jun  9 13:20:24 2023"
-[dumpfile_size] 6040
+[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_3_mfEXMEM.vcd"
+[dumpfile_mtime] "Fri Jun  9 18:46:39 2023"
+[dumpfile_size] 7389
 [savefile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/clock_op.sav"
 [timestart] 0
 [size] 1846 1019
 [pos] -1 -1
-*-2.000000 14 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-2.000000 21 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] RISCVCPU.
 [sst_width] 361
 [signals_width] 380
@@ -54,9 +54,12 @@ RISCVCPU.target_addr_sd[63:0]
 RISCVCPU.Reg_1[63:0]
 RISCVCPU.Reg_30[63:0]
 RISCVCPU.DMem_0[31:0]
-@23
-RISCVCPU.offset_IDEX_sd[63:0]
-@22
 RISCVCPU.target_addr_ld_fromIR[63:0]
+@28
+RISCVCPU.bypassAfromALUinWB
+RISCVCPU.bypassAfromLDinMEM
+RISCVCPU.bypassAfromLDinWB
+@29
+RISCVCPU.bypassAfromMEM
 [pattern_trace] 1
 [pattern_trace] 0

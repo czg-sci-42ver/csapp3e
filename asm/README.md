@@ -4578,7 +4578,7 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
       - p477, just *same* as above situation `ld,sd...`
         - p478, use one stall *same* as COD, 
           - difference: 
-            1. csapp forward to *`IFID`* (which can ensure update of register is always new. po I think this is the *main reason* why csapp will work.) when generating tmp register value instead of forwarding to `IDEX` which may be *too late*.
+            1. csapp forward to *`IFID`* (which can ensure update of register is always new. po I think this is the *main reason* why csapp will work.) when generating tmp register value instead of forwarding to `IDEX` which may be *too late*. <a id="IFID_forward"></a>
                1. So csapp also check `IDEXrd`  
                2. above COD `ld,sd...` fails because it ~~stalls after running `IFID`~~ runs `IDEX` of `sd` and `EXMEM` of `ld` meanwhile, so update of `ld` won't influence `sd` at all although having forwarding,
                   1. except that like in `3_mfEXMEM_log.v` using `WB_fw` to directly forward to `EXMEMop` of `sd`...
@@ -4605,7 +4605,12 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
       - p498
         - here `bubble+stall` -> `stall` to avoid `use hazard` if [1](#target).
       - p506
-        - TODO whether cache miss stall in COD 
+        - TODO whether cache miss stall in COD
+    - has updated `bypassAfromLDinMEM` which can directly forward memwrite in `EXMEMop` to Ain in `IDEXop`, which can solve `ld,sd,ld`.
+      - here must use stall. if `ld,sd,nop,ld` then when the fourth ld run `IFID`, it will read reg which is meanwhile updated by the first `ld` in `MEMWBop`.
+        - So recommend [1](#IFID_forward)
+          - maybe using something liek `bypassAfromLDinMEM` similarly to forward to `IFID`.
+        - this is also why COD book use `stall`, because `MEMWB` write to reg `Regs[MEMWBrd]` which will not directly influence `Ain` because it is influenced by reg with ``
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
