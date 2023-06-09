@@ -4532,6 +4532,10 @@ $ sudo cpupower frequency-info
   - named fields may be just [bit field](#bit-field).
 - p662
 notice: `if (IDEXop ...)` just do what EX should do, instead of just storing what ID has done. 
+```bash
+# view result.
+$ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_op.sav
+```
   - `IDEXrs2 != 0` because write to zero register (in risc-v) is nonsense.
     - `IDEXrsl = EXMEMrd` to ensure register are corresponded and `EXMEMop = ALUop` to ensure write one modified register value (also avoid nonsense like writing one nonmodified value.)
   - notice although here `<=` *nonblocking* is parallel which not ensures running order, with `gtkwave` simulation, order still exists and consistent every time. (if using block, then no parallel)
@@ -4550,6 +4554,12 @@ notice: `if (IDEXop ...)` just do what EX should do, instead of just storing wha
   - only diff with p658 in outside assign block, `always` block no changed.
 - p665
   - why use stall when already having `forwarding`,p532 (because two cycle lag causes the IDEX has fetched the old reg withou)
+  - see `E4.13.3_ms_log.v`, here, although how many bubble/stall, the address of `sd` directly after `ld` whichi is calculated in **`IDEXop`** will not change, because it is **register** instead of **wire**.
+    - above can be seen in vcd, some notices: 1. when `EXMEMop == SD`, the `EXMEMALUOut` is calculated from last **`IDEXop`** cycle(i.e the cycle just before `EXMEMop`) 2. 
+  - `ld,sd,ld,sd...` (ld `rd` equals to sd `rs1`)
+    - here, the situation that `stall` uprise when `ld` occurs will maybe make `sd` write to wrong location, so need `wire` directly forward, instead of `reg` which has at least one cycle delay.
+    - in `IDEXop`, wire like `Ain` ensures forwarding without delay.
+      - in `EXMEMop`, only register value (not memory) will be influenced only by the current `MEMWBop`. Therefore, only `EXMEMALUOut` and `EXMEMB` will be influenced.
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1

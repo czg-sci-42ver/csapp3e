@@ -117,7 +117,7 @@ module RISCVCPU;
   wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd, IDEXrs1, IDEXrs2, EXMEMrd;  // Access register fiel ds
   wire [6 : 0] IDEXop, EXMEMop, MEMWBop, IFIDop;  // Access opcodes
   wire [63 : 0] Ain, Bin;  // the ALU inputs
-  wire [63:0] IDEXA_forward, IDEXB_forward;
+  wire [63:0] IDEXA_forward, IDEXB_forward , WB_fw;
   // decl are the bypass si gna l s
   wire bypassAfromMEM,bypassBfromMEM,  bypassAfromALUinWB,bypassBfromALUinWB, bypassAfromLDinWB,bypassBfromLDinWB;
   wire stall;  // stall signal
@@ -164,6 +164,8 @@ module RISCVCPU;
   assign EXMEMrd = EXMEMIR[11:7];
   // the opcode
   assign MEMWBop = MEMWBIR[6 : 0];
+  assign MEMWBrs1 = MEMWBIR[19:15];
+  assign MEMWBrs2 = MEMWBIR[24:20];
   // the opcode
   assign MEMWBrd = MEMWBIR[11 : 7];  // rd field
   // Inputs to the ALU come di rectly from the ID/EX pipeline registers
@@ -194,8 +196,9 @@ module RISCVCPU;
   forward mem
   */
   // assign bypassMemfromWB = 
-  assign IDEXA_forward = stall ? MEMWBValue : IDEXA;
-  assign IDEXB_forward = stall ? MEMWBValue : IDEXB;
+  // assign IDEXA_forward = stall ? MEMWBValue : IDEXA;
+  // assign IDEXB_forward = stall ? MEMWBValue : IDEXB;
+  assign WB_fw = ((EXMEMop == ALUop)&&EXMEMIR[31 : 25]==0) ? (Ain + Bin) : (EXMEMop == LD) ? (Ain + {{53{EXMEMIR[31]}}, EXMEMIR[30 : 20]}): (EXMEMop == SD) ? (Ain + {{53{EXMEMIR[31]}}, EXMEMIR[30 : 25], EXMEMIR[11 : 7]}): EXMEMALUOut;
 
   // The signal for detecting a stall based on the use of a result from LW
   /*
@@ -244,7 +247,7 @@ module RISCVCPU;
   // just tmp value
   // reg[31:0] i;
   initial begin
-    $dumpfile("vcd/log_3_mod.vcd");
+    $dumpfile("vcd/log_3_mfEXMEM.vcd");
     // must have this
     $dumpvars(0, RISCVCPU);
     // reg [63 : 0] \Regs_[1] = Regs[1];
@@ -285,7 +288,7 @@ module RISCVCPU;
              EXMEMop == NOP[6:0]);
   end
   // always @(EXMEMALUOut) begin
-  //   $display("EXMEMALUOut change, EXMEMALUOut %0b cnt %0d %0b %0d %0b",EXMEMALUOut,cnt,EXMEMop,EXMEMop==EXMEMIR[6 : 0],EXMEMIR[6 : 0]);
+  //   $display("EXMEMALUOut change, EXMEMALUOut %0b cnt %0d %0b %0d %0b",EXMEMALUOut,cnt,EXMEMop,EXMEMop==EXMEMIR[6 : 0],EXMEMIR[6 : 0]);Reg_1
   // end
   // always @(IDEXop) begin
   //   $display("new IDEXop: %0b",IDEXop);
@@ -333,21 +336,22 @@ module RISCVCPU;
     end
     // Mem stage of pipeline
     $display("EXMEMIR opcode: %0b", EXMEMIR[6:0]);
-    if (EXMEMop == ALUop) MEMWBValue <= EXMEMALUOut;  // pass along ALU result
+    if (EXMEMop == ALUop) MEMWBValue <= WB_fw;  // pass along ALU result
     /*
     EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
     */
     else if (EXMEMop == LD) begin
-      MEMWBValue <= DMemory[EXMEMALUOut>>2];
+      MEMWBValue <= DMemory[WB_fw>>2];
       $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
                EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
       $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
     end else if (EXMEMop == SD) begin
-      DMemory[EXMEMALUOut>>2] <= EXMEMB;  //store
+      $display("WB_fw:%b, stall_cnt: %b",WB_fw,stall_cnt);
+      DMemory[WB_fw>>2] <= EXMEMB;  //store
       $display("IFIDrs2:%0d", IFIDrs2);
       $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
-               cnt, $time / (`CYCLE_TIME), EXMEMB, EXMEMALUOut >> 2, EXMEMALUOut);
+               cnt, $time / (`CYCLE_TIME), EXMEMB, WB_fw >> 2, EXMEMALUOut);
       $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
                (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
@@ -358,7 +362,9 @@ module RISCVCPU;
     MEMWBIR <= EXMEMIR;  // pass along IR
     // WB stage
     if (((MEMWBop == LD) || (MEMWBop == ALUop)) && (MEMWBrd != 0)) // update registers if load/ALU operation and destination not 0
+    begin
       Regs[MEMWBrd] <= MEMWBValue;
+    end
     cnt++;
   end
 endmodule

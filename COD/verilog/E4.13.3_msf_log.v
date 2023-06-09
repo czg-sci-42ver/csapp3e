@@ -1,3 +1,6 @@
+/*
+msf: mod_change_stall_location 
+*/
 `define LOG 1
 `define ld(offset, rs1, rd) {``offset,``rs1,3'b11,``rd,7'b0000011}
 // r:5 bit,offset:12 bit
@@ -117,7 +120,7 @@ module RISCVCPU;
   wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd, IDEXrs1, IDEXrs2, EXMEMrd;  // Access register fiel ds
   wire [6 : 0] IDEXop, EXMEMop, MEMWBop, IFIDop;  // Access opcodes
   wire [63 : 0] Ain, Bin;  // the ALU inputs
-  wire [63:0] IDEXA_forward, IDEXB_forward;
+  wire [63:0] IDEXA_forward, IDEXB_forward,MEMWB_ALU;
   // decl are the bypass si gna l s
   wire bypassAfromMEM,bypassBfromMEM,  bypassAfromALUinWB,bypassBfromALUinWB, bypassAfromLDinWB,bypassBfromLDinWB;
   wire stall;  // stall signal
@@ -127,7 +130,7 @@ module RISCVCPU;
   */
   wire [63 : 0] Regs_rs1_w, Regs_rs2_w, Reg_1, Reg_30;
   wire [11:0] offset_ld, offset_sd;
-  wire [63:0] target_addr_ld, target_addr_sd, target_addr_ld_fromIR,offset_EXMEM_sd;
+  wire [63:0] target_addr_ld, target_addr_sd, target_addr_ld_fromIR,offset_IDEX_sd;
   wire EXMEMIS_LD, EXMEMIS_SD;
   wire [31:0] DMem_0;
   assign Regs_rs1_w = Regs[`SD_RS1];
@@ -138,7 +141,7 @@ module RISCVCPU;
   notice IMemory index should be target_addr_ld >> 2
   */
   // assign target_addr_ld = offset_ld + Regs_rs1_w;
-  assign offset_EXMEM_sd = {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
+  assign offset_IDEX_sd = {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
   assign target_addr_ld_fromIR = IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
   assign target_addr_sd = IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
   assign EXMEMIS_LD = EXMEMop == LD;
@@ -192,10 +195,12 @@ module RISCVCPU;
 
   /*
   forward mem
+  here only think of one simple situation: ld,sd,ld,sd,...
   */
   // assign bypassMemfromWB = 
-  assign IDEXA_forward = stall ? MEMWBValue : IDEXA;
-  assign IDEXB_forward = stall ? MEMWBValue : IDEXB;
+  // assign IDEXA_forward = stall ? MEMWBValue : IDEXA;
+  // assign IDEXB_forward = stall ? MEMWBValue : IDEXB;
+  // assign MEMWB_ALU = ; 
 
   // The signal for detecting a stall based on the use of a result from LW
   /*
@@ -244,7 +249,7 @@ module RISCVCPU;
   // just tmp value
   // reg[31:0] i;
   initial begin
-    $dumpfile("vcd/log_3_mod.vcd");
+    $dumpfile("vcd/log_3_msf.vcd");
     // must have this
     $dumpvars(0, RISCVCPU);
     // reg [63 : 0] \Regs_[1] = Regs[1];
@@ -316,9 +321,11 @@ module RISCVCPU;
       /*
       LD SD: EXMEMALUOut -> target address
       */
-      if (IDEXop == LD) EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
-      else if (IDEXop == SD)
-        EXMEMALUOut <= IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
+      if (IDEXop == LD) EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 20]};
+      else if (IDEXop == SD)begin
+        EXMEMALUOut <= Ain + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
+        $display("in SD, EXMEMALUOut:%0b Ain:%0b, offset: %0b",EXMEMALUOut,Ain,{{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]});
+      end
       else if (IDEXop == ALUop)
         case (IDEXIR[31 : 25])  // case for the various R- type instructions
           0: EXMEMALUOut <= Ain + Bin;  // add operation 658
@@ -326,36 +333,36 @@ module RISCVCPU;
         endcase
       EXMEMIR <= IDEXIR;
       EXMEMB  <= IDEXB;  // pass along the IR & B register
+      // Mem stage of pipeline
+      $display("EXMEMIR opcode: %0b", EXMEMIR[6:0]);
+      if (EXMEMop == ALUop) MEMWBValue <= EXMEMALUOut;  // pass along ALU result
+      /*
+      EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
+      */
+      else if (EXMEMop == LD) begin
+        MEMWBValue <= DMemory[EXMEMALUOut>>2];
+        $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
+                EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
+        $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+      end else if (EXMEMop == SD) begin
+        DMemory[EXMEMALUOut>>2] <= EXMEMB;  //store
+        $display("IFIDrs2:%0d", IFIDrs2);
+        $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
+                cnt, $time / (`CYCLE_TIME), EXMEMB, EXMEMALUOut >> 2, EXMEMALUOut);
+        $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
+                (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
+                DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
+        // for (i = 0; i < cnt / 2; i = i + 1) begin
+        //   $display("EXMEMALUOut: %0b, %0dth mem: %0b", EXMEMALUOut, i, DMemory[i]);
+        // end
+      end
+      MEMWBIR <= EXMEMIR;  // pass along IR
     end else begin
       $display("stall once, stall_cnt %b",stall_cnt);
       stall_cnt = stall_cnt+1;
-      EXMEMIR <= NOP;  // Freeze first three stages of pipeline ; inject a nop into the EX output
+      MEMWBIR <= NOP;  // Freeze first three stages of pipeline ; inject a nop into the EX output
     end
-    // Mem stage of pipeline
-    $display("EXMEMIR opcode: %0b", EXMEMIR[6:0]);
-    if (EXMEMop == ALUop) MEMWBValue <= EXMEMALUOut;  // pass along ALU result
-    /*
-    EXMEMALUOut >> 2,because one address store 1byte,so 32bit(4 bytes) is mutiple of 4(1<<2)
-    */
-    else if (EXMEMop == LD) begin
-      MEMWBValue <= DMemory[EXMEMALUOut>>2];
-      $display("EXMEMALUOut:%0b load from %0dth mem value %0b, imm:%0b", EXMEMALUOut,
-               EXMEMALUOut >> 2, DMemory[EXMEMALUOut>>2], {IDEXIR[30 : 25], IDEXIR[11 : 7]});
-      $display("last loaded value %0b, equal to last stored: %0d", DMemory[(EXMEMALUOut>>2)-1],
-               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
-    end else if (EXMEMop == SD) begin
-      DMemory[EXMEMALUOut>>2] <= EXMEMB;  //store
-      $display("IFIDrs2:%0d", IFIDrs2);
-      $display("finish store, cnt: %0d,cycle: %0d,EXMEMB %0b store to %0dth mem,EXMEMALUOut: %0b",
-               cnt, $time / (`CYCLE_TIME), EXMEMB, EXMEMALUOut >> 2, EXMEMALUOut);
-      $display("last stored mem %0dth mem: %0b, equal to source %0dth reg:%0d ",
-               (EXMEMALUOut >> 2) - 1, DMemory[(EXMEMALUOut>>2)-1], `SD_LOAD_REG,
-               DMemory[(EXMEMALUOut>>2)-1] == Regs[`SD_LOAD_REG]);
-      // for (i = 0; i < cnt / 2; i = i + 1) begin
-      //   $display("EXMEMALUOut: %0b, %0dth mem: %0b", EXMEMALUOut, i, DMemory[i]);
-      // end
-    end
-    MEMWBIR <= EXMEMIR;  // pass along IR
     // WB stage
     if (((MEMWBop == LD) || (MEMWBop == ALUop)) && (MEMWBrd != 0)) // update registers if load/ALU operation and destination not 0
       Regs[MEMWBrd] <= MEMWBValue;

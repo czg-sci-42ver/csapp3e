@@ -1,25 +1,24 @@
 [*]
 [*] GTKWave Analyzer v3.3.115 (w)1999-2023 BSI
-[*] Fri Jun  9 07:23:11 2023
+[*] Fri Jun  9 13:20:29 2023
 [*]
-[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_2.vcd"
-[dumpfile_mtime] "Fri Jun  9 07:20:46 2023"
-[dumpfile_size] 5391
+[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_3_ms.vcd"
+[dumpfile_mtime] "Fri Jun  9 13:20:24 2023"
+[dumpfile_size] 6040
 [savefile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/clock_op.sav"
 [timestart] 0
 [size] 1846 1019
 [pos] -1 -1
-*-2.000000 24 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-2.000000 14 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] RISCVCPU.
 [sst_width] 361
-[signals_width] 291
+[signals_width] 380
 [sst_expanded] 1
 [sst_vpaned_height] 297
-@28
+@22
 RISCVCPU.clock
-@420
 RISCVCPU.LD
 RISCVCPU.SD
-@22
 RISCVCPU.NOP
 RISCVCPU.IFIDop[6:0]
 RISCVCPU.IDEXop[6:0]
@@ -29,25 +28,35 @@ RISCVCPU.IFIDIR[31:0]
 RISCVCPU.IDEXIR[31:0]
 RISCVCPU.EXMEMIR[31:0]
 RISCVCPU.MEMWBIR[31:0]
-@28
 RISCVCPU.bypassAfromALUinWB
 RISCVCPU.bypassAfromLDinWB
-@29
 RISCVCPU.bypassBfromALUinWB
-@28
 RISCVCPU.bypassBfromLDinWB
-@22
+RISCVCPU.stall
 RISCVCPU.Ain[63:0]
 RISCVCPU.Bin[63:0]
 RISCVCPU.IDEXA[63:0]
 RISCVCPU.IDEXB[63:0]
 RISCVCPU.EXMEMALUOut[63:0]
 RISCVCPU.MEMWBValue[63:0]
+RISCVCPU.EXMEMop[6:0]
 RISCVCPU.MEMWBop[6:0]
 RISCVCPU.IDEXop[6:0]
 RISCVCPU.IDEXrs1[4:0]
 RISCVCPU.IDEXrs2[4:0]
 RISCVCPU.EXMEMrd[4:0]
 RISCVCPU.MEMWBrd[4:0]
+RISCVCPU.offset_ld[11:0]
+RISCVCPU.offset_sd[11:0]
+RISCVCPU.Regs_rs1_w[63:0]
+RISCVCPU.Regs_rs2_w[63:0]
+RISCVCPU.target_addr_sd[63:0]
+RISCVCPU.Reg_1[63:0]
+RISCVCPU.Reg_30[63:0]
+RISCVCPU.DMem_0[31:0]
+@23
+RISCVCPU.offset_IDEX_sd[63:0]
+@22
+RISCVCPU.target_addr_ld_fromIR[63:0]
 [pattern_trace] 1
 [pattern_trace] 0
