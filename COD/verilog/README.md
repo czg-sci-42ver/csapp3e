@@ -28,6 +28,7 @@
 - task [vs](https://fpgatutorial.com/verilog-function-and-task/) function <a id="fpga"></a>
 - recommended [workflow](https://raveeshagarwal.medium.com/free-and-simple-verilog-simulation-1-first-run-1c4cbbb66de5), [similar](https://medium.com/macoclock/running-verilog-code-on-linux-mac-3b06ddcccc55).
   - compiler [comparison](https://hackernoon.com/top-4-hdl-simulators-for-beginners)
+    - also [see ‘What Verilator Does’](https://www.veripool.org/verilator/)
   - [ncsim](https://en.wikipedia.org/wiki/List_of_HDL_simulators) not opensource
 - macro ['``'](https://www.design-reuse.com/articles/45979/system-verilog-macro-a-powerful-feature-for-design-verification-projects.html) used usually, also similar to [systemverilog](https://www.systemverilog.io/verification/macros/)
 - [modulus](https://web.engr.oregonstate.edu/~traylor/ece474/beamer_lectures/verilog_operators.pdf) operator which is not listed in [wikipedia](https://en.wikipedia.org/wiki/Verilog#Operators)

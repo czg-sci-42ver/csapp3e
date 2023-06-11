@@ -4410,6 +4410,10 @@ B[k][j] B[k][j] ...
   - ‘FIGURE 4.36’ although here must use 'address' to read memory, but maybe to be distinct with 'FIGURE 4.38' write, so just split.
 - p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
   - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
+  - how related [hardware p12 (based on truth table)](https://cseweb.ucsd.edu/classes/su06/cse141/slides/s06-1cyc_control-1up.pdf) implemented 
+    - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
+    - TODO how Function code in p6 above defined
+    - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALU0p"></a>
 - 'FIGURE 4.49','FIGURE 4.52 '
 - p596 2-bit is still unperfect, although it may deal with the problem listed [here](https://www.youtube.com/watch?v=malQIOtaAuU)
   - why [two (see 'first and last loop iterations')](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/dynamic-branch-prediction/index.html) wrong
@@ -4552,7 +4556,8 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
 // and `assign` ensure direct change of wire `IFIDop`,etc.
 ```
   - only diff with p658 in outside assign block, `always` block no changed.
-- p665
+- p665 
+from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw-after-lw?rq=2) related with my [question](https://stackoverflow.com/questions/76443233/stall-implementation-by-checking-memwb-and-idexop-in-cod-may-be-wrong), forward to `IFID` may be proper.
   - why use stall when already having `forwarding`,p532 (because two cycle lag causes the IDEX has fetched the old reg withou)
   - see `E4.13.3_ms_log.v`, here, although how many bubble/stall, the address of `sd` directly after `ld` whichi is calculated in **`IDEXop`** will not change, because it is **register** instead of **wire**.
     - above can be seen in vcd, some notices: 1. when `EXMEMop == SD`, the `EXMEMALUOut` is calculated from last **`IDEXop`** cycle(i.e the cycle just before `EXMEMop`) 2. 
@@ -4592,7 +4597,7 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
       - p495 so COD ~~use bubble when stalling~~ use bubble instead of stalling (p496 'an *error* to set *both* the bubble and the stall signals to 1', po `bubble` is stronger than `stalling`) ~~which is weird, because ~~
         - p496 so Mispredicted branch only bubble no stall to save resources. (see COD verilog code, NOP nothing done, also can be seen from doc.)
       - p496 'blocks of combinational logic' which can be seen from COD `assign ... = ?:?:...` (here signal is just `wire` in verilog).
-        here arrow in figure is same as `<=` in verilog and 'pass along IR' in COD.
+        here arrow in figure is same as `<=` in verilog and *'pass along IR'* (this ensures the instruction will propogate through the pipeline) in COD. 
         - ret -> p492, fetch `stall` no big influence, even no influence (i.e. no need to read memory) if with ~~memory ~~ cache in the cpu.
           - from COD, the bubble will make all ~~subsequent~~ instructions ~~of~~ running after bubbled instruction ~~cancelled~~ (i.e. here is `F` for `D` in `ret`, ) unchanged (not consuming computer resources).
           - here stall next instruction instead of bubble (i.e. drop) maybe because ret target is just next instruction. <a id="target"></a>
@@ -4610,7 +4615,37 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
       - here must use stall. if `ld,sd,nop,ld` then when the fourth ld run `IFID`, it will read reg which is meanwhile updated by the first `ld` in `MEMWBop`.
         - So recommend [1](#IFID_forward)
           - maybe using something liek `bypassAfromLDinMEM` similarly to forward to `IFID`.
-        - this is also why COD book use `stall`, because `MEMWB` write to reg `Regs[MEMWBrd]` which will not directly influence `Ain` because it is influenced by reg with ``
+        - ~~this is also why COD book use `stall`, because `MEMWB` write to reg `Regs[MEMWBrd]` which will not directly influence `Ain` because it is influenced by reg with ``~~
+- p666
+  - here bypass is same as data hazard does,like using former substract result,see p591.
+- p669
+  - [synthesizable](https://www.jameswhanlon.com/writing-synthesizable-verilog.html) Verilog
+    - kw
+      - ‘the specification of *Verilog does not specify* which features are synthesizable; that depends on the *tooling* used.’, 'Many of the observations in this note relate to coding style.','closed-source software by companies like *Cadence*, Synopsis and Mentor','there is no standard synthesizable subset...','sticking to a *lowest common denominator* of the language features','makes the control flow structure *clearer*','*parallelism* should be exposed where ever possible','separate the logic for each condition into *separate parallel processes*'，'*infer* a dependence between two signals’,'*no timing* controls and only one event control)','non-blocking assignments, <=','particularly between simulation and synthesis'
+      - 'presumably because they apply *conservative* rules'
+      - 'blocks only from a logic signal name': use 'a logical expression' in `always_comb` and `always_ff` just use variable directly ('must have a *reset* condition of a constant value'), 'clock gates are used'
+        - logic is [2-state](https://www.verilogpro.com/verilog-reg-verilog-wire-systemverilog-logic/)
+      - `sum_t'(a + b)` : `sum_t` is bit-width. 
+      - carry out 'Using a prefix like unused_' (here `unused_` is used to store carry out bit).
+    - [`.*`](https://stackoverflow.com/questions/58436253/in-systemverilog-what-does-mean)
+    - TODO: 'formal analysis/model checking,...','rather than using *two mechanisms* to achieve the same effect', why '4'b000?,'-> 'STATUS_ERROR', ~~(a+b) meaning in 'sum_t'(a + b)',~~ 'particularly with multipliers','generate an optimised adder implementation for the given set','*complexity* of a block','unnamed scope'，'Avoid logic in module instantiations.' vs 'named signals','the extension of operands as inputs to binary operations'
+    - wave viewer: 'common prefixes for related signals, *sorting*'
+    - coding [tips p25('– Ignoring “unoptimizable” warnings can drop performance by 2x'),32,35(TODO graph Optimizations)](https://www.veripool.org/papers/verilator_philips_internals.pdf)
+      - 'they associate left to right','always *bracket* the condition'
+    - 'Drive one signal per block.' which implies why book code is not synthesizable because it has only one always block.
+    - miscs
+      - [always_...](https://www.verilogpro.com/systemverilog-always_comb-always_ff/), 'sensitive to changes within the contents of a function','cannot be written by other processes', (TODO 'flip-flop logic'),'no blocking timing controls' <a id="always_comb"></a>
+      - [one-hot](https://www.quora.com/What-is-case-1b1-in-Verilog)
+      - case [inside](http://www.cjdrake.com/verilog-case-inside-statement.html) to use some features
+    - recommended [course](https://ocw.mit.edu/courses/6-884-complex-digital-systems-spring-2005/pages/related-resources/)
+  - p670
+    - `PCdatasrc`: used in branch
+    - `ALUBinput`: `PC+4`->`64'd4` (also see how 'RISCVALU ALU' implemented),`B` just normally used in R-format
+      - `ALUAin` unchanged after assigning reg, because ALU at least use one reg.
+        - by `registerfile`, `B`(Data2) is `IR[24:20]`(RF[Read2]) and `A` is `IR[19 : 15]` which is only unused in U-format where ALU not used.(while UJ-format will use~~. TODO, so ALU may be wrong.~~ which will checked by `ALUSrcA`).
+    - `MemOut` is used to read instruction memory.
+  - non-synthesizable [example](https://nandland.com/lesson-6-synthesizable-vs-non-synthesizable-code/) TODO 'Loops do NOT behave the same way'
+  - [testbench](https://verilogguide.readthedocs.io/en/latest/verilog/testbench.html), 'used by other softwares for further analysis','simulation purpose only (not for synthesis)','ports of the testbench is always empty','it is very easy to look for errors in the terminal/csv file as *compare* to finding it in the waveforms',
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
@@ -4628,6 +4663,26 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
 - also see  ROB in [Apple](https://news.ycombinator.com/item?id=25163883)
 ###### diff with store buffer
 - CAQQA p230,242(relation with reorder buffer)
+#### appendix
+##### A
+- p1187 why only `Binvert` used in overflow detection.
+- p1178 here dot means $\&$, $+$ means $|$,see FIGURE A.5.5
+- p1195 here `ALU0p <=12;` should be `ALUCtl <=12;` [see](#ALU0p)
+  - `ALUOp` not related with `opn`
+  - `input [ 5:0J FuncCode;` should refer to opcode, which can decide aluop, so should be `input [6:0] FuncCode;`
+- p1198 $c4$ ~~explains~~ corresponds to $P0+G0$ in p1201 (which is similar to forwarding that skip some action to directly work), see 'FIGURE A.6.3'
+  - p1205 lookahead is just *non-blocking* while ripple carry is blocking which is just same as [this 'takes a time delay',' without the wait for the preceding additions.','at the same time as soon as the input signal'](https://www.electricaltechnology.org/2018/04/ripple-carry-and-carry-look-ahead-adder.html)
+  - p1208 C4 -(2 gate dalays)> Pi and Gi ...(2) pi ...(1), so 2+2+1
+  - p1209 [barrel shifter 'cycle the order of the bits ABCD as DABC'](https://en.wikipedia.org/wiki/Barrel_shifter#:~:text=A%20barrel%20shifter%20is%20a,inherently%20provides%20a%20binary%20operation.)
+- p1218
+  - here [D flip-flop](https://www.electronicsforu.com/technology-trends/learn-electronics/flip-flop-rs-jk-t-d) just replace the `S,R` in Flip-Flop to `D,~D`.
+  - p1219 very *direct* design of D flip-flop...
+  - TODO ~~why hold time since data has been in first D latch.~~
+    - here hold time is to ensure min_time [with setup time](https://www.realworldtech.com/overclocking-realities/2/) .
+    - notice here not gate [location](https://electronics.stackexchange.com/questions/543323/analysis-of-two-d-flip-flop-designs-based-on-d-latches/544027?newreg=9ec75f45a4204faa95478a108b3916ba) which influences 'the inverter delay' is important.
+    - the book says 'sampled on the clock edge' similar to ['the data propagates to the output'](https://vlsiuniverse.blogspot.com/2016/10/latch-principle.html)
+      - [Transmission gate 'Transmission Gate Truth Table'](https://www.electronics-tutorials.ws/combination/transmission-gate.html)
+  - 
 ### TODO
 #### when browsing web
 - [Memory Models](https://hpc170063702.wordpress.com/2018/06/21/high-perf-computing-and-concurrency/)
@@ -4729,7 +4784,8 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
 - synthesis -> ['logic synthesis'](https://en.wikipedia.org/wiki/Logic_synthesis)
 - ~~TODO~~ [diff wire and reg](https://inst.eecs.berkeley.edu/~cs150/Documents/Nets.pdf)
   - [assign](https://www.chipverify.com/verilog/verilog-assign-statement) just to ensure right-hand value is 'constant'.
-  - [Combinational and Sequential Circuits](https://www.geeksforgeeks.org/combinational-and-sequential-circuits/), here Sequential means somewhat *stateful* instead of stateless.
+  - [Combinational and Sequential Circuits](https://www.geeksforgeeks.org/combinational-and-sequential-circuits/), here Sequential means somewhat *stateful* (related with state machine) instead of stateless.
+    - ‘controlled by a clock transition are flip-flops’, so it does not permit delay. [see](#always_comb)
   - [always@ block =](https://www.chipverify.com/verilog/verilog-always-block) needs *delay* to avoid infinite loop *hang*
     - output reg -> 'reg elements can be used as *outputs within* an actual module'
   - [initial block =](https://www.chipverify.com/verilog/verilog-initial-block) 'not synthesizable','do not serve much purpose than to be used in simulations', '$finish' 'tells the simulator to *terminate* the current simulation'
