@@ -15,9 +15,9 @@ module registerfile (
   output [63 : 0] Data1, Data2;  // the register values read
   reg  [63 : 0] RF[31 : 0];  // 32 registers each 32 bits long
 
-  reg  [  63:0] A;
-  wire [63 : 0] b;
-  always @(posedge clock) A <= b;
+  // reg  [  63:0] A;
+  // wire [63 : 0] b;
+  // always @(posedge clock) A <= b;
 
   assign Data1 = RF[Read1];
   assign Data2 = RF[Read2];

@@ -51,6 +51,8 @@ module Datapath (
   // PCSource is the selector input and PCValue is the multiplexor output
   /*
   p1173
+  here in state 1,ALUResultOut is directly calculated as `PC+4`
+  in state 3,
   */
   Mult2to1 PCdatasrc (
       ALUResultOut,
@@ -108,5 +110,8 @@ module Datapath (
     if (IRWrite) IR <= MemOut;  // Write the IR if an instruct i on fetch
     MOR <= MemOut;  // Always save the memory read value
     // The PC is written both conditiona11y (contro11ed by PCWrite) and unconditiona11y
+    /*
+    TODO: update workflows related wtih `PCWrite` and `PCWriteCond`
+    */
   end
 endmodule

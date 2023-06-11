@@ -7,6 +7,9 @@ module RISCVCPU (
   reg [2 : 0] state;
   wire [1 : 0] ALUOp, ALUSrcB;
   wire [6 : 0] opcode;
+  /*
+  these are Microcodes ,p1426
+  */
   wire MemtoReg , MemRead , MemWrite , IorD , RegWrite , IRWrite ,PCWrite , PCWriteCond , ALUSrcA , PCSource , MemoryOp ;
   // Create an instance of the RISC-V datapat h, the inputs are the contro l signals : opcode is on l y output
   Datapath RISCVDP (
@@ -43,6 +46,7 @@ module RISCVCPU (
   beq:
   IorD is 1 at state 3.
   `3: state <= (opcode == BEQ) ? 1 : 4;` so will never go to state 4
+  based on `PCWriteCond` (see the following comment), it will change `PCSource`
 
   ignore the following: 
   will write to at state 5.
@@ -55,17 +59,34 @@ module RISCVCPU (
   0 is for instruction.
   */
   assign IorD = (state == 1) ? 0 : 1;
+  /*
+  `(state === 4) && (opcode == ALUop)` functions like forwarding, also because of `4: state <= (opcode == LD) ? 5 : 1;`
+  */
   assign RegWrite = (state == 5) || ((state === 4) && (opcode == ALUop));
   assign IRWrite = (state === 1);
+  /*
+  TODO : 
+  1. see p1402,1428: `PCWriteCond` should be dependent on ALU output 
+  1.1 modify PCWrite and PCWriteCond
+  */
   assign PCWrite = (state == 1);
   assign PCWriteCond = (state == 3) && (opcode == BEQ);
+  /*
+  false -> fetch PC
+  */
   assign ALUSrcA = ((state == 1) || (state == 2)) ? 0 : 1;
+  /*
+  2'b01: 4-> calculate PC+4 (state 1/3)
+  2'b11: offset -> used in branch `beq`, calculate branch addr (maybe unused,so may be redundantly calculated.)
+  notice this is calculated in state 2 instead of 3 to maximize ALU usage.
+  2'b10: imm -> calculate ld,sd addr
+  */
   assign ALUSrcB =((state== 1) || ((state== 3) && (opcode=== BEQ)))?
 2'b01 :(state == 2)? 2'b11 :((state== 3) && MemoryOp) ? 2'b10: 2'b00 ;// memory operation or other
-/*
-PCSource 
-*/
-  assign PCSource = ((state == 1)||( (state == 3) && (ALUOut) )) ? 0 : 1;
+  /*
+  TODO: modify with `PCWrite` 
+  */
+  assign PCSource = (state == 1) ? 0 : 1;
   // Here is t he state machine, which only has to sequence states
   always @(posedge clock) begin  // al l st ate updates on a posit i ve clock edge
     case (state)
