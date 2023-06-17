@@ -3703,6 +3703,8 @@ vcvtsi2ss %edi, %xmm1, %xmm2
   - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better encoding method
   - [DDR SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#DDR_SDRAM_prefetch_architecture) use a new cache enhancement method.
   - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs
+    - TODO [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM
+    - this will be [worn out 'Degradation or wear of the oxides'](https://en.wikipedia.org/wiki/Flash_memory#Charge_trap_flash).
 - [Recording density](https://www.anandtech.com/show/11925/western-digital-stuns-storage-industry-with-mamr-breakthrough-for-nextgen-hdds/2)
 - [Transfer Time](https://www.javatpoint.com/seek-time-vs-transfer-time-in-disk-scheduling)
   - p630 : 1 circle -> 400 sectors/track, so 1/400 circle time -> 1 sector
@@ -3896,6 +3898,10 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - [prime](https://stackoverflow.com/questions/67623801/is-it-always-necessary-to-make-hash-table-number-of-buckets-a-prime-number-for-p) hash bucket number
 - [AMDuProf](https://community.amd.com/t5/server-gurus-discussions/intel-vtune-on-amd-processors/m-p/529122/highlight/true) & [callgrind](https://stackoverflow.com/questions/6663614/use-valgrind-to-know-timein-seconds-spent-in-each-function)
 - SRAM DRAM [design](https://www.egr.msu.edu/classes/ece410/mason/files/Ch13.pdf), more [concise  ](https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf)
+  - TODO 
+    - how DRAM [implemented](http://blackandwhitecomputer.blogspot.com/2012/03/reading-writing-operation-of-dram.html)
+    - [precharge](https://electronics.stackexchange.com/questions/246835/what-is-the-need-for-precharging-in-sram-dram-memory-cell/246846#246846)
+  - DIMM dual [meaning ('both the sides')](https://www.geeksforgeeks.org/what-is-dimmdual-inline-memory-module/),also [see](https://en.wikipedia.org/wiki/DIMM#History)
 - problem 6.34 -> 'typedef' related book referenced in csapp 
 - reread p735 'aside' after chapter 9
 - time travel [debug](https://pspdfkit.com/blog/2021/time-travel-debugging-for-c/) which also temporarily disabled avx to solve 'Process record does not support instruction 0xc4 at address ...'
@@ -4262,6 +4268,12 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 ##### chapter 1
 - p90 [wafer die yield](https://en.wikichip.org/wiki/yield)
 - p123 see my mathexchange [answer](https://math.stackexchange.com/a/4711125/1059606) in ['solved Why geometric mean get a same relative answer rather than arithmetic mean?'](https://math.stackexchange.com/questions/4083719/solved-why-geometric-mean-get-a-same-relative-answer-rather-than-arithmetic-mean)
+- p129
+  - here 'lower layer' is similar to those in memory hierarchy
+- p130
+  - 'Maintaining the instruction set ...' means both AMD zen1/2/3 ... or [intel Sandy Bridge/Haswell](https://en.wikipedia.org/wiki/List_of_Intel_CPU_microarchitectures)(' many implementations of that architecture') all run 'x86-64'('instruction set architecture ')
+- p133
+  - [dependability](https://en.wikipedia.org/wiki/Dependability)
 ##### chapter 2
 - 'FIGURE 2.41': varying popularity of instructions
 - pipeline [vs](https://qr.ae/pyyGJ7) parallel ‘Parallelism involves replicated hardware (exploiting space). Pipelining involves re-using hardware optimally based on dataflows (exploiting time).’
@@ -4283,6 +4295,9 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 - p210 [bit-field](https://en.cppreference.com/w/cpp/language/bit_field) just to keep data compact , then ' to match an externally enforced interface' <a id="bit-field"></a>
 - p240 [add 1](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) '-4096'
 - p252 load-reserved ... pair is based on ' a memory **read and a write** in a single, uninterruptible instruction.' 
+  - [reservation set](https://stackoverflow.com/questions/70242113/whats-reservation-in-risc-vs-lr-instruction) just 'reserve's the cache line.
+    - kw:'cache line leaves exclusively-owned','it is conditional'
+    - TODO 'ARM's "monitor" region'
   - [ABA](https://www.baeldung.com/cs/aba-concurrency#value--vs-reference-based-scenarios) mainly because of Value-Based [TODO](https://www.baeldung.com/cs/aba-concurrency#3-immutability)
   - so [Load-link/store-conditional](https://en.wikipedia.org/wiki/Load-link/store-conditional) has no ABA, also [see p48 'detects any intervening memory write'](https://people.eecs.berkeley.edu/~krste/papers/EECS-2016-1.pdf) 
   - TODO [weak](https://liblfds.org/mediawiki/index.php/Article:CAS_and_LL/SC_Implementation_Details_by_Processor_family) (this also shows platform related with cas or LL/sc) LL/SC meaning
@@ -4296,12 +4311,25 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 - p278
   - 'C program is 8.3 times faster than the interpreted Java' means `1.0` better than `0.12`, while 'Quicksort beats Bubble Sort by a factor of 50' means `0.05` better than `2.41`
 - p254 TODO?
+- p342
+  - 'Simplicity favors regularity' this makes hardware easier to design,see chap 4.
+  - 'common RISC-V case fast': better to use PC-relative to decrease number of bits to represent address.
+  - 'common variations of instructions': po pseudo instruction
+- p345
+  - 'Transfer instructions' like `ld,sd`
+  - [case/switch unconditional jmp p29,30](https://cs.wellesley.edu/~cs240/f18/slides/x86-control.pdf)
+  - 'equal': means equal popularity.
+- p303
+  -  [local optimizations](https://www.geeksforgeeks.org/code-optimization-in-compiler-design/) mainly based on one assignment (like [Local value numbering](https://en.wikipedia.org/wiki/Value_numbering#Local_value_numbering)),etc.
+- p305 TODO 'Flow-insensitive'
+- p194
+  - 'did need an extra step' because in 'two’s complement' $1+~0(-1)$ just overflow to become 0.
+  - ['biased notation'](https://stackoverflow.com/questions/24729320/what-is-biased-notation) is just highly manually designed.
 #### chapter 3
 - TODO [p394](https://en.wikipedia.org/wiki/Division_algorithm)
-- TODO why use `_mm256_broadcast_sd()` p441
+- ~~TODO why use `_mm256_broadcast_sd()` p441~~
 ```bash
 C[i][j] C[i+1][j]
-
 ```
 - p375 [Carry Look-Ahead Adder](https://www.geeksforgeeks.org/carry-look-ahead-adder/)
 - p377 more [clear](https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html)
@@ -4399,18 +4427,27 @@ B[k][j] B[k][j] ...
   - why unnormalized operand [not fast](https://stackoverflow.com/questions/36781881/why-denormalized-floats-are-so-much-slower-than-other-floats-from-hardware-arch) mainly is trade-off of CPU architecture (TODO self design referenced in the link).
 - p426 row major vs column major, how to [choose](https://stackoverflow.com/questions/47691785/why-does-julia-uses-column-major-is-it-fast/47734127#comment82352970_47691785) which should be consistent with how to [access](https://cs.stackexchange.com/a/153479), [more](https://comp.lang.fortran.narkive.com/ry8nFrVm/historical-reason-why-fortran-has-chosen-column-major-order)
 - p427 [Newton–Raphson division](https://en.wikipedia.org/wiki/Newton%27s_method#Multiplicative_inverses_of_numbers_and_power_series) more [intuitive](https://wethestudy.com/mathematics/newton-raphson-method-how-calculators-work/)
+- p448
+  - [exceptions or interrupts](https://www.microcontrollertips.com/exceptions-traps-and-interrupts-whats-the-difference-faq/) 
+    - this is different from how csapp defined them:
+      - 'Exceptions are sometimes called “traps”','Exceptions are a **subset** of **software**-driven interrupts'
+- p449
+  - design *hardware* intentionally based on instruction *frequency*.
+  - `fmul.d` is double (risc-v p450)instead of [single](https://msyksphinz-self.github.io/riscv-isadoc/html/rvfd.html#fmul-d)
 #### chapter 4
+[differences](https://www.tutorialspoint.com/differences-between-data-paths#:~:text=In%20single%20cycle%2C%20one%20instruction,be%20executed%20at%20a%20time.) among single-cycle,Multiple Cycle, Pipeline. Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bojnordi/classes/3810/f20/slides/18-cpu.pdf).
 - 'FIGURE 4.2' 'FIGURE 4.4'(state element) PC+[4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) although the book says it use 64-bit
 - 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
 - p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
 - [SB-format p7](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf) risc-v format <a id="rformat"></a>
 - 'FIGURE 4.15,17'
 - p543 [latency](http://ece-research.unm.edu/jimp/611/slides/chap3_1.html)
+- p545 here 'single-cycle datapath' has no relation with 'Single-cycle, nonpipelined execution' in 'FIGURE 4.25',
 - 'FIGURE 4.31' related with later figures 'FIGURE 4.34/41',etc
   - ‘FIGURE 4.36’ although here must use 'address' to read memory, but maybe to be distinct with 'FIGURE 4.38' write, so just split.
 - p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
   - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
-  - how related [hardware p12 (based on truth table)](https://cseweb.ucsd.edu/classes/su06/cse141/slides/s06-1cyc_control-1up.pdf) implemented 
+  - how related [hardware p12 (based on truth table)](https://cseweb.ucsd.edu/classes/su06/cse141/slides/s06-1cyc_control-1up.pdf) implemented <a id="hardware"></a>
     - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
     - TODO how Function code in p6 above defined
     - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALU0p"></a>
@@ -4428,9 +4465,11 @@ B[k][j] B[k][j] ...
         - here 'disadvantage is that the history is diluted by irrelevant', so better use 'two-level adaptive predictor' to filter branch first
          - Tournament Predictor p23
       - branch Target Buffer [BPT p21](https://users.cs.utah.edu/~bojnordi/classes/6810/s18/slides/10-bpred.pdf) is similar as csapp Figure 6.25
+- p600
+  - [load-use hazard](https://courses.cs.vt.edu/cs2506/Spring2013/Notes/L12.PipelineStalls.pdf) is just RAW in Data hazard 
 - p611 
   - [see](http://utenti.dieei.unict.it/users/gascia/COURSES/sist_emb_14_15/download/SE07_Pipeline_Exception.pdf) precise interrupt is just those can be recovered p10 and why may be imprecise p19 
-- p614 [multiple issue](https://www.cs.umd.edu/~meesh/4 11/CA-online/chapter/multiple-issue-processors-i/index.html) , 
+- p614 [multiple issue](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/multiple-issue-processors-i/index.html) , 
   - detailed see CAAQA p223 & 'Figure 3.19'
     - p226 [reservation station](https://en.wikipedia.org/wiki/Reservation_station) in each 'Functional Units' which may be used to forwarding (i.e. 'rather than waiting for it to be stored in a register and re-read') by 'listens on a Common Data Bus for the operand to become available'
     - issue slot or operation slot related with [ROB](https://en.wikipedia.org/wiki/Re-order_buffer) p215 
@@ -4438,6 +4477,16 @@ B[k][j] B[k][j] ...
 - p623 loop unrolling to decrease nop at least.
 - 'FIGURE 4.69'
 - p538,630 ‘hide the branch delay’
+  - here dalay is not real delay, because the `beq` is changed before `add`, so the delay of `add` is just how the `beq` should do originally.
+  - kw: 'automatically arrange','the add instruction before the branch ','moved after the branch'
+  - [delay slot](https://en.wikipedia.org/wiki/Delay_slot) 'execute *a pair* of instructions following a branch instruction before the branch takes effect','this instruction will execute *even if* the preceding branch is taken','typical for *assemblers* to *automatically reorder* instructions', so it is just to make ‘the *pipeline* must be full of instructions at all times’，‘Each cycle where a *stall* is inserted is considered one branch delay slot’
+    - notice: the main purpose of [`delay slot`](https://stackoverflow.com/questions/15375084/what-is-the-point-of-delay-slots) is not to add stall which doesn't has any influence to pipeline performance. Instead, as the book say, it is to **`reorder`**.
+      - 'instead of execute, empty, empty, execute'
+    - [example](http://web.cecs.pdx.edu/~zeshan/ece586_lec12_1.pdf)
+  - CODv5 p316 <a id="Elaboration274"></a>
+    - the [reason](https://www.cise.ufl.edu/~mssz/CompOrg/CDA-pipe.html) for keeping pipeline full (although adding nonsense `nop`): 'while minimizing *set-up* time' which is related with hardware signal transformation and hot/cold code.
+    - p323 the delay slot has been almost replaced by ' dynamic prediction'
+      - kw: 'loop branch','branch target buffer' because target always same like in loop.
 - p631 
   - [see](https://passlab.github.io/CSE564/notes/lecture18_ILP_DynamicMultIssueSpeculationAdvanced.pdf)
     - p29 comparison of Dynamic Scheduling and Speculation
@@ -4447,6 +4496,7 @@ B[k][j] B[k][j] ...
   - [issue width](https://www.eecg.toronto.edu/~moshovos/ACA06/homework/hw3.htm#:~:text=Issue%2Dwidth%20is%20the%20maximum,processor%20can%20search%20for%20ILP.)
   - [Store buffer](https://paulcavallaro.com/blog/x86-tso-a-programmers-model-for-x86-multiprocessors/) (see [comment](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer#comment14639780_11130239) it ‘not always inside CPU’ ) same as [ROB](https://stackoverflow.com/questions/40887592/reorder-buffer-commit) located [~~inside~~](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer) CPU
 - p636 [nonblocking caches](https://dl.acm.org/doi/pdf/10.1145/381718.381727) use [MSHR](https://miaochenlu.github.io/2020/10/29/MSHR/) (which is just one **independent** unit and media to fetch memory)as one method to forwarding
+  - store buffer [hardware](http://csg.csail.mit.edu/6.S078/6_S078_2012_www/handouts/lectures/L25-Non-Blocking%20caches.pdf) also [p17](http://csg.csail.mit.edu/6.175/lectures/L15-Caches%20and%20Store%20BuffersRev.pdf)
   - see CAQQA p132
     - multi [bank ’Banking supports simultaneous‘](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/cache-optimizations-iii/index.html) mainly because of store like of array is adjacent.
       - detailed with [example](https://www.anandtech.com/show/3851/everything-you-always-wanted-to-know-about-sdram-memory-but-were-afraid-to-ask/2), 
@@ -4463,6 +4513,7 @@ B[k][j] B[k][j] ...
           >This is because each bank, of which there are eight for DDR3, fetches no less than 8 bits (1 byte) of data per read request - the equivalent of *one column's worth* of data.
 
   - renaming function (这里是 '功能' 而不是 函数 ) (also googling ‘renaming function cpu architecture’) based on p566 'The function of each of six control signals'
+    - also see ['register alias table' p38](https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf)
 - (un)conditional branch prediction and (in)direct [relation](https://stackoverflow.com/questions/21787457/branch-target-prediction-in-conjunction-with-branch-prediction) from [this](https://stackoverflow.com/questions/28006386/how-can-unconditional-branches-be-predicted-with-a-2-bit-predictor#comment44493696_28006386)
 - p639
   - [Indirect predictor](https://developer.arm.com/documentation/ddi0488/c/BABEHAJJ) 'only provides the address' while hybrid predictor 'predictor still predicts the direction' with True or false ...
@@ -4557,8 +4608,13 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
 ```
   - only diff with p658 in outside assign block, `always` block no changed.
 - p665 
-from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw-after-lw?rq=2) related with my [question](https://stackoverflow.com/questions/76443233/stall-implementation-by-checking-memwb-and-idexop-in-cod-may-be-wrong), forward to `IFID` may be proper.
+see 'FIGURE E4.13.19' 
+from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw-after-lw?rq=2) related with my [question](https://stackoverflow.com/questions/76443233/stall-implementation-based-on-forwarding-by-checking-memwb-and-idexop-in-cod), forward to `IFID` may be proper.
+  - see this
+    - here `(((IDEXop == LD) || (IDEXop == SD)) && (IDEXrs1 == MEMWBrd))` is not duplicate with `(IDEXrs1 == MEMWBrd) && (IDEXrs1 != 0) && (MEMWBop == LD)`
+      - because the former is related with `IDEXop` so may include `IDEXop=LD,MEMWBop=ADD`(here forwarding is delayed from `IFIDop=LD,IDEXop=ADD`), which the latter not includes.
   - why use stall when already having `forwarding`,p532 (because two cycle lag causes the IDEX has fetched the old reg withou)
+    - also [see](https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Solution_B._Pipeline_interlock) 
   - see `E4.13.3_ms_log.v`, here, although how many bubble/stall, the address of `sd` directly after `ld` whichi is calculated in **`IDEXop`** will not change, because it is **register** instead of **wire**.
     - above can be seen in vcd, some notices: 1. when `EXMEMop == SD`, the `EXMEMALUOut` is calculated from last **`IDEXop`** cycle(i.e the cycle just before `EXMEMop`) 2. 
   - `ld,sd,ld,sd...` (ld `rd` equals to sd `rs1`)
@@ -4646,6 +4702,99 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - `MemOut` is used to read instruction memory.
   - non-synthesizable [example](https://nandland.com/lesson-6-synthesizable-vs-non-synthesizable-code/) TODO 'Loops do NOT behave the same way'
   - [testbench](https://verilogguide.readthedocs.io/en/latest/verilog/testbench.html), 'used by other softwares for further analysis','simulation purpose only (not for synthesis)','ports of the testbench is always empty','it is very easy to look for errors in the terminal/csv file as *compare* to finding it in the waveforms',
+- p671
+  - the [datapath](https://www.cs.fsu.edu/~zwang/files/cda3101/Fall2017/Lecture8_cda3101.pdf) is just data passed among these stages, control are just these wire signals(see above link p54).
+  - see p69
+- p674
+  - it needs add 'reset' to 'synthesize' the 'Initial statements',
+  - reset `R0` by influencing read and write of register instead of assigning register value every clock.
+- p675
+  - here 'fold' means 'translate' instead of 'transform'. So the control line implementation in 'FIGURE E4.13.7' is just Mealy-style, not Moore-style.
+- p676
+  - [single-clock-cycle and multiple-clock-cycle](https://www.geeksforgeeks.org/differences-between-single-cycle-and-multiple-cycle-datapath/) where they mainly differs in *CPI*
+    - see [this](http://ece-research.unm.edu/jimp/611/slides/chap3_6.html) better
+      - view this stackoverflow [Q&A](https://stackoverflow.com/posts/76450114/timeline?filter=NoVoteDetail)
+        - ['structural hazards'](https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Structural_hazards) so ‘divide unit’ is taken account because 1. It isn't pipelined 2. It has only one  divider ALU
+        - 'WAW hazards' -> A1, ..., A4, Divide, or M1, ...,M7 for the **same** destination register (here kw is same destination not 'Divide').
+        - '*after* the earlier instruction reaches the MEM phase' to ensure the 'earlier' first write.
+      - Integer ALU latency is 0, because it can be directly forwarded from EX. Data memory latency is 1 because it needs one more *pipeline* `MEM` to read memory (so the *Initiation Interval* isn't influenced).
+        - so in 'FP and integer divide' which isn't pipelined, `Initiation Interval` is `Latency` plus 1 (which is based on how `Latency` defined.)
+      - kw: 'structural hazard','variable *length instructions*' (here length means the pipeline length not the instruction bits),
+      - to solve 'exception', instructions completed *in the order* in which they were *issued* (which is also said in csapp). Otherwise, the result behavior may be undefined.
+      - 'RAW hazards:'
+        - the former instruction stall will obviously cause the latter stall, or even bubble to nop instruction.
+        - 'MULTD *stalls* due to load latency.' which can be avoided by renaming, also applies to other stall.  
+      - 'Not worth it since steady state usage is close to 1.' means that always one port instead of multiple.
+        - 'Serialize the writes': finish the write in order.
+      - 'shift register', po this can make the register write is in order, using ['Serial-In Parallel-Out Shift Register (SIPO)'](https://www.geeksforgeeks.org/shift-registers-in-digital-logic/)(notice to add signals related with `write` and `read` to these registers) 
+        - here still needs stall, because the `Serial-In`.
+      - 'see slide 8' -> the eighth occurence of 'Multi-Cycle Pipeline Operations'
+        - ‘this is ONLY a hazard’, the 'ONLY' means the number is only one.
+          - 'without any instruction ever using it' -> is in contrast to the following 'there was a use between ADDD and LD' (here LD can be anything other that use ADDD result which will be propogated to be wrong if `ADDD` result is wrong.)
+          - 'RAW hazard would stall' (WAW can also stall, here based on that `RAW` priority is higher than `WAW` input.)
+            - here with WAW, `LD` has no influence to `ADDD` because it has used the former forwarding register value and finished the calculation of the value to store in `EX` stage. But it will maybe influence the instruction after the `LD`.
+      - TODO 
+        - 'the earlier instruction reaches the MEM phase.' 1. 'the earlier instruction' refers to `MUL`? 2. 'reaches the MEM' means finish the MEM? 3.'Cancel the WB phase of the earlier instruction.' , So not WB?
+        - 'Check for structural hazards .' because 'The divide unit.' latency not fixed? So 'in A1, ..., A4, Divide, or M1, ...,M7'?
+      - 'two register files' -> one for int, one for floating.
+      - [continued chap3_7](http://ece-research.unm.edu/jimp/611/slides/chap3_7.html)
+        - 'Ignore the problem' for long FP calculation.
+        - Handling exceptions, po this can be implemented in retirement unit with additional care. just the 'second solution', see 'the *difference* in running *time* among operations is large.' 
+          - 'have enough *entries* for *one register* modification' -> maybe modified multiple times.
+          - [VAX](https://en.wikipedia.org/wiki/VAX) [autoincrement](http://odl.sysworks.biz/disk$axpdocdec001/opsys/vmsos721/4515/4515pro_004.html)
+          - 'the precise values for the interrupted state.' see [p13](https://course.ece.cmu.edu/~ece447/s15/lib/exe/fetch.php?media=onur-447-spring15-lecture11-precise-exceptions-afterlecture.pdf), TODO 'The instructions in the pipeline and the corresponding PCs must be saved.' diff with 2
+          - ~~TODO '*Technique* is used in the SPARC architecture.'~~
+    - ~~po the former is sequential and the latter is pipelined. also see [this link](#bypassing)~~
+  - bypassing means [*same*](https://courses.engr.illinois.edu/cs232/sp2009/section/Discussion7/disc7.pdf) as forwarding <a id="bypassing"></a>
+- p680
+  - notice 'FIGURE E4.13.9' 'shift left 1' to implement `PCOffset` 
+    - ~~TODO how to deal with the non-blocking delay,~~ although in `ALUBinput`, the `<=` make that `PCOffset` and `ImmGen` can be only chosen *one*, from the circuit, the `PCOffset` is obviously generated from `ImmGen` which has no influence with delay to the pipeline because the `ALUBinput` should be calculated to generate the input of `ALUSrcB` (i.e. `ALUBin`) before `ALU`.
+      - the main reason is that the verilog code has only *one* `ALU` module instance while the real hardware has two. 
+  - the `zero` of the bottom `ALU` should be connected to above `ALU` output to function as `PCWriteCond` which shows whether to use branch address.
+- p686
+  - 'FIGURE E4.13.12' ~~TODO what '8' destination register at the bottom means ?~~
+- p684
+  - risc-v [instruction encoding](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture12.pdf) p14. also see risc-v doc p18 'The right shift type is encoded in bit 30'.
+  - ~~TODO~~ 'control values' see p509 'FIGURE 4.18' (here the 'Figures e' just is 'Figures')
+    - The `EX` use `ALU...`. Others see figure. [hardware](#hardware)
+      - `M` use `Mem...,branch`
+- p686
+  - notice `branch` control value
+- p693
+  - notice the grey of 'x2' in the second figure first ALU
+  - here all data related with `reg` including `rd` and `RegWrite` in MEM and WB, two regsrc num in EX are passed to Forwarding unit.
+    - notice two mux before ALU.
+  - 'FIGURE E4.13.17' here not adds the *memory* data to reg forwarding.
+- p697
+  - the `rd` at the bottom and `rc` '2' highlighted as blue ~~detects~~ implies the hazard.
+- p699
+  - the 'bubble' doesn't drop instruction.
+  - notice clock 5 forwards the mem data of `ld` to `add`.
+- p702
+  - the book maybe has *many errors*... 'despite its being reviewed by more than 100 people and being class-tested at 18 universities'
+  - delayed branch [see](#Elaboration274) in CODv5 p255
+- p703
+  - 'Addressing modes that update registers': [Auto Indexed (increment mode)](https://www.geeksforgeeks.org/addressing-modes/), here `(R2)+` means plus after loading, `-(R2)` similarly before loading.
+- p704
+  - *increase* in effective latency
+    - Multi-cycle clock period calculation [p2](https://www.eng.auburn.edu/~uguin/teaching/E6200_Spring_2017/hw/Solutions/hw2_DP_Control.pdf) related with [critical path p6](https://syssec.ethz.ch/content/dam/ethz/special-interest/infk/inst-infsec/system-security-group-dam/education/Digitaltechnik_14/21_Architecture_MultiCycle.pdf)
+    - [overhead](https://acg.cis.upenn.edu/milom/cis371-Spring09/lectures/05_pipeline.pdf) of pipeline where also says detailedly about differences among single-cycle, multiple-cycle and pipeline.
+      - p2 TODO 11ns?
+        - multiple-cycle
+      - p3 here Base CPI is about stage, not instruction.
+      - overhead from p3 stall, p7 hazard ...(p7 calculation)
+      - p12 *CPI* is related with hardware if stall is executed by hardware.
+  - 'reducing clock cycles per instruction' is based on average time calculation, not every instruction speedup.
+- p705
+  - ['Scheduling'](https://en.wikipedia.org/wiki/Instruction_scheduling)
+    - [illegal](https://www.intel.com/content/www/us/en/docs/programmable/683836/current/illegal-instruction.html) operation
+    - by searching 'cpu instruction ambiguous operation', semantically [ambiguous](https://en.wikipedia.org/wiki/Memory_disambiguation) operations which is one data hazard.
+  - Software mainly refers to compiler. 
+    - speculation can at least done by removing like somthing `if(AlwaysKnown){...}`.
+- p706
+  - `unroll` not only removes the overhead of checking condition in loop, but also trick the cpu to try multiple-issue, out-of-order(related with 'Scheduling') (p650)
+    ~~- because the branch delay slot is always unused ()~~
+  - [sequential programming](https://www.intel.com/content/www/us/en/docs/programmable/683546/current/sequential-programming.html) model is just what it literally means. 
 ##### reorder buffer ROB [1 https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf](../references/other_resources/COD/references/Lecture4.pdf)
 > recommend see [CAQQA](../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf) used by many courses including [this](https://papaef.github.io/hy425/2022f/) which has more extensive and intuitive infos although web and also the author says it is more difficult.
 - 1
@@ -4657,12 +4806,108 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - p7 Rj [meaning p3 (may be wrong based on following wikipedia link)](https://web.njit.edu/~sohna/cs650/lec4-2.pdf) `Rj = Yes` [means (here also says 'RAW' solve by Scoreboarding in ‘Read operands’)](https://en.wikipedia.org/wiki/Scoreboarding) 'ready for and are not yet read.'~~not avialable (see p12 vs p11)~~. ~~however,p15 load F2 means **not available**, while mul says `rj` is no which means **available** ~~
     - so cycle 1,2 `Rk=Yes`, cycle 3 `Rk=No` because has been read; cycle 6 `Rj=No` because not ready for.
 - Dynamic instruction scheduling [overlook](../references/other_resources/COD/references/HY425_L8_ReorderBuffer.pdf) https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf
+  - also known as [Superscalar](http://thebeardsage.com/multiple-issue-processors/) [1](https://en.wikipedia.org/wiki/Superscalar_processor)
   - see p5,14
 - ROB [structure p25](https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf)
   - also see [1](https://decodezp.github.io/2019/04/06/quickwords24-skylake-pipeline-8/) [2](https://github.com/drharris/cs6290-notes/blob/master/reorder-buffer.md) [video in 2](https://www.youtube.com/watch?v=0w6lXz71eJ8)
 - also see  ROB in [Apple](https://news.ycombinator.com/item?id=25163883)
 ###### diff with store buffer
-- CAQQA p230,242(relation with reorder buffer)
+- CAQQA p230,242,247(relation with reorder buffer)
+  - notice the design may be different slightly between amd and intel, also different microarchitecture.
+  - [RAT design](../references/other_resources/COD/references/xiao2013.pdf) with 'global checkpoints' for *recovery*
+  - TODO 
+    - RAT hardware design [1](https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp16/cse502/slides/08-superscalar_ooo.pdf) (this [better](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf))or more [abstract](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf)
+    - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/)
+#### chapter 5
+- p749
+  - [Stream](https://www.cs.virginia.edu/stream/ref.html) benchmark is based on 'specifically designed to work with datasets *much larger than* the available cache'
+- p758
+  - cache prediction just to prefetch whic then results in less cache miss.
+    - [hardware](https://en.wikipedia.org/wiki/Cache_prefetching#Methods_of_hardware_prefetching) 
+      - Stream buffers which is fixed size with *contiguous* locations.
+      - Strided prefetching which is at least not *contiguous* (Regular) and with variable step (Irregular) or targeted to specific subsets (Temporal)
+      - 'synergistically'
+    - [software](https://en.wikipedia.org/wiki/Cache_prefetching#Methods_of_hardware_prefetching) 
+      - here fetching is based on *cache miss penalty* where *only* make the first 'stride' are missed.
+      - only applied in ['regular'](https://en.wikipedia.org/wiki/Cache_prefetching#Comparison_of_hardware_and_software_prefetching) access.
+        - 'less CPU overhead'
+- p767
+  - [early restart](http://thebeardsage.com/cache-optimization-critical-word-first-and-early-restart/) (better see what book said)
+    - [byte-addressable/byte addressing](https://pages.cs.wisc.edu/~markhill/cs354/Fall2008/notes/addressibility.html#:~:text=The%20x86%20Intel%20architecture%20is%20also%20byte%20addressable.&text=If%20we%20have%20an%20integer,done%20by%20numbering%20the%20bits.&text=This%20is%20called%20little%20endian%20numbering%20(of%20bits).) 'the *processor* can read is in units of words'
+    - 'Critical Word First' based on 'Early Restart' ('resumes execution *before* the entire cache block is loaded') that 'This missing critical word is first fetched'.
+- p769
+  - [why do we need *reading* from memory when write-miss occurs?](https://stackoverflow.com/questions/76457048/why-do-we-need-reading-from-memory-when-write-miss-occurs)
+    - because the transfer unit (cache block size) may be bigger than what is to be written. So if write to memory one *block* (min transfer unit), the other *unwritten* bytes are also transferred. The *read* is  just to ensure other *unwritten* bytes are consistent between cache and lower memory.
+      - see p771 'may be unnecessary'.
+- p771
+  - page [diff](https://www.geeksforgeeks.org/difference-between-page-and-block-in-operating-system/) block
+  - kw: 'before we knew' so decrease miss penalty somewhat; ' cannot *overwrite*' 'a cycle to check for a hit';
+  - 'write-back buffer' is just ['victim buffer' ('dirty evicted lines')](https://en.wikipedia.org/wiki/Write_buffer)
+  - 'Assuming another miss does not occur *immediately*' to ensure the reading won't be interrupted.
+- p774
+  - here word size [('the number of bits processed by a computer's CPU')](https://stackoverflow.com/questions/19821103/what-does-it-mean-by-word-size-in-computer#comment86797295_19821177) may be not same as intel doc says because [this](https://stackoverflow.com/questions/19821103/what-does-it-mean-by-word-size-in-computer#comment86797295_19821177).
+  - [conflict miss vs capacity miss](https://stackoverflow.com/questions/33314115/whats-the-difference-between-conflict-miss-and-capacity-miss)
+    - 'conflict' because map to same block ('map to the same sets'), 'capacity' because not big enough to 'fit in that cache'.
+    - ['set skewing'](https://static.aminer.org/pdf/PDF/000/419/445/a_case_for_two_way_skewed_associative_caches.pdf), see [highlighting](../references/other_resources/COD/references/a_case_for_two_way_skewed_associative_caches.pdf)
+      - p6 here X-way -> X-bank,
+      - also see p776 [interleaving](https://en.wikipedia.org/wiki/Interleaved_memory)
+      - TODO see [math](../references/other_resources/COD/references/Skewed-associative_Caches.pdf)
+  - obviously, 'Combined cache miss rate' won't be much better than 'Split cache effective miss rate' because it only ~~avoids~~ use the very low possibility that instruction cache has the same address as data cache and with other defects.
+- p776
+  - [Burst mode](https://en.wikipedia.org/wiki/Burst_mode_(computing)), 'the total initial latency is decreased' because 'caused only *once* in burst mode'.
+  - [comparison](https://www.geeksforgeeks.org/modes-of-dma-transfer/)
+    - IO -(DMA request)> DMA -(HOLD signal)> CPU -(shares two basic information, *then* HLDACK)> DMA -(DMA ACK)> IO device
+    - Burst: CPU will be *blocked*, 'at once'
+    - Cycle Stealing Mode: when 'preparing the data', the transfer is interrupted, so slower.
+    - Interleaving Mode: 'CPU will not be blocked', lowest.
+    - TODO how 'Percentage of Time CPU remains blocked' is calculated.
+- p778
+  - write-back still use the [write buffer](https://www.quora.com/What-is-the-role-of-the-write-buffer-in-a-write-back-cache).
+- p791
+  - here only one bit used because [(TODO) state](https://stackoverflow.com/questions/23448528/how-is-an-lru-cache-implemented-in-a-cpu)
+  - TODO Radix sort
+- p799
+  - show why use column order sometimes.
+  - $2N^{3}$ is for A and B, $N^2$ for C.
+- p800
+  - TODO here sum of A and B should be $2*(\frac{n}{BLOCKSIZE})^{3}*BLOCKSIZE^2=2*\frac{n^3}{BLOCKSIZE}$, C should be $(\frac{n}{BLOCKSIZE})^{3}*BLOCKSIZE^3=n^3$
+- p801
+  - global/local miss rate are all [relative](https://stackoverflow.com/questions/34215343/is-local-miss-rate-equivalent-to-the-global-miss-rate-for-the-lowest-level-of-a)
+- p802
+  - [autotuning](https://ieeexplore.ieee.org/document/8425539)
+- p804
+  - ' The higher costs make large fully associative caches' ['because of the output multiplexer and additional comparators'('Sarah L. Harris, David Harris, in')](https://www.sciencedirect.com/topics/computer-science/set-associative-cache#:~:text=Set%20associative%20caches%20generally%20have,output%20multiplexer%20and%20additional%20comparators.)
+- p805
+  - 'Service accomplishment' just means service (e.g. disk in 'MTTF vs. AFR of Disks') work well
+  - 'Service interruption' is the opposite of above.
+- p808
+  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/)
+  - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
+    - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
+    - or book 'should always be even'.
+  - [wikipedia](https://en.wikipedia.org/wiki/Hamming_code#)
+    - TODO 
+      - 'perfect codes','Parity-check matrix ... shortened Hadamard code','Hamming distance of four','double-error detecting'
+      - 'but also which bit caused the error.'
+      - 'error syndrome'
+    - 'grew increasingly frustrated with having to restart his programs from scratch','Damn it, if the machine can detect an error, why can't it locate the position of the error and correct it?' :)
+    - [Two-out-of-five code](https://en.wikipedia.org/wiki/Hamming_code#Two-out-of-five_code)
+      - ten because $C_{2}^{5}=10$, this is high school knowledge...
+      - like parity bit, 'can detect ... all odd numbered bit-errors', also [unidirectional error](https://en.wikipedia.org/wiki/Two-out-of-five_code#)
+    - ['code rate'](https://en.wikipedia.org/wiki/Code_rate) is same as rate in [this](https://en.wikipedia.org/wiki/Hamming_code#)
+    - kw: 'flipping two or more bits','a distance of','In general','two problems at once','parity bits *overlap*','the index of the *corrupted* bit',
+    - how `[8,4]` check [2-bit error (see 'The (8,4) Extended Hamming Code')](https://www.ece.unb.ca/tervo/ece4253/hamming.shtml#:~:text=The%20(8%2C4)%20Extended%20Hamming%20Code&text=Having%20distance%20(d%3D4),parity%20check%20(P)%20passes.)
+    - block code in `[7,4] Hamming code` is just the [mapping](https://en.wikipedia.org/wiki/Block_code#The_block_code_and_its_parameters) from set 4 to set *7*.
+    - the [generator](https://en.wikipedia.org/wiki/Hamming_code#Encoding) may be better viewed with the ['This general rule'](https://en.wikipedia.org/wiki/Hamming_code#General_algorithm)
+    - TODO view more detailedly after 'Hamming codes with additional parity (SECDED)'
+      - [codeword](http://www.ee.unb.ca/cgi-bin/tervo/hamming.pl?X=+Generate+&L=7&D=4&T=0000000)
+    - here $-A^{{\text{T}}}$ in ${\mathbf  {G}}:={\begin{pmatrix}{\begin{array}{c|c}I_{k}&-A^{{\text{T}}}\\\end{array}}\end{pmatrix}}$ do not means negation because ['underlying field is 2' (here need knows basic understanding of *block matrix*), so $P+P=2P=\vec{0}$](https://en.wikipedia.org/wiki/Parity-check_matrix)
+    - TODO how 'parity-check matrix' interpreted when operated with $(\vec{x}^TG)^T$
+    - here '*minimum* distance of three' because 'with two or more 1 bits', so one *data* bit changed, then at least two or more *parity* bits changed. Then in sum, *three* or more bit in the whole bits are changed.
+      - notice: the *minimum* distance is better to be bigger to differentiate between different original code.
+    - '(3,1) repetition' can 'correct one-bit errors' mainly based on *redundancy* and 
+    - TODO 'a code with distance k can detect but not correct *k − 1* errors' doesn't apply to hamming code because it doesn't detect *double bit* errors (see [this](https://en.wikipedia.org/wiki/Hamming_code#[7,4]_Hamming_code), if $d_3,d_4$ changed, then p1 flipped once [changed] and p2,p3 flipped twice [so unchanged], then mapped to p1 self... ).
+  - the parity code is manually chosen as [odd or even](https://en.wikipedia.org/wiki/Parity_bit#Error_detection).
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -4704,6 +4949,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p233 [fixed point](https://stackoverflow.com/questions/7524838/fixed-point-vs-floating-point-number)
 ### RISC-V
 > doc [V1](../references/other_resources/RISC-V/riscv-spec-20191213.pdf),[V2](../references/other_resources/RISC-V/riscv-privileged-20211203.pdf),[greencard](../references/other_resources/RISC-V/RISCVGreenCardv8-20151013.pdf) 
+[hart: hardware thread](https://stackoverflow.com/questions/42676827/risc-v-spec-references-the-word-hart-what-does-hart-mean)
 - different format, reference [1](https://danielmangum.com/posts/risc-v-bytes-intro-instruction-formats/)
   - U-Format -> lui to load [32-bit](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) constant, see 1 'jal         ra,0x10418 <printf>'
   - SB-Format used ‘for small, local jumps.’ because of 13-bit offset, see 1
@@ -4759,9 +5005,33 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - stackoverflow [Q&A](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f?noredirect=1#comment134713199_76394605)
     - TODO [performance counters](https://relate.cs.illinois.edu/course/cs598apk-f18/f/demos/upload/perf/Using%20Performance%20Counters.html) for [retire slots ‘td_slots_retired’](https://lore.kernel.org/lkml/1462489447-31832-4-git-send-email-andi@firstfloor.org/), [metric](https://shbakram.github.io/assets/papers/honors-thesis-adi.pdf) understanding
     - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
+    - lfence is [no use](https://stackoverflow.com/questions/20316124/does-it-make-any-sense-to-use-the-lfence-instruction-on-x86-x86-64-processors) in contemporary cpu and SFENCE is less than MFENCE with `StoreLoad`.
+      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*'
+        - more [detailed](https://sites.utexas.edu/jdm4372/2018/01/01/notes-on-non-temporal-aka-streaming-stores/) which says 'Non-allocating store'
+          - 'Non-globally-ordered store': order is only needed in the processor, not always when interprocessor communication. (Same as intel doc says).
+      - [store-miss](https://stackoverflow.com/questions/18408189/cpu-cache-performance-store-misses-vs-load-misses) [policies](https://en.wikipedia.org/wiki/Cache_%28computing%29#Writing_policies)
+        - wikipedia
+          - 'Write allocate' is *usually* tied with 'write-back' ( here 'allocate' to 'cache'. )
+            - 'is done *only* to the cache,... write to the backing store is *postponed*' in 'write-back' is in conflict with 'written directly to the *backing store*'(i.e. main memory or lower memory of L1 like L2) in 'No-write allocate'
+              - notice: ['if a write hits, the cache will be *updated*'](https://www.quora.com/What-are-Write-Allocate-and-Write-No-Allocate-Cache-What-are-their-merits-and-demerits)
+            - 'write-through' is compatible with 'Write allocate'
+          - 'a read miss in a write-back cache' : implies the cache line is *full*, so need both eviction (this implies 'write...' to lower memory ) and read.
+            - 'dirty' means has been used.
+          - from this [image](https://en.wikipedia.org/wiki/File:Write-back_with_write-allocation.svg), ~~cache hit occurs when cache has *empty slot* to store data instead of it has cached store location and been dirty.~~
+            - [write-miss](https://cs.stackexchange.com/questions/133352/what-is-a-cache-write-miss) ~~may be not consistent with the image.~~
+            - see p771 'if the *tag* mismatches, then a miss occurs'
+          - 'coherency protocols' ~~see this markdown ~~ just means synchronous operation among caches.
+        - stackoverflow
+          - 'is already in the cache' means the *location* is cached, So 'store-miss' is just  the location not exists in cache.
+      - ['CLFLUSH'](https://stackoverflow.com/questions/54434006/does-clflush-instruction-flush-block-only-from-level-1-cache) is to synchronize cache 'of all cores'.
+        - intel [doc](https://www.felixcloutier.com/x86/clflush) :'that data is written back to memory.','speculative reads','speculatively loaded into a cache line'
+      - [LLC](https://en.wikichip.org/wiki/last_level_cache)
+      - 'it's only a hint, so it *doesn't force* the'
 ### Agner‘s doc
 #### microarchitecture
-- 10.8 -> 'reorder buffer and the scheduler' so scheduler is [reservation station](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f#comment134711147_76394605) [sometimes](https://www.realworldtech.com/merom/5/), also see COD FIGURE 4.74
+- 10.8 -> 'reorder buffer and the scheduler' so scheduler is [reservation station](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f#comment134711147_76394605) [sometimes](https://www.realworldtech.com/merom/5/), also see COD FIGURE 4.74 ,[link 1 in above link's comment](https://stackoverflow.com/questions/51986046/understanding-the-impact-of-lfence-on-a-loop-with-two-long-dependency-chains-fo)
+  - here 'RS can't fully overlap both dep chains' -> link 1 'as the two dep chains are *120 uops* long (vs. a RS size of 97).'
+  - 'micro-fusion doesn't apply to the RS' -> ~~TODO maybe 'micro-fusion' occupys one RS entry.~~ 'They both only take *one* ROB entry for a micro-fused uop'
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)

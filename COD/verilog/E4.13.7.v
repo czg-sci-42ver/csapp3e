@@ -68,6 +68,7 @@ module RISCVCPU (
   TODO : 
   1. see p1402,1428: `PCWriteCond` should be dependent on ALU output 
   1.1 modify PCWrite and PCWriteCond
+  above can based on p678,686 figure
   */
   assign PCWrite = (state == 1);
   assign PCWriteCond = (state == 3) && (opcode == BEQ);

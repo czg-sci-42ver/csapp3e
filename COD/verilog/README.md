@@ -1,6 +1,7 @@
 #### TODO
 - use [qverilog](https://tenthousandfailures.com/blog/2014/6/8/display-monitor-and-strobe-in-systemverilog#:~:text=The%20Difference%20Between%20Strobe%20and%20Display&text=The%20operand%20%24display%20works%20just,executes%20once%20per%20time%20unit.) in questasim, maybe [this](https://wiki.archlinux.org/title/Intel_Quartus_Prime)
 - learn systemverilog with `always_ff`,etc
+  - also [see mit 6.175 Bluespec](http://csg.csail.mit.edu/6.175/resources.html)
 - [Verilator](https://www.embecosm.com/appnotes/ean6/embecosm-or1k-verilator-tutorial-ean6-issue-1.html)
 - `PULLUP` in verilog same as meaning in circuits?
 - [monitor array](https://www.edaplayground.com/x/2527) like memory conveniently in Systemverilog

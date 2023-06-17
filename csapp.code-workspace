@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "../../../../../home/czg/radare2"
+		},
+		{
+			"path": "../../../../../home/czg/.local/share/fcitx5/rime"
 		}
 	],
 	"settings": {}
