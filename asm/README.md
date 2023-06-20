@@ -492,6 +492,8 @@ pwndbg> stack
 - [this](https://godbolt.org/z/BzhckE)
 # blogs
 - [this](http://pwnable.kr/) from [this](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
+## kernel
+- [Parallel Programming](https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html)
 ## personal
 ### OI
 - [1](https://blog.baoshuo.ren/post/oi/)
@@ -4548,7 +4550,7 @@ B[k][j] B[k][j] ...
         - should use '$2^{12}$ cache *sets*' instead of '$2^{12}$ cache *lines*'
   - [Microcode 'translates machine instructions, state machine data'](https://en.wikipedia.org/wiki/Microcode)
   - memory order [buffer](https://en.wikipedia.org/wiki/Memory_ordering)
-    > one valuable doc about [RCsc ordering ‘Release Consistency sequentially consistent’](https://developer.arm.com/documentation/102336/0100/Load-Acquire-and-Store-Release-instructions)
+    > one valuable doc about [RCsc ordering ‘Release Consistency sequentially consistent’](https://developer.arm.com/documentation/102336/0100/Load-Acquire-and-Store-Release-instructions) <a id="Load-Acquire"></a>
     - 'A safe reordering' to address 'problem of address aliasing' by using local variable which is also said in csapp. Also applies to $f(*a)$ which may change $*b$
     - contains load buffer, Store Address Buffer (SAB) and Store Data Buffer (SDB) [p5](../references/other_resources/COD/references/1903.00446.pdf)
     - recommend this [blog](http://gavinchou.github.io/summary/c++/memory-ordering/) which says all and more like `compare_exchange_strong` about Memory Order.
@@ -4561,6 +4563,15 @@ B[k][j] B[k][j] ...
     - why use [weak](https://stackoverflow.com/questions/58870009/why-do-weak-memory-models-exist-and-how-is-their-instruction-order-selected) memory model ’big advantage‘
     - [detailed](https://preshing.com/20120930/weak-vs-strong-memory-models/) where says ' a little disagreement over this question'(i.e. ~~definition ~~ classification of strong memory model)
       - [loadload](https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/) is just means *load after load* can't be reordered. [related](https://preshing.com/20120913/acquire-and-release-semantics/) with acquire,etc
+        - notice: [Acquire](https://stackoverflow.com/questions/24565540/how-to-understand-acquire-and-release-semantics) means the instruction can *acquire* what is done before. Similarly, Release means *release* what is done, so instruction after can get the result.
+        - why StoreLoad 'is often a more *expensive* memory barrier type', maybe other are [redundant](https://stackoverflow.com/questions/27475025/why-is-a-store-load-barrier-considered-expensive#comment71586035_27477887) because *hardware* has ensured. Also [see](https://stackoverflow.com/questions/64131951/why-is-storeload-more-expensive-than-other-barrier-types/76506593#76506593)
+        - also [see arm doc](#Load-Acquire), here 'Load-Acquire' is not just one barrier but also function as *load*, see original [definition](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming?redirectedfrom=MSDN#read-acquire-and-write-release-barriers) (which is referenced in the parent link) in c++
+          > When your code **acquires ownership** of some memory, either by acquiring a lock or by pulling an item off of a shared linked list (without a lock), there is **always a read involved**
+
+          > When ownership of some memory is *released*, either by releasing a lock or by pushing an item on to a shared linked list, there is always a write involved which *notifies* other threads that the memory is now available to them.
+
+          - So, *acquire* implies the load *first*, so LoadLoad or LoadStore. release is the same way.
+          - above definition also explains the above arm doc link. 
   - [dual port](https://en.wikipedia.org/wiki/Alpha_21264#Primary_caches) using 'both the rising and falling edges'
   - [inclusive](https://en.wikipedia.org/wiki/Cache_inclusion_policy) cache ’inclusive of the higher level cache‘, so here is relative with main memory
   - uncore(i.e. not in cpu) [arbiter](https://en.wikipedia.org/wiki/Arbiter_(electronics))
@@ -4709,7 +4720,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - it needs add 'reset' to 'synthesize' the 'Initial statements',
   - reset `R0` by influencing read and write of register instead of assigning register value every clock.
 - p675
-  - here 'fold' means 'translate' instead of 'transform'. So the control line implementation in 'FIGURE E4.13.7' is just Mealy-style, not Moore-style.
+  - here 'fold' means 'translate' instead of 'transform'. So the control line implementation in 'FIGURE E4.13.7' is just Mealy-style, not [Moore-style](https://en.wikipedia.org/wiki/Moore_machine).
 - p676
   - [single-clock-cycle and multiple-clock-cycle](https://www.geeksforgeeks.org/differences-between-single-cycle-and-multiple-cycle-datapath/) where they mainly differs in *CPI*
     - see [this](http://ece-research.unm.edu/jimp/611/slides/chap3_6.html) better
@@ -4865,6 +4876,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - write-back still use the [write buffer](https://www.quora.com/What-is-the-role-of-the-write-buffer-in-a-write-back-cache).
 - p791
   - here only one bit used because [(TODO) state](https://stackoverflow.com/questions/23448528/how-is-an-lru-cache-implemented-in-a-cpu)
+    - LRU see p831 [also](#reference_bit)
   - TODO Radix sort
 - p799
   - show why use column order sometimes.
@@ -4880,6 +4892,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p805
   - 'Service accomplishment' just means service (e.g. disk in 'MTTF vs. AFR of Disks') work well
   - 'Service interruption' is the opposite of above.
+  - See this [image](https://www.researchgate.net/figure/A-schematic-diagram-of-MTTF-MTTR-and-MTBF_fig5_334205633)
 - p808
   - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/)
   - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
@@ -4908,6 +4921,140 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - '(3,1) repetition' can 'correct one-bit errors' mainly based on *redundancy* and 
     - TODO 'a code with distance k can detect but not correct *k − 1* errors' doesn't apply to hamming code because it doesn't detect *double bit* errors (see [this](https://en.wikipedia.org/wiki/Hamming_code#[7,4]_Hamming_code), if $d_3,d_4$ changed, then p1 flipped once [changed] and p2,p3 flipped twice [so unchanged], then mapped to p1 self... ).
   - the parity code is manually chosen as [odd or even](https://en.wikipedia.org/wiki/Parity_bit#Error_detection).
+- p812
+  - [chipkill](https://en.wikipedia.org/wiki/Chipkill) 
+    - 1. 'across multiple memory *chips*', 'another, *spare*, memory chip'
+      - notice this is based on the assumption that much higher possibility exists with 1-bit error than 2-bit, so '*reconstructed* despite the complete failure of one chip' (here one chip may only has one-bit error.)
+    - TODO [BCH](https://www.ece.unb.ca/tervo/ece4253/bch.shtml),bit-steering
+    - [RAS](https://en.wikipedia.org/wiki/Reliability,_availability_and_serviceability),
+    - TODO 
+      - [Reliability](https://www.bmc.com/blogs/system-reliability-availability-calculations/) is related with probability 'which depends on the *failure rate*'
+    - ~~how 'Lockstep memory' and 'DDDC',~~ ['ADDDC'](https://www.intel.com/content/www/us/en/developer/articles/technical/new-reliability-availability-and-serviceability-ras-features-in-the-intel-xeon-processor.html) implemented.
+      - maybe see this [whitepaper p8](https://dl.dell.com/content/manual9740166-poweredge-yx4x-server-memory-ras-whitepaper.pdf?language=en-us) which may be referenced by [this](https://community.intel.com/t5/Processors/Intel-Xeon-Gold-ADDDC-Memory-RAS-Feature-Clarification/td-p/1210819)
+        - Adaptive because 'failing DRAM bank is *dynamically* mapped out'
+      - TODO [virtual lockstep](http://support-it.huawei.com/docs/zh-cn/typical-scenarios-1/server-knowledgebase/zh-cn_topic_0000001108467806.html)
+        - here lockstep which use ['redundancy (duplication)'](https://en.wikipedia.org/wiki/Lockstep_(computing)) originates from [army](https://en.wikipedia.org/wiki/Lockstep#:~:text=Originally%20it%20was%20used%20in,prisons%20of%20the%2019th%20century.) (lock the *step*s of soldiers) usage (i.e. *synchronize*)
+    - po here book should be 'DDDC' instead of 'SDDC'
+  - [burst error](https://en.wikipedia.org/wiki/Burst_error-correcting_code) which 'may be due to physical damage such as scratch on a disc' so that 'occur in many *consecutive* bits'
+    - TODO 'cyclic'
+  - TODO [Non-cyclic Codes](https://math.stackexchange.com/questions/3141351/non-cyclic-codes)
+  - [Modulo 2 Arithmetic](https://www.csus.edu/indiv/p/pangj/166/f/d8/5_Modulo%202%20Arithmetic.pdf) ('coefficients of a polynomial' p1)which is used as division in CRC, which can be seen [here p2](https://cs.newpaltz.edu/~easwarac/CN/Module7/CRC2.pdf)
+  - TODO opposite of Galois fields
+  - [Reed-Solomon code](https://www.cs.cmu.edu/~guyb/realworld/reedsolomon/reed_solomon_codes.html#:~:text=Reed%2DSolomon%20codes%20are%20block,%2C%20DVD%2C%20barcodes%2C%20etc))
+    - [Linear Block Code](https://electronicsdesk.com/linear-block-code.html)
+    - TODO why '*2s* redundant symbols' although it can truly correct errors ('determine the 4 polynomial coefficients')
+    - TODO 'Berlekamp-Massey *algorithm*'
+- p815
+  - overhead is determined by 1. whether 'OS-intensive' 2. 'ISA' emulation overhead.
+  - TODO [Orthogonal Architecture](https://info.support.huawei.com/info-finder/encyclopedia/en/Orthogonal+Architecture.html), 
+  - how 'allows the VM to execute *directly* on the hardware'.[see](https://embeddedinn.xyz/articles/tutorial/exploring_virtualization_in_riscv_machines/). Maybe mainly because other ISA not allow *trap* with some instructions, see [p22](../references/other_resources/RISC-V/EECS-2016-1.pdf)
+  - why x86 not '*classical* virtualization',[see 'the inability to trap on some privileged'](https://en.wikipedia.org/wiki/Hardware-assisted_virtualization)
+- p825
+  - [Difference](https://www.geeksforgeeks.org/difference-between-paging-and-segmentation/) Between Paging and Segmentation
+    - 1. '*compiler* is accountable' 2.[external](https://www.geeksforgeeks.org/difference-between-internal-and-external-fragmentation/) fragmentation ...
+    - 'two-part address'. From above first link, the page is just one step from virtual memory to physical memory. While in segmentation, it first use S.no ( segment number ) to find one entry in segment table and then get the limit and *base*, then use them to search in physical memory.(this is second step)
+  - ['page table register'](https://www.intel.com/content/www/us/en/docs/programmable/683620/current/the-pteaddr-register.html)
+- p831
+  - here mainly complex object is 'data structure' (i.e. [sorted data structures](https://dl.acm.org/doi/fullHtml/10.1145/3472456.3472514))
+- p833
+  - [*inverted* page table](https://www.geeksforgeeks.org/inverted-page-table-in-operating-system/) because it targets at physical pages instead of virtual memory. Also [see](https://www.geeksforgeeks.org/difference-between-page-table-and-inverted-page-table/)
+- p835 <a id="reference_bit"></a>
+  - reference bit is used with *counter* which either store [interval](https://courses.cs.washington.edu/courses/cse451/99wi/Lectures/8-vm/tsld014.htm) or last [access time p30~33](https://sites.cs.ucsb.edu/~chris/teaching/cs170/doc/cs170-08.pdf) (p15: R and M Bits, which also has 'Inverted Page Table';p7: structure; p5:MMU; p18:FIFO, i.e. based on time instead of frequency; p23 use *matrix* with LRU; p25 use counter to calculate *reference counts*; p27: 'it can be *preloaded*' (working set) ; p30: 'Use execution time instead of *references* '(i.e. reference counts); TODO read after p33.)
+- p844
+  - pipeline refers to ['fetching pipeline'](https://stackoverflow.com/questions/49752651/is-tlb-used-at-all-in-the-instruction-fetching-pipeline)
+- p847
+  - no alias problem because 'really a physical address since it is *not translated*' (offset not translated)
+- p848
+  - the third 'go from user mode to supervisor mode' is definitely [not included](https://pages.uoregon.edu/stevev/cis399/notes/osvm.html) in virtual machines.
+- p850
+  - here cache needs clear because of *protection*
+- p851
+  - here mainly because of 'restart' which may *load* a different memory address if `x10` has been *overwrited*. see p853,854('continued midstream')
+- p852
+  - here exception should not be interrupting, otherwise will overwrite *SEPC*,etc.
+- p854
+  - shadow page table
+    - [p6,8 with MPN,etc](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) more directly [p29 with MPN,etc definition](https://www.doc.ic.ac.uk/~etheresk/etheresk-211-vms.pdf)
+      - here SPT is [shadow (beacuse *skip* one media) page table](https://sites.google.com/site/masumzh/articles/hypervisor-based-virtualization/memory-virtualization)
+  - [CR3 -> PDBR](https://en.wikipedia.org/wiki/Control_register#CR3)
+  - [indirection 'accessing a variable through the use of a *pointer*'](https://en.wikipedia.org/wiki/Indirection)
+  - po 'real pages' should refer to above ~~MPN~~ PPN, see p855 ('virtual memory, *physical memory*, and machine memory')
+  - virtualizing the *instruction set* is '*inefficiency* in managing exceptions'
+- p856
+  - 'simplifying memory allocation' because ['illusion that it possesses the entire address space'](https://medium.com/@mahmoudabdalghany/virtual-memory-b2c77308c9fd). So po no need to worry about the memory size because this is done by OS via virtual memory.
+  - principle is locality and policy is related with write (i.e. write-back or write-through). 
+  - working set [also](#reference_bit)
+  - how [counting sort](https://en.wikipedia.org/wiki/Counting_sort) sort? mainly by $count[i] = count[i] + count[i - 1]$
+  - why radix sort -> TLB miss, see [this](../references/other_resources/COD/references/rahman2001.pdf), 1. p3, 'working set' because each sort will be through the whole number list. 
+    - TODO 1. explicit block transfer. p11 2. how PRE-SORTING help, p12 3. p9 *Reducing* working set size
+- p869
+  - [next-state function and output function](https://inst.eecs.berkeley.edu/~cs61c/fa06/labs/10/PH-B10.pdf), also see p1240
+  - see p1413, the PLA and the ROM implementation is similar based on *mapping*.
+- p872
+  - split into two pieces -> two side of the square
+  - 'For example' :  Mealy machine can differentiate 'two sequences of states' by input instead of the states themselves.
+  - 'Note that a write hit also sets the valid bit and the tag field': here whether write hit 'needs to change the valid and tag fields' is based on what *type* write hit is. If it is ['when there is *sufficient room* in cache to store a requested write IO'](https://www.dell.com/community/Symmetrix/Understand-the-Write-Hit-and-Write-Miss-in-Symmetrix/td-p/7063670) (i.e. write one new address), then obviously needs. Otherwise, no needs if just update data stored in [already existing address in cache](https://gateoverflow.in/147397/what-is-the-write-miss-and-write-hit). 
+  - the tag and cache index [p48](https://www.cs.fsu.edu/~zwang/files/cda3101/Fall2017/Lecture11_cda3101.pdf)
+- p876
+  - here, 'A memory system is coherent if' 1. based on one processor which is obvious. 2. update different process cache line after one processor's write. 3. how write reorders is same to all processors.
+    - 1 and 2 is RAW, 3 is WAW which may be followed by some read (so also RAW, see ' some processor could see the write of P2 *first*,...,*maintaining* the value written by P1 indefinitely').
+  - TODO single-processor systems
+- p877
+  - 'transparent fashion' means the processor has illusion that the data is from memory.
+  - 'This is a *benefit* of caching we have in single-processor systems as well.' although 'single-processor' won't have a *shared data* since it has no processor to share.
+    - it is to say the benefit of *cache*.
+  - [MESI](https://en.wikipedia.org/wiki/MESI_protocol)
+    - ~~TODO Table 1.2: Transition to Invalid.~~ [BusRdX p22, recommend this slide](https://ee.usc.edu/~redekopp/ee457/slides/EE457Unit10_Coherence.pdf) which also says 'PrRd/-' meaning in wikipedia State diagram.
+    - Modified(M)	BusRd -> which writes to Main memory. This is to avoid too frequent 'snoop (intercept)'. Also, 'protocol ensures that Modified cannot exist if any other cache can perform a read hit' (i.e. avoid too many *read miss* because of noncoherent cache .)
+    - Better to read [this MSI](https://en.wikipedia.org/wiki/MSI_protocol) first
+    - [Invalidate Queues](https://stackoverflow.com/questions/51264290/memory-barriers-a-hardware-view-for-software-hackers-invalidate-queues) which is just the Invalidate in *BusRdX*
+    - [read barrier](https://stackoverflow.com/questions/1787450/how-do-i-understand-read-memory-barriers-and-volatile) 'will flush the invalidation queue' because the 'Invalidate' is always from Write which will be followed by write (which also implies read from memory) and read and read barrier 'control the order of reads'.
+    - MESI's [advantage](https://en.wikipedia.org/wiki/MESI_protocol#Advantages_of_MESI_over_MSI) of 'exclusive' is no need of 'BusUpgr' when [WAR](https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Write_after_read_(WAR))
+      - kw: 'As only one processor works on a piece of data, all the accesses will be exclusive', 'are both representable with 2 bits.'
+      - [comparison](https://en.wikipedia.org/wiki/MESI_protocol#Disadvantage_of_MESI)
+        - Forward (F): ' specialized form of the *S state*','designated responder for any requests', So can exist with other S and I cache.
+        - Owned: to avoid frequent flush and allow dirty state. See ['allows dirty sharing of data'](https://en.wikipedia.org/wiki/MOESI_protocol). 'writing the modifications back to main memory.' -> Write hit.
+          - see [this](https://en.wikipedia.org/wiki/MESI_protocol#cite_note-8) in amd [doc](../references/AMD/amd64.pdf)
+            - [Probe Read Miss p37](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture20.pdf), also see 'the term probe is used to refer to *external* probes' p645 in amd doc
+  - 'switch access' may refer to change *state*.
+  - centralized in 'centralized state' is similar to 'addressed as a single *shared* address space' in [this](https://en.wikipedia.org/wiki/Distributed_shared_memory)
+- p878
+  - [False Sharing](https://haryachyy.wordpress.com/2018/06/19/learning-dpdk-avoid-false-sharing/) caused by *redundant* invalidation of cache block can be partly solved by alignment. [Also](https://www.codeproject.com/Articles/85356/Avoiding-and-Identifying-False-Sharing-Among-Threa)
+- p879
+  - [memory consistency model](https://www.cs.utexas.edu/~bornholt/post/memory-models.html) defines the memory *order*.
+    - [off-by-one errors](https://en.wikipedia.org/wiki/Off-by-one_error)
+    - '00' will cause one weird loop, so impossible.
+    - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'FIFO queue.'; two Requirements; 'the price of *slowing down* the processors'](https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf)
+      - this also forbids the OoO (see 'in the order specified by its program')
+      - this is just opposite of pipeline. See COD before.
+      - 'appear in this sequence inthe order specified by its program.' -> 'write does not complete...' in COD' & ' does not change the *order* of any write'
+      - [examples](https://spcl.inf.ethz.ch/Teaching/2017-dphpc/assignments/sequential_consistency_sol.pdf)
+      - also see ['*appears* to run sequentially.'](https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/armv8-sequential-consistency)
+  - [I/O Coherence](https://phdbreak99.github.io/blog/arch/2020-05-18-io-coherence/)
+  - ['directory-based cache coherence protocol'](https://en.wikipedia.org/wiki/Directory-based_coherence) has 'implementation overhead' because the *directory* and 'reduce traffic between caches' because directory function to send data.
+- p880
+  - Based on MESI, after the second step, both caches transition to *Shared*. With *PrWr*, A -> *Modified*, then with *BusRd* , A->Shared and then *write-back* (i.e. 'Memory Controller, which writes to *Main memory*.')
+    - notice ~~the book use~~ both MSI and MESI only flush when receiving BusRd(x) with modified state. So ' the second miss by B' should be the fourth step which 'occurs when a block becomes shared' from *Modified*.
+- p885
+  - [see](https://en.wikipedia.org/wiki/Standard_RAID_levels) 
+    - [byte level](https://bit-tech.net/reviews/tech/understanding_raid/2/) 
+    - see RAID 6 [P,Q](https://en.wikipedia.org/wiki/Standard_RAID_levels#General_parity_system)
+    - [TODO](https://en.wikipedia.org/wiki/Standard_RAID_levels#Comparison)
+- p886
+  - RAID 2: 'all hard disk drives implementing internal error correction' like [Reed-Solomon](https://datarecovery.com/rd/what-are-hard-drive-error-correction-codes-eccs/) , so 'external Hamming code' is redundant -> 'not currently used'.
+  - TODO RAID 3 Bit-Interleaved Parity [difference](https://gursimrandhillon.files.wordpress.com/2013/09/raid-notes.pdf) with RAID 4
+  - RAID 4 is better because it 'allowing independent accesses' while RAID 3 is based on 'byte-level striping' and 'because any single block of data will, by definition, be *spread across* all members of the set'. So RAID 3 is not independent .
+    - In short, RAID 4 can manipulate multiple requests because they normally are stored at different disks (i.e. 'as long as the *minimum access* is *one* sector.'). While RAID 3 can't because every data spread across these disks.
+      - Write is *similarly* benefited. And it can use *shortcut* to reduce disk access *number*.
+- p889
+  - maybe [not efficient 'RAID levels 2, 3, and 4 are *theoretically* defined but not used in practice.'](https://www.raid-calculator.com/raid-types-reference.aspx)
+  - based on shortcut, 'multiple writes to occur *simultaneously*'
+- p891
+  - RAID reliability calculated by [markov chain](https://www.bqr.com/resources2/white-papers-articles/how-to-calculate-raid-reliability/#:~:text=RAID%20reliability%20depends%20on%20the,than%2010%20HDDs\)%20are%20recommended.), also see above RAS.
+- p892
+  - RAID 01 [vs](https://www.thegeekstuff.com/2011/10/raid10-vs-raid01/) RAID 10
+    - TODO see physical layout and how error tolerant.
+    - 10: 1(mirror) -> 0(stripe) 'stripe of mirrors'.
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -5055,6 +5202,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - ~~TODO~~ [diff wire and reg](https://inst.eecs.berkeley.edu/~cs150/Documents/Nets.pdf)
   - [assign](https://www.chipverify.com/verilog/verilog-assign-statement) just to ensure right-hand value is 'constant'.
   - [Combinational and Sequential Circuits](https://www.geeksforgeeks.org/combinational-and-sequential-circuits/), here Sequential means somewhat *stateful* (related with state machine) instead of stateless.
+    - here Sequential Circuits is also ['Sequential logic'](https://en.wikipedia.org/wiki/Sequential_logic)
     - ‘controlled by a clock transition are flip-flops’, so it does not permit delay. [see](#always_comb)
   - [always@ block =](https://www.chipverify.com/verilog/verilog-always-block) needs *delay* to avoid infinite loop *hang*
     - output reg -> 'reg elements can be used as *outputs within* an actual module'
