@@ -5,10 +5,6 @@
 - [Verilator](https://www.embecosm.com/appnotes/ean6/embecosm-or1k-verilator-tutorial-ean6-issue-1.html)
 - `PULLUP` in verilog same as meaning in circuits?
 - [monitor array](https://www.edaplayground.com/x/2527) like memory conveniently in Systemverilog
-- how to [dump memory](https://stackoverflow.com/questions/20317820/icarus-verilog-dump-memory-array-dumpvars), at least to dump [element](https://sourceforge.net/p/iverilog/bugs/829/) of memory
-  - how to run this [EDA playground](https://www.edaplayground.com/s/4/520)
-  - workaround: just use some wire to view in simulator like gtkwave...
-    - or [write](https://stackoverflow.com/questions/75926901/dumping-a-2d-register-array-into-a-text-file) to file
 - try using [struct](https://stackoverflow.com/questions/25396647/understanding-function-return-values) as return of function
 ## blog
 ### verilog
@@ -19,6 +15,9 @@
 - [xilinx](https://docs.xilinx.com/r/en-US/ug901-vivado-synthesis/Verilog-Macros)
 - basic [doc](https://verilogams.com/quickref/basics.html)
 - TODO try [online](https://www.edaplayground.com/x/5gGE)
+- [verilogguide](https://verilogguide.readthedocs.io/en/latest/verilog/package.html)
+### SV
+- [verificationguide](https://verificationguide.com/systemverilog/systemverilog-struct/)
 ## verilog
 - [generate](https://www.chipverify.com/verilog/verilog-generate-block) ~~used to init *hardware* based on parameter po. (no influence to vvp program running)~~ usde to initiate multiple *modules*
 - display [based on change](https://stackoverflow.com/a/33653849/21294350), similar to monitor.
@@ -37,25 +36,35 @@
 - init array with [for loop](https://stackoverflow.com/questions/29053120/initializing-arrays-in-verilog), maybe unable to directly `= {...}`
   - 'Assignment to an entire array or to an array slice requires SystemVerilog' -> TODO try in SystemVerilog
 - [multiple return](http://www.yang.world/podongii_X2/html/TECHNOTE/TOOL/MANUAL/15i_doc/fndtn/ver/ver5_2.htm)
+- set timer to [stop](https://stackoverflow.com/questions/73912085/is-there-a-way-to-stop-a-simulation-after-a-set-amount-of-time)
 ### error debug
 - `Elaboration task '$display' requires SystemVerilog.`: `display` needs to be something like `module`, many other variable also same. Similar to what [this](https://stackoverflow.com/questions/23272054/prevent-systemverilog-compilation-if-certain-macro-isnt-set) say 'The $display still needs to be inside an always block'
 - [`Port declarations without direction error`](https://stackoverflow.com/questions/23037206/port-declarations-without-direction-error), `input a,b` only valid if `a,b` are same size.(i.e. `input a,[4:0]b` is wrong)
 - `sd0/sd11`,etc mainly results from variable syntax error. TODO see iverilog source code.
 - show weird `zz` maybe: 1. didn't initiate the value at all. 2. [race condition](https://stackoverflow.com/questions/69511094/why-are-the-bits-in-this-verilog-wire-assigned-as-z)
 ### notice
-- use `initial begin`,etc to use `for`,etc syntax.
+- use `initial begin`,etc to [use `for`](https://verificationguide.com/systemverilog/systemverilog-for-loop/),etc syntax.
   - always based on *block* code.
+- not to use parameter as [temporary variable](https://www.chipverify.com/verilog/verilog-parameters). Just use `int`,etc to function as temporary variable.
 ## systemverilog see [SV doc](../../references/other_resources/COD/verilog/SystemVerilog/ieee-standard-for-systemverilogunified-hardware-design-specifica_2017.pdf)
 - [%p](https://stackoverflow.com/questions/24527093/printing-packed-structs-in-system-verilog)
 - [(Un)Packed array](https://verificationguide.com/systemverilog/systemverilog-packed-and-unpacked-array/) and [struct similarly](https://www.chipverify.com/systemverilog/systemverilog-structure)
 - `always_ff` see SV doc p208
   - latched logic is ['Gated D Latch'](https://www.geeksforgeeks.org/latches-in-digital-logic/)
-  - `ff` is always based on clk, so is sequential. While `comb` is based on nothing
+  - `ff` is ~~always based on clk, so is sequential. While `comb` is based on nothing~~ flip flops, it use register to save old state, so is sequential. See [this p2~4](https://courses.csail.mit.edu/6.111/f2007/handouts/L06.pdf) (the p4 circuit implies the non-blocking ($<=$).)
+    - and `comb` has no history state, see above link p5.
+    - `comb` run when ['changes within the contents of a function'](https://www.verilogpro.com/systemverilog-always_comb-always_ff/) also see SV doc p208
+      - [event control](https://www.javatpoint.com/verilog-timing-control#:~:text=time%20are%20executed.-,Event%20Control,and%20is%20an%20implicit%20event.)`@`(SV p354) [also](https://verificationguide.com/systemverilog/systemverilog-events/)
+    - also [not use 'assign'](https://stackoverflow.com/questions/61851332/when-shall-i-use-the-keyword-assign-in-systemverilog) because it will 'destroy' the circuit making it not sequential (assign is just use *wire* connect)
   - see difference between module and always block in this circuit [view](https://www.chipverify.com/verilog/verilog-modules)
 ### verilator / iverilog
 - using [verilator](https://verilator.org/guide/latest/example_binary.html) which ~~support systemverilog better than~~ [iverilog](https://stackoverflow.com/questions/43595585/systemverilog-support-of-icarus-iverilog-compiler)
   - also [see](https://itsembedded.com/dhd/verilator_1/) and [choices](https://electronics.stackexchange.com/questions/461415/are-there-any-free-simulators-for-systemverilog)
   - verilator has lint when compiling while iverilog not.
+- ~~how to [dump memory](https://stackoverflow.com/questions/20317820/icarus-verilog-dump-memory-array-dumpvars), at least to dump [element](https://sourceforge.net/p/iverilog/bugs/829/) of memory~~ just use '--trace' in verilator
+  - workaround: just use some wire to view in simulator like gtkwave...
+    - or [write](https://stackoverflow.com/questions/75926901/dumping-a-2d-register-array-into-a-text-file) to file
+  - better use [three](https://people.cs.georgetown.edu/~squier/Teaching/HardwareFundamentals/LC3-trunk/docs/verilog/VerilogShortTutorial-Cantrell.pdf) things `dumpflush`...
 #### verilator debug
 - 1
 ```bash

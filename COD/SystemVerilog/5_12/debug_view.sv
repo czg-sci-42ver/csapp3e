@@ -3,11 +3,12 @@ module view_var (
     input cpu_req_type cpu_req,
     input cache_req_type tag_req,
     input cache_tag_type tag_read,
+    input cache_tag_type tag_write,
     output wire [TAGMSB-TAGLSB:0] cpu_req_tag
 );
   wire rw, we, cpu_req_valid,tag_read_valid;
   wire [9:0] index;
-  wire [TAGMSB : TAGLSB] tag_write_tag, [TAGMSB : TAGLSB] tag_read_tag;
+  wire [TAGMSB : TAGLSB] tag_write_tag, tag_read_tag;
   wire [31:0] cpu_req_data;
 
   always @(cpu_req_tag != tag_read_tag) begin
