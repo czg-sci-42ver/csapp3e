@@ -5055,6 +5055,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - RAID 01 [vs](https://www.thegeekstuff.com/2011/10/raid10-vs-raid01/) RAID 10
     - TODO see physical layout and how error tolerant.
     - 10: 1(mirror) -> 0(stripe) 'stripe of mirrors'.
+- p902
+  - see 
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.

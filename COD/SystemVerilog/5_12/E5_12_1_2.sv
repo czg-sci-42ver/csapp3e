@@ -1,10 +1,10 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 package cache_def;
   // data structures for cache tag &data
   parameter int TAGMSB = 31;  //tag msb
   parameter int TAGLSB = 14;  //tag lsb
   
-  // timeunit 1ns; timeprecision 1ps;
+  // timeunit 1ns; timeprecision 1ns;
 
   //data structure for cache tag
   typedef struct packed {

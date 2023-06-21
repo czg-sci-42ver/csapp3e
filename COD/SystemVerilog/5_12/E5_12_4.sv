@@ -9,7 +9,7 @@ module dm_cache_data (
     input cache_data_type data_write,  //write port (128-bit line)
     output cache_data_type data_read
 );  //read port
-  timeunit 1ns; timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ns;
   cache_data_type data_mem[0 : 1023];
   initial begin
     for (int i = 0; i < 1024; i++) data_mem[i] = '0;
@@ -26,12 +26,15 @@ module dm_cache_tag (
     input cache_tag_type tag_write,  //write port
     output cache_tag_type tag_read
 );  //read port
-  timeunit 1ns; timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ns;
   cache_tag_type tag_mem[0:1023];
   initial begin
     for (int i = 0; i < 1024; i++) tag_mem[i] = '0;
   end
   assign tag_read = tag_mem[tag_req.index];
+  always @(tag_read) begin
+    $display("tag_read: %0b", tag_read);
+  end
   always_ff @(posedge (clk)) begin
     /*not check valid when write*/
     if (tag_req.we) tag_mem[tag_req.index] <= tag_write;

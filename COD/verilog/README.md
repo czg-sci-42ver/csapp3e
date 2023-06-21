@@ -42,11 +42,16 @@
 - [`Port declarations without direction error`](https://stackoverflow.com/questions/23037206/port-declarations-without-direction-error), `input a,b` only valid if `a,b` are same size.(i.e. `input a,[4:0]b` is wrong)
 - `sd0/sd11`,etc mainly results from variable syntax error. TODO see iverilog source code.
 - show weird `zz` maybe: 1. didn't initiate the value at all. 2. [race condition](https://stackoverflow.com/questions/69511094/why-are-the-bits-in-this-verilog-wire-assigned-as-z)
+### notice
+- use `initial begin`,etc to use `for`,etc syntax.
+  - always based on *block* code.
 ## systemverilog see [SV doc](../../references/other_resources/COD/verilog/SystemVerilog/ieee-standard-for-systemverilogunified-hardware-design-specifica_2017.pdf)
 - [%p](https://stackoverflow.com/questions/24527093/printing-packed-structs-in-system-verilog)
 - [(Un)Packed array](https://verificationguide.com/systemverilog/systemverilog-packed-and-unpacked-array/) and [struct similarly](https://www.chipverify.com/systemverilog/systemverilog-structure)
 - `always_ff` see SV doc p208
   - latched logic is ['Gated D Latch'](https://www.geeksforgeeks.org/latches-in-digital-logic/)
+  - `ff` is always based on clk, so is sequential. While `comb` is based on nothing
+  - see difference between module and always block in this circuit [view](https://www.chipverify.com/verilog/verilog-modules)
 ### verilator / iverilog
 - using [verilator](https://verilator.org/guide/latest/example_binary.html) which ~~support systemverilog better than~~ [iverilog](https://stackoverflow.com/questions/43595585/systemverilog-support-of-icarus-iverilog-compiler)
   - also [see](https://itsembedded.com/dhd/verilator_1/) and [choices](https://electronics.stackexchange.com/questions/461415/are-there-any-free-simulators-for-systemverilog)
@@ -74,3 +79,16 @@ make: Leaving directory '/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12/E5_
 ```
 #### iverilog
 - with `sorry: Unpacked structs not supported.`, just use `typedef struct packed {`
+##### debug
+- 1
+```bash
+$ cat E5_12_5_8.sv
+    tag_write = '{0, 0, 0};
+$ num=5_8;iverilog E5_12_$num.sv -g2012 -o E5_12_$num.o
+E5_12_5_8.sv:56: sorry: I do not know how to elaborate assignment patterns using old method.
+E5_12_5_8.sv:56:      : Expression is: '{'d0, 'd0}
+```
+- 'constant selects in always_* processes are not currently supported (all bits will be included)'; [`casez`](https://stackoverflow.com/questions/71837597/error-message-sorry-constant-selects-in-always-processes-are-not-currently-s) no use
+## COD code
+### 12_5_8
+- idle -(assume cpu_req.valid=1)> compare_tag -> allocate -(ass mem_data.ready=1)> compare_tag
