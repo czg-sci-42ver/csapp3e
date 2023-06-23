@@ -71,3 +71,4 @@ dkms.conf
 !5_12
 # !E5_*
 !5.12_testbench
+*.log
