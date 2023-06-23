@@ -4,10 +4,10 @@
 // `define sd(offset, rs2, rs1) {7'b``offset>>5,``rs2,``rs1,3'b11,5'b``offset%(1'b1<<5),7'b0100011}
 `define sd(offset, rs2, rs1) {``offset[11:5],``rs2,``rs1,3'b11,``offset[4:0],7'b0100011}
 // notice use () with INSTR_SIZE to ensure << first
-`define INSTR_SIZE 1<<`RUN_TIME_CNT_BITS
 `define MEM_SIZE 1023
 // here is a little redundant because only check store in riseedge run loop 'posedge clock'
 `define RUN_TIME_CNT_BITS 4
+`define INSTR_SIZE 1<<(`RUN_TIME_CNT_BITS<<1)
 `define RUN_TIME 1<<`RUN_TIME_CNT_BITS
 `define sd_const(offset, rs2,
                  rs1) {``offset/(1'b1<<5),``rs2,``rs1,3'b11,``offset%(1'b1<<5),7'b0100011}
@@ -25,7 +25,7 @@ not define `SD_LD`. And define `STALL_EXMEM` to use nop and check whether adjace
 // `timescale 1s / 50ms
 
 `define USE_WB_fw
-`define SCALE 4
+`define SCALE (1<<4)
 `define REG_SCALE 8
 
 // `define SD_LD
@@ -96,11 +96,8 @@ module RISCVCPU;
       end
     end
 `else
+    /*here assume IF_CNT = 3*/
     begin
-      if (index % `IF_CNT == 0) begin
-        offset = offset + 4;
-        $display("offset increase to %b",offset);
-      end
       if (index % `IF_CNT == 0) begin
         // load from ((x[1]=1)+offset=offset) -> x[1]
         // rd = 1
@@ -117,6 +114,9 @@ module RISCVCPU;
         init_instr_offset_union = {sd(offset, {`SD_LOAD_REG}, {`SD_RS1}), offset};
         $display("sd instr offset: %b", offset);
       end else begin
+        /*must change offset before assigning back by '{..., offset}'*/
+        offset = offset + 4;
+        $display("offset increase to %b",offset);
         init_instr_offset_union = {NOP, offset};
       end
     end
@@ -286,6 +286,7 @@ module RISCVCPU;
     $display("sd rs2:%0b", `SD_LOAD_REG);
     // IMemory[9] = 32'b00000000000110000000010010100011;
     // $display("in sd, i value: %0d, offset %0b IMemory[i] %0b, should store %0b", 0, 9, IMemory[9],32'b00000000000110000000010010100011);
+    $display("INSTR_SIZE: %d should be %d",`INSTR_SIZE,1<<(4<<1));
     for (i = 0; i < `INSTR_SIZE; i = i + 1) begin
       DMemory[i] = i*`SCALE;
       // store first to make load show value

@@ -1,9 +1,9 @@
 [*]
 [*] GTKWave Analyzer v3.3.115 (w)1999-2023 BSI
-[*] Fri Jun 23 12:28:22 2023
+[*] Fri Jun 23 12:36:13 2023
 [*]
 [dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/log_3_mfEXMEM.vcd"
-[dumpfile_mtime] "Fri Jun 23 12:26:04 2023"
+[dumpfile_mtime] "Fri Jun 23 12:35:43 2023"
 [dumpfile_size] 6197
 [savefile] "/mnt/ubuntu/home/czg/csapp3e/COD/verilog/vcd/clock_op.sav"
 [timestart] 0
@@ -32,15 +32,20 @@ RISCVCPU.bypassAfromALUinWB
 RISCVCPU.bypassAfromLDinWB
 RISCVCPU.bypassBfromALUinWB
 RISCVCPU.bypassBfromLDinWB
+@28
+RISCVCPU.bypassAfromALUinWB
+RISCVCPU.bypassAfromLDinMEM
+RISCVCPU.bypassAfromLDinWB
+RISCVCPU.bypassAfromMEM
+@23
 RISCVCPU.stall
+@22
 RISCVCPU.Ain[63:0]
 RISCVCPU.Bin[63:0]
 RISCVCPU.IDEXA[63:0]
 RISCVCPU.IDEXB[63:0]
 RISCVCPU.EXMEMALUOut[63:0]
-@23
 RISCVCPU.WB_fw[63:0]
-@22
 RISCVCPU.MEMWBValue[63:0]
 RISCVCPU.EXMEMop[6:0]
 RISCVCPU.MEMWBop[6:0]
@@ -59,11 +64,6 @@ RISCVCPU.Reg_30[63:0]
 RISCVCPU.DMem_0[31:0]
 RISCVCPU.DMem_1[31:0]
 RISCVCPU.target_addr_ld_fromIR[63:0]
-@28
-RISCVCPU.bypassAfromALUinWB
-RISCVCPU.bypassAfromLDinMEM
-RISCVCPU.bypassAfromLDinWB
-RISCVCPU.bypassAfromMEM
 @20000
 -
 [pattern_trace] 1
