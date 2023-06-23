@@ -4503,7 +4503,7 @@ B[k][j] B[k][j] ...
 - p635 think of energy vs performance, which may also answer csapp why cpu doesn't increase performance when adding cores first time (page location temporarily unfound).
   - [issue width](https://www.eecg.toronto.edu/~moshovos/ACA06/homework/hw3.htm#:~:text=Issue%2Dwidth%20is%20the%20maximum,processor%20can%20search%20for%20ILP.)
   - [Store buffer](https://paulcavallaro.com/blog/x86-tso-a-programmers-model-for-x86-multiprocessors/) (see [comment](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer#comment14639780_11130239) it ‘not always inside CPU’ ) same as [ROB](https://stackoverflow.com/questions/40887592/reorder-buffer-commit) located [~~inside~~](https://stackoverflow.com/questions/11105827/what-is-a-store-buffer) CPU
-- p636 [nonblocking caches](https://dl.acm.org/doi/pdf/10.1145/381718.381727) use [MSHR](https://miaochenlu.github.io/2020/10/29/MSHR/) (which is just one **independent** unit and media to fetch memory)as one method to forwarding
+- p636 [nonblocking caches](https://dl.acm.org/doi/pdf/10.1145/381718.381727) use [MSHR](https://miaochenlu.github.io/2020/10/29/MSHR/) (which is just one **independent** hardware unit and medium to fetch memory)as one method to forwarding
   - store buffer [hardware](http://csg.csail.mit.edu/6.S078/6_S078_2012_www/handouts/lectures/L25-Non-Blocking%20caches.pdf) also [p17](http://csg.csail.mit.edu/6.175/lectures/L15-Caches%20and%20Store%20BuffersRev.pdf)
   - see CAQQA p132
     - multi [bank ’Banking supports simultaneous‘](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/cache-optimizations-iii/index.html) mainly because of store like of array is adjacent.
@@ -4632,7 +4632,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - because the former is related with `IDEXop` so may include `IDEXop=LD,MEMWBop=ADD`(here forwarding is delayed from `IFIDop=LD,IDEXop=ADD`), which the latter not includes.
   - why use stall when already having `forwarding`,p532 (because two cycle lag causes the IDEX has fetched the old reg withou)
     - also [see](https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Solution_B._Pipeline_interlock) 
-  - see `E4.13.3_ms_log.v`, here, although how many bubble/stall, the address of `sd` directly after `ld` whichi is calculated in **`IDEXop`** will not change, because it is **register** instead of **wire**.
+  - see `E4.13.3_ms_log.v`, here, although how many bubble/stall, the address of `sd` directly after `ld` which is calculated in **`IDEXop`** will not change, because it is **register** instead of **wire**.
     - above can be seen in vcd, some notices: 1. when `EXMEMop == SD`, the `EXMEMALUOut` is calculated from last **`IDEXop`** cycle(i.e the cycle just before `EXMEMop`) 2. 
   - `ld,sd,ld,sd...` (ld `rd` equals to sd `rs1`)
     - here, the situation that `stall` uprise when `ld` occurs will maybe make `sd` write to wrong location, so need `wire` directly forward, instead of `reg` which has at least one cycle delay.
@@ -4649,6 +4649,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       finish store, cnt: 4,cycle: 9,EXMEMB 11110000 store to 1th mem,EXMEMALUOut: 1100 # store to 111>>2=1, right
       # can see from gtkwave Dmem[1] has been written after the `EXMEMop` when 'stall'
       ```
+      - here init: `DMemory[i] = i;` ; `Regs[i] = i*8;`
     - how csapp solve the above problem
       - p470, by many stall, from decode (where will add detection which is *same* as above ’IDEXrs1‘).
       - p472&473, detect when MEMWB and EXMEM
@@ -5113,6 +5114,16 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - 'Livelock' p37 is just redundant and unnecessary loop (also see above)
 - p912
   - 'makes the individual steps atomic.': just *illusion* seen by other processors.
+- p914
+  - [Round-robin](https://developer.arm.com/documentation/den0013/d/Caches/Cache-policies/Replacement-policy) or cyclic replacement 
+    - TODO see Random Replacement [math](https://inria.hal.science/hal-01054982/document)
+  - [Variable page size](https://stackoverflow.com/questions/35720775/variable-page-size-in-linux)
+    - THP: ~~TODO view code why~~ 'some kind of *defragmentation*' because the size isn't totally variable in all range although [*automatic* promotion and demotion implies 'Transparent'](https://www.kernel.org/doc/html/next/admin-guide/mm/transhuge.html) 
+      - [disadvantage](https://techoverflow.net/2017/02/18/advantages-and-disadvantages-of-hugepages/): 'access almost the *entire* hugepage'
+  - [Approximated LRU](https://www.geeksforgeeks.org/lru-approximation-second-chance-algorithm/) [see](#reference_bit), this is one version without counter. Second Chance is given by 'reference bit (bitref)'. 
+  - 'Two-way (1), four-way (D)' because instruction to be fetched is normally larger.
+- p918
+  - 'merge requests' is similar to SIMD (here data are merged. po). 
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.

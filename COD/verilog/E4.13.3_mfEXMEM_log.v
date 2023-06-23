@@ -16,12 +16,24 @@
 // rs2 of sd
 `define SD_LOAD_REG 5'd30
 `define SD_RS1 5'd1
-`define IF_CNT 3
-// `define STALL_EXMEM
+/*
+not define `SD_LD`. And define `STALL_EXMEM` to use nop and check whether adjacent ld,sd can stall.
+*/
+`define STALL_EXMEM
 
 // `define CYCLE_TIME 0.25
 // `timescale 1s / 50ms
 
+`define USE_WB_fw
+`define SCALE 4
+`define REG_SCALE 8
+
+// `define SD_LD
+`ifdef SD_LD
+  `define IF_CNT 2
+`else
+  `define IF_CNT 3
+`endif
 `define CYCLE_TIME 1
 `timescale 1s / 1s
 
@@ -37,6 +49,15 @@ module RISCVCPU;
       $display("in sd func, rs2:%0b, last element:%0b,rs1:%0b,sd:%0b", rs2, rs2[0], rs1, sd);
     end
   endfunction
+
+  function [31:0] ld(input [11:0] offset, input [0:4] rs1, rd);
+    // see https://www.chipverify.com/verilog/verilog-concatenation wire[2:0] ...
+    // input [11:0] offset,[5:0] rs2, rs1; // this is wrong
+    begin
+      ld = {offset, rs1, 3'b11, rd, 7'b0000011};
+    end
+  endfunction
+
   integer target;
   // contain 31+11+1 bit return {intsr+offset}
   function [43:0] init_instr_offset_union(input [31:0] index, input [11:0] offset);
@@ -59,11 +80,11 @@ module RISCVCPU;
         init_instr_offset_union = {sd(offset, {`SD_LOAD_REG}, {`SD_RS1}), offset};
         $display("sd instr offset: %b", offset);
       end else if (index % `IF_CNT == 1) begin
-        // load from ((x[0]=0)+offset=offset) -> x[1]
+        // load from M[(x[0]=0)+offset=offset] -> x[1]
         // rd = 1
-        init_instr_offset_union = {`ld({offset}, {`SD_RS1}, {`SD_RS1}), offset};
+        init_instr_offset_union = {ld({offset}, {`SD_RS1}, {`SD_RS1}), offset};
         $display("ld instr offset: %b,init_instr_offset_union:%b should include instr :%b", offset,
-                 init_instr_offset_union, `ld({offset}, {`SD_RS1}, {`SD_RS1}));
+                 init_instr_offset_union, ld({offset}, {`SD_RS1}, {`SD_RS1}));
         /*
         notice offset must increase each 2 `if` run. 
         */
@@ -81,16 +102,16 @@ module RISCVCPU;
         $display("offset increase to %b",offset);
       end
       if (index % `IF_CNT == 0) begin
-        // load from ((x[0]=0)+offset=offset) -> x[1]
+        // load from ((x[1]=1)+offset=offset) -> x[1]
         // rd = 1
-        init_instr_offset_union = {`ld({offset}, {`SD_RS1}, {`SD_RS1}), offset};
+        init_instr_offset_union = {ld({offset}, {`SD_RS1}, {`SD_RS1}), offset};
         $display("ld instr offset: %b,init_instr_offset_union:%b should include instr :%b", offset,
-                 init_instr_offset_union, `ld({offset}, {`SD_RS1}, {`SD_RS1}));
+                 init_instr_offset_union, ld({offset}, {`SD_RS1}, {`SD_RS1}));
         // $dumpvars(0,DMemory[0]);
         // $monitor("monitor mem: %0b",DMemory[target]);
       end else if (index % `IF_CNT == 1) begin
         /*
-          // store x[31] to M[((x[1]=?)+offset=offset)]
+          // store x[30] to M[((x[1]=?)+offset=offset)]
           // rs1 = `rd` of load
           */
         init_instr_offset_union = {sd(offset, {`SD_LOAD_REG}, {`SD_RS1}), offset};
@@ -114,7 +135,7 @@ module RISCVCPU;
       IDEXIR,
       EXMEMIR,
       MEMWBIR;  // pi pe l ine reg i sters
-  wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd, IDEXrs1, IDEXrs2, EXMEMrd;  // Access register fiel ds
+  wire [4:0] IFIDrsl, IFIDrs2, MEMWBrd, IDEXrs1, IDEXrs2, EXMEMrd,EXMEMrs1,EXMEMrs2,MEMWBrs1,MEMWBrs2;  // Access register fiel ds
   wire [6 : 0] IDEXop, EXMEMop, MEMWBop, IFIDop;  // Access opcodes
   wire [63 : 0] Ain, Bin;  // the ALU inputs
   wire [63:0] IDEXA_forward, IDEXB_forward , WB_fw;
@@ -129,7 +150,6 @@ module RISCVCPU;
   wire [11:0] offset_ld, offset_sd;
   wire [63:0] target_addr_ld, target_addr_sd, target_addr_ld_fromIR,offset_EXMEM_sd;
   wire EXMEMIS_LD, EXMEMIS_SD;
-  wire [31:0] DMem_0,DMem_1;
   assign Regs_rs1_w = Regs[`SD_RS1];
   assign Regs_rs2_w = Regs[`SD_LOAD_REG];
   assign offset_ld = IFIDIR[31:20];
@@ -143,8 +163,10 @@ module RISCVCPU;
   assign target_addr_sd = IDEXA + {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]};
   assign EXMEMIS_LD = EXMEMop == LD;
   assign EXMEMIS_SD = EXMEMop == SD;
-  assign DMem_0 = DMemory[0];
-  assign DMem_1 = DMemory[1];
+
+  wire [31:0] DMem_0,DMem_1;
+  assign DMem_0 = DMemory[`REG_SCALE*0];
+  assign DMem_1 = DMemory[`REG_SCALE*1];
   assign Reg_1 = Regs[1];
   assign Reg_30 = Regs[30];
   /*
@@ -238,7 +260,7 @@ module RISCVCPU;
     /*
     here *8 to make load influence at once (because 1>>2=0 has no influence to sd and ld)
     */
-      Regs[i] = i*8;  // initialize reg i sters -- ]ust so they aren ' t cares
+      Regs[i] = i*`REG_SCALE;  // initialize reg i sters -- ]ust so they aren ' t cares
   end
 
   // default 1 bit
@@ -265,7 +287,7 @@ module RISCVCPU;
     // IMemory[9] = 32'b00000000000110000000010010100011;
     // $display("in sd, i value: %0d, offset %0b IMemory[i] %0b, should store %0b", 0, 9, IMemory[9],32'b00000000000110000000010010100011);
     for (i = 0; i < `INSTR_SIZE; i = i + 1) begin
-      DMemory[i] = i;
+      DMemory[i] = i*`SCALE;
       // store first to make load show value
       {IMemory[i], offset} = init_instr_offset_union(i, offset);
       if (i % 2 == 1) $display("sd instr rs2:%0b", IMemory[i][24:20]);

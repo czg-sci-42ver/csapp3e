@@ -19,6 +19,16 @@
 // `timescale 1s / 50ms
 
 `define CYCLE_TIME 1
+
+`define SD_LOAD_REG 5'd30
+`define SD_RS1 5'd1
+// `define SD_LD
+`ifdef SD_LD
+  `define IF_CNT 2
+`else
+  `define IF_CNT 3
+`endif
+
 `timescale 1s / 1s
 
 module RISCVCPU;
@@ -29,7 +39,6 @@ module RISCVCPU;
     // see https://www.chipverify.com/verilog/verilog-concatenation wire[2:0] ...
     // input [11:0] offset,[5:0] rs2, rs1; // this is wrong
     begin
-      $display("in sd func, rs2:%b, last element:%b", rs2, rs2[0]);
       sd = {offset[11:5], rs2, rs1, 3'b11, offset[4:0], 7'b0100011};
     end
   endfunction
@@ -44,26 +53,25 @@ module RISCVCPU;
 
   function [31:0] init_instr(input [31:0] index, input [11:0] offset);
     begin
-      // $display("index: %b",index);
       /*
       unresolved vpi name lookup: v0x5567b2b32a10_0
       unresolved functor reference: v0x5567b2b32a10_0
       compile_cleanup: 2 unresolved items
       */
-      // unable to use `init_instr[24:20]`
-      // $display("sd instr rs2:%b", init_instr[24:20]);
 
-      if (index % 2 == 1) begin
-        /*
-        // store x[31] to M[((x[1]=?)+offset=offset)]
-        // rs1 = `rd` of load
-        */
-        init_instr = sd(offset, {`SD_LOAD_REG}, {5{1'b1}});
-      end else begin
-        offset = offset + 4;
+      if (index % `IF_CNT == 0) begin
         // load from ((x[0]=0)+offset=offset) -> x[1]
         // rd = 1
-        init_instr = ld({offset}, {5{1'b0}}, {5'b1});
+        init_instr = {ld({offset}, {`SD_RS1}, {`SD_RS1})};
+      end else if (index % `IF_CNT == 1) begin
+        /*
+          // store x[30] to M[((x[1]=?)+offset=offset)]
+          // rs1 = `rd` of load
+          */
+        init_instr = {sd(offset, {`SD_LOAD_REG}, {`SD_RS1})};
+      end else begin
+        init_instr = {NOP};
+        offset = offset + 4;
       end
     end
   endfunction
@@ -125,18 +133,6 @@ module RISCVCPU;
   // Otherwise fro m WB i f there is a bypass there . and otherwise comes from t he IDEX register IDEXB ;
   assign Bin = bypassBfromMEM? EXMEMALUOut : (bypassBfromALUinWB || bypassBfromLDinWB) ? MEMWBValue : IDEXB;
 
-  // The signal for detecting a stall based on the use of a result from LW
-  /*
-  line 1: i.e. write from mem to reg rd
-  meanwhile
-  line 2,3: i.e. mem addr use reg rd or alu use reg rd
-  */
-
-  // always @((MEMWBop == LD) && (  // source instruction i s a load, 
-  //     (((IDEXop == LD) || (IDEXop == SD)) && (IDEXrs1 == MEMWBrd)) ||  // stall for address calc
-  //     ((IDEXop == ALUop) && ((IDEXrs1 == MEMWBrd) || (IDEXrs2 == MEMWBrd)))))
-  //     $display("",MEMWBop == LD,IDEXrs1 == MEMWBrd)
-
   assign stall = (MEMWBop == LD) && (  // source instruction i s a load, 
       (((IDEXop == LD) || (IDEXop == SD)) && (IDEXrs1 == MEMWBrd)) ||  // stall for address calc
       ((IDEXop == ALUop) && ((IDEXrs1 == MEMWBrd) || (IDEXrs2 == MEMWBrd))));  // ALU use
@@ -163,27 +159,21 @@ module RISCVCPU;
   // just tmp value
   // reg[31:0] i;
   initial begin
-    $dumpfile("vcd/log_3.vcd");
+    $dumpfile("vcd/log_sim_nop.vcd");
     // must have this
-    $dumpvars(1);
+    $dumpvars(10, RISCVCPU);
     clock = 0;
     offset = 0;
     cnt = 0;
     i = 0;
-    $display("sd rs2:%b", `SD_LOAD_REG);
-    // IMemory[9] = 32'b00000000000110000000010010100011;
-    // $display("in sd, i value: %0d, offset %b IMemory[i] %b, should store %b", 0, 9, IMemory[9],32'b00000000000110000000010010100011);
     for (i = 0; i < `INSTR_SIZE; i = i + 1) begin
       DMemory[i] = i;
       // store first to make load show value
       IMemory[i] = init_instr(i, offset);
-      if (i % 2 == 1) $display("sd instr rs2:%b", IMemory[i][24:20]);
+      // if (i % 2 == 1) $display("sd instr rs2:%b", IMemory[i][24:20]);
     end
     // important
     #((`RUN_TIME) * 2) $finish;
-  end
-  initial begin
-    ;
   end
 
   // Remember that A11 these actions happen every pipe stage and with the use of<= they happen in para1Iel!
@@ -192,16 +182,9 @@ module RISCVCPU;
   // end
 
   always @(EXMEMop) begin
-    // $display("EXMEMop change, EXMEMIR %b cnt %d EXMEMop: %b %d",EXMEMIR,cnt,EXMEMop,EXMEMop==EXMEMIR[6 : 0]);
     $display("EXMEMop change:%b ==SD:%d, == NOP(opcode):%d", EXMEMop, EXMEMop == SD,
              EXMEMop == NOP[6:0]);
   end
-  // always @(EXMEMALUOut) begin
-  //   $display("EXMEMALUOut change, EXMEMALUOut %b cnt %d %b %d %b",EXMEMALUOut,cnt,EXMEMop,EXMEMop==EXMEMIR[6 : 0],EXMEMIR[6 : 0]);
-  // end
-  // always @(IDEXop) begin
-  //   $display("new IDEXop: %b",IDEXop);
-  // end
 
   always @(posedge clock) begin
     if (~stall) begin
