@@ -1,10 +1,11 @@
+// see https://stackoverflow.com/questions/76446279/how-alu-function-code-defined-in-risc-v-isa
 module ALUControl (
     ALUOp,
     FuncCode,
     ALUCtl
 );
   input [1:0] ALUOp;
-  input [5:0] FuncCode;
+  input [6:0] FuncCode;
   output reg [3:0] ALUCtl;
   always @*
     case (FuncCode)

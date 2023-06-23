@@ -8,7 +8,7 @@ module registerfile (
     Data2,
     clock
 );
-  input [5:0] Read1, Read2, WriteReg;  // the reg i ster numbers to read or write
+  input [4:0] Read1, Read2, WriteReg;  // the reg i ster numbers to read or write
   input [63 : 0] WriteData;  // data to write
   input RegWrite,  // the wr i te control
   clock;  // the cl ock to trigger write

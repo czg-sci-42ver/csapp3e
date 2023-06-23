@@ -1,3 +1,4 @@
+`include "E4.13.6.v"
 module RISCVCPU (
     clock
 );
@@ -95,7 +96,7 @@ module RISCVCPU (
       2: state <= 3;  // unconditional next state
       3: state <= (opcode == BEQ) ? 1 : 4;  // branch go back else next state
       4: state <= (opcode == LD) ? 5 : 1;  // R-type and SO finish
-      5: state <= l;  // go back
+      5: state <= 1;  // go back
     endcase
   end
 endmodule

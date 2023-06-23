@@ -1,3 +1,7 @@
+`include "module/RISCVALU.v"
+`include "module/registerfile.v"
+`include "module/Mult4to1.v"
+`include "module/ALUControl.v"
 module Datapath (
     ALUOp,
     MemtoReg,
@@ -19,20 +23,20 @@ module Datapath (
   input MemtoReg, MemRead , MemWrite , IorD, RegWrite , IRWrite , PCWrite , PCWriteCond ,ALUSrcA , PCSource , clock ; // l · bit control signa l s
   output [6 : 0] opcode;  // opcode is needed as an output by control
 
-  reg [63 : 0] PC, MOR, ALUOut, ImmGen;  // CPU state+ some temporaries
+  reg [63 : 0] PC, MOR, ALUOut;  // CPU state+ some temporaries
   reg [31 : 0] Memory[0:1023], IR;  // CPU state+ some temporaries
-  wire [63 : 0] A, B, SignExtendOffset, PCOffset, ALUResultOut , PCValue ,JumpAddr , Writedata , ALUAin,ALUBin , MemOut ; // these are s i gnals derived from registers
+  wire [63 : 0] A, B, SignExtendOffset, PCOffset, ALUResultOut , PCValue ,JumpAddr , Writedata , ALUAin,ALUBin , MemOut ,ImmGen; // these are s i gnals derived from registers
   wire [3 : 0] ALUCtl;  // the ALU control lines
   wire Zero;  // the Zero out signal from the ALU
-  initial PC = O;  //start the PC at 0
+  initial PC = 0;  //start the PC at 0
   //Combinational signals used in the datapath
   // Read using word address with either ALUOut or PC as the address source
-  assign MemOut = MemRead ? Memory[(IorD?ALUOut : PC)>>2] : O;
+  assign MemOut = MemRead ? Memory[(IorD?ALUOut : PC)>>2] : 0;
   assign opcode = IR[6:0];  // opcode shortcut
   // Get the write reg i ster data either from the ALUOut or from the MOR
   assign Writedata = MemtoReg ? MOR : ALUOut;
   // Generate i mmediate, should never use `64'b0`
-  assign ImmGen = (opcode== LD)? {{53{IR[31]}}, IR[30 : 20]} : (opcode== SD) ? {{53{IDEXIR[31]}}, IDEXIR[30 : 25], IDEXIR[11 : 7]}: 64'b0 ;
+  assign ImmGen = (opcode== LD)? {{53{IR[31]}}, IR[30 : 20]} : ((opcode== SD) ? {{53{IR[31]}}, IR[30 : 25], IR[11 : 7]}: 64'b0 );
   // Generate pc offset for branches
   assign PCOffset = {{52{IR[31]}}, IR[7], IR[30 : 25], IR[11 : 8], 1'b0};
   // The A input to the ALU is either the rs register or the PC

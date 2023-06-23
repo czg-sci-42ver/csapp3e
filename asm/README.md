@@ -4650,7 +4650,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       # can see from gtkwave Dmem[1] has been written after the `EXMEMop` when 'stall'
       ```
       - here init: `DMemory[i] = i;` ; `Regs[i] = i*8;`
-      - notice: here `WB_fw` is wrong, because `Ain` will always change (by `assign`). So sometimes, it must use the wrong `Ain`. see `` git log hash, the 3rd and 4th rising edge. Here `Ain` in 4th instruction fetch cycle will be assigned `IDEXA` which is `<=` in the former cycle by `nop` instruction.
+      - notice: here `WB_fw` is wrong and also not easy to synthesis, because `Ain` will always change (by `assign`). So sometimes, it must use the wrong `Ain`. see `1867902` git log hash, the 3rd and 4th rising edge. Here `Ain` in 4th instruction fetch cycle will be assigned `IDEXA` which is `<=` in the former cycle by `nop` instruction.
+        - `stall_cnt` make stall longer, which may update `WB_fw`.
     - how csapp solve the above problem
       - p470, by many stall, from decode (where will add detection which is *same* as above ’IDEXrs1‘).
       - p472&473, detect when MEMWB and EXMEM
