@@ -15,8 +15,15 @@ module dm_cache_data (
     for (int i = 0; i < 1024; i++) data_mem[i] = '0;
   end
   assign data_read = data_mem[data_req.index];
+
+  /*
+  assign in next cycle which normally can be running in parallel in pipeline.
+  */
   always_ff @(posedge (clk)) begin
-    if (data_req.we) data_mem[data_req.index] <= data_write;
+    if (data_req.we) begin
+      data_mem[data_req.index] <= data_write;
+      $display("assign %0dth index with %0x",data_req.index,data_write);
+    end
   end
 endmodule
 /*cache ; tag memory , s i ngle port , 1024 bl ocks*/

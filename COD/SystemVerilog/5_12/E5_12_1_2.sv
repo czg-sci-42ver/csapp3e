@@ -7,6 +7,15 @@ package cache_def;
   // timeunit 1ns; timeprecision 1ns;
 
   //data structure for cache tag
+  /*
+  if valid -> has tag, not valid -> no tag
+  if dirty -> vadid, not dirty -> v... / not valid.
+  So has 3 conditions(v&d,v&not_d,not_v&not_d).
+
+  ignore this line: write has one more condition conflict miss (one special case of 'valid & dirty'.)
+
+  read hit dirty / hit clean use the same workflow. See below write hit dirty...
+  */
   typedef struct packed {
     bit valid;
     //valid bit
@@ -16,6 +25,14 @@ package cache_def;
     //tag bits
   } cache_tag_type;
   //data structure for cache memory r equest
+  /*
+  write clean miss is similar to read clean miss
+  1. `if (tag_read.valid == 1'b0 || tag_read.dirty == 1'b0)` -> write tag and then allocate 
+  2. fetch mem by `data_write = mem_data.data;` and write to cache in `dm_cache_data`
+
+  write hit dirty (not write-back but upadte the cache block) is same as hit clean (hit implies tag match) because the tag match and then run `if (cpu_req.addr[TAGMSB : TAGLSB] == tag_read.tag && tag_read.valid) begin`
+  it will be `vstate = idle;` after letting `dm_...` update data.
+  */
   typedef struct packed {
     bit [9:0] index;
     //10-bit index

@@ -48,6 +48,7 @@
 - not to use parameter as [temporary variable](https://www.chipverify.com/verilog/verilog-parameters). Just use `int`,etc to function as temporary variable.
 ### miscs
 - [DUT](https://www.chipverify.com/systemverilog/systemverilog-simple-testbench) means verification *design* 
+- [hex word](https://stackoverflow.com/questions/2394522/what-english-words-can-be-created-using-hexadecimal) related with [java](https://www.artima.com/insidejvm/whyCAFEBABE.html)
 ## systemverilog see [SV doc](../../references/other_resources/COD/verilog/SystemVerilog/ieee-standard-for-systemverilogunified-hardware-design-specifica_2017.pdf)
 - [%p](https://stackoverflow.com/questions/24527093/printing-packed-structs-in-system-verilog)
 - [(Un)Packed array](https://verificationguide.com/systemverilog/systemverilog-packed-and-unpacked-array/) and [struct similarly](https://www.chipverify.com/systemverilog/systemverilog-structure)
@@ -106,6 +107,8 @@ E5_12_5_8.sv:56:      : Expression is: '{'d0, 'd0}
   - `##` see SV doc p344.
 - [`exists`](https://www.chipverify.com/systemverilog/systemverilog-associative-array)
 - [`$urandom()`](https://verificationguide.com/systemverilog/randomize-variable-in-systemverilog/)
+  - see [this](https://www.chipverify.com/systemverilog/systemverilog-random-variables) which corresponds to book code ([also](https://www.chipverify.com/systemverilog/systemverilog-array-randomization))
+- use `bit [31 : 0]` instead of `*` to make *associative* array [index](https://stackoverflow.com/questions/42505743/associative-array-with-wildcard-in-system-verilog) work
 ### similar to cpp
 - [`new()`](https://stackoverflow.com/questions/51702877/what-is-the-purpose-of-new-on-the-function-in-systemverilog)
 ## COD code

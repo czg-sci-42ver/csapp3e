@@ -5385,6 +5385,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p349
   - just show how *multithreaded* implemented with multiple SIMD lanes (thread)
 #### [Reference Appendices](https://www.elsevier.com/books-and-journals/book-companion/9780128119051) where also has other resources.
+#### TODO
+- A *vertical cut* of a thread of SIMD instructions
 ### miscs
 - why use [L3$](https://softwareengineering.stackexchange.com/questions/108340/why-is-the-dollar-sign-used-to-abbreviate-the-description-of-a-cache)
 # valgrind

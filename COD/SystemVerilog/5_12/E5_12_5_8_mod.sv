@@ -50,11 +50,20 @@ module dm_cache_fsm (
   assign cpu_res = v_cpu_res;
   //connect to output ports
 
+  initial begin
+    // not put in always_comb to avoid duplicate write.
+    v_mem_req.rw = '0;
+  end
+
   /*
 FIGURE E5.12.6 begin
 */
 
   always_comb begin
+    /*
+    comb will run multiple times each clock by its self inherent syntax definition (whenever one of the inner variables change).
+    */
+    // $display("begin comb:%0t",$time);
     /*-------------------------default values for all signals------------*/
     /*no state change by default*/
     vstate = rstate;
@@ -88,10 +97,12 @@ FIGURE E5.12.6 begin
       2'b11: v_cpu_res.data = data_read[127 : 96];
     endcase
     /*memory request address (sampled from CPU request) */
+    /*
+    this is to cache.
+    */
     v_mem_req.addr = cpu_req.addr;
     /*memory request data (used in write)*/
     v_mem_req.data = data_read;
-    v_mem_req.rw   = '0;
 
     /*
 FIGURE E5.12.7
@@ -112,11 +123,13 @@ FIGURE E5.12.7
         ignore this: TODO how tag_read assigned;this should traverse the whole memory list 
         */
         if (cpu_req.addr[TAGMSB : TAGLSB] == tag_read.tag && tag_read.valid) begin
-          $display("tag has been inited");
+          $display("tag has been hit");
           v_cpu_res.ready = '1;
+          // $display("should return to wait() and fetch new instr; should not show this");
           /*wr i t e hit*/
           if (cpu_req.rw) begin
             /*read/modify cache line*/
+            $display("modify cache line");
             tag_req.we = '1;
             data_req.we = '1;
             /*SA(self added)
@@ -153,11 +166,26 @@ FIGURE E5.12.7
           /*set valid to make request*/
           v_mem_req.valid = '1;
           /*compulsory miss or miss with clean block*/
-          if (tag_read.valid == 1'b0 || tag_read.dirty == 1'b0) begin/*wait till a new block is allocated*/
+          /*
+          here if not valid, must fetch from mem ( i.e. allocate)
+          valid and clean (valid = 1, dirty = 0) is impossible beacuse above tag must match.
+          valid and dirty just means that data has been modified, so write back -> go to else ...
+          not valid but dirty is obvious impossible.
+
+          so only check `valid` is enough.
+
+          can check with 
+          `if (tag_read.valid == 1'b0) begin/*wait till a new block is allocated`
+          */
+
+          if (tag_read.valid == 1'b0) begin/*wait till a new block is allocated */
+          
+          // if (tag_read.valid == 1'b0 || tag_read.dirty == 1'b0) begin/*wait till a new block is allocated*/
             vstate = allocate;
             $display("need init tag");
-          end
-          /*
+          end          
+
+/*
 FIGURE E5.12.8
 */
 
@@ -171,11 +199,13 @@ FIGURE E5.12.8
             /*
             when r/w, valid always 1, so dirty implies `valid`.
 
+            So valid & dirty.
+
             TODO can use cpu_req.addr[TAGMSB : TAGLSB]?
             */
             v_mem_req.addr = {tag_read.tag, cpu_req.addr[TAGLSB-1 : 0]};
-            v_mem_req.rw = '1;
-            $display("allow rw, changing v_mem_req.rw");
+            v_mem_req.rw   = '1;
+            $display("To write back, allow rw, changing v_mem_req.rw");
             /*wait till write is completed*/
             vstate = write_back;
           end
@@ -186,11 +216,15 @@ FIGURE E5.12.8
       allocate: begin
         /*memory controller has responded*/
         if (mem_data.ready) begin
+          $display("To allocate");
           /*re-compare tag for write miss (need modify correct word)*/
           vstate = compare_tag;
           data_write = mem_data.data;
           /*update cache line data*/
           data_req.we = '1;
+
+          // to avoid duplicate write
+          // cpu_req.rw = '0;
         end
       end
       /*wait for writing back dirty cache line*/
@@ -198,7 +232,8 @@ FIGURE E5.12.8
         /*write back is completed*/
         // $display("v_mem_req.rw changed to:%0b; mem_req.rw: %0b",v_mem_req.rw,mem_req.rw);
         if (mem_data.ready) begin
-          $display("data has been manipulated; v_mem_req.rw changed to:%0b; mem_req.rw: %0b",v_mem_req.rw,mem_req.rw);
+          $display("TO WB, data has been manipulated; v_mem_req.rw changed to:%0b; mem_req.rw: %0b",
+                   v_mem_req.rw, mem_req.rw);
           /*issue new memory request (allocating a new line)*/
           v_mem_req.valid = '1;
           v_mem_req.rw = '0;
@@ -210,15 +245,18 @@ FIGURE E5.12.8
   always_ff @(posedge (clk)) begin
     if (rst) rstate <= idle;
     //reset to idle state
-    else
+    else begin
       rstate <= vstate;
+      // reset
+      // v_mem_req.rw = 0;
+    end
   end
   /*connect cache tag/data memory*/
   // dm_cache_tag ctag (.clk(clk),.tag_req(tag_req),.tag_write(tag_write),.tag_read(tag_read));
   // https://stackoverflow.com/questions/58436253/in-systemverilog-what-does-mean
   dm_cache_tag ctag (.*);
   dm_cache_data cdata (.*);
-  
+
   wire [TAGMSB-TAGLSB:0] cpu_req_tag;
-  view_var vars(.*);
+  view_var vars (.*);
 endmodule
