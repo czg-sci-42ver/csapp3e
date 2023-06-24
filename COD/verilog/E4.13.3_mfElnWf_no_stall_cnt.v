@@ -341,7 +341,7 @@ module RISCVCPU;
       else if (IDEXop == ALUop)
         case (IDEXIR[31 : 25])  // case for the various R- type instructions
           0: EXMEMALUOut <= Ain + Bin;  // add operation 658
-          default: ;  // other R-typAine operations : subtract , SLT, etc ,
+          default: ;  // other R-type operations : subtract , SLT, etc ,
         endcase
       EXMEMIR <= IDEXIR;
       EXMEMB  <= IDEXB;  // pass along the IR & B register

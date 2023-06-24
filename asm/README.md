@@ -4628,7 +4628,7 @@ $ num=2;make;vvp build/E4.13.${num}_log.o;gtkwave vcd/log_${num}.vcd vcd/clock_o
   - only diff with p658 in outside assign block, `always` block no changed.
 - p665 
 see 'FIGURE E4.13.19' 
-from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw-after-lw?rq=2) related with my [question](https://stackoverflow.com/questions/76443233/stall-implementation-based-on-forwarding-by-checking-memwb-and-idexop-in-cod), forward to `IFID` may be proper.
+from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw-after-lw?rq=2) related with my ~~[question](https://stackoverflow.com/questions/76443233/stall-implementation-based-on-forwarding-by-checking-memwb-and-idexop-in-cod)~~ [question](https://electronics.stackexchange.com/questions/670082/), forward to `IFID` may be proper. The first link says 'require forwarding back in time.' because `SD` ALU use `LD` data. Also it says 'Forwarding into the MEM stage'. (Notice: whether to *stall* depends on how *hardware* is designed.) (The second link is based on this [code_2 (i.e. playground_2)](../COD/verilog/E4.13.3_log_simplified_with_nop.v) and this [code_3](../COD/verilog/E4.13.3_mfElnWf_no_stall_cnt.v)) 
   - see this
     - here `(((IDEXop == LD) || (IDEXop == SD)) && (IDEXrs1 == MEMWBrd))` is not duplicate with `(IDEXrs1 == MEMWBrd) && (IDEXrs1 != 0) && (MEMWBop == LD)`
       - because the former is related with `IDEXop` so may include `IDEXop=LD,MEMWBop=ADD`(here forwarding is delayed from `IFIDop=LD,IDEXop=ADD`), which the latter not includes.
