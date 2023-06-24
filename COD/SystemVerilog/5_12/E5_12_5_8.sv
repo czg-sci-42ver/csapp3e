@@ -58,7 +58,7 @@ FIGURE E5.12.6 begin
     /*-------------------------default values for all signals------------*/
     /*no state change by default*/
     vstate = rstate;
-    $display("rstate: %0d tag_read.tag: %0d",rstate,tag_read.tag);
+    // $display("rstate: %0d tag_read.tag: %0d",rstate,tag_read.tag);
     v_cpu_res = '{data: 0, ready: 0};
     // v_cpu_res.data = '0;
     // v_cpu_res = {'0, '0};

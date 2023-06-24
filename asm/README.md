@@ -4264,6 +4264,8 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 #### ARM [registers relation with x86](https://azeria-labs.com/arm-data-types-and-registers-part-2/)
 ### below temporarily changed to RISC-V just as [18-447 TODO reason for switching to RISC-V](https://users.ece.cmu.edu/~jhoe/course/ece447/S22handouts/L02.pdf)
 > [ARM-v8 version](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20ARM%20edition.pdf): author use v8 instead of v7 in p17 for more similarity with MIPS.
+
+from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4d93-911a-4aaec0feb99b/5dc835ea-b66c-4988-be3f-4d51c0feb99b/Computer_Organization_RiscV_Edition.pdf) (saved at this [location](../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf)) which keeps the same layout as the original book [appendix](https://www.elsevier.com/books-and-journals/book-companion/9780128122754/advanced-content-and-appendices#Advanced%20Content). Before that, I read [this](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20RISC-V%20edition.pdf) which is saved [here](../references/other_resources/COD/COD_RISCV_OCR.pdf)
 #### RISC-V [manual](../references/other_resources/RISC-V/riscv-spec-20191213.pdf), [latest](https://riscv.org/technical/specifications/)
 - TODO SB-format B [meaning](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
 - also green/[reference](https://www.cl.cam.ac.uk/teaching/1617/ECAD+Arch/files/docs/RISCVGreenCardv8-20151013.pdf) card
@@ -4738,6 +4740,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - 'WAW hazards' -> A1, ..., A4, Divide, or M1, ...,M7 for the **same** destination register (here kw is same destination not 'Divide').
         - '*after* the earlier instruction reaches the MEM phase' to ensure the 'earlier' first write.
         - ['The instructions in the pipeline'](https://stackoverflow.com/posts/76450114/timeline#history_b38eedbd-f2e9-4e53-814a-e73c71df3158) should implies the registers related with them are also saved.
+        - 'there are no such reads' may be one optimization of cpu to avoid unnecessary computation.
+        - ['unmasked'](https://dev.opencascade.org/content/should-floating-point-exceptions-be-masked) is to enable exception ('By default ...,all FP exceptions are masked').
+        - 'part-way through' and 'maybe NOP-out every other pipeline' based on power saving (which one of forwarding and nop saves power). 
+        - [DLX](https://en.wikipedia.org/wiki/DLX)
       - Integer ALU latency is 0, because it can be directly forwarded from EX. Data memory latency is 1 because it needs one more *pipeline* `MEM` to read memory (so the *Initiation Interval* isn't influenced).
         - so in 'FP and integer divide' which isn't pipelined, `Initiation Interval` is `Latency` plus 1 (which is based on how `Latency` defined.)
       - kw: 'structural hazard','variable *length instructions*' (here length means the pipeline length not the instruction bits),

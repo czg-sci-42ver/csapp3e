@@ -41,7 +41,7 @@ module Datapath (
   assign PCOffset = {{52{IR[31]}}, IR[7], IR[30 : 25], IR[11 : 8], 1'b0};
   // The A input to the ALU is either the rs register or the PC
   assign ALUAin = ALUSrcA ? A : PC;  // ALU input is PC or A
-  // Creates an instance of the ALU control unit (see the module defined in Figure A.5.16
+  // Creates an instance of the ALU control unit (see the module defined in Figure A.5.16 p1195
   // Input ALUOp is control ·unit set and used to describe the instruction cl ass as i n Chapter 4
   // Input IR[31 :25] is the function code fie l d for an ALU instruction
   // Output ALUCtl are Lhe actual ALU control bits as in Chapter 4

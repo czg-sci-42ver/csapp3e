@@ -46,6 +46,8 @@
 - use `initial begin`,etc to [use `for`](https://verificationguide.com/systemverilog/systemverilog-for-loop/),etc syntax.
   - always based on *block* code.
 - not to use parameter as [temporary variable](https://www.chipverify.com/verilog/verilog-parameters). Just use `int`,etc to function as temporary variable.
+### miscs
+- [DUT](https://www.chipverify.com/systemverilog/systemverilog-simple-testbench) means verification *design* 
 ## systemverilog see [SV doc](../../references/other_resources/COD/verilog/SystemVerilog/ieee-standard-for-systemverilogunified-hardware-design-specifica_2017.pdf)
 - [%p](https://stackoverflow.com/questions/24527093/printing-packed-structs-in-system-verilog)
 - [(Un)Packed array](https://verificationguide.com/systemverilog/systemverilog-packed-and-unpacked-array/) and [struct similarly](https://www.chipverify.com/systemverilog/systemverilog-structure)
@@ -86,6 +88,7 @@ g++     verilated.o verilated_threads.o VE5_12_4__ALL.a    -pthread -lpthread -l
 rm VE5_12_4__ALL.verilator_deplist.tmp
 make: Leaving directory '/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12/E5_12_4'
 ```
+- `program` seems to not [share](https://www.chipverify.com/systemverilog/systemverilog-program-block) local variables with parent module. See [this](../SystemVerilog/5_12/5.12_testbench/testbench.sv)
 #### iverilog
 - with `sorry: Unpacked structs not supported.`, just use `typedef struct packed {`
 ##### debug
@@ -98,6 +101,13 @@ E5_12_5_8.sv:56: sorry: I do not know how to elaborate assignment patterns using
 E5_12_5_8.sv:56:      : Expression is: '{'d0, 'd0}
 ```
 - 'constant selects in always_* processes are not currently supported (all bits will be included)'; [`casez`](https://stackoverflow.com/questions/71837597/error-message-sorry-constant-selects-in-always-processes-are-not-currently-s) no use
+## syntax
+- [clocking](https://verificationguide.com/systemverilog/systemverilog-clocking-block/) related with sampling
+  - `##` see SV doc p344.
+- [`exists`](https://www.chipverify.com/systemverilog/systemverilog-associative-array)
+- [`$urandom()`](https://verificationguide.com/systemverilog/randomize-variable-in-systemverilog/)
+### similar to cpp
+- [`new()`](https://stackoverflow.com/questions/51702877/what-is-the-purpose-of-new-on-the-function-in-systemverilog)
 ## COD code
 ### 12_5_8
 - idle -(assume cpu_req.valid=1)> compare_tag -> allocate -(ass mem_data.ready=1)> compare_tag

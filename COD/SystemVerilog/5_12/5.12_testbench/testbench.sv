@@ -1,4 +1,5 @@
 //simulated memory
+`include "E5_12_5_8.sv"
 import cache_def::*;
 
 `timescale 1ns / 1ps
