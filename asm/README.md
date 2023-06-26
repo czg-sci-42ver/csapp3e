@@ -3726,7 +3726,7 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - [symtab](https://stackoverflow.com/questions/3065535/what-are-the-meanings-of-the-columns-of-the-symbol-table-displayed-by-readelf) describe 'Ndx',etc
 - Virtual Address [diff](https://www.javatpoint.com/virtual-vs-physical-address) with Physical Address
   - the latter is decided by adding the base address when running (especially PIE)
-- lazy binding, see above GOT / PLT, or `RTLD_LAZY` in `man dlopen` / csapp
+- lazy binding, see above got / plt, or `RTLD_LAZY` in `man dlopen` / csapp
 - view [got](https://stackoverflow.com/questions/39785280/how-shared-library-finds-got-section) in shared lib
 ```bash
 [czg /mnt/ubuntu/home/czg/csapp3e/link]$ objdump -R libvector.so
@@ -4567,12 +4567,10 @@ B[k][j] B[k][j] ...
       - diff in [code](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/) (this link from [this where also says why not use consume sometimes](https://stackoverflow.com/questions/65336409/what-does-memory-order-consume-really-do)) , consume use pointer and acquire use something like *global* variable.
     - intel reference p3284 only ensure one processor order, not ensure multi, see figure 9-1
   - memory barrier
-    - [no needed](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory) in [strong](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory#comment88616281_12204320) memory model. But ['storeload'][Weak_vs_Strong_Memory_Models] still exists.~~So we need~~ This can be solved with store release and load acquire.
-      - [x86 p3][sequential_consistency], [TLO p30](https://spcl.inf.ethz.ch/Teaching/2019-dphpc/lectures/lecture4-memory-models.pdf) can be seen [here CAS](https://www.felixcloutier.com/x86/lock.html#:~:text=The%20LOCK%20prefix%20is%20typically,observed%20for%20arbitrarily%20misaligned%20fields.)
+    - [no needed](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory) in strong memory model [partly](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory#comment88616281_12204320) because 'storeload' still exists.
     - why use [weak](https://stackoverflow.com/questions/58870009/why-do-weak-memory-models-exist-and-how-is-their-instruction-order-selected) memory model ’big advantage‘
-    - [detailed][Weak_vs_Strong_Memory_Models] where says 'a little disagreement over this question'(i.e. ~~definition ~~ classification of strong memory model)
-      - here relaxed memory model -> Weak ... allowing all reordering.
-      - [loadload][Memory_Barriers] is just means *load after load* can't be reordered. [related](https://preshing.com/20120913/acquire-and-release-semantics/) with acquire,etc
+    - [detailed](https://preshing.com/20120930/weak-vs-strong-memory-models/) where says ' a little disagreement over this question'(i.e. ~~definition ~~ classification of strong memory model)
+      - [loadload](https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/) is just means *load after load* can't be reordered. [related](https://preshing.com/20120913/acquire-and-release-semantics/) with acquire,etc
         - notice: [Acquire](https://stackoverflow.com/questions/24565540/how-to-understand-acquire-and-release-semantics) means the instruction can *acquire* what is done before. Similarly, Release means *release* what is done, so instruction after can get the result.
         - why StoreLoad 'is often a more *expensive* memory barrier type', maybe other are [redundant](https://stackoverflow.com/questions/27475025/why-is-a-store-load-barrier-considered-expensive#comment71586035_27477887) because *hardware* has ensured. Also [see](https://stackoverflow.com/questions/64131951/why-is-storeload-more-expensive-than-other-barrier-types/76506593#76506593)
         - also [see arm doc](#Load-Acquire), here 'Load-Acquire' is not just one barrier but also function as *load*, see original [definition](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming?redirectedfrom=MSDN#read-acquire-and-write-release-barriers) (which is referenced in the parent link) in c++
@@ -4835,7 +4833,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - p7 Rj [meaning p3 (may be wrong based on following wikipedia link)](https://web.njit.edu/~sohna/cs650/lec4-2.pdf) `Rj = Yes` [means (here also says 'RAW' solve by Scoreboarding in ‘Read operands’)](https://en.wikipedia.org/wiki/Scoreboarding) 'ready for and are not yet read.'~~not avialable (see p12 vs p11)~~. ~~however,p15 load F2 means **not available**, while mul says `rj` is no which means **available** ~~
     - so cycle 1,2 `Rk=Yes`, cycle 3 `Rk=No` because has been read; cycle 6 `Rj=No` because not ready for.
 - Dynamic instruction scheduling [overlook](../references/other_resources/COD/references/HY425_L8_ReorderBuffer.pdf) https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf
-  - also known as [Superscalar](http://thebeardsage.com/multiple-issue-processors/) [1](https://en.wikipedia.org/wiki/Superscalar_processor)
+  - also known as [Superscalar](http://thebeardsage.com/multiple-issue-processors/) [1](https://en.wikipedia.org/wiki/Superscalar_processor) <a id="scheduling"></a>
   - see p5,14
 - ROB [structure p25](https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf)
   - also see [1](https://decodezp.github.io/2019/04/06/quickwords24-skylake-pipeline-8/) [2](https://github.com/drharris/cs6290-notes/blob/master/reorder-buffer.md) [video in 2](https://www.youtube.com/watch?v=0w6lXz71eJ8)
@@ -5023,8 +5021,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p876
   - here, 'A memory system is coherent if' 1. based on one processor which is obvious. 2. update different process cache line after one processor's write. 3. how write reorders is same to all processors.
     - 1 (same processor) and 2 (different processors) is RAW, 3 is WAW which may be followed by some read (so also RAW, see ' some processor could see the write of P2 *first*,...,*maintaining* the value written by P1 indefinitely').
-      - more detailed: 1. $P_1: W(x)1,No_W_O(x),R(x)$ (No_w_o(x) means No Write of Others) ...
-    - this is same as what [wikipedia][Cache_Consistency_def] defines. <a id="Cache_coherence"></a>
+    - this is same as what [wikipedia](https://en.wikipedia.org/wiki/Cache_coherence#Definition) defines.
       - po the 'all memory locations' is just same meaning as 'single memory location' when the latter generalized which is the normal operation. Similar to other definitions.
   - TODO single-processor systems
 - p877
@@ -5054,15 +5051,25 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [memory consistency model](https://www.cs.utexas.edu/~bornholt/post/memory-models.html) defines the memory *order*.
     - [off-by-one errors](https://en.wikipedia.org/wiki/Off-by-one_error)
     - '00' will cause one weird loop, so impossible.
-    - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'Memory requests from all processors issued to an *individual* memory module are serviced from a single *FIFO* queue.'; two Requirements; 'the price of *slowing down* the processors'](https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf)
-      - 'Requirement R1: Each processor issues memory requests in the order specified by its *program*.'
+<<<<<<< HEAD
+<<<<<<< HEAD
+    - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'Memory requests from all processors issued to an *individual* memory module are serviced from a single *FIFO* queue.'; two Requirements; 'the price of *slowing down* the processors'][SC_orig]
+      - 'Requirement R1: Each processor issues memory requests in the order specified by its *program*.'. also [see p3][lec_17] which has no [*overlap* in p9][lec_17] (also [see p2 '*Atomicity* means, that no operation can overlap'][sequential_consistency]) (otherwise,RAW overlap will make reordering of StoreLoad).
+        - also see [p42][MEMORY_CONSISTENCY_DETAILED]
       - also see [p2 (above FIFO ensures the *write atomicity* which will not be interruptted by others)](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf)
       - this also [forbids the OoO on each *core*](https://www.sciencedirect.com/topics/computer-science/sequential-consistency#:~:text=Sequential%20consistency%20is%20a%20conservative,to%20preserve%20their%20program%20order.) (see 'in the order specified by its program')
+=======
+    - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'FIFO queue.'; two Requirements; 'the price of *slowing down* the processors'](https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf)
+      - this also forbids the OoO (see 'in the order specified by its program')
+>>>>>>> parent of 2be189e (need more learning of the memory consistency model)
+=======
+    - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'FIFO queue.'; two Requirements; 'the price of *slowing down* the processors'](https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf)
+      - this also forbids the OoO (see 'in the order specified by its program')
+>>>>>>> parent of 2be189e (need more learning of the memory consistency model)
       - this is just opposite of pipeline. See COD before.
       - 'appear in this sequence inthe order specified by its program.' -> 'write does not complete...' in COD' & ' does not change the *order* of any write'
-      - [examples][sequential_consistency]
+      - [examples](https://spcl.inf.ethz.ch/Teaching/2017-dphpc/assignments/sequential_consistency_sol.pdf)
       - also see ['*appears* to run sequentially.'](https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/armv8-sequential-consistency)
-      - [diff](https://stackoverflow.com/questions/14861822/) with Acquire/Release: the former ensures the order between ~~*cores*~~ threads while the latter only care order between *related* Acquire/Release operations. <a id="ac_rl"></a>
   - [I/O Coherence](https://phdbreak99.github.io/blog/arch/2020-05-18-io-coherence/)
   - ['directory-based cache coherence protocol'](https://en.wikipedia.org/wiki/Directory-based_coherence) has 'implementation overhead' because the *directory* and 'reduce traffic between caches' because directory function to send data.
 - p880
@@ -5110,10 +5117,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - last row: 'that Is exclusive elsewhere' because `modified` has invalidated all other caches, so `shared` is impossible. The `exclusive` occurs to master after the *master* sending `Write miss` to bus.
 - p907 say [simialrly](#Advantages)
   - 'write miss' implies will overwrite the original cache block.
-  - ~~TODO `otherwise` may be wrong, because miss with `exclusive` has no cache to offer data.~~ So see [p22](https://www.cs.cornell.edu/courses/cs3410/2013sp/lecture/18-caches3-w.pdf) which also say 'no way to *distinguish which word* was dirty with only *a single dirty bit.*'
-    - here exclusive implies modified -> writes back; otherwise (i.e. shared which implies clean), so no need to write back -> 'read from memory'.
+  - TODO `otherwise` may be wrong, because miss with `exclusive` has no cache to offer data. So see [p22](https://www.cs.cornell.edu/courses/cs3410/2013sp/lecture/18-caches3-w.pdf) which also say 'no way to *distinguish which word* was dirty with only *a single dirty bit.*'
     - also see 'Having *per-byte validity* for cache block contents would also complicate cache coherence and consistency' in the following link.
-      - cache coherence and consistency are ['synonymous' p5][paper_1].
   - read memory on a write-miss because  probably ['only with just a word missing in a block'.](https://cs.stackexchange.com/questions/21318/why-we-need-to-read-memory-on-a-write-miss)
 - p908
   - `exclusive` implies only cached in current cache, so other processor's cache has no *copy* -> *miss*. Then also allow dirty sharing (see above).
@@ -5140,45 +5145,6 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Two-way (1), four-way (D)' because instruction to be fetched is normally larger.
 - p918
   - 'merge requests' is similar to SIMD (here data are merged. po). 
-> from here, use the new book page as the index.
-
-- p464
-  - 'special purpose and systems category'
-    - special purpose -> status register 
-    - TODO system detailed meaning
-    - see V1 doc '“Zifencei”',etc.
-  - `fence.i`
-    - V1 
-      - p31
-        - ['“store instruction word” instruction'](../references/other_resources/COD/references/MAJC.pdf) is to specifically *store instruction* by checking whether it has been *modified*.
-          - p7 $512$ registers is calculated by `(96+32*4)*2+32*2` (here register file is delimited into two types, and only one registerfile's 'Global registers are shared')
-        - ['snoop the instruction (data) cache on every data (instruction) cache miss'](https://stackoverflow.com/questions/76546433)
-          - [Difference](https://www.geeksforgeeks.org/difference-between-von-neumann-and-harvard-architecture/) between Von Neumann and Harvard Architecture mainly about *cache*
-          - ''
-            - uop/Micro-operation cache is just to store uops.
-            - [trace cache](https://en.wikipedia.org/wiki/Trace_cache#Trace_structure) is similar to *prediction* ('different branching paths'), also see 'MICRO_2020.pdf' which can function as uop cache (also [see](https://www.realworldtech.com/willamette-architecture/2/))
-          - [patent](https://stackoverflow.com/a/17395717/21294350), see US6594734.pdf.
-            - TLB is used with physical addr and linear addr (i.e. virtual addr (linear because we view it as one line instead of physical banks,etc.))
-            - 'FINE HIT' is just offset.
-            - here can get the physical addr from cache because 1. 'physically addressed.' 2. maybe using CAM men.
-          - here *snoop* keeps cache coherency, resulting less overhead of fence to keep cache coherency.
-          - [JIT](https://stackoverflow.com/questions/2837635/how-does-jit-replace-optimized-machine-code-during-runtime?noredirect=1&lq=1) use `mmap` to update instruction in *linux*.
-          - 'run fence.i before jumping to that buffer' to invalidate / 'flush the local instruction cache' as V1 doc says.
-        - ['inclusive'](https://en.wikipedia.org/wiki/Cache_inclusion_policy#Inclusive_Policy) implies update of '*unified* private L2' will also update related L1 ('*primary* instruction cache')
-        - 'hart' see V1 doc or 'electronics-10-00518.pdf'
-          - 'local hart' -> hardware thread in current cpu core; 'user hart' -> current *using* hardware thread; 'different physical hart' -> another hardware thread (whether to 'execute an additional FENCE.I' depends on local hart definition (i.e. based on core maybe with multiple harts or just one hart.)).
-        - ['finer-grain'](https://www.geeksforgeeks.org/difference-between-fine-grained-and-coarse-grained-simd-architecture/) just means more '*subdivided* into various parts' as its literal meaning.
-      - p3 EEI
-        - [ABI vs API](https://en.wikipedia.org/wiki/Application_binary_interface) Here 'interface' is similar to communication. ABI defines how instruction should communicate with hardware ('hardware-dependent format' because [calling convention](https://en.wikipedia.org/wiki/X86_calling_conventions#Register_preservation) related with *caller/callee-saved* regs). API 
-          - 'deal with an ABI ... in a mix of programming languages' because compiler changed (at least language may differ in whether column-major or row-major).
-          - 'system call stubs' beacuse dynamic loading and PLT and here [*stub*](https://en.wikipedia.org/wiki/Method_stub#Method_Stub_Overview) is 'yet-to-be-developed code'
-          - 'Sizes,' like fetch instruction size.
-          - 'direct system calls' vs 'procedure calls to system call'. see [figure](https://www.8bitavenue.com/difference-between-system-call-procedure-call-and-function-call/)
-          - [API](https://en.wikipedia.org/wiki/API) 'offering a *service* to'. One example of API specification is `man 2 open`.
-      - p47
-        - [I/O domain](https://docs.oracle.com/cd/E38405_01/html/E38406/iodomainoverview.html) may just mmap physical I/O devices like how virtual memory map disk. ('direct access to a physical I/O device')
-    - [lwn memory blog ](https://lwn.net/Articles/252125/) which also says about [hardware](https://lwn.net/Articles/250967/)
-      - [NUMA](https://lwn.net/Articles/254445/) [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html)
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -5329,42 +5295,43 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'virtually indexed' p744.
   - ' 4 KiB page size,' -> need [$4*2^10(K)=12$](https://stackoverflow.com/questions/33216503/how-many-bits-required-for-page-frame-number-on-32-bit-system-with-220-bytes-ph) bit offset
 #### related with figure, p167~169
-~~- how '1536 PTE' and '128 PTE',etc are indexed TODO.~~
-- $1536/12=2^7$. Also DTLB should use Tag<32> which is same as ITLB.
-- [protection bits p9 at least 3bits TODO 4bit](https://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf)
-- here bank is just associativity
-- interpretation of the figure
-  - 1
-    - 36 bit -> index + tag
-      - ITLB: $2^4=128/8=16$
-        - notice : here should check tag as L2 TLB does.
-  - 4
-    - check tag
-  - miscs
-    - here if TLB miss, L2 TLB -> I/DTLB -> I/DCACHE
-    - 128 bit instruction because max is [15 bytes](https://en.wikipedia.org/wiki/Instruction_set_architecture#Instruction_length) from [this](https://stackoverflow.com/questions/14698350/x86-64-asm-maximum-bytes-for-an-instruction), then min n for $2^n>15$ is 4.
-    - here 'additional 2 bits' are not shown in the figure. (2bit -> $64/16=4=2^2$)
-    - `...` means pipeline in figure. ('L1 cache is pipelined')
-    - 'composed with the *page offset*' is not shown in the input of L2 CACHE of the figure.
-    - [unified cache](https://en.wikipedia.org/wiki/CPU_cache#Separate_versus_unified)
-    - 'initial 12-cycle latency' includes the 4-cycle latency in L1. 
-    - notice L2 '8 bytes per clock' (data transfer size) and L3 '16 bytes' (instruction transfer size)
-    - 'both channels have identical DIMMs.' mostly means their [freq](https://forums.tomshardware.com/threads/do-two-dimms-have-to-be-identical-if-there-in-the-same-channel.395140/) and size same.
-      - see channel relation with DIMM w.r.t the hardware. 
-    - $200\sim(64-16)/16*20+160(220)$
-    - merging write buffer
-      - write buffers [destroy](https://stackoverflow.com/a/66775022/21294350) sequential consistency because the processor running `store,load` can be seen as `load,store` by others due to the delay of store buffer.
-        - kw:'these 2 get reordered','the load of B will *overtake* the store of A' 
-      - implemented by ['combines writes that have *consecutive* destination addresses'](https://en.wikipedia.org/wiki/Write_buffer)
-        - also [see](http://thebeardsage.com/cache-optimization-merging-write-buffer/)
-        - Write [combining](https://en.wikipedia.org/wiki/Write_combining) while may change store order because it delays the store by combining them and write together.
-          - kw: 'lead to the write combining order'; 'be treated as a fully associative *cache*' (so `read` can fetch it.)
-          - here intel is [strong](https://preshing.com/20120930/weak-vs-strong-memory-models/) so no need to make 'the write buffer' '*added* into the memory hierarchy' <a id="strong_mem"></a>
-    - 'when the next level in the cache is *unused* for a read'. This increase the throughout of the write buffer by increasing the usage rate.
-    - 'see if the cache line exists': use write buffer to speed up the *search*.
-  - TODO
-    - in Icache, offset may not be used in the left block.
-    - 'The four tags and valid bits' may be eight (because eight banks) and tag is higher bits of physical addr.
+  ~~- how '1536 PTE' and '128 PTE',etc are indexed TODO.~~
+  - $1536/12=2^7$. Also DTLB should use Tag<32> which is same as ITLB.
+  - [protection bits p9 at least 3bits TODO 4bit](https://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf)
+  - here bank is just associativity
+  - interpretation of the figure
+    - 1
+      - 36 bit -> index + tag
+        - ITLB: $2^4=128/8=16$
+          - notice : here should check tag as L2 TLB does.
+    - 4
+      - check tag
+    - miscs
+      - here if TLB miss, L2 TLB -> I/DTLB -> I/DCACHE
+      - 128 bit instruction because max is [15 bytes](https://en.wikipedia.org/wiki/Instruction_set_architecture#Instruction_length) from [this](https://stackoverflow.com/questions/14698350/x86-64-asm-maximum-bytes-for-an-instruction), then min n for $2^n>15$ is 4.
+      - here 'additional 2 bits' are not shown in the figure. (2bit -> $64/16=4=2^2$)
+      - `...` means pipeline in figure. ('L1 cache is pipelined')
+      - 'composed with the *page offset*' is not shown in the input of L2 CACHE of the figure.
+      - [unified cache](https://en.wikipedia.org/wiki/CPU_cache#Separate_versus_unified)
+      - 'initial 12-cycle latency' includes the 4-cycle latency in L1. 
+      - notice L2 '8 bytes per clock' (data transfer size) and L3 '16 bytes' (instruction transfer size)
+      - 'both channels have identical DIMMs.' mostly means their [freq](https://forums.tomshardware.com/threads/do-two-dimms-have-to-be-identical-if-there-in-the-same-channel.395140/) and size same.
+        - see channel relation with DIMM w.r.t the hardware. 
+      - $200\sim(64-16)/16*20+160(220)$
+      - merging write buffer
+        - write buffers [destroy](https://stackoverflow.com/a/66775022/21294350) sequential consistency because the processor running `store,load` can be seen as `load,store` by others due to the delay of store buffer.
+          - kw:'these 2 get reordered','the load of B will *overtake* the store of A' 
+        - implemented by ['combines writes that have *consecutive* destination addresses'](https://en.wikipedia.org/wiki/Write_buffer)
+          - also [see](http://thebeardsage.com/cache-optimization-merging-write-buffer/)
+          - Write [combining](https://en.wikipedia.org/wiki/Write_combining)
+            - kw: 'lead to the write combining order'; 'be treated as a fully associative *cache*' (so `read` can fetch it.)
+            - here intel is [strong](https://preshing.com/20120930/weak-vs-strong-memory-models/) so no need to make 'the write buffer' '*added* into the memory hierarchy'
+          - TSO [p10](https://www.cs.rice.edu/~johnmc/comp522/lecture-notes/COMP522-2019-Lecture9-HW-MM.pdf)
+      - 'when the next level in the cache is *unused* for a read'. This increase the throughout of the write buffer by increasing the usage rate.
+      - 'see if the cache line exists': use write buffer to speed up the *search*.
+    - TODO
+      - in Icache, offset may not be used in the left block.
+      - 'The four tags and valid bits' may be eight (because eight banks) and tag is higher bits of physical addr.
 - p168
   - ~~TODO here should be 'the same place in the cache' which implies alias (see [above](#alias)) instead of ' two different places in the cache' (just origianal eight-way index has one redundant bit, so conflict miss.)~~
   - ~~TODO 'four-way set associative' need more infos. Because if with the same info as 6700, then four-way needs 7bit index while 6bit will select only half.~~ See [this](https://stackoverflow.com/questions/76530296/what-is-the-relation-between-set-associative-and-cache-aliasing)
@@ -5430,20 +5397,26 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Thread Scheduler ...' So whether threads in one block are ~~*not parallel*~~ parallel depends on GPU .
 - p349
   - just show how *multithreaded* implemented with multiple SIMD lanes (thread)
+<<<<<<< HEAD
+<<<<<<< HEAD
 #### TSO and other memory consistency model
 - TSO [p10](https://www.cs.rice.edu/~johnmc/comp522/lecture-notes/COMP522-2019-Lecture9-HW-MM.pdf) also see book p453
+  - definition based on relation with [PSO][TSO_PC_PSO]
+    - `total Store Ordering` means *total*ly allowing re*ordering* *store* with subsequent load which can be implemented by *store buffer*.
+    - maybe the most primitive [definition p31:TSO](https://www.google.com/books/edition/Scalable_Shared_Memory_Multiprocessors/OJzbBwAAQBAJ?hl=en&gbpv=1) of all memory consistency models having all *math axioms* which is referenced by [this]. 
+    - also see [sparcv9][sparcv9] p143 and [this 'a single, global order of writes'][Weak_vs_Strong_Memory_Models]
   - notice it doesn't guarantee the strong memory model, it just means having a [store buffer (utexas link)](https://www.cs.utexas.edu/~bornholt/post/memory-models.html#:~:text=A%20popular%20memory%20model%20that,latency%2C%20making%20execution%20significantly%20faster.) so allow [Storeload reordering p4](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf) (here 'it returns the value of own write before others see it' is same as ['with exceptions for *local* memory'](https://www.reddit.com/r/hardware/comments/i0mido/comment/fzqb4is/?utm_source=share&utm_medium=web2x&context=3)) (also see the utexas link) from user's perspective although their issue order may not change.
   - [explicit definition](http://www.cse.unsw.edu.au/~cs9242/02/lectures/10-smp/node8.html) here 'FIFO order' implies it is [~~subset ('might as well say that sequential consistency *map*')~~ ycombinator link](https://news.ycombinator.com/item?id=21588893#21592299) ~~of~~ similar to sequential consistency because requirement R1 may not meet (see [p6 'regain sequential consistency' (i.e. 'recover sequential consistency with additional barriers' in the above ycombinator link)](https://www.cl.cam.ac.uk/~pes20/weakmemory/cacm.pdf)). But 'sequential consistency (SEQCST) + a store buffer' in ycombinator is obvious true which can also got from the following upenn link although store buffer will change the original behavior of sequential consistency. <a id="TSO"></a>
-    - as ycombinator says ('Acquire-release consistency allows many more reorderings'), here SC > TSO > Acquire-release (> means [stronger](#strong_mem))
+    - as ycombinator says ('Acquire-release consistency allows many more reorderings'), here SC > TSO (only allow StoreLoad reordering) > Acquire-release (> means [stronger](#strong_mem))
       - [see ac_rl](#ac_rl), acquire/release only control *order* of same variable (implies support for variable alias). So from [this 'freely reorder...cannot migrate upward past an *acquire*...'](https://en.wikipedia.org/wiki/Release_consistency#Weak_ordering_(Weak_consistency)) 
         - here 'synchronization accesses' implies from the context that it is not for threads at least (also from above ac_rl code behavior).Also should [second sense](https://en.wikipedia.org/wiki/Weak_consistency)
     - here 'Loads read from write buffer *if possible*.' also implies 'store is a release...' in the above ycombinator link.
-    - Also see this [upenn link:p9 vs p15 difference](https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf). Here FIFO ensures the StoreStore order unchanged (see p5). But the store *buffer* *delays* the store to *memory*
+    - Also see this [upenn link:p9 vs p15 difference][sc_tso]. Here FIFO ensures the StoreStore order unchanged (see p5). But the store *buffer* *delays* the store to *memory*
       - p7: see doublequote contents which is definition of SC(Sequential	Consistency).
       - p9: `<m/p`, `	MAX	<m/<p` meaning
       - p13: `C↓1` meaning.
       - p15: `S(a)<p	L(a)` just means it allows delay so *memory order* (see p7) changed (load access memory earlier than store.)
-- ~~TODO~~ in this ~~[paper](https://dl.acm.org/doi/pdf/10.1145/160551.160553)~~ (the former is too coarse see [this paper][paper_1]) which lists almost all *consistency* models (highly recommended because it says the differences very *clearly*, the link is from [wikipedia][Wl_1]),`R(y)2` in p4 seems to be conflict with upenn link p8(a). This may be the 'surprising *flexibility* of the SC model' because it not [defines][Sequential_consistency] how to *read*.
+- ~~TODO~~ in this ~~[paper](https://dl.acm.org/doi/pdf/10.1145/160551.160553)~~ (the former is too coarse see [this paper_1][paper_1]) which lists almost all *consistency* models (highly recommended because it says the differences very *clearly*, the link is from [wikipedia][Wl_1]),`R(y)2` in p4 seems to be conflict with upenn link p8(a). This may be the 'surprising *flexibility* of the SC model' because it not [defines][Sequential_consistency] how to *read*.
   - atomic consistency with ['real-time constraint' in Sequential_consistency wikipedia][Sequential_consistency] because ['*vague* about when an operation is considered to begin and end'](https://en.wikipedia.org/wiki/Linearizability#History_of_linearizability)
   - paper interpretation
     - 'appear commuted' -> non AC because 'non-overlapping'
@@ -5451,12 +5424,24 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - 'Cache Consistency': here 'per-location basis' just means cache data physical address. So assume that $P_1: W(x)1,R(x)$ and $P_2: W(x)2,R(x)$, then both processors should read same which implies Cache Consistency.
     - combi-nation of coherence (see ' as long as those writes are to *different* locations') and PRAM ('...disagree on...')
   - *Processor* consistency [vs](https://en.wikipedia.org/wiki/Processor_consistency#Examples_of_Processor_Consistency) others
+    - 'removes the requirements for loads to wait for stores to complete' because StoreLoad can be reordered (from the above paper, it only ensures how stores from different processors are *observed* but not ensures the store order with load.). Also from the above paper 'a write as a *message-send* event and a read as a message-read event.' may implies that Causal Consistency not allow StoreLoad reordering.
     - TODO here Example 4 seems to be wrong. Because from [Cache_Consistency definition][Cache_Consistency_def], 'processor P1 reads the *old* value of X ... incoherent'
+      - see this [stackoverflow Q&A](https://stackoverflow.com/questions/76550200)
+        - Q1
+          - 'weaker' should be right. 
+            - paper_2 and paper_3 def relation [see p198][Scalable_Shared_Memory_Multiprocessors_libgen] (the latter should based on the former when having something like write buffer to *delay* write.); paper_1 and paper_2 here cache coherency and PRAM may be implied from the paper_2 '*stronger* than weak ordering, but *weaker* than strong ordering,'.
+            - After all, it is just one *manual definition* of memory consistency. Consider more of whether it is correct than how it is defined.
+            - paper_1 can also say weaker. Because in paper_1, p4 says 'all processors agree on the order of causally related events' although *not about all events*. p5 says '*disagree* on the order of writes by dif-ferent processors, as long as those writes are to different locations.' implies 'not require writes from all processors...' in wikipedia, However, wikipedia doesn't mean the opposite of the former 'require writes from all processors ...' applies to CC. This is really a *english comprehension* problem.
       - The [reference](https://en.wikipedia.org/wiki/Processor_consistency#cite_note-:2-1) is same as [this][paper_1] where $W(c)1$ can be reordered because it is not read, so no RAW hazard. This implies cache coherency.
     - TODO prove subset relation of different consistency model
       - some relation and proof can be see [here p7](https://dl.acm.org/doi/pdf/10.1145/165231.165264)
-    - ['Write Atomicity'](https://courses.cs.washington.edu/courses/csep524/99wi/lectures/lecture5/tsld012.htm) is obviously not ensured by Processor Consistency. Also [see](https://en.wikipedia.org/wiki/Consistency_model#Relaxed_memory_consistency_models)
-    - without the need for ['load speculation'](https://www.cs.nmsu.edu/~rvinyard/itanium/speculation.htm) because the write latency has been hidden by write buffer. So need to change load location to hide the store latency.
+        - TODO see why processor consistency defined as TSO from math perspective.
+    - TODO see how PROCESSOR CONSISTENCY [implemented][Scalable_Shared_Memory_Multiprocessors_libgen] in reality.
+    - ['Write Atomicity'](https://courses.cs.washington.edu/courses/csep524/99wi/lectures/lecture5/tsld012.htm) is obviously not ensured by Processor Consistency. Also [see paper](https://en.wikipedia.org/wiki/Consistency_model#Relaxed_memory_consistency_models)
+      - [non-atomic](https://preshing.com/20130618/atomic-vs-non-atomic-operations/) write/store which may store large data.
+      - here the latter paper p14 'serialized (i.e., writes to the same location be made visible in the *same order* to all processors)' implies no interrupt because assume that P1 and P2 write same location X with data a and b simultaneously. Then based on pipeline, P1 and P2 see the two write in different order because they both think that their self write occurs first.
+    - without the need for ['load speculation'](https://www.cs.nmsu.edu/~rvinyard/itanium/speculation.htm) because the write latency has been hidden by write buffer. ~~So~~ 'load speculation' ~~need to~~ means changing load ~~location~~ by *overlapping* with store to [hide the store latency p20][stanford_149_09_consistency].
+    - why PC [always](https://en.wikipedia.org/wiki/Processor_consistency#Processor_Consistency_vs._Sequential_Consistency) behave same as SC which is same as ~~original~~ [PC paper][] says in p2.
   - See wikipedia [Consistency_model](https://en.wikipedia.org/wiki/Consistency_model#Relaxed_write_to_read)
     - 'at the *hardware* level' ['write to read'](https://en.wikipedia.org/wiki/Consistency_model) ('write followed by a read') 
       - Because hardware level, 'some programs like XXX may fail ' while 'programs like YYY are still expected'.
@@ -5464,7 +5449,34 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - ~~TODO~~ 'the result is possible only in IBM 370 because read(A) is *not issued until* the write(A) in that processor is completed.' because 'A read can be complete before an earlier write to a different address' which implies no reorder if [*same address*][Similarity_TSO_IBM_370]. Also, [this TSO related Similarity][Similarity_TSO_IBM_370] says about 'SPARC V8 TSO': 'allows operations to the *same* location to complete *out of program order*'. So the above *only*.
       - notice here implies TSO is one general term.
     - 'which effectively *hides the latency* of write operations': this is to [hide](https://www.geeksforgeeks.org/multithreading-and-latency-hiding/#) by filling the pipeline without stalling which may removing data dependency wrongly.
-    - 'Example B'
+    - 'Example B' obviously PC (processor consistency model) allow StoreLoad reordering.
+  - from CAAQA p453, it says TSO is same as processor consistency which seems weird at first glance based on the above paper_1 definition
+    - from this [paper 'TR1006.pdf'][PC_orig]. p5 says the original definition when introduced which diffs from SC(sequential consistency) that it not cares about order of *all* processors (which is cared in SC) but only individual (this can also be seen from the CAAQA figure). So 'writes from two processors' (i.e. combination of two processor writes) 'not be identical,'. But 'issuing from any processor' (i.e. only one) 'may not be observed ... other than that in which they are issued.' (i.e. same as *issue* order).
+      - footnote 3: there must be one read because 'outstanding writes to one,' disallows [parallel p1][lec_17] 
+      - 'single ordering of write operations ' also implies it is same as TSO
+      - 'when the fence operation may unblock the processor.' -> control StoreStore
+      - 'to date we have been unable to identify a single application for such code.' -> *rare* to fail.
+      - 'both processes can never be killed.' -> more clearly, should be 'never be killed at the same time.' (i.e. possible to kill one but not the other.). see [p8][sc_tso] for possible situations of SC.
+      - ['fence operations'](https://en.wikipedia.org/wiki/Memory_barrier) is to control memory access *order* (from this [isca90 paper][isca90], it only use fence with StoreLoad), while [Synchronization](https://docs.oracle.com/cd/E19455-01/806-4750/chap7rt-95545/index.html) is to control *exclusive* access (avoid *overlap*, also [see 'synchronization is required'][TSO_PC_PSO]) by using somthing like `semaphores` like csapp says.
+      - 'prefetches operands or instructions is not strongly ordered.' because prefetch implies *load* which may reordered with current *store*. (also see '*scheduling* the code' and [above](#scheduling))
+    - isca90
+      - 'strict event ordering' -> pipeline stages po.
+      - 'evcntuaIIy perform.' (this is pdf OCR words) -> must *release* (by writing) the lock to avoid deadlock.
+  - very [helpful doc][MEMORY_CONSISTENCY_DETAILED] with memory consistency from [wikipedia](https://en.wikipedia.org/wiki/Processor_consistency#cite_note-:3-4)
+    - lecture related [TSO p5][lec_17], also [lec_16](http://www.cs.cmu.edu/afs/cs/academic/class/15740-f02/www/lectures/lect16.pdf)
+    - p47 'issues its operations in program order' & 'issued in the same order to memory.' specify differences between program order and memory order.
+    - p49 footnote says 'processor consistency' has changed and different from Goodman says.
+    - sequence can either mean *thread* program instruction sequence as p28/48 says or mean total instruction sequence of all threads as p49 says.
+      - p50 sequence should refer to the former one, otherwise $(u,v,w)=(1,1,0)$ is impossible.
+        - so Figures 2.3(c): memory order may be $a1,a2,b2,a3,b3$ but $b3$ may not ['see ... updated'][TSO_PC_PSO] 
+          - TODO the above may be in conflict with 'coherence requirement'.
+          - here also has no program order *bypass*
+          - the behavior is just [what p27 says][stanford_149_09_consistency]
+        - Figures 2.3(d) is similar. $P1...P4$ and $b4$ in P4 also not see updated A.
+=======
+>>>>>>> parent of 2be189e (need more learning of the memory consistency model)
+=======
+>>>>>>> parent of 2be189e (need more learning of the memory consistency model)
 #### [Reference Appendices](https://www.elsevier.com/books-and-journals/book-companion/9780128119051) where also has other resources.
 #### TODO
 - A *vertical cut* of a thread of SIMD instructions
@@ -5514,6 +5526,8 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - [R-type](#rformat) still p7
 - B register is `rs2`
 ### TODO
+<<<<<<< HEAD
+<<<<<<< HEAD
 - why `EXMEMALOUT >> 2` not `EXMEMALOUT >> 1` to just put `64=32<<1` bit data.
 
 ---
@@ -5528,6 +5542,10 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
   - [Wl_1][Wl_1]
 - paper
   - [paper_1][paper_1]
+  - [PC_orig][PC_orig]
+  - [SC_orig][SC_orig]
+  - [MEMORY_CONSISTENCY_DETAILED][MEMORY_CONSISTENCY_DETAILED]
+  - [isca90][isca90]
 - blog
   - preshing
     - [Memory_Barriers][Memory_Barriers]
@@ -5535,6 +5553,16 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 - assignment 
   - dphpc
     - [sequential_consistency][sequential_consistency]
+- class_lecture
+  - [sc_tso][sc_tso]
+  - [lec_17][lec_17]
+  - [TSO_PC_PSO][TSO_PC_PSO]
+  - [stanford_149_09_consistency][stanford_149_09_consistency]
+- official doc
+  - [sparcv9][sparcv9]
+- book
+  - from wikipedia
+    - [Scalable_Shared_Memory_Multiprocessors_libgen][Scalable_Shared_Memory_Multiprocessors_libgen]
 ---
 
 [Sequential_consistency]:https://en.wikipedia.org/wiki/Consistency_model#Sequential_consistency
@@ -5545,3 +5573,14 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [Weak_vs_Strong_Memory_Models]:https://preshing.com/20120930/weak-vs-strong-memory-models/
 [sequential_consistency]:https://spcl.inf.ethz.ch/Teaching/2017-dphpc/assignments/sequential_consistency_sol.pdf
 [Similarity_TSO_IBM_370]:https://en.wikipedia.org/wiki/Processor_consistency#Similarity_to_SPARC_V8_TSO,_IBM-370,_and_x86-TSO_Memory_Models
+[sc_tso]:https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf
+[PC_orig]:../references/other_resources/COD/references/memory_consistency/TR1006_PC_orig.pdf
+[lec_17]:http://www.cs.cmu.edu/afs/cs/academic/class/15418-s11/public/lectures/lect17.pdf
+[SC_orig]:https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf
+<!-- [MEMORY_CONSISTENCY_DETAILED]:https://typeset.io/pdf/memory-consistency-models-for-shared-memory-multiprocessors-3fuice3vg8.pdf -->
+[MEMORY_CONSISTENCY_DETAILED]:../references/other_resources/COD/references/memory-consistency-models-for-shared-memory-multiprocessors-3fuice3vg8.pdf
+[sparcv9]:../references/other_resources/COD/references/sparcv9.pdf
+[TSO_PC_PSO]:http://15418.courses.cs.cmu.edu/spring2013/article/41#:~:text=Partial%20Store%20Ordering%20(PSO)%20is,be%20in%20order%20at%20all.
+[stanford_149_09_consistency]:https://gfxcourses.stanford.edu/cs149/winter19content/lectures/09_consistency/09_consistency_slides.pdf
+[isca90]:../references/other_resources/COD/references/gharachorloo.isca90.pdf
+[Scalable_Shared_Memory_Multiprocessors_libgen]:../references/other_resources/COD/references/Scalable_Shared_Memory_Multiprocessors_libgen.pdf
