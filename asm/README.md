@@ -4565,7 +4565,8 @@ B[k][j] B[k][j] ...
     - recommend this [blog](http://gavinchou.github.io/summary/c++/memory-ordering/) which says all and more like `compare_exchange_strong` about Memory Order.
     - in `c++` always avoid [std::memory_order_consume](https://stackoverflow.com/questions/19609964/how-do-acquire-and-consume-memory-orders-differ-and-when-is-consume-prefe#comment29108991_19609964) because ['// may or may not fire: data does not carry dependency from ptr'](https://en.cppreference.com/w/cpp/atomic/memory_order#Release-Consume_ordering)
       - why have `memory_order_consume`, at least [cheaper](https://stackoverflow.com/questions/55741148/memory-order-consume-usage-in-c11)
-      - diff in [code](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/) (this link from [this where also says why not use consume sometimes](https://stackoverflow.com/questions/65336409/what-does-memory-order-consume-really-do)) , consume use pointer and acquire use something like *global* variable.
+      - diff in [code](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/) (this link from [this where also says why not use consume sometimes](https://stackoverflow.com/questions/65336409/what-does-memory-order-consume-really-do)) , consume use pointer to synchronize and acquire use something like *global* variable.
+        - acquire and release [definition p3 'Synchronization accesses can further be partitioned '][isca90_GLL_90] 
     - intel reference p3284 only ensure one processor order, not ensure multi, see figure 9-1
   - memory barrier
     - [no needed](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory) in [strong](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory#comment88616281_12204320) memory model. But ['storeload'][Weak_vs_Strong_Memory_Models] still exists.~~So we need~~ This can be solved with store release and load acquire.
@@ -4573,7 +4574,7 @@ B[k][j] B[k][j] ...
     - why use [weak](https://stackoverflow.com/questions/58870009/why-do-weak-memory-models-exist-and-how-is-their-instruction-order-selected) memory model ’big advantage‘
     - [detailed][Weak_vs_Strong_Memory_Models] where says 'a little disagreement over this question'(i.e. ~~definition ~~ classification of strong memory model)
       - here relaxed memory model -> Weak ... allowing all reordering.
-      - [loadload][Memory_Barriers] is just means *load after load* can't be reordered. [related](https://preshing.com/20120913/acquire-and-release-semantics/) with acquire,etc
+      - [loadload][Memory_Barriers] is just means *load after load* can't be reordered. [related][ac_rel] with acquire,etc
         - notice: [Acquire](https://stackoverflow.com/questions/24565540/how-to-understand-acquire-and-release-semantics) means the instruction can *acquire* what is done before. Similarly, Release means *release* what is done, so instruction after can get the result.
         - why StoreLoad 'is often a more *expensive* memory barrier type', maybe other are [redundant](https://stackoverflow.com/questions/27475025/why-is-a-store-load-barrier-considered-expensive#comment71586035_27477887) because *hardware* has ensured. Also [see](https://stackoverflow.com/questions/64131951/why-is-storeload-more-expensive-than-other-barrier-types/76506593#76506593)
         - also [see arm doc](#Load-Acquire), here 'Load-Acquire' is not just one barrier but also function as *load*, see original [definition](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming?redirectedfrom=MSDN#read-acquire-and-write-release-barriers) (which is referenced in the parent link) in c++
@@ -5435,6 +5436,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 #### TSO and other memory consistency model
 - TSO [p10](https://www.cs.rice.edu/~johnmc/comp522/lecture-notes/COMP522-2019-Lecture9-HW-MM.pdf) also see book p453
   - definition based on relation with [PSO][TSO_PC_PSO]
+    - ~~TODO maybe ~~ has relation with [Partially ordered set](https://en.wikipedia.org/wiki/Partially_ordered_set) (relation with StoreStore reordering in PSO) which is also referenced in original SC [paper][SC_orig] 'partial ordering on the set of memory requests.' and the following Relaxed Memory Consistency Models are based on sequential consistency as in [p6][CSG280].
+      - obviously the order is about StoreStore because TSO is normally based on write buffer (FIFO) which ensures [no reordering][#StoreStore] of StoreStore.
     - here example 1 is based on synchronization.
     - `total Store Ordering` means *total*ly allowing re*ordering* *store* with subsequent load which can be implemented by *store buffer*.
     - maybe the most primitive [definition p31:TSO](https://www.google.com/books/edition/Scalable_Shared_Memory_Multiprocessors/OJzbBwAAQBAJ?hl=en&gbpv=1) of all memory consistency models having all *math axioms* which is referenced by [this]. 
@@ -5445,12 +5448,35 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - [see ac_rl](#ac_rl), acquire/release only control *order* of same variable (implies support for variable alias). So from [this 'freely reorder...cannot migrate upward past an *acquire*...'](https://en.wikipedia.org/wiki/Release_consistency#Weak_ordering_(Weak_consistency)) 
         - here 'synchronization accesses' implies from the context that it is not for threads at least (also from above ac_rl code behavior).Also should [second sense](https://en.wikipedia.org/wiki/Weak_consistency)
     - here 'Loads read from write buffer *if possible*.' also implies 'store is a release...' in the above ycombinator link.
-    - Also see this [upenn link:p9 vs p15 difference][sc_tso]. Here FIFO ensures the StoreStore order unchanged (see p5). But the store *buffer* *delays* the store to *memory*
+    - Also see this [upenn link:p9 vs p15 difference][sc_tso_cis601]. Here FIFO ensures the StoreStore order unchanged (see p5). But the store *buffer* *delays* the store to *memory* <a id="StoreStore"></a>
       - p7: see doublequote contents which is definition of SC(Sequential	Consistency).
       - p9: `<m/p`, `	MAX	<m/<p` meaning
       - p13: `C↓1` meaning.
       - p15: `S(a)<p	L(a)` just means it allows delay so *memory order* (see p7) changed (load access memory earlier than store.)
+- [Weak Consistency (WC)][Weak_Consistency]
+  - memory MOOULES is hardware interface with memory,see [SC_orig] p2 top left.
+  - p6 just defined based on synchronization, similar to [wikipedia](https://en.wikipedia.org/wiki/Consistency_model#Weak_memory_consistency_models).
+  - p2
+    - 2a: interconnection of local memories ('MEM') by using *bus* and wires. And it also function as remote
+      - it can access memory more quickly than 1.
+      - notice in the figure, enqueue right and dequeue left. 
+  - Also see [mosberger93memory]
+    - def 2&3 -> fences.
+  - this [paper where only reference SC_orig when saying 'In return the system appears sequentially consistent'](https://dl.acm.org/doi/pdf/10.1145/139669.139674)
+    - [mosberger93memory] p6: here no data race ensures the *sequential* and 'synchronization is visible to the memory' just to ensure cache/others_mem coherency and avoid starvation or deadlock,etc.
+    - also see [isca90_GLL_90] p5 WCsc: sc implies total synchronization -> SC. 
+- [Release Consistency (RC)][isca90_GLL_90]
+  - p2 'LOAD Globally' just to check whether StoreLoad reordering and the overlap because of 'non-atomic STORES'.
+  - p5 '(stricter)' definition similar to order.
+  - 'only rquired to be processor consistent' because reordering of StoreLoad is same as what acquire and release do in [ac_rel].
+  - p4 'nsyncL for the store' ~~because here only needs read not interrupt by others and precedes the self Modify-Store. Store is then to write buffer and also probably adjoint.~~ because atomic so nothing to release ['it does not 'release' anything'](https://stackoverflow.com/questions/51978573/memory-ordering-or-read-modify-write-operation-with-read-write-only-memory-ord).
+  - p6 'chaotic relaxation' definition 
 - [Atomic Consistency][slow_mem] from [mosberger93memory][mosberger93memory]
+  - in '2.2', 'we use atomic, con-sistent and coherent *interchangeably* t o refer t o intuitive correctness' and '2' consistent (atomic) memory must be *slow* in high latency environments.
+    - So here atomic memory is just shared memory.
+  - '2.3' still assumes SC, also see [sc_tso_cis601] p8 and 'SNIR.pdf' p9.
+    - here 'x = 0,y = 1 is prohibited' is just why 'consistent memory will not allow the final outcome in which *both processes read 0*.' in 2.2. So atomic memory is just consistent memory. This paper *terminology* may be *too casual*.
+    - It is definitely not this [physical atomic memory](https://www.npr.org/sections/alltechconsidered/2016/07/28/486755823/writing-data-onto-single-atoms-scientists-store-the-longest-text-yet) based on atoms. 
   - here 'serial execution' just to avoid [loop 'Things that shouldn’t happen'][memory_models].
   - 'read-begin or write-end' just means read take effect at once while write delays to *end*. So order is more 'determinism' than dynamic atomic memory.
   - [herlihy paper][herlihy] from Fig. 1,2 we can know LINEARIZABILITY is similar 
@@ -5463,10 +5489,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here can be seen as *both read* and write atomicity.
   - Also from '3.2', 'the effects of operations may appear *delayed*.' doesn't conflict with definition because definition only ensures *executed* (issue) order and consistency with program order.
     - in short, it doesn't ensure [cache consistency](#cache_consistency).
-    - delay ~~implies *overlap* although [above][#overlap] says no overlap.~~ p304
+    - delay ~~implies *overlap* although [above][#overlap] says no overlap.~~  ' as their name implies, non-overlapping,' in p304
     - here key point is that the '*some* sequential order' which may not be original program order.
-      - see different sequential orders [p8][sc_tso].
+      - see different sequential orders [p8][sc_tso_cis601].
     - 'Both private and serial memory are *restrictions* of tradi-tional atomic memory' means atomic memory don't have some advantages of the former. So it is more restrictive.
+      - ' to-tally ordered ' implies private is somthing like ~~cache~~ write-buffer. and '*partially* ordered by the several inter-leaved program orders' implies the delay of write-buffer.
     - 'need not be retained by' just means not has one absolute relation.
     - 'delayed by differing amounts,' just means stall, see below diagram.(`[]`means the begin and end where write must take effect).
     ```bash
@@ -5477,7 +5504,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - p305 'P2:W(y)2 and P3:R(y)2' (same as [mosberger93memory] p4 'R(y)2' which 'reads a value that has *not been written yet*') is sequentially consistent because rereading its definition. It says ' the result of any execution is the *same* *as if* the operations of *all* the processors were executed in some *sequential* order, and the operations of *each* individual processor appear in this sequence inthe order *specified by its program*.'
       - So here it just runs *same as* what the original *program sequential* result (see the diagram timeline which is what [Lamport_1985] does in p).
       - here read future is what regular/safe register allows but atomic register not allows. So shows the [mosberger93memory] p4 Figure 2.
+      - here SC *allow reordering* as seen from the above example. But from the perspective of *results*, it not allow reordering and 'appear in this sequence in the order *specified by its program’*' -> as program order.
 - ~~TODO~~ in this ~~[paper](https://dl.acm.org/doi/pdf/10.1145/160551.160553)~~ (the former is too coarse see [this mosberger93memory paper][mosberger93memory]) which lists almost all *consistency* models (highly recommended because it says the differences very *clearly*, the link is from [wikipedia][Wl_1]),`R(y)2` in p4 seems to be conflict with upenn link p8(a). This may be the 'surprising *flexibility* of the SC model' because it not [defines][Sequential_consistency] how to *read*.
+  - notice here PC has at least two versions 'PC as defined by the DASH group ...  is not *comparable*' (See paper_2 and paper_3 below).
   - atomic consistency with ['real-time constraint' in Sequential_consistency wikipedia][Sequential_consistency] because ['*vague* about when an operation is considered to begin and end'](https://en.wikipedia.org/wiki/Linearizability#History_of_linearizability)
     - maybe also related with cache with just [*synchronization*, see 'real-time constraints', '*tell* some other process about an event','*observe* that event'](https://jepsen.io/consistency/models/sequential) 
   - paper interpretation
@@ -5548,8 +5577,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - 'single ordering of write operations ' also implies it is same as TSO
       - 'when the fence operation may unblock the processor.' -> control StoreStore
       - 'to date we have been unable to identify a single application for such code.' -> *rare* to fail.
-      - 'both processes can never be killed.' -> more clearly, should be 'never be killed at the same time.' (i.e. possible to kill one but not the other.). see [p8][sc_tso] for possible situations of SC.
-      - ['fence operations'](https://en.wikipedia.org/wiki/Memory_barrier) is to control memory access *order* (from this [isca90 paper][isca90], it only use fence with StoreLoad), while [Synchronization](https://docs.oracle.com/cd/E19455-01/806-4750/chap7rt-95545/index.html) is to control *exclusive* access (avoid *overlap*, also [see 'synchronization is required'][TSO_PC_PSO]) by using somthing like `semaphores` like csapp says.
+      - 'both processes can never be killed.' -> more clearly, should be 'never be killed at the same time.' (i.e. possible to kill one but not the other.). see [p8][sc_tso_cis601] for possible situations of SC.
+      - ['fence operations'](https://en.wikipedia.org/wiki/Memory_barrier) is to control memory access *order* (from this [isca90_GLL_90 paper][isca90_GLL_90], it only use fence with StoreLoad), while [Synchronization](https://docs.oracle.com/cd/E19455-01/806-4750/chap7rt-95545/index.html) is to control *exclusive* access (avoid *overlap*, also [see 'synchronization is required'][TSO_PC_PSO]) by using somthing like `semaphores` like csapp says.
       - 'prefetches operands or instructions is not strongly ordered.' because prefetch implies *load* which may reordered with current *store*. (also see '*scheduling* the code' and [above](#scheduling))
     - isca90
       - 'strict event ordering' -> pipeline stages po.
@@ -5633,26 +5662,29 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
     - [PC_orig][PC_orig]
     - [SC_orig][SC_orig]
     - [MEMORY_CONSISTENCY_DETAILED][MEMORY_CONSISTENCY_DETAILED]
-    - [isca90][isca90]
+    - [isca90_GLL_90][isca90_GLL_90]
     - [herlihy][herlihy]
     - [Misra_1985][Misra_1985]
 - blog
   - preshing
     - [Memory_Barriers][Memory_Barriers]
     - [Weak_vs_Strong_Memory_Models][Weak_vs_Strong_Memory_Models]
+    - [ac_rel][ac_rel]
 - assignment 
   - dphpc
     - [sequential_consistency][sequential_consistency]
 - class_lecture
   - memory consistency
-    - [sc_tso][sc_tso]
+    - [sc_tso_cis601][sc_tso_cis601]
     - [lec_17][lec_17]
     - [TSO_PC_PSO][TSO_PC_PSO]
     - [stanford_149_09_consistency][stanford_149_09_consistency]
     - [memory_models][memory_models]
+    - [CSG280][CSG280]
     - with math
       - [Misra_1985][Misra_1985]
       - [Lamport_1985][Lamport_1985]
+      - [Weak_Memory_Consistency][Weak_Memory_Consistency]
 - official doc
   - [sparcv9][sparcv9]
 - book
@@ -5670,11 +5702,17 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [Wl_1]:https://en.wikipedia.org/wiki/Causal_consistency#cite_note-10
 [mosberger93memory]:https://www.cse.psu.edu/~buu1/teaching/spring07/598d/_assoc/CCBD250576DD4E41ABC1EC82207C66A0/mosberger93memory.pdf
 [Cache_Consistency_def]:https://en.wikipedia.org/wiki/Cache_coherence#Definition
+
+
 [Memory_Barriers]:https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/
 [Weak_vs_Strong_Memory_Models]:https://preshing.com/20120930/weak-vs-strong-memory-models/
+[ac_rel]:https://preshing.com/20120913/acquire-and-release-semantics/
+
+---
+
 [sequential_consistency]:https://spcl.inf.ethz.ch/Teaching/2017-dphpc/assignments/sequential_consistency_sol.pdf
 [Similarity_TSO_IBM_370]:https://en.wikipedia.org/wiki/Processor_consistency#Similarity_to_SPARC_V8_TSO,_IBM-370,_and_x86-TSO_Memory_Models
-[sc_tso]:https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf
+[sc_tso_cis601]:https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf
 [PC_orig]:../references/other_resources/COD/references/memory_consistency/TR1006_PC_orig.pdf
 [lec_17]:http://www.cs.cmu.edu/afs/cs/academic/class/15418-s11/public/lectures/lect17.pdf
 [SC_orig]:https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf
@@ -5683,13 +5721,16 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [sparcv9]:../references/other_resources/COD/references/sparcv9.pdf
 [TSO_PC_PSO]:http://15418.courses.cs.cmu.edu/spring2013/article/41#:~:text=Partial%20Store%20Ordering%20(PSO)%20is,be%20in%20order%20at%20all.
 [stanford_149_09_consistency]:https://gfxcourses.stanford.edu/cs149/winter19content/lectures/09_consistency/09_consistency_slides.pdf
-[isca90]:../references/other_resources/COD/references/gharachorloo.isca90.pdf
+[isca90_GLL_90]:../references/other_resources/COD/references/gharachorloo.isca90.pdf
 [Scalable_Shared_Memory_Multiprocessors_libgen]:../references/other_resources/COD/references/Scalable_Shared_Memory_Multiprocessors_libgen.pdf
 [RISC_V_Custom_OCR]:../references/other_resources/COD/COD_RISCV_OCR.pdf
 [RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
-[slow_mem]:slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
+[slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
-[herlihy]:p463-herlihy.pdf
+[herlihy]:../references/other_resources/COD/references/memory_consistency/p463-herlihy.pdf
 [CAAQA]:Computer_Architecture_Sixth_Edition_A_Qu.pdf
-[Misra_1985]:Misra_1985.pdf
-[Lamport_1985]:interprocess.pdf
+[Misra_1985]:../references/other_resources/COD/references/memory_consistency/Misra_1985.pdf
+[Lamport_1985]:../references/other_resources/COD/references/memory_consistency/interprocess.pdf
+[CSG280]:../references/other_resources/COD/references/memory_consistency/document_CSG280.pdf
+[Weak_Memory_Consistency]:https://es.cs.rptu.de/publications/datarsg/Senf13.pdf
+[Weak_Consistency]:Weak_Consistency.pdf
