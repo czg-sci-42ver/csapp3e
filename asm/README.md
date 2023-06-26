@@ -1,6 +1,7 @@
 # miscs
 - hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
 - stackoverflow image [size](https://meta.stackoverflow.com/questions/253403/how-to-reduce-image-size-on-stack-overflow) based on imgur.
+- Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly. 
 # TODO
 - `.-multstore` meaning
 - [ROP](https://tc.gts3.org/cs6265/tut/tut06-01-rop.html)
@@ -5051,11 +5052,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p878
   - [False Sharing](https://haryachyy.wordpress.com/2018/06/19/learning-dpdk-avoid-false-sharing/) caused by *redundant* invalidation of cache block can be partly solved by alignment. [Also](https://www.codeproject.com/Articles/85356/Avoiding-and-Identifying-False-Sharing-Among-Threa)
 - p879
-  - [memory consistency model](https://www.cs.utexas.edu/~bornholt/post/memory-models.html) defines the memory *order*.
+  - [memory consistency model][memory_models] defines the memory *order*.
     - [off-by-one errors](https://en.wikipedia.org/wiki/Off-by-one_error)
     - '00' will cause one weird loop, so impossible.
     - 'Sequential consistency' just means no parallel. See original [paper 'two processors cannot both be executing their critical sections *at the same time*.'; 'Memory requests from all processors issued to an *individual* memory module are serviced from a single *FIFO* queue.'; two Requirements; 'the price of *slowing down* the processors'][SC_orig]
-      - 'Requirement R1: Each processor issues memory requests in the order specified by its *program*.'. also [see p3][lec_17] which has no [*overlap* in p9][lec_17] (also [see p2 '*Atomicity* means, that no operation can overlap'][sequential_consistency]) (otherwise,RAW overlap will make reordering of StoreLoad).
+      - 'Requirement R1: Each processor issues memory requests in the order specified by its *program*.'. also [see p3][lec_17] which has no [*overlap* in p9][lec_17] (also [see p2 '*Atomicity* means, that no operation can overlap'][sequential_consistency]) (otherwise,RAW overlap will make reordering of StoreLoad). <a id="overlap"></a>
         - also see [p42][MEMORY_CONSISTENCY_DETAILED]
       - also see [p2 (above FIFO ensures the *write atomicity* which will not be interruptted by others)](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf)
       - this also [forbids the OoO on each *core*](https://www.sciencedirect.com/topics/computer-science/sequential-consistency#:~:text=Sequential%20consistency%20is%20a%20conservative,to%20preserve%20their%20program%20order.) (see 'in the order specified by its program')
@@ -5438,7 +5439,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - `total Store Ordering` means *total*ly allowing re*ordering* *store* with subsequent load which can be implemented by *store buffer*.
     - maybe the most primitive [definition p31:TSO](https://www.google.com/books/edition/Scalable_Shared_Memory_Multiprocessors/OJzbBwAAQBAJ?hl=en&gbpv=1) of all memory consistency models having all *math axioms* which is referenced by [this]. 
     - also see [sparcv9][sparcv9] p143 and [this 'a single, global order of writes'][Weak_vs_Strong_Memory_Models]
-  - notice it doesn't guarantee the strong memory model, it just means having a [store buffer (utexas link)](https://www.cs.utexas.edu/~bornholt/post/memory-models.html#:~:text=A%20popular%20memory%20model%20that,latency%2C%20making%20execution%20significantly%20faster.) so allow [Storeload reordering p4](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf) (here 'it returns the value of own write before others see it' is same as ['with exceptions for *local* memory'](https://www.reddit.com/r/hardware/comments/i0mido/comment/fzqb4is/?utm_source=share&utm_medium=web2x&context=3)) (also see the utexas link) from user's perspective although their issue order may not change.
+  - notice it doesn't guarantee the strong memory model, it just means having a [store buffer (utexas link)][memory_models] so allow [Storeload reordering p4](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf) (here 'it returns the value of own write before others see it' is same as ['with exceptions for *local* memory'](https://www.reddit.com/r/hardware/comments/i0mido/comment/fzqb4is/?utm_source=share&utm_medium=web2x&context=3)) (also see the utexas link) from user's perspective although their issue order may not change.
   - [explicit definition](http://www.cse.unsw.edu.au/~cs9242/02/lectures/10-smp/node8.html) here 'FIFO order' implies it is [~~subset ('might as well say that sequential consistency *map*')~~ ycombinator link](https://news.ycombinator.com/item?id=21588893#21592299) ~~of~~ similar to sequential consistency because requirement R1 may not meet (see [p6 'regain sequential consistency' (i.e. 'recover sequential consistency with additional barriers' in the above ycombinator link)](https://www.cl.cam.ac.uk/~pes20/weakmemory/cacm.pdf)). But 'sequential consistency (SEQCST) + a store buffer' in ycombinator is obvious true which can also got from the following upenn link although store buffer will change the original behavior of sequential consistency. <a id="TSO"></a>
     - as ycombinator says ('Acquire-release consistency allows many more reorderings'), here SC > TSO (only allow StoreLoad reordering) > Acquire-release (> means [stronger](#strong_mem))
       - [see ac_rl](#ac_rl), acquire/release only control *order* of same variable (implies support for variable alias). So from [this 'freely reorder...cannot migrate upward past an *acquire*...'](https://en.wikipedia.org/wiki/Release_consistency#Weak_ordering_(Weak_consistency)) 
@@ -5449,11 +5450,38 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - p9: `<m/p`, `	MAX	<m/<p` meaning
       - p13: `C↓1` meaning.
       - p15: `S(a)<p	L(a)` just means it allows delay so *memory order* (see p7) changed (load access memory earlier than store.)
+- [Atomic Consistency][slow_mem] from [mosberger93memory][mosberger93memory]
+  - here 'serial execution' just to avoid [loop 'Things that shouldn’t happen'][memory_models].
+  - 'read-begin or write-end' just means read take effect at once while write delays to *end*. So order is more 'determinism' than dynamic atomic memory.
+  - [herlihy paper][herlihy] from Fig. 1,2 we can know LINEARIZABILITY is similar 
+    - here 'linearizability,' is related with ' real-time' which wikipedia also says because it 'is also a *nonblocking* property:'.
+    - why defines [locality p13](http://courses.csail.mit.edu/6.852/03/lectures/linearizable.pdf) just to simplify development so that can develop 'individual object'(herlihy p8, also slow_mem 308).  
+  - [Lamport_1985]
+    - p20 'atomic register' '*definite* order' which is just similar to synchronization and *all* acquire/release instead of just before acquire and release (see [CAAQA][CAAQA] p453).
+      - from ' *introduced two* weakenings' in slow_mem, it means the same thing as '3.1 Atomic' in [slow_mem][slow_mem]
+      - this also implies the FIFO of instruction queue in herlihy p4 (more detailed see its reference [Misra_1985 p2 'concurrent accesses to the common register are *sequentially* ordered.'][Misra_1985]).
+  - here can be seen as *both read* and write atomicity.
+  - Also from '3.2', 'the effects of operations may appear *delayed*.' doesn't conflict with definition because definition only ensures *executed* (issue) order and consistency with program order.
+    - in short, it doesn't ensure [cache consistency](#cache_consistency).
+    - delay ~~implies *overlap* although [above][#overlap] says no overlap.~~ p304
+    - here key point is that the '*some* sequential order' which may not be original program order.
+      - see different sequential orders [p8][sc_tso].
+    - 'Both private and serial memory are *restrictions* of tradi-tional atomic memory' means atomic memory don't have some advantages of the former. So it is more restrictive.
+    - 'need not be retained by' just means not has one absolute relation.
+    - 'delayed by differing amounts,' just means stall, see below diagram.(`[]`means the begin and end where write must take effect).
+    ```bash
+    [W(x)1                              ]
+          [W(x)2     ]
+                      [R(x)2][R(x)0       ][R(x)1]
+    ```
+    - p305 'P2:W(y)2 and P3:R(y)2' (same as [mosberger93memory] p4 'R(y)2' which 'reads a value that has *not been written yet*') is sequentially consistent because rereading its definition. It says ' the result of any execution is the *same* *as if* the operations of *all* the processors were executed in some *sequential* order, and the operations of *each* individual processor appear in this sequence inthe order *specified by its program*.'
+      - So here it just runs *same as* what the original *program sequential* result (see the diagram timeline which is what [Lamport_1985] does in p).
+      - here read future is what regular/safe register allows but atomic register not allows. So shows the [mosberger93memory] p4 Figure 2.
 - ~~TODO~~ in this ~~[paper](https://dl.acm.org/doi/pdf/10.1145/160551.160553)~~ (the former is too coarse see [this mosberger93memory paper][mosberger93memory]) which lists almost all *consistency* models (highly recommended because it says the differences very *clearly*, the link is from [wikipedia][Wl_1]),`R(y)2` in p4 seems to be conflict with upenn link p8(a). This may be the 'surprising *flexibility* of the SC model' because it not [defines][Sequential_consistency] how to *read*.
   - atomic consistency with ['real-time constraint' in Sequential_consistency wikipedia][Sequential_consistency] because ['*vague* about when an operation is considered to begin and end'](https://en.wikipedia.org/wiki/Linearizability#History_of_linearizability)
     - maybe also related with cache with just [*synchronization*, see 'real-time constraints', '*tell* some other process about an event','*observe* that event'](https://jepsen.io/consistency/models/sequential) 
   - paper interpretation
-    - 'appear commuted' -> non AC because 'non-overlapping'
+    - 'appear commuted' -> non AC because 'non-overlapping'?
     - 'Causal Consistency': casual based on one processor's load/store order (here is $P_2$ order). So $W(x)2,W(x)3$ is not casual.
     - 'Cache Consistency': here 'per-location basis' just means cache data physical address. So assume that $P_1: W(x)1,R(x)$ and $P_2: W(x)2,R(x)$, then both processors should read same which implies Cache Consistency.
     - combi-nation of coherence (see ' as long as those writes are to *different* locations') and PRAM ('...disagree on...')
@@ -5475,7 +5503,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
             - From paper_2 which is referenced by paper_1, it defines 'Memory *Consistency*' related with synchronization. So it means 'when a written value must be *seen*' as [COD_Orig][RISC_V_Orig] p458 says.
               - But more specific, here 'when' also implies the write *observation order* as paper_2 'the order in which memory opera-tions occur may be *observed*'. just like wikipedia [says](https://en.wikipedia.org/wiki/Consistency_model#Cache_consistency).
             - From paper_3, it defines coherence as 'all processors observe two writes to the same location in the *same order*' in p11 (notice: only care about *order* of *two* writes but not what are read).
-              - From COD_Orig p454 it also says 'what values *can* be returned' but not '*should* be returned.', otherwise no need to define 'cache consistency' because 'should' must implies when to read (at least in a range without influencing the result).
+              - From COD_Orig p454 it also says 'what values *can* be returned' but not '*should* be returned.', otherwise no need to define 'cache consistency' because 'should' must implies when to read (at least in a range without influencing the result). <a id="cache_consistency"></a>
               - Also the 'no writes to X by *another* processor' may based on consideration of something like the write buffer. Because the write buffer of different threads may receive the *request* at different speed and time. (Just see Example 3 where `R(x)1` by P3 may receive `x` data later than `R(x)2` by P2).
             - notice the COD_Orig is [referenced](https://en.wikipedia.org/wiki/Cache_coherence#cite_note-:3-4) in wikipedia.
           - Then paper_1 says 'per-location basis.' in '3.5 Cache Consistency' (implied by above *order*) which corresponds to 'as long as those writes are to different locations.' in '3.6 Processor Consistency' shows that PC really is cache-coherent. ~~(cache Consistency depends on what model is used.)~~
@@ -5600,11 +5628,14 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 - wikipedia_ref
   - [Wl_1][Wl_1]
 - paper
-  - [mosberger93memory][mosberger93memory]
-  - [PC_orig][PC_orig]
-  - [SC_orig][SC_orig]
-  - [MEMORY_CONSISTENCY_DETAILED][MEMORY_CONSISTENCY_DETAILED]
-  - [isca90][isca90]
+  - memory consistency
+    - [mosberger93memory][mosberger93memory]
+    - [PC_orig][PC_orig]
+    - [SC_orig][SC_orig]
+    - [MEMORY_CONSISTENCY_DETAILED][MEMORY_CONSISTENCY_DETAILED]
+    - [isca90][isca90]
+    - [herlihy][herlihy]
+    - [Misra_1985][Misra_1985]
 - blog
   - preshing
     - [Memory_Barriers][Memory_Barriers]
@@ -5613,10 +5644,15 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
   - dphpc
     - [sequential_consistency][sequential_consistency]
 - class_lecture
-  - [sc_tso][sc_tso]
-  - [lec_17][lec_17]
-  - [TSO_PC_PSO][TSO_PC_PSO]
-  - [stanford_149_09_consistency][stanford_149_09_consistency]
+  - memory consistency
+    - [sc_tso][sc_tso]
+    - [lec_17][lec_17]
+    - [TSO_PC_PSO][TSO_PC_PSO]
+    - [stanford_149_09_consistency][stanford_149_09_consistency]
+    - [memory_models][memory_models]
+    - with math
+      - [Misra_1985][Misra_1985]
+      - [Lamport_1985][Lamport_1985]
 - official doc
   - [sparcv9][sparcv9]
 - book
@@ -5626,6 +5662,8 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
     - [RISC_V_Orig][RISC_V_Orig]
     - RISC_V_Custom
     - [RISC_V_Custom_OCR][RISC_V_Custom_OCR]
+  - CAAQA (Computer Architecture: A Quantitative Approach 6th edition) by David A Patterson and John L. Hennessy
+    - [CAAQA][CAAQA]
 ---
 
 [Sequential_consistency]:https://en.wikipedia.org/wiki/Consistency_model#Sequential_consistency
@@ -5649,3 +5687,9 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [Scalable_Shared_Memory_Multiprocessors_libgen]:../references/other_resources/COD/references/Scalable_Shared_Memory_Multiprocessors_libgen.pdf
 [RISC_V_Custom_OCR]:../references/other_resources/COD/COD_RISCV_OCR.pdf
 [RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
+[slow_mem]:slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
+[memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
+[herlihy]:p463-herlihy.pdf
+[CAAQA]:Computer_Architecture_Sixth_Edition_A_Qu.pdf
+[Misra_1985]:Misra_1985.pdf
+[Lamport_1985]:interprocess.pdf
