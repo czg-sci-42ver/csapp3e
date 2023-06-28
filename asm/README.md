@@ -2,6 +2,47 @@
 - hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
 - stackoverflow image [size](https://meta.stackoverflow.com/questions/253403/how-to-reduce-image-size-on-stack-overflow) based on imgur.
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly. 
+  - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
+- the following `''` is assumed as *quote* of link contents.
+# csapp [global-ed errata](https://github.com/yangwenbo99/csapp-global-errata/blob/master/chapter_3.md)
+- or use zlib version or this [plain-scaned US. edition](http://54.186.36.238/Computer%20Systems%20-%20A%20Programmer%27s%20Perspective%203rd%20ed.%20%282015%29.pdf)([this](../references/csapp/csapp_scaned.pdf) is same as this [libgen link_1](https://libgen.is/book/index.php?md5=33DC73067D7512A7D970CEC5FE8870DB))
+  - zlib is also same as this [libgen link_2](https://libgen.is/book/index.php?md5=AEED4FC7DE8437DDD3980C3BD5BA4D50) and it seems to be pearson electronic version referenced in csapp blogger. See [masteringengineering](https://masteringengineering.com/site/login.html)
+- better use [U.S. version](https://www.quora.com/Why-arent-Pearson-International-Edition-books-allowed-to-be-bought-in-the-U-S-and-Canada)...
+- US. edition [see this color-scanned version](https://libgen.is/book/index.php?md5=72762223B79864A233D62CE7B2E95FB1) stored 'csapp_color_scaned.pdf'
+  - the above 71MB is same as this [330MB one](https://libgen.is/book/index.php?md5=A665E0B6F83F9FE49120BE27F3A85902) which is from [this](https://forum.freemdict.com/t/topic/11216)
+  - Notice: better use [libgen.li](https://libgen.li/edition.php?id=138033662) instead of libgen.is
+- Also see [**cs107**](https://web.stanford.edu/class/cs107/resources/callgrind) and its customized csapp book
+## download used by [libgen](https://libgen.is/book/index.php?md5=A665E0B6F83F9FE49120BE27F3A85902)
+### eumle (i.e. ed2k)
+- aria2c [not support](https://github.com/aria2/aria2/issues/986#issuecomment-325183535) ed2k
+  - [also see](https://github.com/aria2/aria2/issues/986#issuecomment-515765973) ed2k has been only used by Thunder(迅雷) P2SP
+    - 迅雷速度 [原因](https://github.com/aria2/aria2/issues/986#issuecomment-761749908)
+  - see '自然这些就消亡了。' (if you can understand chinese. *Ignore* the other weird quarrel words)
+#### miscs
+- open port by ufw or just not using ufw (not recommended)
+- 国内[emule服务器](https://forum.emule-project.net/index.php?showtopic=133839)基本用不了
+- github almost has no [amule configs](https://wiki.amule.org/wiki/Amule.conf_file)
+#### **low id** [may be not](https://forum.emule-project.net/index.php?showtopic=48127) the router problem.
+- the [port fowarding](http://wiki.amule.org/wiki/Firewall#Routers) used by [amule](http://wiki.amule.org/wiki/Get_HighID#Opening_the_ports) is same as [端口映射](https://hsk.oray.com/news/8851.html)(这里 端口转发 '路由器的10000端口' 其实指的就是 端口映射里的 功能)
+  - see [emule official](http://www.emule-project.net/home/perl/help.cgi?l=1&rm=show_topic&topic_id=669)
+  - notice: emule is not [cross-platform](http://www.emule-project.net/home/perl/help.cgi?l=1&rm=show_topic&topic_id=669) officially, but `amule` can function same.
+  - How to configure: see [this tutorial video](https://www.youtube.com/watch?v=ISEnJix2Gho). (The following has no order relation)
+    1. filter [list](http://upd.emule-security.org/ipfilter.zip) in [emule-security](https://www.emule-security.org) 无法导入 
+    2. p2p download the ubuntu iso fast by 1Mb/s after some time. But downloading some not popular files may be too slow to begin. Just limited by p2p.
+       1. Can search file in `emule`. This is one good feature.
+    3. configure in [**tp-link**](https://resource.tp-link.com.cn/pc/docCenter/showDoc?source=search&id=1655112584878540).
+    4. Server [List](https://forum.emule-project.net/index.php?showtopic=130625)  
+    5. turn off the [firewall](https://support.microsoft.com/en-us/windows/turn-microsoft-defender-firewall-on-or-off-ec0844f7-aebd-0583-67fe-601ecf5d774f)  
+    6. [kad](https://kelseyc18.github.io/kademlia_vis/basics/2/) ( i.e. p2p users list ) can be got from [nodes file](http://www.nodes-dat.com)  
+    7. `telnet` check tcp while [`nc`](https://serverfault.com/questions/395342/telnet-counterpart-for-udp) check udp  
+    8. [port forwarding](http://www.emule-project.net/home/perl/help.cgi?l=1&rm=show_topic&topic_id=669)  is same as [虚拟服务器](https://resource.tp-link.com.cn/pc/docCenter/showDoc?source=search&id=1655112584878540) in tplink (I used the tplink at my home, and I asked the JD Customer Service for- the above help).
+    9.  [**test**](https://www.emule-project.com/home/perl/general.cgi?rm=porttest&tcpport=8067&udpport=16905&lang=1033&l=1&obf=1&clienthash=1935FB3FA00E795668A4B180747E6FA7) always 'tcp failed' even when I has turned the firewall off ,configured the proxy in `emule/amule` and used the first [server](https://www.emule-security.org/serverlist/). telnet test of the router connection works: `telnet 192.168.1.2 8099`
+        1. check [Wan ip](https://resource.tp-link.com.cn/pc/docCenter/showDoc?id=1655112544705438)
+    10. [VeryCD](https://zh.wikipedia.org/zh-cn/VeryCD) has been invalid for long time.
+    11. open port in [windows](https://www.tomshardware.com/news/how-to-open-firewall-ports-in-windows-10,36451.html)
+### magnet
+- check valid (libgen seems to offer all invalid megnet link, at least in csapp). [Also this Q&A](https://stackoverflow.com/questions/72660337/verify-magnet-link-in-python-using-regular-expressions). In the above Q&A, `[a-z0-9]{32}` implies hash must be 32 characters but it is [not a must](https://en.wikipedia.org/wiki/Magnet_URI_scheme#Format)
+- [download tool](https://superuser.com/questions/1334218/how-can-i-download-magnet-links-through-the-command-line-with-rtorrent-on-linux)
 # TODO
 - `.-multstore` meaning
 - [ROP](https://tc.gts3.org/cs6265/tut/tut06-01-rop.html)
@@ -527,7 +568,10 @@ printf in section .text of /usr/lib/libc.so.6
 pwndbg> info symbol 0x404008
 printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
 ```
-# memory
+# computer basics
+## miscs
+- SMP and [AMP](https://en.wikipedia.org/wiki/Asymmetric_multiprocessing), also [see](https://github.com/rr-debugger/rr/issues/3531)
+## memory
 - currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3`
   - Internal Fragmentation is caused by being used by process. [whereas](https://www.tutorialspoint.com/difference-between-internal-fragmentation-and-external-fragmentation#:~:text=Internal%20Fragmentation%20occurs%20when%20a,removed%20from%20the%20main%20memory.&text=Best%20Fit%20Block%20Search%20is,the%20solution%20for%20external%20fragmentation.) External Fragmentation is cauesd by small unused spaces between used spaces.
   - [secondary](https://en.wikipedia.org/wiki/Computer_data_storage) memory
@@ -4892,6 +4936,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [Burst mode](https://en.wikipedia.org/wiki/Burst_mode_(computing)), 'the total initial latency is decreased' because 'caused only *once* in burst mode'.
   - [comparison](https://www.geeksforgeeks.org/modes-of-dma-transfer/)
     - IO -(DMA request)> DMA -(HOLD signal)> CPU -(shares two basic information, *then* HLDACK)> DMA -(DMA ACK)> IO device
+      - is still controlled by CPU. But 'without the involvement of CPU *during data transfer*'.
+        - po normally non-DMA pass the cpu and cached there in something like L1 cache.
+      - also [see](#DMA) 'without the involvement of the CPU, *providing* (if) memory address and control signals as required'
     - Burst: CPU will be *blocked*, 'at once'
     - Cycle Stealing Mode: when 'preparing the data', the transfer is interrupted, so slower.
     - Interleaving Mode: 'CPU will not be blocked', lowest.
@@ -5002,7 +5049,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p854
   - shadow page table
     - [p6,8 with MPN,etc](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) more directly [p29 with MPN,etc definition](https://www.doc.ic.ac.uk/~etheresk/etheresk-211-vms.pdf)
-      - here SPT is [shadow ~~(beacuse *skip* one media)~~ page table](https://sites.google.com/site/masumzh/articles/hypervisor-based-virtualization/memory-virtualization)
+      - here SPT is [shadow ~~(beacuse *skip* one media)~~ page table](https://sites.google.com/site/masumzh/articles/hypervisor-based-virtualization/memory-virtualization) <a id="hypervisor"></a>
   - [CR3 -> PDBR](https://en.wikipedia.org/wiki/Control_register#CR3)
   - [indirection 'accessing a variable through the use of a *pointer*'](https://en.wikipedia.org/wiki/Indirection)
   - po 'real pages' should refer to above ~~MPN~~ PPN, see p855 ('virtual memory, *physical memory*, and machine memory')
@@ -5065,7 +5112,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - 'appear in this sequence inthe order specified by its program.' -> 'write does not complete...' in COD' & ' does not change the *order* of any write'
       - [examples][sequential_consistency]
       - also see ['*appears* to run sequentially.'](https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/armv8-sequential-consistency)
-      - [diff](https://stackoverflow.com/questions/14861822/) with Acquire/Release: the former ensures the order between ~~*cores*~~ threads while the latter only care order between *related* Acquire/Release operations. <a id="ac_rl"></a>
+      - [diff](https://stackoverflow.com/questions/14861822/) with [acq_rel][acq_rel_cpp]: the former ensures the order between ~~*cores*~~ threads while the latter only care order between *related* [acq_rel][acq_rel_cpp] operations. <a id="ac_rl"></a>
   - [I/O Coherence](https://phdbreak99.github.io/blog/arch/2020-05-18-io-coherence/)
   - ['directory-based cache coherence protocol'](https://en.wikipedia.org/wiki/Directory-based_coherence) has 'implementation overhead' because the *directory* and 'reduce traffic between caches' because directory function to send data.
 - p880
@@ -5143,15 +5190,15 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Two-way (1), four-way (D)' because instruction to be fetched is normally larger.
 - p918
   - 'merge requests' is similar to SIMD (here data are merged. po). 
-> from here, use the new book page as the index.
 
+##### from here, use the new book page as the index.
 - p464
   - 'special purpose and systems category'
     - special purpose -> status register 
     - TODO system detailed meaning
-    - see V1 doc '“Zifencei”',etc.
+    - see [riscv_spec] doc '“Zifencei”',etc.
   - `fence.i`
-    - V1 
+    - [riscv_spec] 
       - p31
         - ['“store instruction word” instruction'](../references/other_resources/COD/references/MAJC.pdf) is to specifically *store instruction* by checking whether it has been *modified*.
           - p7 $512$ registers is calculated by `(96+32*4)*2+32*2` (here register file is delimited into two types, and only one registerfile's 'Global registers are shared')
@@ -5166,12 +5213,12 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
             - here can get the physical addr from cache because 1. 'physically addressed.' 2. maybe using CAM men.
           - here *snoop* keeps cache coherency, resulting less overhead of fence to keep cache coherency.
           - [JIT](https://stackoverflow.com/questions/2837635/how-does-jit-replace-optimized-machine-code-during-runtime?noredirect=1&lq=1) use `mmap` to update instruction in *linux*.
-          - 'run fence.i before jumping to that buffer' to invalidate / 'flush the local instruction cache' as V1 doc says.
+          - 'run fence.i before jumping to that buffer' to invalidate / 'flush the local instruction cache' as [riscv_spec] doc says.
         - ['inclusive'](https://en.wikipedia.org/wiki/Cache_inclusion_policy#Inclusive_Policy) implies update of '*unified* private L2' will also update related L1 ('*primary* instruction cache')
-        - 'hart' see V1 doc or 'electronics-10-00518.pdf'
+        - 'hart' see [riscv_spec] doc or 'electronics-10-00518.pdf'
           - 'local hart' -> hardware thread in current cpu core; 'user hart' -> current *using* hardware thread; 'different physical hart' -> another hardware thread (whether to 'execute an additional FENCE.I' depends on local hart definition (i.e. based on core maybe with multiple harts or just one hart.)).
         - ['finer-grain'](https://www.geeksforgeeks.org/difference-between-fine-grained-and-coarse-grained-simd-architecture/) just means more '*subdivided* into various parts' as its literal meaning.
-      - p3 EEI
+      - p3 execution environment interface (EEI)
         - [ABI vs API](https://en.wikipedia.org/wiki/Application_binary_interface) Here 'interface' is similar to communication. ABI defines how instruction should communicate with hardware ('hardware-dependent format' because [calling convention](https://en.wikipedia.org/wiki/X86_calling_conventions#Register_preservation) related with *caller/callee-saved* regs). API 
           - 'deal with an ABI ... in a mix of programming languages' because compiler changed (at least language may differ in whether column-major or row-major).
           - 'system call stubs' beacuse dynamic loading and PLT and here [*stub*](https://en.wikipedia.org/wiki/Method_stub#Method_Stub_Overview) is 'yet-to-be-developed code'
@@ -5182,6 +5229,103 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - [I/O domain](https://docs.oracle.com/cd/E38405_01/html/E38406/iodomainoverview.html) may just mmap physical I/O devices like how virtual memory map disk. ('direct access to a physical I/O device')
     - [lwn memory blog ](https://lwn.net/Articles/252125/) which also says about [hardware](https://lwn.net/Articles/250967/)
       - [NUMA](https://lwn.net/Articles/254445/) [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html)
+  - `fence` [riscv_spec] p26
+  - `sfence.vma` 
+    - [riscv_spec]
+      - p83
+        - I/O memory. Just take [GPU](https://images10.newegg.com/uploadfilesfornewegg/itemintelligence/videocard/graphics_card_interfaces.pdf) as one example because it receive Input from CPU and output to something like the HDMI port. And of course it has register like p179 says.
+        - [MMIO](https://en.wikipedia.org/wiki/Memory-mapped_I/O_and_port-mapped_I/O)
+          - kw: 'must be reserved for I/O', 'or use a dedicated' (bus), 'a *separate* address space from general memory','*allowing* port I/O', 'debugging *closed-source* device drivers'
+          - 'Address Decoding' just to select bank and decoder. See [the 4th figure](https://ece-research.unm.edu/jimp/310/slides/8086_memory2.html).
+            - whether Complete or Incomplete can be implemented by $A_{11\sim19}$ in figure 1. If only one combination of $A_{11\sim19}$ are allowed to select EPROM, then Complete decoding. Otherwise Incomplete (Also [see](#Virtual_Address_Aliasing) )
+              - So if all $A_{\dots}$ are inputs of EPROM, then Linear decoding.(Just as its literal meaning, no bank selection -> linear.)
+        - ['transactional memory'](https://en.wikipedia.org/wiki/Transactional_memory) just means it has *inherent atomic* ensure (See 'high-level abstraction as an alternative to low-level *thread synchronization*' or the figure clearly which also says the same thing about [OCC 'Optimistic concurrency control'](https://en.wikipedia.org/wiki/Optimistic_concurrency_control#Phases_of_optimistic_concurrency_control)).
+        - 'width' -> [bandwidth: transfer rate](https://en.wikipedia.org/wiki/Memory_bandwidth) 
+      - p57
+        - [explicit memory access](https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-processor/memory-model/memory-system-ordering-of-memory-accesses) just means access by explicit instruction. Compared with [Implicit accesses](https://developer.arm.com/documentation/ddi0419/c/System-Level-Architecture/System-Memory-Model/About-the-system-memory-model?lang=en)
+    - [riscv_privileged]
+      - p53
+        - [ordering bit `.aq`,etc](https://github.com/riscv-non-isa/riscv-asm-manual/issues/8)
+        - ['bus mastering devices'](https://en.wikipedia.org/wiki/Bus_mastering) just accelerate by no need of control of [DMA](https://en.wikipedia.org/wiki/Direct_memory_access#Third-party) controller which may 'the scheduler can *no longer arbitrate* for the bus and hence cannot provide deterministic latency'. <a id="DMA"></a>
+      - `sfence.vma`
+        - i
+          - PMP [code](https://sifive.github.io/freedom-metal-docs/devguide/pmps.html) or [hardware view](https://riscv.org/blog/2022/04/xuantie-virtualzone-risc-v-based-security-extensions-xuan-jian-alibaba/)
+            - also see p56
+        - ii
+          - bare S-mode may -> p61 'page-based virtual memory is not implemented'.
+            - see p73,75 'Table 4.4' and p78
+          - TODO `SFENCE.VMA` and `SFENCE.VM` diff. 
+        - p100
+          - Privilege Mode: here Hypervisor is VMM (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*.
+            - also see [riscv_privileged] p2.
+        - p24
+          - here not 'reinterpreted' memory-management data structure -> no need `SFENCE.VMA` to update page table which is what `SFENCE.VMA` should do '*populate* shadow page tables'.
+            - [see](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#sfence-vma): it ensure page table ('related to address translation') *latest* and . (See doc p76)
+          - 'world switch' -> guest OS change p25.
+        - p12
+          - WARL
+        - p73
+          - ASID, also [see](https://stackoverflow.com/questions/76500243/when-to-clear-the-tlb-if-using-process-identifier).
+          - only 'satp register is considered *active*' will update page-table. writing `satp` may lazy delay the update if not active.
+        - p76
+          - TLB shootdown: ['invalidate'](https://stackoverflow.com/questions/3748384/what-is-tlb-shootdown). While in risc-v it also update after invalidating ('analog').
+          - see p81 global mapping. It implies *shared* by all ASIDs. So it 'need not be flushed from' because it is one-copy from 'need not be stored redundantly'.
+        - p77
+          - 'simplification.' design by 1. over-fence So no need to select/*speculate*/branch what to do. 2. no need to *jump* to exception handler but just to skip.
+          - ' ... interacts cleanly ' just means `SFENCE.VMA` order may not follow RVWMO rule. See 'In particular,...'. So they probably has stall or somthing to keep results right.
+            - 'A consequence of this specification' interprets why 'any translation' because program behavior may *not determined* because of the reordering.
+          - ['superpage' p14,15](https://my.eng.utah.edu/~cs6810/pres/08-6810-14.pdf) is just similar to SIMD. one virtual maps to one superpage('16 physical pages') instead of just one *small* page.
+            - 'match a single address' because originally they map to multiple *pages*. But now these pages are ~~condensed~~ combined into one bigger superpage(i.e. a single address).
+            - 'whether the old *non-leaf* PTE or the new leaf PTE': see p87 also [this][chromit]
+              - '*Any* level of PTE may be a *leaf* PTE' (maybe implies dynamic memory) because the pte *level* can change. So page offset may be combined with `PPN[0:0+k]` -> `PPN[0]` add storage to $2^{9-10}K*4K=2M$ megapages. this implies *non-leaf* PTE in the upper level which points to megapage is now leaf PTE because it point to the *minimum page unit*.<a id="leaf_PTE"></a>
+          - 'unsafe' because different possible update order of PTE's subsets may offer different observation to (implicit) reads of PTE.
+        - p78
+          - '*caching* of PTEs whose V (Valid) bit is clear' just means it is not totally invalidated and may consume unnecessary PTE storage. 'causing additional page fault' because it may *wrongly* assume cache is latest and thought as [page fault (see the figure)](https://www.baeldung.com/cs/cache-tlb-miss-page-fault) (also by 'insufficiently aligned.' in p82). <a id="additional"></a>
+          - see p63 'sstatus'
+            - also see p23 part update of mstatus also not needs `SFENCE.VMA` 
+          - bullet point list 'require executing an `SFENCE.VMA`'
+            - 1. `satp.PPN` change. Here can lazy make `satp` take effects. But must make `SFENCE.VMA` influence `ASID`.
+              - `satp` is register, so it is just offer *state* to the current *context*.
+            - 2. here need propogate to all page tables because here implies all ASIDs.
+              - 'ASID 0' from the 'rs2=x0' in p76: it means all ASIDs.
+              - 'should execute SFENCE.VMA with rs1=x0' is just one *guess* about what user want to do. So it should check whether 'no global translations'. to avoid unnecessary *flush* of global translations. 
+                - notice `x0` and `x[i]=0` ($i\neq0$) diff.
+            - 4. 'any PTE along the traversal path' because leaf PTE is [*dynamic*](#leaf_PTE). So here PTE is more like something child PTE (notice the terminology is not official). 
+            - 5. here also explains why riscv allows *invalid leaf*. Here either get *valid* leaf if `SFENCE.VMA` can update V bit or 'page-fault'.
+              - this also says why 'additional' [above](#additional).
+        - p82
+          - 'For non-leaf PTEs, the D, A, and U bits are reserved'. po non-leaf PTE function as *index* table to leaf PTE, so they should never more frequent accessed than leaf PTE. And may leave kernel or something similar to manipulate them consistently.
+  - `CSR`
+    - as [riscv_spec] 
+      - p55, 
+        - it is not 'mandatory' and 'moved out of the *base*'.
+        - here 'address space' is ~~not [same]()~~ more [general 'hybrids','ROM and in some cases *I/O* units'](https://www.quora.com/What-is-the-difference-between-registers-and-address-space) than what it is in the virtual memory context.
+          - kw: 'WP register points to a “working page”' So here register also has one *page* architecture or other addressing method.
+        - here `Zi` means removed from 'base *I* instruction set'.
+      - p56
+        - 'side effects ' may be caused by 'controlling CSR' in [riscv_privileged] p13.
+        - 'zero-extending a 5-bit' just maps to 'Unprivileged and User-Level CSRs Standard read/write' in [riscv_privileged] 'Table 2.1: Allocation of RISC-V CSR address ranges.'.
+        - notice: `CSRRSI and CSRRCI` with 'uimm[4:0] field is zero' 'write to the CSR'. While in opposite `CSRRS and CSRRC` 'attempt to write the unmodified value *back* to the CSR and will cause any *attendant side effects*'
+          - this can be seen from the figure.
+            - here `rd=x0` is no use to write into it (i.e. `rd`). So no need to read CSR. But write value into CSR always has meaning, so 'write CSR' yes.
+            - `rs1=x0` means no set bit. So no change, meaning no need to write back.
+              - here register value with 0, write back. Because no convenient quick method to *speculate* no need to write back as `CSRRS/CI` with imm in opcode to speculate.
+              - Always 'read CSR' no need. But it is implemented as yes by riscv. Fine after all.
+      - p57
+        - 'encoded as CSRRS rd, csr, x0.' see figure p56. Always use `x0` to avoid unnecessary read or write.
+        - see 'Further assembler ...' which *isn't implemented* now.
+        - 'CSR access is performed after ...' is one [acq_rel][acq_rel_cpp] fence. And 'CSR read ...' implies acquire and also CSR write implies release.
+        - 'unless a CSR access modifies the execution behavior' is just similar to ~~like most architecture and compiler says ~~ SC (the result as if program order.)
+      - p58
+        - '*not necessarily* apply to the order of the completion': means memory consistency can be defined as designer implemented.
+        - 
+    - [riscv_privileged]
+      - p13 
+        - TODO 2.4 is probably because of some hardware limitation causing always 'unspecified value' even '*remains* legal after the write'.
+          - it keeps 'affected CSR' (i.e. controlled CSR) unchanged.
+        - 2.6 implies [RMW](https://en.wikipedia.org/wiki/Read%E2%80%93modify%E2%80%93write) using one temporary register to ensure atomicity.
+      - p8
+        - `URW` can be guessed as `UserReadWrite` by p7.
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -5222,15 +5366,15 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 ### COD5 
 - p233 [fixed point](https://stackoverflow.com/questions/7524838/fixed-point-vs-floating-point-number)
 ### RISC-V
-> doc [V1](../references/other_resources/RISC-V/riscv-spec-20191213.pdf),[V2](../references/other_resources/RISC-V/riscv-privileged-20211203.pdf),[greencard](../references/other_resources/RISC-V/RISCVGreenCardv8-20151013.pdf) 
+> doc [V1][riscv_spec],[V2][riscv_privileged],[greencard](../references/other_resources/RISC-V/RISCVGreenCardv8-20151013.pdf) 
 [hart: hardware thread](https://stackoverflow.com/questions/42676827/risc-v-spec-references-the-word-hart-what-does-hart-mean)
 - different format, reference [1](https://danielmangum.com/posts/risc-v-bytes-intro-instruction-formats/)
   - U-Format -> lui to load [32-bit](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) constant, see 1 'jal         ra,0x10418 <printf>'
   - SB-Format used ‘for small, local jumps.’ because of 13-bit offset, see 1
     - [why](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way) this weird encoding, [BL7(berkeley lecture 7) p46](https://inst.eecs.berkeley.edu//~cs61c/resources/su18_lec/Lecture7.pdf) weher inst is ‘instruction’ which is also referenced in the link 'used to store bit 11 of the SB-Format immediate'
-      - keyword: 'sign extension hardware' which is also referenced in BL7 and V1.
+      - keyword: 'sign extension hardware' which is also referenced in BL7 and [riscv_spec].
       - TODO: 'wiring the input bits', 'datapath sized wiring', 'two or so (1-bit) wires and one 1-bit mux and a 1-bit control signal'
-  - more detailed why format defined as what it is, based on V1 and greencard
+  - more detailed why format defined as what it is, based on [riscv_spec] and greencard
     - p17 all keep 31~25 where not conflict with register. Because `load` is from mem to reg, `store` is from reg to mem (so no `rd`) and `jmp` will store pc+4. 
       - Then UJ to be similar to U and B, 'inst[19:12]', 'inst[30:25]' and 'inst[31]' has been put in the slots and based on [‘immediate bit 1’](https://stackoverflow.com/questions/39427092/risc-v-immediate-encoding-variants), bit 24-21 also are put. (TODO )
 - [why](https://stackoverflow.com/questions/62807066/riscv32-vs-riscv64) RV64I
@@ -5251,6 +5395,22 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - [RAS](https://one2bla.me/cs6290/lesson4/return-address-stack.html#return-address-stack-ras)
   - why use jmp and [link](https://en.wikipedia.org/wiki/Link_register) see paragraph 1
 - p22 also book p221, 'rd=x0' just to **not pollute** ’conditional-branch prediction tables‘ and ’return-address stack‘ which is **useful**
+#### common
+- [riscv_spec]
+  - `XLEN` -> 'width of an *integer* register' p4
+- [riscv_privileged]
+  - shadow CSR addresses, [see](https://github.com/riscv/riscv-isa-manual/issues/23). It is similar to cache memory (which is referenced as shadow memory [this stackexchange Q&A 'store a copy of a slower ROM'](https://electronics.stackexchange.com/questions/86032/what-actually-is-a-shadow-register).) 
+    - why use it. See p6. To ensure the consistent permission of all access 'shadowed into separate CSR addresses ... made *read-write*'. So 'avoids trapping permitted' (i.e. shadowed addr) and 'causing traps on illegal accesses' (original addr).
+      - It is same as what the Q&A above says 'double buffer' which keeps *atomicity* in some way (write FIFO and definite write [order](#atomic_ordered)) (see 'alter it to a shorter pulse ... ').
+        - also see [frame buffer swap](https://en.wikipedia.org/wiki/Swap_chain) where backbuffer function same as shadow register.
+        - banked register see [doc p4](https://simplemachines.it/doc/arm_inst.pdf) which is in [comment](https://stackoverflow.com/questions/13432297/what-does-banking-a-register-mean/13432309#comment29312732_13432309)
+          - here 'different physical registers' to switch is because ['load values *used by* the interrupt handler'](https://electronics.stackexchange.com/questions/102742/what-does-banking-mean-when-applied-to-registers/102743#102743)
+            - 'extend *addressable* storage': notice is not add availablility. [See](https://en.wikipedia.org/wiki/Bank_switching#Microcomputer_use). It is 'work around limitations in address *bus width*'(i.e. no need of 'switching to a processor with a wider address bus' and 'access separate RAM banks' by something like 'supporting 8 banks of 64 KB' using 'via bank *select registers*'(i.e. Internal bank registers)). And it also manage 'input-output devices and system management registers'.
+              - why faster than paging: '*switched out* from ...' and 'could be used by other hardware'.
+                - They can be implemented at the same time.
+              - Notice: it is more seen in early computers where processor can only *address* a limited range.
+- miscs
+  - [PMA](https://docs.openhwgroup.org/projects/cv32e40x-user-manual/en/latest/pma.html)
 ### stackoverflow asked questions
 #### 1
 - CAS_weak [diff](https://stackoverflow.com/questions/72766332/c11-how-to-produce-spurious-failures-upon-compare-exchange-weak) CAS_strong. From 'Godbolt' in link, `cbnz    w4, .L5` is main diff which will retry after store failure. (also [see](https://stackoverflow.com/questions/4944771/stdatomic-compare-exchange-weak-vs-compare-exchange-strong) 'overhead to retry' where it says when to use each)
@@ -5370,7 +5530,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - 'The four tags and valid bits' may be eight (because eight banks) and tag is higher bits of physical addr.
 - p168
   - ~~TODO here should be 'the same place in the cache' which implies alias (see [above](#alias)) instead of ' two different places in the cache' (just origianal eight-way index has one redundant bit, so conflict miss.)~~
-  - ~~TODO 'four-way set associative' need more infos. Because if with the same info as 6700, then four-way needs 7bit index while 6bit will select only half.~~ See [this](https://stackoverflow.com/questions/76530296/what-is-the-relation-between-set-associative-and-cache-aliasing)
+  - ~~TODO 'four-way set associative' need more infos. Because if with the same info as 6700, then four-way needs 7bit index while 6bit will select only half.~~ See [this](https://stackoverflow.com/questions/76530296/what-is-the-relation-between-set-associative-and-cache-aliasing) <a id="Virtual_Address_Aliasing"></a>
     - [Homonyms and Synonyms (aliases)](http://www.cse.unsw.edu.au/~cs9242/02/lectures/03-cache/node8.html) (this can also say VIPT alias problem.)
     - also see page-coloring [with p18](https://www.inf.ed.ac.uk/teaching/courses/car/Notes/2016-17/lecture09-virtual_memory.pdf) VI-PT caches 
       - Also see [this](https://www.intel.com/content/www/us/en/docs/programmable/683836/current/virtual-address-aliasing.html) although it doesn't say about 'VI-PT' but it implies the virtual *index* to be make same physical address be placed in different cache location.
@@ -5435,6 +5595,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - just show how *multithreaded* implemented with multiple SIMD lanes (thread)
 #### TSO and other memory consistency model
 - TSO [p10](https://www.cs.rice.edu/~johnmc/comp522/lecture-notes/COMP522-2019-Lecture9-HW-MM.pdf) also see book p453
+  - also see [riscv_spec] p26 and [riscv_privileged] p53
   - definition based on relation with [PSO][TSO_PC_PSO]
     - ~~TODO maybe ~~ has relation with [Partially ordered set](https://en.wikipedia.org/wiki/Partially_ordered_set) (relation with StoreStore reordering in PSO) which is also referenced in original SC [paper][SC_orig] 'partial ordering on the set of memory requests.' and the following Relaxed Memory Consistency Models are based on sequential consistency as in [p6][CSG280].
       - obviously the order is about StoreStore because TSO is normally based on write buffer (FIFO) which ensures [no reordering][#StoreStore] of StoreStore.
@@ -5445,7 +5606,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - notice it doesn't guarantee the strong memory model, it just means having a [store buffer (utexas link)][memory_models] so allow [Storeload reordering p4](https://users.cs.utah.edu/~rajeev/cs7820/pres/7820-12.pdf) (here 'it returns the value of own write before others see it' is same as ['with exceptions for *local* memory'](https://www.reddit.com/r/hardware/comments/i0mido/comment/fzqb4is/?utm_source=share&utm_medium=web2x&context=3)) (also see the utexas link) from user's perspective although their issue order may not change.
   - [explicit definition](http://www.cse.unsw.edu.au/~cs9242/02/lectures/10-smp/node8.html) here 'FIFO order' implies it is [~~subset ('might as well say that sequential consistency *map*')~~ ycombinator link](https://news.ycombinator.com/item?id=21588893#21592299) ~~of~~ similar to sequential consistency because requirement R1 may not meet (see [p6 'regain sequential consistency' (i.e. 'recover sequential consistency with additional barriers' in the above ycombinator link)](https://www.cl.cam.ac.uk/~pes20/weakmemory/cacm.pdf)). But 'sequential consistency (SEQCST) + a store buffer' in ycombinator is obvious true which can also got from the following upenn link although store buffer will change the original behavior of sequential consistency. <a id="TSO"></a>
     - as ycombinator says ('Acquire-release consistency allows many more reorderings'), here SC > TSO (only allow StoreLoad reordering) > Acquire-release (> means [stronger](#strong_mem))
-      - [see ac_rl](#ac_rl), acquire/release only control *order* of same variable (implies support for variable alias). So from [this 'freely reorder...cannot migrate upward past an *acquire*...'](https://en.wikipedia.org/wiki/Release_consistency#Weak_ordering_(Weak_consistency)) 
+      - [see ac_rl](#ac_rl), [acq_rel][acq_rel_cpp] only control *order* of same variable (implies support for variable alias). So from [this 'freely reorder...cannot migrate upward past an *acquire*...'](https://en.wikipedia.org/wiki/Release_consistency#Weak_ordering_(Weak_consistency)) 
         - here 'synchronization accesses' implies from the context that it is not for threads at least (also from above ac_rl code behavior).Also should [second sense](https://en.wikipedia.org/wiki/Weak_consistency)
     - here 'Loads read from write buffer *if possible*.' also implies 'store is a release...' in the above ycombinator link.
     - Also see this [upenn link:p9 vs p15 difference][sc_tso_cis601]. Here FIFO ensures the StoreStore order unchanged (see p5). But the store *buffer* *delays* the store to *memory* <a id="StoreStore"></a>
@@ -5466,6 +5627,35 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - [mosberger93memory] p6: here no data race ensures the *sequential* and 'synchronization is visible to the memory' just to ensure cache/others_mem coherency and avoid starvation or deadlock,etc.
     - also see [isca90_GLL_90] p5 WCsc: sc implies total synchronization -> SC. 
 - [Release Consistency (RC)][isca90_GLL_90]
+  - see [cppreference](https://en.cppreference.com/w/cpp/atomic/memory_order#Release-Acquire_ordering) 
+    - Release-Acquire
+      - A_stores -> A_store_release -> A_store_between -> B_load
+                                                                 -> C_load
+        - Above diagram is same as [Lamport_1985] convention convention: B will see A_stores 'visible side-effects'. And B may see 'A_store_between'(i.e. a value from later in the release sequence).
+        - C_load may not see A_store_release -> A_stores (See 'established only between')
+      - 'prohibited from moving non-atomic stores past' is just as [ac_rel] says.
+      - Notice: how A and B see A write *order* may differ (from 'than *either* or both').
+        - This is mainly because synchronization latency.
+      - kw: 'Mutual exclusion locks'
+    - Release-Consume
+      - similar to above: 
+        A_stores -> A_store_release -> A_store_between -> B_load -> B_consumer_use_load
+        - Both B_consumer_use_load and B_load will see 'A_stores -> A_store_release' (See 'within those operations ... *into* which the load operation carries *dependency*')
+      - kw: 'DEC Alpha',
+      - ['speculative load'](https://llvm.org/docs/SpeculativeLoadHardening.html)
+        - [Side-channel attack](https://en.wikipedia.org/wiki/Side-channel_attack). Here 'side' means '*extra* information'. e.g. 'power analysis' is by viewing cpu power then guessing what is running.
+        - here 'leak secret data' may implies 'comparing an attacker's given *password*' in above wikipedia. -> [cache-timing attack 'whose *timing* obviously *varies* with, among other things, input-dependent RAM *cache hits*'](http://cr.yp.to/antiforgery/cachetiming-20050414.pdf)
+        - here 'speculative' means `value` may be saved in ROB *cache*.
+        - So 'Consume' implies no 'speculative load' because it may cause *load* value changed (Here is mainly about Therad A load, B may be free to reorder its load).
+      - ['carries_dependency'](https://en.cppreference.com/w/cpp/language/attributes/carries_dependency) just avoid `fence` overhead.
+        - See [godbolt](https://godbolt.org/z/Gr9sff69b), it may have no influence with two `print` same.
+        - [kill_dependency](https://en.cppreference.com/w/cpp/atomic/kill_dependency) does opposite.
+      - 'currently (2/2015) no known production compilers *track dependency chains*: ... *lifted* to acquire operations.' and 'The specification of release-consume ordering is being *revised*'
+      So both compiler and language semantics may *change*.
+    - So 'Release-Acquire' is more about the whole program result. While 'Release-Consume' is about one data structure (with one 'dependency chain'). Why designed as what they are is obviously tuning WC(weak consistency) (see 'may be an expensive operation on *weakly-ordered architectures*').
+      - So [rcu](https://en.wikipedia.org/wiki/Read-copy-update#Name_and_overview) is 'An example of such scenario' because it only cares about 'a linked structure' and 'avoids the use of lock primitives' to keep 'multiple threads *concurrently read*' which is obviously not available in the lock context.
+        - here 'update' is to ensure 'consume' right.
+        - it checks 'no readers left using the old structure' to ensure space deallocation.
   - p2 'LOAD Globally' just to check whether StoreLoad reordering and the overlap because of 'non-atomic STORES'.
   - p5 '(stricter)' definition similar to order.
   - 'only rquired to be processor consistent' because reordering of StoreLoad is same as what acquire and release do in [ac_rel].
@@ -5482,8 +5672,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [herlihy paper][herlihy] from Fig. 1,2 we can know LINEARIZABILITY is similar 
     - here 'linearizability,' is related with ' real-time' which wikipedia also says because it 'is also a *nonblocking* property:'.
     - why defines [locality p13](http://courses.csail.mit.edu/6.852/03/lectures/linearizable.pdf) just to simplify development so that can develop 'individual object'(herlihy p8, also slow_mem 308).  
+    - p5 join also see csapp or [this](https://stackoverflow.com/questions/25391025/what-exactly-is-python-multiprocessing-modules-join-method-doing): it is just to wait to avoid zombie so that all threads can be controlled.
+      - also says definition of 'sequential' by 'immediately followed' which is opposite of 'concurrent.'.
+    - p7 extended: L1. means adding response can make sequences of inv/res pairs (see p5 'complete(H) is the maximal') sequential (non-overlapping p5).
+      - in short, it just allows adding res of pending inv to make match (p5). (p5 has almost all defs used.)
+      - So [Linearizability_atomic] is not `H` ('an ordered list of invocation' in wikipedia po) but `S`. <a id="atomic_ordered"></a>
   - [Lamport_1985]
-    - p20 'atomic register' '*definite* order' which is just similar to synchronization and *all* acquire/release instead of just before acquire and release (see [CAAQA][CAAQA] p453).
+    - p20 'atomic register' '*definite* order' which is just similar to synchronization and *all* [acq_rel][acq_rel_cpp] instead of just before acquire and release (see [CAAQA][CAAQA] p453).
       - from ' *introduced two* weakenings' in slow_mem, it means the same thing as '3.1 Atomic' in [slow_mem][slow_mem]
       - this also implies the FIFO of instruction queue in herlihy p4 (more detailed see its reference [Misra_1985 p2 'concurrent accesses to the common register are *sequentially* ordered.'][Misra_1985]).
   - here can be seen as *both read* and write atomicity.
@@ -5508,6 +5703,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - ~~TODO~~ in this ~~[paper](https://dl.acm.org/doi/pdf/10.1145/160551.160553)~~ (the former is too coarse see [this mosberger93memory paper][mosberger93memory]) which lists almost all *consistency* models (highly recommended because it says the differences very *clearly*, the link is from [wikipedia][Wl_1]),`R(y)2` in p4 seems to be conflict with upenn link p8(a). This may be the 'surprising *flexibility* of the SC model' because it not [defines][Sequential_consistency] how to *read*.
   - notice here PC has at least two versions 'PC as defined by the DASH group ...  is not *comparable*' (See paper_2 and paper_3 below).
   - atomic consistency with ['real-time constraint' in Sequential_consistency wikipedia][Sequential_consistency] because ['*vague* about when an operation is considered to begin and end'](https://en.wikipedia.org/wiki/Linearizability#History_of_linearizability)
+    - [here][Linearizability_atomic]. kw: `ordered` (this is main difference with SC where order is not determined. Only 'sequential' is ensured. also see [herlihy] p2 'legal sequential ')
+      - `ordered` also implies synchronization.
+      - TODO see [herlihy] about why 'sequential history is a subset' in wikipedia.
+      - definition see [herlihy] p7
     - maybe also related with cache with just [*synchronization*, see 'real-time constraints', '*tell* some other process about an event','*observe* that event'](https://jepsen.io/consistency/models/sequential) 
   - paper interpretation
     - 'appear commuted' -> non AC because 'non-overlapping'?
@@ -5665,6 +5864,8 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
     - [isca90_GLL_90][isca90_GLL_90]
     - [herlihy][herlihy]
     - [Misra_1985][Misra_1985]
+    - lamport
+      - [Lamport_1985][Lamport_1985]
 - blog
   - preshing
     - [Memory_Barriers][Memory_Barriers]
@@ -5687,6 +5888,11 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
       - [Weak_Memory_Consistency][Weak_Memory_Consistency]
 - official doc
   - [sparcv9][sparcv9]
+  - risc-v
+    - [riscv_spec][riscv_spec]
+    - [riscv_privileged][riscv_privileged]
+    - implementation 
+      - [chromit][chromit]
 - book
   - from wikipedia
     - [Scalable_Shared_Memory_Multiprocessors_libgen][Scalable_Shared_Memory_Multiprocessors_libgen]
@@ -5734,3 +5940,8 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [CSG280]:../references/other_resources/COD/references/memory_consistency/document_CSG280.pdf
 [Weak_Memory_Consistency]:https://es.cs.rptu.de/publications/datarsg/Senf13.pdf
 [Weak_Consistency]:Weak_Consistency.pdf
+[Linearizability_atomic]:https://en.wikipedia.org/wiki/Linearizability
+[riscv_spec]:../references/other_resources/RISC-V/riscv-spec-20191213.pdf
+[riscv_privileged]:../references/other_resources/RISC-V/riscv-privileged-20211203.pdf
+[chromit]:https://chromite.readthedocs.io/en/using-csrbox/mmu.html
+[acq_rel_cpp]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants
