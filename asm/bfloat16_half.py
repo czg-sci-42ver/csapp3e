@@ -250,3 +250,16 @@ def crc_check(input_bitstring, polynomial_bitstring, check_value):
             = str(int(polynomial_bitstring[i] != input_padded_array[cur_shift + i]))
     return ('1' not in ''.join(input_padded_array)[len_input:])
 print(crc_remainder('11010011101100', '1011', '0'),crc_check('11010011101100', '1011', '100'))
+
+"""
+cachegrind calculation
+"""
+def modify_data(*datas)->list[float]:
+    datas_ret = []
+    for data in datas:
+        data_no_comma = float(data.replace(",", ""))
+        datas_ret.append(data_no_comma)
+    return datas_ret
+datas = modify_data("11,954,347,744","191,374,279","1,142,397","1,144,662","191,376,642")
+print(datas[2]/datas[0],datas[1]/datas[0])
+print(datas[3]/datas[4])

@@ -4,10 +4,13 @@
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly. 
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
 - the following `''` is assumed as *quote* of link contents.
-# csapp [global-ed errata](https://github.com/yangwenbo99/csapp-global-errata/blob/master/chapter_3.md)
+# csapp [global-ed errata](https://github.com/yangwenbo99/csapp-global-errata/blob/master/chapter_3.md) or this [official](https://csapp.cs.cmu.edu/3e/errata.html)(notice this 3e errata) (weird with [http](http://csapp.cs.cmu.edu/3e/errata.html), the page rendered finer)
+- I learned csapp mainly based on [global_ed][csapp_global] and use [csapp_global_cropped] in saladict to better view more contents based on [this](https://github.com/abarker/pdfCropMargins). Because global has some errors, I also use [this][csapp_us_masteringengineering] as one auxiliary resource.
+  - In `okular`, just use 'View->Trim view->Trim Margins' to avoid margin. But the toc link will go to the incorret location.
+- TODO reread csapp with errata...
 - or use zlib version or this [plain-scaned US. edition](http://54.186.36.238/Computer%20Systems%20-%20A%20Programmer%27s%20Perspective%203rd%20ed.%20%282015%29.pdf)([this](../references/csapp/csapp_scaned.pdf) is same as this [libgen link_1](https://libgen.is/book/index.php?md5=33DC73067D7512A7D970CEC5FE8870DB))
-  - zlib is also same as this [libgen link_2](https://libgen.is/book/index.php?md5=AEED4FC7DE8437DDD3980C3BD5BA4D50) and it seems to be pearson electronic version referenced in csapp blogger. See [masteringengineering](https://masteringengineering.com/site/login.html)
-- better use [U.S. version](https://www.quora.com/Why-arent-Pearson-International-Edition-books-allowed-to-be-bought-in-the-U-S-and-Canada)...
+  - zlib is also same as this [libgen link_2](https://libgen.is/book/index.php?md5=AEED4FC7DE8437DDD3980C3BD5BA4D50) and it seems to be pearson electronic version referenced ~~in~~ not same as vitalsource doc in this csapp ~~blogger~~ [blogspot](http://csappbook.blogspot.com/2018/06/electronic-versions-of-csapp.html). See [masteringengineering](https://masteringengineering.com/site/login.html)
+- better use [U.S. version](https://www.quora.com/Why-arent-Pearson-International-Edition-books-allowed-to-be-bought-in-the-U-S-and-Canada)... (Also see [this ycombinator comment](https://news.ycombinator.com/item?id=22287045) and [learning cs by self](https://teachyourselfcs.com/) highlighting two books 'focus on just two books' in the comment's [parent](https://news.ycombinator.com/item?id=22286340))
 - US. edition [see this color-scanned version](https://libgen.is/book/index.php?md5=72762223B79864A233D62CE7B2E95FB1) stored 'csapp_color_scaned.pdf'
   - the above 71MB is same as this [330MB one](https://libgen.is/book/index.php?md5=A665E0B6F83F9FE49120BE27F3A85902) which is from [this](https://forum.freemdict.com/t/topic/11216)
   - Notice: better use [libgen.li](https://libgen.li/edition.php?id=138033662) instead of libgen.is
@@ -37,7 +40,8 @@
     7. `telnet` check tcp while [`nc`](https://serverfault.com/questions/395342/telnet-counterpart-for-udp) check udp  
     8. [port forwarding](http://www.emule-project.net/home/perl/help.cgi?l=1&rm=show_topic&topic_id=669)  is same as [虚拟服务器](https://resource.tp-link.com.cn/pc/docCenter/showDoc?source=search&id=1655112584878540) in tplink (I used the tplink at my home, and I asked the JD Customer Service for- the above help).
     9.  [**test**](https://www.emule-project.com/home/perl/general.cgi?rm=porttest&tcpport=8067&udpport=16905&lang=1033&l=1&obf=1&clienthash=1935FB3FA00E795668A4B180747E6FA7) always 'tcp failed' even when I has turned the firewall off ,configured the proxy in `emule/amule` and used the first [server](https://www.emule-security.org/serverlist/). telnet test of the router connection works: `telnet 192.168.1.2 8099`
-        1. check [Wan ip](https://resource.tp-link.com.cn/pc/docCenter/showDoc?id=1655112544705438)
+        1.  check [Wan ip](https://resource.tp-link.com.cn/pc/docCenter/showDoc?id=1655112544705438)
+        2.  it should because my router don't have one *public ip*. Obviously, I use `192.168.1...` ....
     10. [VeryCD](https://zh.wikipedia.org/zh-cn/VeryCD) has been invalid for long time.
     11. open port in [windows](https://www.tomshardware.com/news/how-to-open-firewall-ports-in-windows-10,36451.html)
 ### magnet
@@ -3739,6 +3743,8 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 ```
 - qnan/snan [pdf p94](../references/intel_64.pdf)
   - why define two types of [nan](https://softwareengineering.stackexchange.com/questions/392179/should-nan-default-to-snan-or-qnan)
+  - also see [IEEE_754] and this [overview](https://techdocs.altium.com/display/FPGA/IEEE+754+Standard+-+Overview#Multiplication) of IEEE_754
+    - SNaN (Signaling NaN)
 - alignment is based on [base](https://stackoverflow.com/questions/381244/purpose-of-memory-alignment), -> offset should be multiply of alignment size.
 - xmm1 return [pdf p26](../references/abi.pdf) / homework 3.75
 - y86-64 online [simulator](https://boginw.github.io/js-y86-64/)
@@ -3962,7 +3968,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - [defining](https://stackoverflow.com/questions/47377745/c89-c99-say-theyre-macros-make-them-happy) a macro that does essentially nothing `#define stdin stdin`
 - SOCK_RAW SOCK_DGRAM [diff](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream) csapp p975
 - why rio... in csapp robust?
-- memory [circuit](https://lwn.net/Articles/250967/) and virtual memory related with [vm](https://lwn.net/Articles/253361/)
+- memory [circuit][memory_Introduction] and virtual memory related with [vm][Virtual_Memory]
 - how [semaphore](https://www.shiksha.com/online-courses/articles/mutex-vs-semaphore-what-are-the-differences/) is used differently from mutex with regard to ‘several processes’
   - one difference for illustration ('It cannot be locked or unlocked by any context other than the context that **acquired** it.'):
     see csapp Figure 12.26 -> `rw1.c`, if we prepend `P(&w)` in `writer(void)` with `V(&w)` (although this is insane but it is able to do it), then can run Critical section between `V(&w)` and `P(&w)`.
@@ -4350,7 +4356,7 @@ from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4
 - p210 [bit-field](https://en.cppreference.com/w/cpp/language/bit_field) just to keep data compact , then ' to match an externally enforced interface' <a id="bit-field"></a>
 - p240 [add 1](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) '-4096'
 - p252 load-reserved ... pair is based on ' a memory **read and a write** in a single, uninterruptible instruction.' 
-  - [reservation set](https://stackoverflow.com/questions/70242113/whats-reservation-in-risc-vs-lr-instruction) just 'reserve's the cache line.
+  - [reservation set](https://stackoverflow.com/questions/70242113/whats-reservation-in-risc-vs-lr-instruction) just 'reserve's the cache line. <a id="load_reservation"></a>
     - kw:'cache line leaves exclusively-owned','it is conditional'
     - TODO 'ARM's "monitor" region'
   - [ABA](https://www.baeldung.com/cs/aba-concurrency#value--vs-reference-based-scenarios) mainly because of Value-Based [TODO](https://www.baeldung.com/cs/aba-concurrency#3-immutability)
@@ -4789,7 +4795,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - '*after* the earlier instruction reaches the MEM phase' to ensure the 'earlier' first write.
         - ['The instructions in the pipeline'](https://stackoverflow.com/posts/76450114/timeline#history_b38eedbd-f2e9-4e53-814a-e73c71df3158) should implies the registers related with them are also saved.
         - 'there are no such reads' may be one optimization of cpu to avoid unnecessary computation.
-        - ['unmasked'](https://dev.opencascade.org/content/should-floating-point-exceptions-be-masked) is to enable exception ('By default ...,all FP exceptions are masked').
+        - ['unmasked'](https://dev.opencascade.org/content/should-floating-point-exceptions-be-masked) is to enable exception ('By default ...,all FP exceptions are masked'). <a id="mask"></a>
         - 'part-way through' and 'maybe NOP-out every other pipeline' based on power saving (which one of forwarding and nop saves power). 
         - [DLX](https://en.wikipedia.org/wiki/DLX)
       - Integer ALU latency is 0, because it can be directly forwarded from EX. Data memory latency is 1 because it needs one more *pipeline* `MEM` to read memory (so the *Initiation Interval* isn't influenced).
@@ -4892,7 +4898,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [RAT design](../references/other_resources/COD/references/xiao2013.pdf) with 'global checkpoints' for *recovery*
   - TODO 
     - RAT hardware design [1](https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp16/cse502/slides/08-superscalar_ooo.pdf) (this [better](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf))or more [abstract](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf)
-    - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/)
+    - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/) <a id="CAM"></a>
 #### chapter 5
 - p749
   - [Stream](https://www.cs.virginia.edu/stream/ref.html) benchmark is based on 'specifically designed to work with datasets *much larger than* the available cache'
@@ -4912,7 +4918,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - notice the differences between *slot* and channel.
 - p767
   - [early restart](http://thebeardsage.com/cache-optimization-critical-word-first-and-early-restart/) (better see what book said)
-    - [byte-addressable/byte addressing](https://pages.cs.wisc.edu/~markhill/cs354/Fall2008/notes/addressibility.html#:~:text=The%20x86%20Intel%20architecture%20is%20also%20byte%20addressable.&text=If%20we%20have%20an%20integer,done%20by%20numbering%20the%20bits.&text=This%20is%20called%20little%20endian%20numbering%20(of%20bits).) 'the *processor* can read is in units of words'
+    - [byte-addressable/byte addressing](https://pages.cs.wisc.edu/~markhill/cs354/Fall2008/notes/addressibility.html#:~:text=The%20x86%20Intel%20architecture%20is%20also%20byte%20addressable.&text=If%20we%20have%20an%20integer,done%20by%20numbering%20the%20bits.&text=This%20is%20called%20little%20endian%20numbering%20(of%20bits).) 'the *processor* can read is in units of words', also see [CAM](#CAM).
     - 'Critical Word First' based on 'Early Restart' ('resumes execution *before* the entire cache block is loaded') that 'This missing critical word is first fetched'.
 - p769
   - [why do we need *reading* from memory when write-miss occurs?](https://stackoverflow.com/questions/76457048/why-do-we-need-reading-from-memory-when-write-miss-occurs)
@@ -4933,7 +4939,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - TODO see [math](../references/other_resources/COD/references/Skewed-associative_Caches.pdf)
   - obviously, 'Combined cache miss rate' won't be much better than 'Split cache effective miss rate' because it only ~~avoids~~ use the very low possibility that instruction cache has the same address as data cache and with other defects.
 - p776
-  - [Burst mode](https://en.wikipedia.org/wiki/Burst_mode_(computing)), 'the total initial latency is decreased' because 'caused only *once* in burst mode'.
+  - [Burst mode](https://en.wikipedia.org/wiki/Burst_mode_(computing)), 'the total initial latency is decreased' because 'caused only *once* in burst mode'. <a id="Burst_mode"></a>
   - [comparison](https://www.geeksforgeeks.org/modes-of-dma-transfer/)
     - IO -(DMA request)> DMA -(HOLD signal)> CPU -(shares two basic information, *then* HLDACK)> DMA -(DMA ACK)> IO device
       - is still controlled by CPU. But 'without the involvement of CPU *during data transfer*'.
@@ -4965,7 +4971,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Service interruption' is the opposite of above.
   - See this [image](https://www.researchgate.net/figure/A-schematic-diagram-of-MTTF-MTTR-and-MTBF_fig5_334205633)
 - p808
-  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/)
+  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/), also see [mem_appendix] 
   - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
     - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
     - or book 'should always be even'.
@@ -5191,7 +5197,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p918
   - 'merge requests' is similar to SIMD (here data are merged. po). 
 
-##### from here, use the new book page as the index.
+##### In this `###` from here, Not use the [old book][RISC_V_Custom], use the [new book][RISC_V_Orig] page as the index.
 - p464
   - 'special purpose and systems category'
     - special purpose -> status register 
@@ -5210,7 +5216,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - [patent](https://stackoverflow.com/a/17395717/21294350), see US6594734.pdf.
             - TLB is used with physical addr and linear addr (i.e. virtual addr (linear because we view it as one line instead of physical banks,etc.))
             - 'FINE HIT' is just offset.
-            - here can get the physical addr from cache because 1. 'physically addressed.' 2. maybe using CAM men.
+            - here can get the physical addr from cache because 1. 'physically addressed.' 2. maybe using [CAM](#CAM) mem.
           - here *snoop* keeps cache coherency, resulting less overhead of fence to keep cache coherency.
           - [JIT](https://stackoverflow.com/questions/2837635/how-does-jit-replace-optimized-machine-code-during-runtime?noredirect=1&lq=1) use `mmap` to update instruction in *linux*.
           - 'run fence.i before jumping to that buffer' to invalidate / 'flush the local instruction cache' as [riscv_spec] doc says.
@@ -5227,8 +5233,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - [API](https://en.wikipedia.org/wiki/API) 'offering a *service* to'. One example of API specification is `man 2 open`.
       - p47
         - [I/O domain](https://docs.oracle.com/cd/E38405_01/html/E38406/iodomainoverview.html) may just mmap physical I/O devices like how virtual memory map disk. ('direct access to a physical I/O device')
-    - [lwn memory blog ](https://lwn.net/Articles/252125/) which also says about [hardware](https://lwn.net/Articles/250967/)
-      - [NUMA](https://lwn.net/Articles/254445/) [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html)
+    - [lwn memory blog ][CPU_cache] which also says about [hardware][memory_Introduction]
+      - [NUMA][NUMA] [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html)
   - `fence` [riscv_spec] p26
   - `sfence.vma` 
     - [riscv_spec]
@@ -5257,7 +5263,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - TODO `SFENCE.VMA` and `SFENCE.VM` diff. 
         - p100
           - Privilege Mode: here Hypervisor is VMM (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*.
-            - also see [riscv_privileged] p2.
+            - also see [riscv_privileged] p2 and p3 encoding. Also see why reserve `10` instead of `11` in p22.
         - p24
           - here not 'reinterpreted' memory-management data structure -> no need `SFENCE.VMA` to update page table which is what `SFENCE.VMA` should do '*populate* shadow page tables'.
             - [see](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#sfence-vma): it ensure page table ('related to address translation') *latest* and . (See doc p76)
@@ -5326,6 +5332,106 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - 2.6 implies [RMW](https://en.wikipedia.org/wiki/Read%E2%80%93modify%E2%80%93write) using one temporary register to ensure atomicity.
       - p8
         - `URW` can be guessed as `UserReadWrite` by p7.
+  - `ecall`
+    - [riscv_spec] 
+      - p10
+        - here 'exception' may not totally same as csapp defined because it is related with instruction excluding hardware issued exception.
+        - `trap` may have different meanings (csapp, here and this [Q&A](https://stackoverflow.com/questions/3149175/what-is-the-difference-between-trap-and-interrupt#comment13892039_3149217) all are different)
+          - Q&A: 'hardware interrupt' -> 'ALU' and 'from a user process' implies view side may define current exception is whether trap or interrupt.
+          - from [IEEE_754] p56, it defines trap as one *handler*.
+          - literally, in riscv doc, trap means 'trap' something(cpu) into something(*handler*) which is also the wikipedia [definition](https://en.wikipedia.org/wiki/Interrupt) 'called an interrupt handler' referenced by Q&A. This is also the system call / [kernel trap](https://en.wikipedia.org/w/index.php?title=Kernel_trap&redirect=no) (also [see](https://en.wikipedia.org/wiki/Interrupt#Terminology)) in csapp.
+        - Trap categories:
+          - 'Contained' -> 'user' contained by 'supervisor'.
+            - just changing *mode* within *same* hart.
+          - 'Requested Trap'
+            - 'synchronous' means directly change *control*
+            - 'on behalf of software' implies not same hart.
+          - 'Invisible Trap'
+            - just means *parallel* handled by others and not '*aware*'
+            - [demand-paged](https://afteracademy.com/blog/what-are-demand-paging-and-pre-paging/) virtual-memory system
+          - 'Fatal Trap' just defines *result* instead of how to do as before.
+          - Or see the figure.
+        - see [riscv_spec] p3 [opcode trap](https://en.wikipedia.org/wiki/Illegal_opcode) which is similar to above riscv trap definition caused by invalid *opcode*.
+          - 'abstract' implies 'greater portability'.
+        - 'imprecise' means not function as *expected*.
+      - p27
+        - here `ecall` just similar to `call` in `x86` if EEI pass parameters by 'integer register file'.
+        - ['Semihosting'](https://developer.arm.com/documentation/dui0471/g/Bgbjjgij#:~:text=Semihosting%20is%20a%20mechanism%20that,%2C%20and%20disk%20I%2FO.) means ['target'](https://wiki.segger.com/Semihosting) (one embedded board) and one host (e.g. PC/laptop) (So *semi*)
+          - from the example in arm doc, it is just similar to *serial viewer* (As riscv doc says '*service call*'). So it is not totally same as normal debugger like `gdb` does (i.e. debugger controlled how the program is running.)
+        - 'built around' just means doing something before into debuger and after leaving debugger.
+        - notice here use different types of NOP as encoding *identifier*. 
+        - TODO SVC specified with debugger [1](https://developer.arm.com/documentation/dui0471/i/semihosting/debug-agent-interaction-svcs) [2](https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/svc)
+    - [riscv_privileged] p46
+      - whether `epc` use 'the following instruction' depends on whether 'retire'.
+      - `minstret` used to count retired instructions just as literally interpreted and also by 'should not increment the minstret CSR'.
+  - `sret`
+    - [riscv_privileged]
+      - i
+        - `mstatus.MPRV`
+          - p21
+            - `xIE` only control `x` but not `w<x` or `y>x`.
+              - But relative 'higher-privilege-mode interrupts' can be controlled when '*ceding control* to a lower-privilege mode'.
+            - ['synchronous trap'](https://docs.oracle.com/cd/E19455-01/806-5257/gen-15/index.html#:~:text=Traps%20\(such%20as%20SIGILL%2C%20SIGFPE,same%20type%20of%20trap%20simultaneously.) 'a thread does to *itself*'.
+              - just see csapp what '(a)synchronous' means.
+            - [global Interrupt Enable](https://forum.allaboutcircuits.com/threads/difference-between-global-interrupt-enable-and-peripheral-interrupt-enable-bit.166766/) just literally 'all'.
+            - 'x IE is set to 0;' because not allow other interrupt interfere the *trap*.
+            - here `xPP` just holds the state *before* into trap (i.e. 'prior to the trap'), So return from trap will restore it (i.e. 'privilege mode is changed to y'). Similarly, 'x IE is set to x PIE'.
+            - `MPP` see 'previous privilege'
+            - from p67, 'lower privilege modes' just means literally.
+            - 'x PIE is set to 1', because need to restore to before into the trap.
+              |             | SPIE                                    | SIE |
+              | ----------- | --------------------------------------- | --- |
+              | before trap | A(not stored, unknown state)            | B   |
+              | into trap   | B                                       | 0   |
+              | exit trap   | (default set to 1 to allow interrupt) 1 | B   |
+            - 'x PP!=M': if not set `MPRV=0`, Then will use `MPP`. It may use wrong `xPP`. See p20 figure.
+              - This answers why *i* page 'clear mstatus.MPRV when leaving M-mode'.
+            - 'one entry per stack' means ~~either `MPP` or `SPP`.~~ just like how stack functions (`push`, `pop`).
+          - p25
+            - `hypervisor` needs to check whether `SRET` is valid. So needs '(Trap SRET)'.
+          - p47
+            - See p138 for all encodings.
+            - `mepc` see p37,38.
+              - '(mepc[0]) is always zero' means at least $2$ bytes (16 bits).
+            - ['LR address reservation'](#load_reservation)
+            - [riscv_spec] p50 `sc.w t0, a2, (a0)` here is pseudo instruction where `a2` is `rs2` at the 3rd location in [this](https://msyksphinz-self.github.io/riscv-isadoc/html/rva.html#sc-w)
+              - here *retry* (TODO this is said in one stackoverflow Q&A) is because something inherent in compare-and-swap or others.
+              - 'not guaranteed to provide any stronger' means riscv is similar to x86 not strict StoreLoad ordering by default (But maybe x86 can be tuned by software while riscv can't.).
+            - p52 AMO -> atomic memory operation.
+            - p53 [parallel reductions](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5810002.19.5.4) in memory use 'private copy' 'using the *combiner* associated with' (maybe same as acc0/1 in 'Figure 5.21' TODO see assembly) and also see [this](https://dournac.org/info/gpu_sum_reduction) which uses local memory (i.e. private copy) to parallel calculate global memory (this is similar to nvidia [slide](https://www.olcf.ornl.gov/wp-content/uploads/2019/12/05_Atomics_Reductions_Warp_Shuffle.pdf) p14). It seems to have no relation with [this](https://en.wikipedia.org/wiki/Reduction_of_summands#:~:text=Reduction%20of%20summands%20is%20an,reduction%20of%20summands%2C%20and%20summation.) where has no copy and parallel and it use carry and original bit summand separately. <a id="reduction"></a>
+              - above nvida offer some pdf in p25 [reduction_1](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) and [reduction_2](https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/)
+                - reduction_1: 
+                  - two addressing: 1. p8 Interleaved Addressing which may use *same bank* in p12 because not adjacent memory addr. 2. same as above slide 3. TODO the other #... in reduction_1.
+                  - the second is same as 'Shuffle Warp Reduce' in reduction_2.
+            - 'cleared LR reservation' -> means LR has been destroyed in some way. So '*impossible* to single-step through'.
+  - `wfi` p48
+    - TODO just view the code. What interrupt to wait?
+      - also see 'If the implementation does not stall', it then runs 'idle loop' and 'continue' after 'resume'.
+    - 'delegated to a less-privileged' -> implies be handled by 'less-privileged' and *not* *resume*. But 'must be unaffected' -> still assume.
+      - 'not individually enabled' is similar.
+    - 'allowing wakeup' -> allow `WFI`.
+    - 'WFI as a NOP.' because *W* means wait.
+    - 'explicitly check for' because `NOP` doesn't check.
+    - 'until an interrupt might need servicing' implies *pending*. So 'can also be executed when interrupts are *disabled*'
+    - 'trap into a higher privilege mode' -> 'at any privilege level'
+    - `mideleg`
+      - see p30
+        - ['Trap Delegation'](https://www.sifive.com/blog/all-aboard-part-7-entering-and-exiting-the-linux-kernel-on-risc-v) just allow multiple 'privilege levels' to handle trap instead of only one 'machine mode by default' 'allowing for high performance'.
+      - p31
+        - mask see [this](#mask) -> disable interrupt. So 'delegator privilege level' means M-mode.
+- p465
+  - cache  blocking is just unparalleled version of [reduction](#reduction) with one copy.
+- p390
+  - 4 is obviously right by 'the bandwidth of main memory is *increased* to transfer cache blocks more efficiently'.
+  - ~~2~~ 1 is right by p384: Assume that init time is low, if 'cache block' is large, then the low init time won't contribute much to decreasing the total transfer time. See 'Amdahl’s Law' in p49.
+- p376
+  - 'omit the index bits' means omit in assigned as the tag (not use one of index bits as one tag bit).
+- p401
+  - Increasing associativity -> less block nums -> more tag bits, see [this](https://en.wikipedia.org/wiki/Cache_placement_policies#Set-associative_cache). Here index bits are not used to index all cache lines but index cache sets which may has *multiple lines*. (index bit num from [6](https://en.wikipedia.org/wiki/Cache_placement_policies#Example)->5)
+- p407
+  - see 
+- p408
+  - [GFLOPS:gflop/s](https://en.wikipedia.org/wiki/FLOPS)
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -5388,6 +5494,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - here [saved](https://stackoverflow.com/questions/64545005/which-registers-are-saved-and-not-saved-in-risc-v) (similar to x86-64 design) is related with **callee**
 #### manual interpretation
 - p21 jalr still use multiple of 2 bytes by [`&∼1`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jalr), 
+  - `r` means register.
   - 'error checking' because of dropping the least-significant bit which will jump to one non-instruction location.
   - 'the lowest 2 KiB or highest 2 KiB' -> -2^11 byte ~ 2^11-1 byte = -2KiB(2^10 bytes) ...
   - when in `while` loop, `jal` 
@@ -5440,7 +5547,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - TODO [performance counters](https://relate.cs.illinois.edu/course/cs598apk-f18/f/demos/upload/perf/Using%20Performance%20Counters.html) for [retire slots ‘td_slots_retired’](https://lore.kernel.org/lkml/1462489447-31832-4-git-send-email-andi@firstfloor.org/), [metric](https://shbakram.github.io/assets/papers/honors-thesis-adi.pdf) understanding
     - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
     - lfence is [no use](https://stackoverflow.com/questions/20316124/does-it-make-any-sense-to-use-the-lfence-instruction-on-x86-x86-64-processors) in contemporary cpu and SFENCE is less than MFENCE with `StoreLoad`.
-      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*'
+      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*'. Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
+        - `USWC` -> [Uncacheable by L1 cache](https://stackoverflow.com/questions/75224657/memory-type-wb-vs-uswc-of-memory-mapped-files-on-x86),etc 
         - more [detailed](https://sites.utexas.edu/jdm4372/2018/01/01/notes-on-non-temporal-aka-streaming-stores/) which says 'Non-allocating store'
           - 'Non-globally-ordered store': order is only needed in the processor, not always when interprocessor communication. (Same as intel doc says).
       - [store-miss](https://stackoverflow.com/questions/18408189/cpu-cache-performance-store-misses-vs-load-misses) [policies](https://en.wikipedia.org/wiki/Cache_%28computing%29#Writing_policies)
@@ -5549,7 +5657,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - p2
       - With linux, it [doesn't offer](https://forums.sifive.com/t/tlb-miss-and-page-table-fault-handling/2618) 'interrupt handler to ”walk” the page table' where SBI means 'Supervisor Binary Interface' in risc-v.
         - [`grub`](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders#GNU_GRUB) use 'Two-Stage' because by convention ['the last word of the sector must contain the signature 0xAA55'](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders) ([Single Stage](https://wiki.osdev.org/Bootloader#Single_Stage_Bootloader) is small)
-      - TODO [check with `opcontrol` perf tool](https://lwn.net/Articles/379748/) self machine TLB
+      - TODO [check with `opcontrol` perf tool][TLBs_and_costs] self machine TLB
       - from [this where *hardware* 'the state machine handles a TLB miss'](https://dl.acm.org/doi/pdf/10.1145/291069.291065) 'the reorder buffer need not be flushed'
       - nTLB (skip nested table,see appendix p25) (the following link p2 'caching the full 2D translation') see amd doc p1005 and [also](https://pages.cs.wisc.edu/~remzi/Classes/838/Spring2013/Papers/p26-bhargava.pdf)
         - here why nested is just same as why use multi-level virtual-page (To increase the whole page size.) 
@@ -5844,64 +5952,157 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - B register is `rs2`
 ### TODO
 - why `EXMEMALOUT >> 2` not `EXMEMALOUT >> 1` to just put `64=32<<1` bit data.
+# cache miss debug
+- I use ryzen 7 4800h with [256KiB L1D cache](https://en.wikichip.org/wiki/amd/ryzen_7/4800h#Cache) and each core has [32KiB](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280)
+  [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket ):
+  ```bash
+  $ lscpu --cache
+  NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
+  L1d       32K     256K    8 Data            1   64        1             64
+  L1i       32K     256K    8 Instruction     1   64        1             64
+  L2       512K       4M    8 Unified         2 1024        1             64
+  L3         4M       8M   16 Unified         3 4096        1             64
+  $ for i in $(ls /sys/devices/system/cpu/cpu0/cache/index0);do echo $i;cat /sys/devices/system/cpu/cpu0/cache/index0/$i;echo -e '';done # view by file https://stackoverflow.com/questions/1922249/c-cache-aware-programming
+  $ python
+  >>> 64*8*64/2**10
+  32.0 # implies 64 byte cache block
+  $ lscpu | grep -i Thread -A 2
+  Thread(s) per core:              2
+  Core(s) per socket:              8
+  Socket(s):                       1
+  $ sudo lshw -C memory # more general info https://unix.stackexchange.com/questions/167038/is-there-any-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-linux
+  ...
+  capabilities: pipeline-burst internal write-back unified
+  $ cat /sys/devices/system/cpu/cpu0/cache/index2/shared_cpu_list # check cpu shared state; https://superuser.com/questions/55776/how-to-find-the-l2-cache-size-in-linux check L2
+  0-1
+  $ cat /sys/devices/system/cpu/cpu0/cache/index3/shared_cpu_list
+  0-7
+  ```
+  - ['pipeline-burst'](https://en.wikipedia.org/wiki/Pipeline_burst_cache): 1. pipeline is just same as instruction pipeline by 'divided into stages' 2. Burst mode not only decreases init counts but also no need to transfer unnecessary sequential separate address,also see [this](#Burst_mode) same thing.
+  - So `double` is 8bytes.
+## [perf tools][mem_perf_tools]
+- here [oprofile](https://oprofile.sourceforge.io/news/) hasn't been updated since 2020 and [not support](https://github.com/Xilinx/xen/issues/2) 23th family amd cpu (like my cpu ryzen 4800h)
+  - 'This is where oprofile is currently *hard* to use' because it use something not general like `DTLB_MISSES`.
+  - 'Oprofile performs *stochastic* profiling' (maybe not very stochastic...) 'Only every Nth event'.
+  - 'corresponds to the *actual* hardware'. So *can't simulate* like cachegrind.
+  - [`__builtin_expect`](https://stackoverflow.com/questions/7346929/what-is-the-advantage-of-gccs-builtin-expect-in-if-else-statements) just use *prefetch* and branch prediction. Then L1i cache miss should be decreased at least because of fetching less instructions.
+  - should use `perf` over `oprofile` by this [Q&A](https://stackoverflow.com/questions/8126311/how-much-of-what-every-programmer-should-know-about-memory-is-still-valid)
+- [pfmon](https://sourceforge.net/p/perfmon2/libpfm4/ci/master/tree/) ([same](https://askubuntu.com/questions/637144/how-to-install-perfmon2-on-ubuntu)) is one lib instead of one software to use like cachegrind, also for [papi](https://aur.archlinux.org/packages/papi) (see [example](https://stackoverflow.com/questions/54638486/counting-l1-cache-misses-with-papi-read-counters-gives-unexpected-results))
+  - TODO use [pfmon software](https://www.cse.iitd.ac.in/~rkpal/pfmon.html)
+- above Q&A
+  - not use 'software prefetch' and '*perf* has mostly superseded oprofile'.
+- also see this [blog](https://samueleresca.net/analysis-of-what-every-programmer-should-know-about-memory/) which offers one good [`perf` web page](https://www.brendangregg.com/perf.html)
+- ~~Better to~~ also see [mem_paper_1] ~~where internal links are all valid.~~
+  - ~~it says 'Section 10' in [mem_perf_tools] as 'Appendix B'~~
+- TODO [other perf tools](https://perfmon2.sourceforge.net/perfmon2-20080124.pdf)
+- calculate NTA manually maybe by `SSE_PRE_EXEC` and `LOAD_HIT_PRE`.
+- NTA prefetch
+  - TODO how check [hardware prefetcher](https://stackoverflow.com/questions/32103968/non-temporal-loads-and-the-hardware-prefetcher-do-they-work-together)...
+  - not same as [this](#non_temporal_streaming) because NTA prefetch will use cache.
+  - also see [17h_Optimization] p19.
+  - 'Non-Temporal' [implies](http://www.nic.uoregon.edu/~khuck/ts/acumem-report/manual_html/ch05s03.html) 'not be allowed to evict other data'.
+  - `PrefetchNTA` calculation [Equation](http://www.nacad.ufrj.br/online/intel/vtune/users_guide/mergedProjects/analyzer_ec/mergedProjects/reference_olh/mergedProjects/pmm/ratios/useful_prefetchnta_ratio.html) also can be implied by above [mem_perf_tools] `SSE_PRE_MISS, SSE_PRE_EXEC,` using [`pfmon` interface](https://indico.cern.ch/event/28823/contributions/658270/attachments/537472/740937/PH_Workshop_pfmon_April2008.pdf).
+## related with my cpu 4800h
+- TODO cpuid [subleaf](https://www.felixcloutier.com/x86/cpuid)
+  ```bash
+  $ sudo cpuid | head -n 3
+  Leaf     Subleaf    EAX            EBX            ECX            EDX            
+  00000000 00000000:  00000010 ....  68747541 Auth  444d4163 cAMD  69746e65 enti
+  00000001 00000000:  00860f01 ....  00100800 ....  7ed8320b .2.~  178bfbff ....
+  ```
+  - also see [this code](../self_test/cpuid/cpuid.c)
+    - see [cpuid] p10 how family and model are encoded. It is same as [wikichip_cpuid] says.
+    - here use Leaf `0x1h` because [rev_17h] p8 says 'returned in the *EAX*' with `0000_0001h`.
+- My cpu L2 cache is inclusive
+  - here L3 isn't inclusive but to be 'populated by L2 *victims*'. '**shadow tags**' stores 'state information' of L2 cache which includes MOESI related 'coherency state' and *allocation* property related with victim and invalidation. Although [intel](https://stackoverflow.com/questions/57702498/the-way-to-get-cache-placement-policy-of-cpu-on-linux) L3 is inclusive.
+    - shadow tags:
+      - also see [zen2_wikichip](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2). The shadow tags also function between CCXs by 'exclusive to this CCX' and 'CCXs are not directly connected'.
+      - Better see this [patent][shared_tag_patent].
+      - not totally same as [shadow memory](https://electronics.stackexchange.com/questions/240248/cache-memory-vs-shadow-ram) beacuse it adds some infos like 'state' and 'allocation property'.
+      - also see this [slide](https://my.eng.utah.edu/~cs7810/pres/14-7810-12.pdf) 
+        - p20 'partial tags' is same as patent says 'at least a portion of an address'.
+        - p4 die layout.
+      - ~~TODO~~ no relation with [Shadow memory](https://en.wikipedia.org/wiki/Shadow_memory) better see valgrind [paper][shadow_memory].
 
 ---
 
 Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
 
 ---
+
 - wikipedia 
-  - [Sequential_consistency][Sequential_consistency]
-  - [Cache_Consistency_def][Cache_Consistency_def]
+  - [Sequential_consistency]
+  - [Cache_Consistency_def]
 - wikipedia_ref
-  - [Wl_1][Wl_1]
+  - [Wl_1]
 - paper
   - memory consistency
-    - [mosberger93memory][mosberger93memory]
-    - [PC_orig][PC_orig]
-    - [SC_orig][SC_orig]
-    - [MEMORY_CONSISTENCY_DETAILED][MEMORY_CONSISTENCY_DETAILED]
-    - [isca90_GLL_90][isca90_GLL_90]
-    - [herlihy][herlihy]
-    - [Misra_1985][Misra_1985]
+    - [mosberger93memory]
+    - [PC_orig]
+    - [SC_orig]
+    - [MEMORY_CONSISTENCY_DETAILED]
+    - [isca90_GLL_90]
+    - [herlihy]
+    - [Misra_1985]
     - lamport
-      - [Lamport_1985][Lamport_1985]
+      - [Lamport_1985]
+  - [shadow_memory]
 - blog
   - preshing
-    - [Memory_Barriers][Memory_Barriers]
-    - [Weak_vs_Strong_Memory_Models][Weak_vs_Strong_Memory_Models]
-    - [ac_rel][ac_rel]
+    - [Memory_Barriers]
+    - [Weak_vs_Strong_Memory_Models]
+    - [ac_rel]
+  - lwn
+    - memory 
+      - [mem_paper_1]
+        - [CPU_cache]
+        - [memory_Introduction]
+        - [Virtual_Memory]
+        - [NUMA]
+        - [mem_perf_tools]
+        - [mem_appendix]
+      - [TLBs_and_costs]
+  - wikichip
+    - [wikichip_cpuid]
 - assignment 
   - dphpc
-    - [sequential_consistency][sequential_consistency]
+    - [sequential_consistency]
 - class_lecture
   - memory consistency
-    - [sc_tso_cis601][sc_tso_cis601]
-    - [lec_17][lec_17]
-    - [TSO_PC_PSO][TSO_PC_PSO]
-    - [stanford_149_09_consistency][stanford_149_09_consistency]
-    - [memory_models][memory_models]
-    - [CSG280][CSG280]
+    - [sc_tso_cis601]
+    - [lec_17]
+    - [TSO_PC_PSO]
+    - [stanford_149_09_consistency]
+    - [memory_models]
+    - [CSG280]
     - with math
-      - [Misra_1985][Misra_1985]
-      - [Lamport_1985][Lamport_1985]
-      - [Weak_Memory_Consistency][Weak_Memory_Consistency]
+      - [Misra_1985]
+      - [Lamport_1985]
+      - [Weak_Memory_Consistency]
 - official doc
-  - [sparcv9][sparcv9]
+  - [sparcv9]
   - risc-v
-    - [riscv_spec][riscv_spec]
-    - [riscv_privileged][riscv_privileged]
+    - [riscv_spec]
+    - [riscv_privileged]
     - implementation 
-      - [chromit][chromit]
+      - [chromit]
+  - amd
+    - related with r7 4800h
+      - [cpuid]
+      - [17h_Optimization]
+      - [rev_17h]
+- patent
+  - amd
+    - [shared_tag_patent]
 - book
   - from wikipedia
-    - [Scalable_Shared_Memory_Multiprocessors_libgen][Scalable_Shared_Memory_Multiprocessors_libgen]
+    - [Scalable_Shared_Memory_Multiprocessors_libgen]
   - COD (Computer Organization and Design) by David A. Patterson (Author), John L. Hennessy (Author)
-    - [RISC_V_Orig][RISC_V_Orig]
-    - RISC_V_Custom
-    - [RISC_V_Custom_OCR][RISC_V_Custom_OCR]
+    - [RISC_V_Orig]
+    - [RISC_V_Custom]
+    - [RISC_V_Custom_OCR]
   - CAAQA (Computer Architecture: A Quantitative Approach 6th edition) by David A Patterson and John L. Hennessy
-    - [CAAQA][CAAQA]
+    - [CAAQA]
 ---
 
 [Sequential_consistency]:https://en.wikipedia.org/wiki/Consistency_model#Sequential_consistency
@@ -5929,8 +6130,12 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [stanford_149_09_consistency]:https://gfxcourses.stanford.edu/cs149/winter19content/lectures/09_consistency/09_consistency_slides.pdf
 [isca90_GLL_90]:../references/other_resources/COD/references/gharachorloo.isca90.pdf
 [Scalable_Shared_Memory_Multiprocessors_libgen]:../references/other_resources/COD/references/Scalable_Shared_Memory_Multiprocessors_libgen.pdf
+
+<!-- riscv book -->
 [RISC_V_Custom_OCR]:../references/other_resources/COD/COD_RISCV_OCR.pdf
 [RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
+[RISC_V_Custom]:../references/other_resources/COD/COD_RISCV.pdf
+
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
 [herlihy]:../references/other_resources/COD/references/memory_consistency/p463-herlihy.pdf
@@ -5945,3 +6150,29 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [riscv_privileged]:../references/other_resources/RISC-V/riscv-privileged-20211203.pdf
 [chromit]:https://chromite.readthedocs.io/en/using-csrbox/mmu.html
 [acq_rel_cpp]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants
+[csapp_global]:../references/csapp/csapp_global.pdf
+[csapp_global_cropped]:../references/csapp/csapp_global_cropped.pdf
+[csapp_us_masteringengineering]:../references/csapp/csapp_zlib.pdf
+[IEEE_754]:../references/IEEE/ieee-standard-for-floatingpoint-arithmetic.pdf
+
+<!-- lwn -->
+[CPU_cache]:https://lwn.net/Articles/252125/
+[memory_Introduction]:https://lwn.net/Articles/250967/
+[Virtual_Memory]:https://lwn.net/Articles/253361/
+[NUMA]:https://lwn.net/Articles/254445/
+[TLBs_and_costs]:https://lwn.net/Articles/379748/
+[mem_perf_tools]:https://lwn.net/Articles/257209/
+[mem_paper_1]:https://www.akkadia.org/drepper/cpumemory.pdf
+[mem_appendix]:https://lwn.net/Articles/258188/
+
+<!-- amd -->
+[17h_Optimization]:../references/AMD/amd_17h/55723_SOG_3.01_PUB.pdf
+[cpuid]:../references/AMD/cpuid.pdf
+[rev_17h]:../references/AMD/rev_17h_guide.pdf
+
+<!-- wikichip -->
+[wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
+[shared_tag_patent]:../references/AMD/shared_tag.pdf
+
+<!-- paper -->
+[shadow_memory]:../references/papers/shadow-memory2007.pdf
