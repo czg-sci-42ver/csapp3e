@@ -1,9 +1,12 @@
 # miscs
 - hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
 - stackoverflow image [size](https://meta.stackoverflow.com/questions/253403/how-to-reduce-image-size-on-stack-overflow) based on imgur.
-- Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly. 
-  - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
 - the following `''` is assumed as *quote* of link contents.
+- vscode sign in with [kwallet](https://github.com/microsoft/vscode/issues/104319) fails
+# NOT DO
+- Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
+  - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
+- Not to learn how to set output location, just use `mv`.
 # csapp [global-ed errata](https://github.com/yangwenbo99/csapp-global-errata/blob/master/chapter_3.md) or this [official](https://csapp.cs.cmu.edu/3e/errata.html)(notice this 3e errata) (weird with [http](http://csapp.cs.cmu.edu/3e/errata.html), the page rendered finer)
 - I learned csapp mainly based on [global_ed][csapp_global] and use [csapp_global_cropped] in saladict to better view more contents based on [this](https://github.com/abarker/pdfCropMargins). Because global has some errors, I also use [this][csapp_us_masteringengineering] as one auxiliary resource.
   - In `okular`, just use 'View->Trim view->Trim Margins' to avoid margin. But the toc link will go to the incorret location.
@@ -539,6 +542,7 @@ pwndbg> stack
 - [this](https://godbolt.org/z/BzhckE)
 # blogs
 - [this](http://pwnable.kr/) from [this](http://archive.hack.lu/2015/radare2-workshop-slides.pdf)
+- cpu in [90min](https://www.lighterra.com/papers/modernmicroprocessors/)
 ## kernel
 - [Parallel Programming](https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html)
 ## personal
@@ -5104,7 +5108,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'switch access' may refer to change *state*.
   - centralized in 'centralized state' is similar to 'addressed as a single *shared* address space' in [this](https://en.wikipedia.org/wiki/Distributed_shared_memory)
 - p878
-  - [False Sharing](https://haryachyy.wordpress.com/2018/06/19/learning-dpdk-avoid-false-sharing/) caused by *redundant* invalidation of cache block can be partly solved by alignment. [Also](https://www.codeproject.com/Articles/85356/Avoiding-and-Identifying-False-Sharing-Among-Threa)
+  - [False Sharing](https://haryachyy.wordpress.com/2018/06/19/learning-dpdk-avoid-false-sharing/) caused by *redundant* invalidation of cache block can be partly solved by alignment. [Also](https://www.codeproject.com/Articles/85356/Avoiding-and-Identifying-False-Sharing-Among-Threa). Also see wikipedia 'but that data shares a cache block with data that is being *altered*,... force the first participant to *reload*'
+    - also [related](https://joemario.github.io/blog/2016/09/01/c2c-blog/) with `perf c2c`
 - p879
   - [memory consistency model][memory_models] defines the memory *order*.
     - [off-by-one errors](https://en.wikipedia.org/wiki/Off-by-one_error)
@@ -5234,7 +5239,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - p47
         - [I/O domain](https://docs.oracle.com/cd/E38405_01/html/E38406/iodomainoverview.html) may just mmap physical I/O devices like how virtual memory map disk. ('direct access to a physical I/O device')
     - [lwn memory blog ][CPU_cache] which also says about [hardware][memory_Introduction]
-      - [NUMA][NUMA] [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html)
+      - [NUMA][NUMA] [node and local/remote access](https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html) <a id="local_remote_access"></a>
   - `fence` [riscv_spec] p26
   - `sfence.vma` 
     - [riscv_spec]
@@ -5981,6 +5986,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   - ['pipeline-burst'](https://en.wikipedia.org/wiki/Pipeline_burst_cache): 1. pipeline is just same as instruction pipeline by 'divided into stages' 2. Burst mode not only decreases init counts but also no need to transfer unnecessary sequential separate address,also see [this](#Burst_mode) same thing.
   - So `double` is 8bytes.
 ## [perf tools][mem_perf_tools]
+- TODO try [intel VTune](https://stackoverflow.com/questions/32542164/using-valgrind-to-measure-cache-misses)
 - here [oprofile](https://oprofile.sourceforge.io/news/) hasn't been updated since 2020 and [not support](https://github.com/Xilinx/xen/issues/2) 23th family amd cpu (like my cpu ryzen 4800h)
   - 'This is where oprofile is currently *hard* to use' because it use something not general like `DTLB_MISSES`.
   - 'Oprofile performs *stochastic* profiling' (maybe not very stochastic...) 'Only every Nth event'.
@@ -6002,6 +6008,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   - also see [17h_Optimization] p19.
   - 'Non-Temporal' [implies](http://www.nic.uoregon.edu/~khuck/ts/acumem-report/manual_html/ch05s03.html) 'not be allowed to evict other data'.
   - `PrefetchNTA` calculation [Equation](http://www.nacad.ufrj.br/online/intel/vtune/users_guide/mergedProjects/analyzer_ec/mergedProjects/reference_olh/mergedProjects/pmm/ratios/useful_prefetchnta_ratio.html) also can be implied by above [mem_perf_tools] `SSE_PRE_MISS, SSE_PRE_EXEC,` using [`pfmon` interface](https://indico.cern.ch/event/28823/contributions/658270/attachments/537472/740937/PH_Workshop_pfmon_April2008.pdf).
+  - here NTA may not be *aligned* but *access* as amd doc 'PPR_60h' p33 says.
 ## related with my cpu 4800h
 - TODO cpuid [subleaf](https://www.felixcloutier.com/x86/cpuid)
   ```bash
@@ -6023,10 +6030,227 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
         - p20 'partial tags' is same as patent says 'at least a portion of an address'.
         - p4 die layout.
       - ~~TODO~~ no relation with [Shadow memory](https://en.wikipedia.org/wiki/Shadow_memory) better see valgrind [paper][shadow_memory].
+## perf doc use [epyc 7713](https://en.wikichip.org/wiki/amd/cores/milan) which should share the same model `0x01` in one location of [19h](https://en.wikichip.org/wiki/amd/cpuid#Family_25_.2819h.29) just as [renoir](https://en.wikichip.org/wiki/amd/cores/renoir) including 4800h does in [17h](https://en.wikichip.org/wiki/amd/cpuid#Family_23_.2817h.29) 
+- TODO [QoS Monitoring and Enforcement](https://www.amd.com/system/files/TechDocs/56375_1.03_PUB.pdf) in [L3 cache](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2)
+- ~~recommend read [perf](https://man7.org/linux/man-pages/man1/perf-list.1.html) online in man7 which is newer than archlinux `man-db`.~~ `man perf-list`
+  - It offers this valuable amd doc repo in [bugzilla](https://bugzilla.kernel.org/show_bug.cgi?id=206537) :-)
+  - ~~TODO ~~ the man said `If ... 28FH     03H` while the [19h_01h_vol_1] p217 ~~has no umask shows. And where is ''~~
+    - here from [19h_01h_vol_1] p167 event select[11:8] -> `35:32`
+      ```bash
+      $ cat /sys/bus/event_source/devices/cpu/format/event 
+      config:0-7,32-35
+      $ cat /sys/bus/event_source/devices/cpu/format/umask                                                   
+      config:8-15
+      ```
+      from p209 should use `0x20043048F` **or** `0x20043078F`(9 bytes). see set bits in [debug_code].
+    - PPR_old see this [repo](https://github.com/tpn/pdfs/blob/master/AMD%20-%20Preliminary%20Processor%20Programming%20Reference%20(PPR)%20for%20AMD%20Family%2017h%20Models%2000h-0Fh%20Processors%20-%20Rev%201.14%20-%20April%2015th%2C%202017%20(54945).pdf)
+      - some PPR use `DC` abbr which is in [uprof_doc] p18.
+    - [this link_1](https://community.amd.com/t5/server-gurus-discussions/pmc-questions-of-epyc-processor/td-p/439817) may get unit mask from the table in [17h_01h] Table 19 `0xFF0F0000_00400106`(64bits).
+      - still from p146 '35:32 EventSelect[11:8]', so `{0:06}` is same as p174 `0x06` in 'L3PMCx06'.
+      - also see this [question](https://stackoverflow.com/questions/70237030/counting-l3-cache-access-event-on-amd-zen-2-processors) which is also posted on [amd community](https://community.amd.com/t5/general-discussions/counting-l3-cache-access-event-on-amd-zen-2-processors/td-p/508781).
+        - `amd_l3` [origin](https://lkml.iu.edu/hypermail/linux/kernel/1909.2/03972.html) where `+ { "L3PMC", "amd_l3" },` implies need `amd_l3` to use L3 PMC.
+        - this is same as link_1 about L3 cache based on 17h model 01h.
+        - '`umask 0x80` is undefined for this event' beacuae Table 19 not says about 'FP Scheduler Empty' and p163 in [17h_01h] also not says about unit mask. 
+          - so 'counting an *undefined* event'.
+        - `L3LookupState` is just `L3PMCx04` in [17h_01h] p174 from the last two bytes of `0xFF0F0000_0040FF04`. (The unit mask is *recommended* in [17h_01h] Table 19) The other is similar.
+  - Notice: better view the cpu PPR and use [recommended event code](https://www.spinics.net/lists/linux-perf-users/msg17608.html). So maybe predefined `perf` event isn't dependable all the time.
+- TODO L1cache may save TLB page walk cache, so fetching instruction may cause miss.
+- TODO `+-` [meaning](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses/58139638#58139638) in `perf stat -r`
+- event [definition](https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/arch/x86/events/amd/core.c#L31) (check kernel version) for all amd, referenced [here](https://stackoverflow.com/questions/52170960/hardware-cache-events-and-perf)
+- cache miss may due to both [ITLB](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses) and [dTLB](https://stackoverflow.com/q/76593928/21294350)
+- TODO this `check_events` no use
+  ```bash
+  $  ~/libpfm4/examples/check_events 0x5:0x01:0x01
+  check_events: cannot encode event 0x5:0x01:0x01: event not found
+  $ ~/libpfm4/examples/showevtinfo
+  ...
+  IDX      : 933232695
+  PMU name : amd64_fam17h_zen2 (AMD64 Fam17h Zen2)
+  Name     : RETIRED_SERIALIZING_OPS
+  Equiv    : None
+  Flags    : None
+  Desc     : The number of serializing Ops retired.
+  Code     : 0x5
+  Umask-00 : 0x01 : PMU : [X87_CTRL_RET] : None : X87 control word mispredict traps due to mispredction in RC or PC, or changes in mask bits.
+  ```
+- show predefined [event code](https://lore.kernel.org/all/21eb16b3-ddbd-b249-e7b1-476cb17361be@amd.com/T/). 
+- [AMD BKDG](https://web.eece.maine.edu/~vweaver/projects/perf_events/faq.html#q2e) temporarily only has 16h.
 
+## perf
+### commands
+- see this [Q&A](https://stackoverflow.com/questions/76593928/can-amd-zen2-cpu-calculate-l1dcache-miss-and-l1icache-miss-separately-with-perf). Here not use [`--call-graph dwarf`](https://stackoverflow.com/questions/59307540/profiling-my-program-with-linux-perf-and-different-call-graph-modes-gives-differ) beacuse it generate much bigger file.
+  ```bash
+  $ cd;perf record -g -e L1-dcache-load-misses:u\
+  ,L1-dcache-loads:u,L1-dcache-prefetches:u\
+  ,L1-icache-load-misses:u,L1-icache-loads:u\
+  ,dTLB-load-misses:u,dTLB-loads:u\
+  ,iTLB-load-misses:u,iTLB-loads:u \
+  ~/matrix-matrix-multiply/build/src/dgemm
+      # see https://stackoverflow.com/questions/12160449/call-stack-in-the-perf-profiler
+  $ perf report -i ~/perf_log/L1_TLB_dgemm_znver2.log  -M intel --stdio --stdio-color always --group --show-ref-call-graph --percentage relative --raw-trace
+  #                                                                 Children                                                                      Self  Command  Shared Object         Symbol                                       >
+  # ........................................................................  ........................................................................  .......  ....................  .............................................>
+  #
+    66.59%  28.42%  44.41%  57.28%  58.13%  89.27%  87.30%   1.96%   3.75%    66.56%  28.42%  44.40%  57.28%  58.13%  89.22%  87.29%   1.96%   2.92%  dgemm    dgemm                 [.] dgemm_basic
+            |
+            ---dgemm_basic
+      # ignore this line: here `dgemm_basic_blocked` is too small, so not counted here.
+      # even when not using `__attribute__((noinline))` in `do_block`.
+    28.91%  14.19%  47.71%  22.45%  21.25%   4.64%  10.64%   1.40%  17.08%     0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.56%   0.83%  dgemm    dgemm                 [.] calc_speed_up
+            |
+            ---calc_speed_up
+                |          
+                |--16.69%--dgemm_avx256
+                |          
+                |--7.95%--dgemm_unrolled_avx256
+                |          
+                --4.27%--dgemm_blocked_avx256
+
+    16.69%   7.12%  21.37%   9.23%   7.65%   3.34%   8.13%   0.00%   3.75%    16.68%   7.11%  21.36%   9.23%   7.65%   3.34%   8.13%   0.00%   3.75%  dgemm    dgemm                 [.] dgemm_avx256
+            |          
+              --16.68%--calc_speed_up
+                        dgemm_avx256
+
+      7.95%   4.47%  16.34%  10.65%  10.64%   0.19%   2.26%   0.56%   0.00%     7.95%   4.47%  16.31%  10.65%  10.64%   0.19%   2.26%   0.00%   0.00%  dgemm    dgemm                 [.] dgemm_unrolled_avx256
+            |
+            ---calc_speed_up
+                dgemm_unrolled_avx256
+
+      # 4.44%  57.74%   2.03%  42.47%  57.43%   0.10%   1.72%   0.00%   6.31%     4.44%  57.72%   2.03%  42.46%  57.43%   0.10%   1.72%   0.00%   6.31%  dgemm    dgemm                 [.] dgemm_basic_blocked
+      
+      # with `__attribute__((noinline))` with `do_block`
+
+      4.30%  54.17%   7.00%  18.84%  19.45%   4.73%   2.05%   0.28%   8.75%     4.30%  54.15%   7.00%  18.84%  19.45%   4.73%   2.05%   0.28%   8.75%  dgemm    dgemm                 [.] do_block
+            |
+            ---do_block
+
+      4.27%   2.60%  10.00%   2.56%   2.96%   1.11%   0.25%   0.00%  12.50%     4.27%   2.60%   9.98%   2.56%   2.96%   1.11%   0.25%   0.00%  12.50%  dgemm    dgemm                 [.] dgemm_blocked_avx256
+            |
+            ---calc_speed_up
+                dgemm_blocked_avx256
+      ...
+      0.05%   0.34%   0.08%   0.08%   0.08%   0.08%   0.01%   0.00%   0.00%     0.05%   0.34%   0.08%   0.08%   0.08%   0.08%   0.01%   0.00%   0.00%  dgemm    dgemm                 [.] dgemm_basic_blocked
+  ```
+  The above Q&A may be duplicate of [this](https://stackoverflow.com/questions/73032552/cache-miss-even-if-both-operands-are-registers)
+  - it may be due to [event skid](https://stackoverflow.com/a/70026620/21294350). Or see [this branch example](https://easyperf.net/blog/2018/08/29/Understanding-performance-events-skid). So above should be miss at **jump** instruction instead of before jump.
+    - no `pp` modifier listed in `man perf-list` available because [`PEBS`](https://easyperf.net/blog/2018/06/08/Advanced-profiling-topics-PEBS-and-LBR). Also see from [source code](https://elixir.bootlin.com/linux/v5.6.14/source/tools/perf/pmu-events/arch/x86/skylakex/cache.json#L630) referenced [here](https://stackoverflow.com/a/62059796/21294350).
+    - maybe also due to [link_1 **fuesd** instruction](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction) (can also be seen from [the comment](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74631685_43794510)) where it also says to use cachegrind to get a [scartch](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74630635_43794510). From Link_2 , it may be also due to ['the instruction that was waiting for it'](https://stackoverflow.com/questions/65906312/inconsistent-perf-annotate-memory-load-store-time-reporting/65907314#65907314) (TODO how [Meltdown](https://meltdownattack.com/) which is [CVE-2017-5754](https://www.cvedetails.com/cve/CVE-2017-5754/) get memory data and whether LSD means [this](https://stackoverflow.com/questions/52054585/can-the-lsd-issue-uops-from-the-next-iteration-of-the-detected-loop)).
+      - Above two links are in ['Other related ...'](https://stackoverflow.com/questions/69351189/how-does-perf-record-or-other-profilers-pick-which-instruction-to-count-as-cos) where the third also said from OoO and pipeline view.
+  - related with above Q&A, `lbr` also not available on amd.
+### first glance
+- from above, why dgemm_basic behaves like that has been said in the Q&A. 
+  `dgemm_avx256`: Then `dgemm_avx256` use `vfmadd231pd` to simplify *speculative* cache prefetch which is also said in Q&A. And it also it won't fetch 
+  next line in `A` in `cij += A[i + k * n] * B[k + j * n];` when `k++`, but loads from the *consecutive* addresses from `_mm256_mul_pd` in `_mm256_mul_pd(_mm256_load_pd(A + i + k * n),_mm256_broadcast_sd(B + k + j * n)));` (at least row major in C works, column major in Fortran is similar.)
+  ```bash
+  $ perf annotate -i ~/perf_log/L1_TLB_dgemm_znver2.log  -M intel --stdio --stdio-color always --group
+      0.00    0.08    0.04    0.28    0.00    0.00    0.09    0.00    0.00 :   3900:   vfmadd231pd ymm0,ymm1,YMMWORD PTR [r9+rdx*8]
+                                                                           : 145  dgemm_avx256(unsigned int, double const*, double const*, double*):
+                                                                           : 35   for (uint32_t k = 0; k < n; k++) {
+     97.99   97.82   97.91   96.99   96.91   98.19   97.32    0.00    0.00 :   3906:   cmp    r8,rax
+  ```
+  `dgemm_unrolled_avx256`: also `dgemm_unrolled_avx256` just load *more* consecutive addresses in `A` and it also use this same method with `B`,~~`c[r]`~~,`C` (above all are done in one j-loop to *avoid fetch new row* of all matrixs).
+  ```bash
+    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00 :   3a10:   mov    edx,r10d
+                                                                         : 44   _mm256_broadcast_sd(double const*):
+                                                                         : 736  return (__m256d) __builtin_ia32_vbroadcastsd256 (__X);
+    0.25    0.51    0.51    0.00    0.41    0.00    0.76    0.00    0.00 :   3a13:   vbroadcastsd ymm0,QWORD PTR [rcx]
+                                                                         : 738  dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+                                                                         : 35   for (uint32_t k = 0; k < n; k++) {
+    2.45    2.88    3.08    2.27    2.80    3.85    2.66    0.00    0.00 :   3a18:   add    rcx,0x8
+    2.76    2.46    1.77    2.25    1.86    0.93    2.88    0.00    0.00 :   3a1c:   add    r10d,ebx
+                                                                         : 39   _mm256_load_pd(A + n * k + r * 4 + i), bb, c[r]);
+    0.13    0.00    0.13    0.00    0.00    0.00    0.00    0.00    0.00 :   3a1f:   lea    r13,[rdi+rdx*1]
+                                                                         : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4), double __vector(4)):
+                                                                         :
+                                                                         : 50   extern __inline __m256d
+                                                                         : 51   __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+                                                                         : 52   _mm256_fmadd_pd (__m256d __A, __m256d __B, __m256d __C)
+                                                                         : 53   {
+                                                                         : 54   return (__m256d)__builtin_ia32_vfmaddpd256 ((__v4df)__A, (__v4df)__B,
+    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00 :   3a23:   vfmadd231pd ymm4,ymm0,YMMWORD PTR [r12+r13*8]
+                                                                         : 56   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+   21.84   21.32   25.04   24.84   23.31   24.06   21.26    0.00    0.00 :   3a29:   lea    r13,[r9+rdx*1]
+                                                                         : 40   _mm256_fmadd_pd(double __vector(4), double __vector(4), double __vector(4)):
+    7.97    7.53    8.44    9.04    9.65   12.57    6.74    0.00    0.00 :   3a2d:   vfmadd231pd ymm3,ymm0,YMMWORD PTR [r12+r13*8]
+                                                                         : 50   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+    6.79    5.52    5.62    4.75    5.69    8.13    9.00    0.00    0.00 :   3a33:   lea    r13,[r8+rdx*1]
+    0.00    0.00    0.13    0.00    0.38    0.00    0.12    0.00    0.00 :   3a37:   add    rdx,r11
+                                                                         : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4), double __vector(4)):
+    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00 :   3a3a:   vfmadd231pd ymm2,ymm0,YMMWORD PTR [r12+r13*8]
+   44.47   44.28   41.11   45.05   38.23   34.39   43.46    0.00    0.00 :   3a40:   vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rdx*8]
+                                                                         : 51   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+                                                                         : 35   for (uint32_t k = 0; k < n; k++) {
+   11.34   10.61   10.27   10.51   14.98   11.53   10.31    0.00    0.00 :   3a46:   cmp    r14,rcx
+    0.00    0.26    0.00    0.00    0.50    0.19    0.12    0.00    0.00 :   3a49:   jne    3a10 <dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*)+0xd0>
+  ```
+  `do_block`: in `do_block`, even not unroll with `#pragma GCC unroll 1`. The miss rate is still low than **all the above**. Because every 3-level subloop only save one small block in L1d cache instead of traversing one whole matrix. Take `A[i + k * n]` as one example, in the above two funcs, they traverse all rows of `A` and `do_block` traverse `BLOCKSIZE` rows.
+### comparison of different events
+- `L1-dcache-load-misses` has been said above.
+#### `L1-dcache-loads` and `L1-dcache-prefetches`
+- obviously, avx loads less because they do SIMD so load more *each time*, then load counts are less. 
+  - `do_block` will duplicately load.See `do_block(n, si, sj, sk, A, B, C);` where when `k++`, at least the block in `C` will be re-traversed. So it is higher than `dgemm_basic`.
+    - so `L1-dcache-prefetches` of `do_block` is minimal, because it always use duplicate loads. Why the other `L1-dcache-prefetches` rank like they are is similar to `L1-dcache-loads`.
+#### `L1-icache-load-misses` and `L1-icache-loads`
+- Similar to `L1-dcache-loads`, it is one way to calculate loop counts, although `do_block` and `dgemm_basic` don't hold one proportion relation. 
+#### `dTLB-loads` and `dTLB-load-misses`
+- only `dgemm_basic` has one very high rate because it neither uses SIMD which uses consecutive data probably sharing dTLB nor uses block to keep dTLB or other cache less being *victims*.
+#### `iTLB-loads` and `iTLB-load-misses`
+- obviously they are must be consecutive.So miss rates are very low.
+#### L3
+- unluckily my cpu doesn't support that and don't have *PMC*s related with L3.
+### comparsion after adding `L2` related
+- view `perf list` to select events.
+  - `breakdown` [meaning](https://interviewnoodle.com/cache-problems-cache-penetration-cache-breakdown-cache-avalanche-9b866483e2b7) (Better see its reference which has more **explicit** examples shown): 1. `penetration` ~~can be seem as fetching from disk~~ is one type of attack by using `non-existence data to frequently attack the application` and caused sequential cache miss because 'it will not be written to the cache'. 2. `breakdown` is similar to fetch from mem. 3. `Avalanche` is just too many requests ("multiple hot keys fail at the same time"). Here they are meaningful requests. Think of e-commerce Platform requests at the shopping festival.
+  - [L1 prefetcher](http://iccd.et.tudelft.nl/Proceedings/2007/Papers/5.1.4.pdf) and L2 meaning. It is to 'prevent cache pollution' and store to later put them in corresponding cache (L1 prefetcher -> L1 cache).
+    - So [17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [`Core`](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
+  - `l2_request_g1.cacheable_ic_read` related PMCx060 and PMCx061 are ~~not~~ related with L1 miss. ~~So ignore them.~~ Only use `l2_request_g2.ic_rd_sized(_nc)` to test whether avx fetch *sized* data *cacheline*.
+    - also see [uprof_doc] p38 for **metric group**.
+  - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds:
+    ```bash
+    
+    ```
+  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch).
+    - '**IO** from this thread's die.'
+  - `ls_st_commit_cancel2.st_commit_cancel_wcb_full` see [this](https://stackoverflow.com/a/25877134/21294350) 'never be written to a cache'. Also related with [Replacement_Policies](https://stackoverflow.com/questions/9544094/how-to-mark-some-memory-ranges-as-non-cacheable-from-c)
+  - `l2_cache_accesses_from_dc_misses` -> `0xc8` -> `0b11001000`: why not count 'Data Cache Shared Reads' 
+    (also for `l2_cache_hits_from_dc_misses`. TODO diff from 'Data Cache Read Hit on Shared Line'). 
+    And TODO maybe better to count 'Software Prefetch' with `0b100` because it may also fetch data although rare. See ["using the prefetched data"](http://www.nic.uoregon.edu/~khuck/ts/acumem-report/manual_html/ch_intro_prefetch.html).
+    - It should be sum of above `l2_request_g1`, etc. So ignore this.
+    - `l2_cache_accesses_from_ic_misses` seems right.
+    - `l2_cache_hits_from_ic_misses` is right.
+    - 'L2 Prefetch Hit in L2' maybe means 'Prefetcher'.
+  - The others in `recommended:` are all included in the above subcommands.
+  - `SDT` is no use here because the above program not ['use SDT markers'](https://lwn.net/Articles/618956/). See [probe](https://www.gnu.org/software/libc/manual/html_node/Memory-Allocation-Probes.html)
+### comparsion after adding `store` related
+### perf miscs
+- get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
+  ```bash
+  $ perf --debug perf-event-open stat -e cache-misses sleep 1     
+  ------------------------------------------------------------
+  perf_event_attr:
+    size                             136
+    config                           0x3
+    sample_type                      IDENTIFIER
+    read_format                      TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING
+    disabled                         1
+    inherit                          1
+    enable_on_exec                   1
+    exclude_guest                    1
+  ------------------------------------------------------------
+  sys_perf_event_open: pid 58431  cpu -1  group_fd -1  flags 0x8 = 3
+  ```
+  So, not use `-a` which will track all processes by its output `sys_perf_event_open: pid -1  cpu 0  group_fd -1  flags 0x8 = 3`.
+  from [source code](https://elixir.bootlin.com/linux/v4.2/source/tools/perf/builtin-trace.c#L84), it only enables `PERF_FLAG_FD_CLOEXEC` flag.
+- [metric use](https://lwn.net/Articles/732567/)
+- get umask from the doc [17h_60h] p187, also see [linux source](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L23). So `0x10` -> 5th bit -> `CacheableIcRead`. -> 'Instruction cache reads'. <a id="umask"></a>
+- [`lstopo`](https://unix.stackexchange.com/questions/113544/interpret-the-output-of-lstopo) <a id="lstopo"></a>
+  - check [pci](https://stackoverflow.com/questions/25908782/in-linux-is-there-a-way-to-find-out-which-pci-card-is-plugged-into-which-pci-sl)
+    - lspci output [meaning](https://www.thegeekstuff.com/2014/04/lspci-examples/) based on bus. Better view [uefi doc](https://uefi.org/specs/UEFI/2.10/14_Protocols_PCI_Bus_Support.html#server-system-with-four-pci-root-bridges)
+  - [home node](https://opvizor.medium.com/vmware-vsphere-why-checking-numa-configuration-is-so-important-9764c16a7e73) meaning, also [see](#local_remote_access) also see [uprof_doc] p19.
+- view [event definition](https://perf.wiki.kernel.org/index.php/Tutorial#Hardware_events). See BKDG. Also ['Open-Source Register Reference'](https://www.reddit.com/r/Amd/comments/amovex/requesting_bios_and_kernel_developer_guide_bkdg/)
 ---
 
-Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
+# Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
 
 ---
 
@@ -6091,6 +6315,9 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
       - [cpuid]
       - [17h_Optimization]
       - [rev_17h]
+    - ppr
+      - epyc
+        - [19h_01h_vol_1][19h_01h_vol_1]
 - patent
   - amd
     - [shared_tag_patent]
@@ -6169,6 +6396,14 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 [17h_Optimization]:../references/AMD/amd_17h/55723_SOG_3.01_PUB.pdf
 [cpuid]:../references/AMD/cpuid.pdf
 [rev_17h]:../references/AMD/rev_17h_guide.pdf
+[uprof_doc]:../references/AMD/uprof-v4.0-gaGA-user-guide.pdf
+<!-- amd_ppr -->
+[19h_01h_vol_1]:../references/AMD/PPR/PPR_19h_01h/PPR_Family_19h_Model_01h_Rev_B1_Vol1.pdf
+[17h_01h]:../references/AMD/PPR/PPR_17h_amd_01h/54945_3.03_ppr_ZP_B2_pub.pdf
+[17h_60h]:../references/AMD/PPR/PPR_17h_60h_model_amd/55922-A1-PUB_3.06.pdf
+<!-- from this https://www.amd.com/en/support/tech-docs/open-source-register-reference-for-amd-family-17h-processors, it applies to all 17h family -->
+[OCRR_17h]:../references/AMD/OSRR_17h.pdf
+[]
 
 <!-- wikichip -->
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
@@ -6176,3 +6411,5 @@ Links inspired by [this](https://stackoverflow.com/questions/25815856/including-
 
 <!-- paper -->
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
+
+[debug_code]:../asm/bfloat16_half.py

@@ -25,5 +25,10 @@
 			"path": "../../../../../home/czg/.local/share/fcitx5/rime"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.python"
+		},
+		"python.formatting.provider": "none"
+	}
 }
