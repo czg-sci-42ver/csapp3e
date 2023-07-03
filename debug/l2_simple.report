@@ -1,0 +1,618 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 80K of events 'ic_cache_fill_l2, ic_cache_fill_sys, ic_cache_inval.fill_invalidated, ic_cache_inval.l2_invalidating_probe, l2_cache_req_stat.ic_access_in_l2, l2_cache_req_stat.ic_dc_hit_in_l2, l2_cache_req_stat.ic_dc_miss_in_l2, l2_cache_req_stat.ic_fill_hit_s, l2_cache_req_stat.ic_fill_hit_x, l2_cache_req_stat.ic_fill_miss, l2_cache_req_stat.ls_rd_blk_c, l2_cache_req_stat.ls_rd_blk_cs, l2_cache_req_stat.ls_rd_blk_l_hit_s, l2_cache_req_stat.ls_rd_blk_l_hit_x, l2_cache_req_stat.ls_rd_blk_x'
+# Event count (approx.): 4040643673
+#
+#                                                                                                                       Overhead                                                                                                                                                                               Samples  Command / Shared Object / Symbol
+# ....................................................................................................................................................................................................................................................................................................................  .........................................................................................................................................................................................
+#
+    99.83% 100.00%  99.94%  99.99%  99.90% 100.00% 100.00% 100.00%   0.00% 100.00% 100.00% 100.00% 100.00% 100.00% 100.00%          1093        5207        1918        1006        4011       11854       11770         959           0        7358       11663        5431        2369       11803        4130        dgemm  
+       58.74%  78.36%  84.18%  84.74%  74.62%  99.60%  99.63%  72.86%   0.00%  84.82%  99.86%  91.30%  80.14%  99.93%  62.50%           691        4163        1595         860        3130       11758       11674         640           0        6188       11608        4901        1924       11786        3817        dgemm               
+          29.37%  45.88%  41.62%  31.82%  40.97%  58.14%  71.18%  33.46%   0.00%  47.67%  71.50%  65.12%  46.36%  57.37%  20.32%           346        2753         954         506        1826        6014        6032         337           0        3803        5974        3216        1239        6001        3303        [.] dgemm_basic
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_basic
+
+          14.03%  17.84%  18.10%  20.28%  18.35%   5.10%   6.95%  24.70%   0.00%  19.34%   6.94%  16.95%  18.96%   5.03%   1.19%           162         720         328         161         720        3414        3414         186           0        1333        3426        1170         386        3428         247        [.] dgemm_basic_blocked
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_basic_blocked
+
+           7.52%   9.11%  13.86%  20.71%  10.29%  17.97%  15.20%   7.98%   0.00%  11.37%  14.91%   4.34%   6.70%  18.20%   0.30%           116         405         165         115         403        1579        1572          64           0         648        1548         296         218        1563          51        [.] dgemm_avx256
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_avx256
+
+           3.34%   2.99%   5.29%   7.66%   2.64%   9.48%   5.70%   2.49%   0.00%   3.74%   5.91%   1.70%   2.16%  10.42%   0.16%            32         137          55          44          90         456         444          23           0         239         449          87          28         495           1        [.] dgemm_unrolled_avx256
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_unrolled_avx256
+
+           2.26%   2.34%   4.31%   2.92%   1.95%   8.66%   0.59%   2.16%   0.00%   2.15%   0.60%   2.04%   1.77%   8.65%  36.55%            29         135          81          23          78         247         210          18           0         139         210          75          43         247         168        [.] dgemm_blocked_avx256
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_blocked_avx256
+
+           2.23%   0.13%   0.72%   0.94%   0.40%   0.22%   0.00%   2.04%   0.00%   0.32%   0.01%   0.91%   2.60%   0.20%   3.96%             6           9          10           8          11          41           1          11           0          21           1          45           8          41          42        [.] Mtx::generate
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               Mtx::generate
+
+           0.00%   0.07%   0.22%   0.42%   0.01%   0.02%   0.00%   0.04%   0.00%   0.05%   0.00%   0.27%   1.59%   0.06%   0.02%             0           4           1           3           1           7           0           1           0           4           0          12           2          11           5        [.] std::mersenne_twister_engine<unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul>::_M_gen_rand
+           0.00%   0.00%   0.06%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           1           0           1           0           0           0           0           0           0           0           0        [.] calc_speed_up
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.18%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [.] get_timestamp
+       40.34%  21.14%  15.37%  13.86%  24.13%   0.34%   0.36%  26.28%   0.00%  14.89%   0.13%   8.34%  19.46%   0.07%   6.44%           392        1024         317         138         863          84          92         314           0        1152          52         510         433          16         220        [kernel.vmlinux]    
+          12.87%   8.34%   5.05%   4.59%   7.70%   0.08%   0.09%   8.77%   0.00%   5.71%   0.04%   3.67%   8.13%   0.00%   0.44%           147         408         123          49         329          24          25         124           0         467          12         240         208          10         111        [k] read_hpet
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+               |--6.24%--dgemm_basic
+               |          asm_sysvec_apic_timer_interrupt
+               |          sysvec_apic_timer_interrupt
+               |          __sysvec_apic_timer_interrupt
+               |          hrtimer_interrupt
+               |          |          
+               |          |--3.08%--ktime_get_update_offsets_now
+               |          |          read_hpet
+               |          |          
+               |          |--1.77%--clockevents_program_event
+               |          |          ktime_get
+               |          |          read_hpet
+               |          |          
+               |           --1.40%--__hrtimer_run_queues
+               |                     |          
+               |                      --1.24%--tick_sched_timer
+               |                                |          
+               |                                 --0.68%--tick_sched_do_timer
+               |                                           update_wall_time
+               |                                           timekeeping_advance
+               |                                           read_hpet
+               |          
+               |--4.40%--dgemm_basic_blocked
+               |          asm_sysvec_apic_timer_interrupt
+               |          sysvec_apic_timer_interrupt
+               |          __sysvec_apic_timer_interrupt
+               |          hrtimer_interrupt
+               |          |          
+               |          |--1.72%--clockevents_program_event
+               |          |          ktime_get
+               |          |          read_hpet
+               |          |          
+               |          |--1.49%--__hrtimer_run_queues
+               |          |          |          
+               |          |           --1.10%--perf_mux_hrtimer_handler
+               |          |                     ktime_get
+               |          |                     read_hpet
+               |          |          
+               |           --1.20%--ktime_get_update_offsets_now
+               |                     read_hpet
+               |          
+                --1.48%--dgemm_avx256
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          |          
+                          |--0.66%--clockevents_program_event
+                          |          ktime_get
+                          |          read_hpet
+                          |          
+                           --0.52%--__hrtimer_run_queues
+
+           3.08%   0.14%   0.22%   0.21%   0.40%   0.00%   0.01%   0.22%   0.00%   0.21%   0.00%   0.11%   0.06%   0.00%   0.00%             6          12           4           2          11           0           3           3           0          19           0           7           3           0           1        [k] __update_load_avg_se
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --2.77%--dgemm_basic_blocked
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          |          
+                           --2.55%--__irq_exit_rcu
+                                     __do_softirq
+                                     run_rebalance_domains
+                                     update_blocked_averages
+                                     update_load_avg
+                                     __update_load_avg_se
+
+           2.69%   0.16%   0.02%   0.11%   0.28%   0.00%   0.00%   0.07%   0.00%   0.09%   0.00%   0.07%   0.12%   0.00%   0.01%             5          15           1           2          14           0           0           2           0           9           1           5           5           0           1        [k] hrtimer_active
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --2.60%--dgemm_basic
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_sched_timer
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          task_tick_fair
+                          hrtimer_active
+
+           2.10%   0.34%   0.13%   0.01%   0.25%   0.00%   0.00%   0.12%   0.00%   0.19%   0.00%   0.06%   0.07%   0.00%   0.02%            13          23           4           1          18           0           0           3           0          16           0           3           3           0           3        [k] task_tick_fair
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --1.76%--dgemm_basic
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_sched_timer
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          task_tick_fair
+
+           1.56%   0.09%   0.72%   0.30%   0.67%   0.07%   0.00%   2.64%   0.00%   0.06%   0.00%   0.23%   2.24%   0.00%   2.10%             5           1           6           1           6          12           4          11           0           4           5           4           5           0           5        [k] clear_page_rep
+            |
+            ---0x7f93f07e8850
+               main
+               |          
+               |--0.90%--calc_speed_up
+               |          Mtx::generate
+               |          asm_exc_page_fault
+               |          exc_page_fault
+               |          do_user_addr_fault
+               |          handle_mm_fault
+               |          __handle_mm_fault
+               |          vma_alloc_folio
+               |          __folio_alloc
+               |          __alloc_pages
+               |          get_page_from_freelist
+               |          clear_page_rep
+               |          
+                --0.66%--0x7f93f091c589
+                          asm_exc_page_fault
+                          exc_page_fault
+                          do_user_addr_fault
+                          handle_mm_fault
+                          __handle_mm_fault
+                          vma_alloc_folio
+                          __folio_alloc
+                          __alloc_pages
+                          get_page_from_freelist
+                          clear_page_rep
+
+           1.10%   0.96%   0.70%   0.42%   0.72%   0.00%   0.09%   1.28%   0.00%   0.68%   0.05%   0.32%   0.46%   0.00%   0.09%            15          50          17           4          41           1          14          18           0          49          11          20          16           0          13        [k] perf_adjust_freq_unthr_context
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --0.82%--dgemm_basic
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_sched_timer
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+
+           1.07%   0.28%   0.22%   0.03%   0.19%   0.00%   0.00%   0.27%   0.00%   0.22%   0.01%   0.10%   0.03%   0.00%   0.00%             4          15           6           1          10           0           0           5           0          16           1           6           1           0           0        [k] x86_pmu_disable_all
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --0.94%--dgemm_basic
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          |          
+                           --0.89%--tick_sched_timer
+                                     tick_sched_handle
+                                     update_process_times
+                                     scheduler_tick
+                                     perf_event_task_tick
+                                     perf_adjust_freq_unthr_context
+                                     amd_pmu_disable_all
+                                     x86_pmu_disable_all
+
+           0.88%   0.00%   0.00%   0.00%   0.22%   0.00%   0.01%   0.32%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           1           0           2           2           0           2           1           0           0           0           0        [k] __list_del_entry_valid
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               Mtx::generate
+               asm_exc_page_fault
+               exc_page_fault
+               do_user_addr_fault
+               handle_mm_fault
+               __handle_mm_fault
+               vma_alloc_folio
+               __folio_alloc
+               __alloc_pages
+               get_page_from_freelist
+               rmqueue_bulk
+               __list_del_entry_valid
+
+           0.81%   0.78%   0.34%   0.11%   1.53%   0.01%   0.03%   0.90%   0.00%   0.41%   0.00%   0.15%   0.24%   0.00%   0.01%            21          38          16           5          32           1           3          17           0          36           0           7           6           0           3        [k] native_write_msr
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+
+           0.76%   0.00%   0.00%   0.01%   0.01%   0.01%   0.00%   0.32%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           0           1           5           7           0           1           0           0           2           0           0           0           0        [k] ___perf_sw_event
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_basic
+               asm_sysvec_reschedule_ipi
+               irqentry_exit_to_user_mode
+               exit_to_user_mode_prepare
+               schedule
+               __schedule
+               finish_task_switch.isra.0
+               ___perf_sw_event
+
+           0.72%   0.01%   0.00%   0.00%   0.01%   0.00%   0.00%   0.03%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           0           0           1           0           0           1           0           2           0           0           0           0           0        [k] update_rt_rq_load_avg
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_basic
+               asm_common_interrupt
+               irqentry_exit_to_user_mode
+               exit_to_user_mode_prepare
+               schedule
+               __schedule
+               pick_next_task_rt
+               update_rt_rq_load_avg
+
+           0.67%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] mod_timer
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               dgemm_basic_blocked
+               asm_sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               __irq_exit_rcu
+               __do_softirq
+               run_timer_softirq
+               __run_timers
+               call_timer_fn
+               tcp_keepalive_timer
+               sk_reset_timer
+               mod_timer
+
+           0.64%   0.37%   0.27%   0.18%   0.63%   0.00%   0.00%   0.31%   0.00%   0.30%   0.00%   0.11%   0.97%   0.00%   0.01%             8          30           8           5          27           0           0           7           0          26           0           8           5           0           2        [k] rcu_sched_clock_irq
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+
+           0.63%   0.26%   0.03%   0.09%   0.12%   0.00%   0.00%   0.06%   0.00%   0.10%   0.00%   0.06%   0.04%   0.00%   0.01%             7          16           2           2           6           0           2           2           0           9           1           3           2           0           3        [k] account_user_time
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+
+           0.61%   0.19%   0.19%   0.00%   0.31%   0.00%   0.00%   0.34%   0.00%   0.27%   0.01%   0.21%   0.12%   0.00%   0.02%             6          13           6           0          12           0           0           5           0          22           1          13           5           0           4        [k] _raw_spin_lock_irqsave
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+               |          
+                --0.53%--dgemm_basic
+                          asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+
+           0.59%   0.02%   0.04%   0.00%   0.08%   0.00%   0.00%   0.10%   0.00%   0.02%   0.00%   0.05%   0.71%   0.00%   0.00%            11           2           2           0           4           1           0           2           0           2           0           5          22           0           1        [k] update_blocked_averages
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+
+           0.54%   0.30%   0.60%   0.17%   0.25%   0.01%   0.01%   0.38%   0.00%   0.37%   0.00%   0.18%   0.69%   0.00%   0.02%            12          19          10           3          17           3           1           9           0          25           1           9           9           0           4        [k] update_curr
+            |
+            ---0x7f93f07e8850
+               main
+               calc_speed_up
+
+           0.49%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] mas_wr_modify
+           0.41%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.01%   0.05%   0.00%   0.00%             1           0           1           0           0           0           0           1           0           0           0           1           2           0           0        [k] rebalance_domains
+           0.41%   0.08%   0.05%   0.00%   0.19%   0.00%   0.00%   0.09%   0.00%   0.18%   0.00%   0.10%   0.12%   0.00%   0.01%             5           6           3           0           6           1           1           2           0          15           0           7           6           0           3        [k] timerqueue_add
+           0.40%   0.00%   0.00%   0.00%   0.14%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] folio_batch_move_lru
+           0.39%   0.03%   0.07%   0.08%   0.04%   0.00%   0.00%   0.14%   0.00%   0.07%   0.00%   0.08%   0.00%   0.00%   0.00%             1           2           2           1           2           0           0           3           0           6           0           2           0           0           0        [k] update_sd_lb_stats.constprop.0
+           0.37%   0.64%   0.33%   0.24%   0.77%   0.00%   0.01%   1.91%   0.00%   0.36%   0.00%   0.08%   0.26%   0.00%   0.02%             5          26           6           4          11           0           3           5           0          24           2           7           2           0           4        [k] native_read_msr
+           0.34%   0.35%   0.27%   0.00%   0.73%   0.00%   0.00%   0.09%   0.00%   0.24%   0.00%   0.06%   0.25%   0.00%   0.01%             7          22           6           0          16           0           0           3           0          22           0           5           7           0           2        [k] update_cfs_group
+           0.31%   0.12%   0.00%   0.00%   0.04%   0.00%   0.00%   0.12%   0.00%   0.03%   0.00%   0.01%   0.00%   0.00%   0.00%             1           2           0           0           2           0           0           2           0           4           0           1           0           0           0        [k] account_process_tick
+           0.30%   0.08%   0.19%   0.37%   0.20%   0.00%   0.00%   0.09%   0.00%   0.08%   0.00%   0.03%   0.03%   0.00%   0.00%             5           7           3           5           6           0           0           2           0           6           0           2           1           0           0        [k] __update_load_avg_cfs_rq
+           0.29%   0.07%   0.21%   0.18%   0.12%   0.00%   0.00%   0.03%   0.00%   0.05%   0.00%   0.07%   0.08%   0.00%   0.00%             3           5           3           1           5           0           0           1           0           5           0           5           3           0           0        [k] tick_program_event
+           0.29%   0.05%   0.31%   0.41%   0.05%   0.00%   0.00%   0.11%   0.00%   0.27%   0.00%   0.13%   0.04%   0.00%   0.00%             5           4           3           2           3           0           2           2           0          10           0           5           1           0           1        [k] __sysvec_apic_timer_interrupt
+           0.28%   0.10%   0.02%   0.05%   0.09%   0.00%   0.00%   0.09%   0.00%   0.07%   0.00%   0.02%   0.11%   0.00%   0.00%             3           6           1           1           3           0           0           1           0           7           0           1           5           0           0        [k] reweight_entity
+           0.23%   0.68%   0.25%   0.50%   0.38%   0.00%   0.00%   0.41%   0.00%   0.32%   0.00%   0.14%   0.18%   0.00%   0.01%             5          24           5           3          19           1           1           5           0          23           1          10           7           0           3        [k] psi_account_irqtime
+           0.22%   0.01%   0.11%   0.00%   0.02%   0.00%   0.00%   0.08%   0.00%   0.05%   0.00%   0.04%   0.04%   0.00%   0.00%             5           1           1           0           2           0           0           1           0           4           0           2           2           0           1        [k] sugov_update_single_freq
+           0.22%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.04%   0.00%   0.01%   0.00%   0.01%   0.10%   0.00%   0.00%             2           0           0           0           1           0           0           1           0           1           0           1           1           0           1        [k] exit_to_user_mode_prepare
+           0.21%   0.08%   0.12%   0.00%   0.11%   0.00%   0.00%   0.03%   0.00%   0.09%   0.00%   0.06%   0.13%   0.00%   0.00%             2           7           2           0           6           0           1           1           0           7           0           3           3           0           0        [k] _raw_spin_lock
+           0.20%   0.00%   0.09%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           1           0           1           1           0           0           0           0           0           0           0           0           0        [k] mtree_range_walk
+           0.19%   0.04%   0.03%   0.00%   0.09%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.12%   0.36%   0.00%   0.02%             2           3           1           0           4           0           0           0           0           1           0           7          13           0           4        [k] update_irq_load_avg
+           0.18%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%             2           2           0           0           0           0           0           0           0           0           0           1           0           0           1        [k] __wake_up_common
+           0.15%   0.07%   0.02%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.09%   0.00%   0.00%   0.00%   0.00%   0.00%             2           4           1           0           0           0           0           2           0           2           0           0           0           0           0        [k] x86_pmu_disable
+           0.14%   0.04%   0.04%   0.00%   0.07%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.07%   0.31%   0.00%   0.00%             4           3           1           0           3           0           0           1           0           0           0           6          11           0           1        [k] update_dl_rq_load_avg
+           0.12%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.03%   0.16%   0.00%   0.01%             2           2           0           0           0           0           0           0           0           3           0           2           5           0           2        [k] idle_cpu
+           0.12%   0.01%   0.06%   0.00%   0.03%   0.00%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           1           0           2           1           0           1           0           0           0           0           0           0           0        [k] llist_add_batch
+           0.12%   0.03%   0.04%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.08%   0.00%   0.04%   0.02%   0.00%   0.00%             1           3           1           0           3           0           1           0           0           6           0           2           1           0           1        [k] __calc_delta
+           0.11%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] __common_interrupt
+           0.11%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] mas_alloc_nodes
+           0.11%   0.31%   0.30%   0.19%   0.18%   0.00%   0.00%   0.01%   0.00%   0.20%   0.00%   0.17%   0.02%   0.00%   0.01%             2          19           6           2          11           0           0           1           0          16           0          11           1           0           3        [k] irqtime_account_irq
+           0.10%   0.11%   0.09%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.01%             2           3           1           0           1           0           0           0           0           0           0           0           2           0           3        [k] rcu_report_qs_rnp
+           0.10%   0.01%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           0           0           2           0           0           0           0           0           0           0           0           0           1        [k] tick_sched_handle
+           0.10%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.01%   0.00%   0.00%   0.00%             1           1           0           0           0           0           0           0           0           1           0           1           0           0           0        [k] sched_clock_cpu
+           0.09%   0.10%   0.00%   0.00%   0.11%   0.00%   0.00%   0.09%   0.00%   0.06%   0.00%   0.09%   0.07%   0.00%   0.01%             3           5           0           0           5           0           1           1           0           6           0           7           3           0           2        [k] trigger_load_balance
+           0.09%   0.18%   0.04%   0.00%   0.18%   0.00%   0.00%   0.14%   0.00%   0.22%   0.00%   0.02%   0.05%   0.00%   0.01%             2           5           1           0           7           0           1           1           0          10           0           1           2           0           3        [k] irq_work_tick
+           0.09%   0.05%   0.00%   0.24%   0.00%   0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%             1           2           0           1           0           0           0           0           0           4           0           0           0           0           0        [k] perf_mux_hrtimer_handler
+           0.09%   0.04%   0.00%   0.07%   0.01%   0.01%   0.00%   0.00%   0.00%   0.03%   0.00%   0.01%   0.02%   0.02%   0.00%             2           3           0           1           1           1           1           0           0           3           0           1           1           2           0        [k] asm_sysvec_apic_timer_interrupt
+           0.08%   0.05%   0.07%   0.34%   0.06%   0.00%   0.00%   0.10%   0.00%   0.04%   0.00%   0.00%   0.04%   0.00%   0.00%             2           3           2           2           3           0           0           2           0           2           0           0           2           0           1        [k] ktime_get
+           0.08%   0.15%   0.00%   0.00%   0.35%   0.00%   0.00%   0.03%   0.00%   0.07%   0.00%   0.01%   0.00%   0.00%   0.00%             3           5           0           0           6           0           0           1           0           4           1           1           0           0           0        [k] scheduler_tick
+           0.08%   0.03%   0.01%   0.00%   0.05%   0.00%   0.00%   0.28%   0.00%   0.05%   0.00%   0.00%   0.05%   0.00%   0.03%             2           2           1           0           3           0           1           2           0           5           0           0           1           0           1        [k] get_next_freq.constprop.0
+           0.08%   0.03%   0.01%   0.04%   0.06%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.04%   0.02%   0.00%   0.00%             3           2           1           1           1           0           0           0           0           1           0           3           1           0           0        [k] __hrtimer_run_queues
+           0.07%   0.05%   0.04%   0.00%   0.00%   0.00%   0.00%   0.08%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             1           4           2           0           0           0           0           1           0           1           0           0           0           0           0        [k] cpufreq_this_cpu_can_update
+           0.07%   0.26%   0.00%   0.17%   0.32%   0.00%   0.00%   0.13%   0.00%   0.10%   0.00%   0.09%   0.00%   0.00%   0.00%             1           7           0           2           7           0           0           3           0           9           0           3           0           0           0        [k] effective_cpu_util
+           0.07%   0.01%   0.07%   0.00%   0.10%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           1           0           2           0           0           0           0           2           0           0           0           0           0        [k] cpuacct_charge
+           0.07%   0.01%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.06%   0.00%   0.08%   0.06%   0.00%   0.00%             2           1           1           0           0           0           0           0           0           5           0           5           2           0           0        [k] load_balance
+           0.07%   0.02%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.11%   0.34%   0.00%   0.01%             2           2           0           0           1           0           0           0           0           4           0           4           3           0           3        [k] run_posix_cpu_timers
+           0.06%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.16%   0.00%   0.00%             2           0           0           0           0           0           0           0           0           0           0           0           1           0           1        [k] psi_task_change
+           0.06%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.03%   0.00%   0.00%             1           0           0           0           2           0           0           0           0           3           0           0           1           0           0        [k] send_call_function_single_ipi
+           0.06%   0.03%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.01%   0.00%   0.00%   0.02%             1           2           0           1           0           0           0           0           0           2           0           1           0           0           1        [k] tick_nohz_get_idle_calls_cpu
+           0.06%   0.19%   0.00%   0.00%   0.06%   0.00%   0.00%   0.07%   0.00%   0.01%   0.00%   0.01%   0.07%   0.00%   0.00%             1           1           0           0           3           0           0           1           0           1           0           1           2           0           0        [k] hrtimer_forward
+           0.05%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] __msecs_to_jiffies
+           0.05%   0.44%   0.23%   0.46%   0.50%   0.01%   0.00%   0.00%   0.00%   0.14%   0.00%   0.03%   0.12%   0.00%   0.00%             2          14           4           3          19           2           0           0           0          14           0           2           4           1           0        [k] perf_event_task_tick
+           0.05%   0.03%   0.00%   0.00%   0.05%   0.00%   0.00%   0.03%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%             1           2           0           0           4           0           0           1           0           4           0           0           0           0           0        [k] cpuacct_account_field
+           0.04%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] __do_softirq
+           0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] __queue_work
+           0.04%   0.06%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.07%   0.00%   0.04%   0.00%   0.00%   0.00%             1           3           0           0           3           0           0           0           0           3           0           2           0           0           0        [k] ktime_get_update_offsets_now
+           0.04%   0.14%   0.05%   0.03%   0.10%   0.00%   0.00%   0.03%   0.00%   0.15%   0.00%   0.09%   0.00%   0.00%   0.01%             1           8           2           1           6           0           0           2           0          11           0           6           0           0           2        [k] hrtimer_interrupt
+           0.04%   0.64%   0.12%   0.27%   0.61%   0.00%   0.02%   0.96%   0.00%   0.59%   0.00%   0.08%   0.17%   0.00%   0.00%             1          27           3           4          29           0           4          13           0          46           0           6           5           0           1        [k] __irqentry_text_end
+           0.04%   0.39%   0.03%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.01%   0.25%   0.00%   0.00%             1           4           1           0           3           0           0           0           0           3           0           1           2           1           0        [k] __accumulate_pelt_segments
+           0.04%   0.12%   0.09%   0.00%   0.13%   0.00%   0.01%   0.15%   0.00%   0.10%   0.00%   0.04%   0.26%   0.00%   0.00%             1           8           1           0           8           0           1           2           0          10           0           3           7           0           1        [k] update_load_avg
+           0.04%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.07%   0.00%   0.00%   0.00%             1           1           0           0           0           0           0           0           0           1           0           2           0           1           0        [k] error_entry
+           0.04%   0.04%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.02%   0.00%   0.00%   0.00%             1           3           0           0           2           0           0           0           0           3           0           2           0           0           0        [k] acct_account_cputime
+           0.03%   0.03%   0.08%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%             1           2           2           0           2           0           0           0           0           0           0           0           1           0           1        [k] update_process_times
+           0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.06%   0.00%   0.01%   0.00%   0.01%   0.02%   0.00%   0.00%             1           0           0           0           0           0           0           1           0           1           0           1           1           0           0        [k] _raw_spin_lock_irq
+           0.03%   0.06%   0.00%   0.00%   0.08%   0.01%   0.00%   0.03%   0.00%   0.07%   0.00%   0.06%   0.00%   0.00%   0.00%             1           5           0           0           3           1           0           1           0           6           0           3           0           0           1        [k] zen_untrain_ret
+           0.03%   0.03%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.13%   0.00%   0.00%             1           2           0           0           1           0           0           0           0           3           0           0           2           0           0        [k] tick_sched_do_timer
+           0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] sugov_get_util
+           0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.01%   0.00%   0.02%   0.07%   0.00%   0.00%             1           0           0           0           0           0           0           1           0           1           0           1           1           0           0        [k] native_send_call_func_single_ipi
+           0.02%   0.02%   0.03%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           2           2           0           2           0           0           0           0           0           0           0           0           0           0        [k] tcp_orphan_count_sum
+           0.02%   0.01%   0.08%   0.00%   0.00%   0.00%   0.00%   0.34%   0.00%   0.01%   0.00%   0.10%   0.00%   0.00%   0.00%             1           1           1           0           0           1           0           2           0           1           0           1           0           0           1        [k] rcu_core
+           0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           1           0           0           0           1           0           0           0           0           0        [k] n_tty_write
+           0.02%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           1           1           0           0           0           1           0           0           0           0           0        [k] update_vsyscall
+           0.00%   0.44%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           2           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] update_group_capacity
+           0.00%   0.20%   0.00%   0.00%   0.09%   0.00%   0.00%   0.15%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%             0           6           0           0           5           0           0           2           0           2           0           0           0           0           1        [k] amd_pmu_addr_offset
+           0.00%   0.15%   0.09%   0.00%   0.13%   0.00%   0.00%   0.24%   0.00%   0.14%   0.00%   0.00%   0.00%   0.00%   0.00%             0           8           2           0           7           0           0           3           0          10           0           0           0           0           0        [k] exc_nmi
+           0.00%   0.14%   0.33%   0.14%   0.27%   0.00%   0.00%   0.14%   0.00%   0.14%   0.00%   0.04%   0.00%   0.00%   0.00%             0          11           5           1           6           0           0           2           0          13           0           3           0           0           1        [k] __cgroup_account_cputime_field
+           0.00%   0.11%   0.00%   0.03%   0.04%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.01%   0.05%   0.00%   0.00%             0           6           0           1           2           0           0           0           0           1           0           1           1           0           0        [k] irq_enter_rcu
+           0.00%   0.11%   0.13%   0.00%   0.21%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           1           0           1           0           0           0           0           0           0           0           0           0           0        [k] mas_next_entry
+           0.00%   0.11%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] __call_rcu_common
+           0.00%   0.10%   0.11%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.07%   0.00%   0.00%   0.00%             0           1           1           0           0           0           0           0           0           0           0           1           0           0           0        [k] __rcu_read_unlock
+           0.00%   0.09%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] __irq_exit_rcu
+           0.00%   0.09%   0.00%   0.36%   0.00%   0.00%   0.00%   0.04%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.00%             0           5           0           1           0           0           0           1           0           6           0           0           0           0           0        [k] rcu_segcblist_ready_cbs
+           0.00%   0.08%   0.00%   0.31%   0.22%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           3           1           0           0           0           0           0           0           0           0           0           0        [k] unmap_page_range
+           0.00%   0.08%   0.00%   0.00%   0.07%   0.00%   0.01%   0.00%   0.00%   0.05%   0.00%   0.03%   0.02%   0.00%   0.00%             0           2           0           0           3           0           1           0           0           3           0           2           1           0           0        [k] update_min_vruntime
+           0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] load_elf_binary
+           0.00%   0.07%   0.00%   0.01%   0.02%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%             0           3           0           1           1           0           0           0           0           3           0           0           0           0           0        [k] arch_scale_freq_tick
+           0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           1           0           1        [k] rcu_segcblist_pend_cbs
+           0.00%   0.05%   0.15%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.13%   0.00%   0.05%   0.03%   0.00%   0.00%             0           3           1           0           4           0           1           0           0           8           0           4           1           0           1        [k] update_rq_clock
+           0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           1           0           0           0           0        [k] __count_memcg_events
+           0.00%   0.04%   0.08%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           2           0           1           0           0           0           0           1           0           0           0           0           0        [k] invoke_rcu_core
+           0.00%   0.04%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.12%   0.00%   0.00%             0           2           0           0           1           0           0           0           0           2           0           0           1           0           0        [k] default_send_IPI_single_phys
+           0.00%   0.04%   0.12%   0.03%   0.15%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           3           2           1           3           0           0           0           0           0           0           0           0           0           0        [k] calc_global_load_tick
+           0.00%   0.03%   0.00%   0.06%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           1           0           0           1           0           0           0           0           0           0           0           0        [k] __get_obj_cgroup_from_memcg
+           0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.10%   0.00%   0.02%   0.00%   0.05%   0.00%   0.00%   0.00%             0           2           0           0           0           0           0           1           0           2           0           2           0           0           0        [k] cpufreq_driver_resolve_freq
+           0.00%   0.03%   0.00%   0.00%   0.06%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.04%   0.05%   0.00%   0.00%             0           1           0           0           2           0           0           0           0           0           0           2           1           0           0        [k] profile_tick
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           2           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] rb_insert_color
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] enqueue_task_rt
+           0.00%   0.02%   0.00%   0.00%   0.01%   0.01%   0.01%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.04%   0.00%             0           1           0           0           1           2           2           0           0           0           0           1           0           1           1        [k] sync_regs
+           0.00%   0.02%   0.05%   0.00%   0.04%   0.00%   0.00%   0.05%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%             0           2           1           0           3           1           1           1           0           3           0           0           0           0           0        [k] update_fast_timekeeper
+           0.00%   0.02%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           2           0           0           0           0           2           0           0           0           0           0        [k] do_syscall_64
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] __x86_indirect_thunk_rdx
+           0.00%   0.02%   0.00%   0.00%   0.03%   0.00%   0.00%   0.38%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%             0           1           0           0           1           0           0           3           0           0           0           0           1           0           0        [k] psi_group_change
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           1        [k] ktime_get_real_ts64
+           0.00%   0.02%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] copy_user_generic_string
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] _find_next_bit
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] update_wall_time
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] asm_exc_nmi
+           0.00%   0.02%   0.00%   0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           2           0           0           0           0           0           0           0           0           0           0        [k] __x64_sys_gettimeofday
+           0.00%   0.01%   0.00%   0.00%   0.02%   0.00%   0.00%   0.07%   0.00%   0.07%   0.00%   0.02%   0.32%   0.00%   0.00%             0           1           0           0           2           0           0           2           0           2           0           2           2           0           0        [k] __schedule
+           0.00%   0.01%   0.00%   0.00%   0.01%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           1           0           0           0           0           0           0           1        [k] __run_timers
+           0.00%   0.01%   0.05%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.14%   0.00%   0.01%   0.00%   0.00%   0.00%             0           1           1           0           1           0           0           0           0           5           0           1           0           0           0        [k] raw_notifier_call_chain
+           0.00%   0.01%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           1           0           0           0           0           0        [k] tick_sched_timer
+           0.00%   0.01%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.02%   0.00%   0.00%             0           1           2           0           0           0           0           0           0           1           0           0           1           0           0        [k] psi_flags_change
+           0.00%   0.01%   0.01%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.01%   0.05%   0.00%   0.00%             0           1           1           1           0           0           0           0           0           3           0           1           2           0           0        [k] generic_exec_single
+           0.00%   0.01%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] native_apic_mem_write
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.02%   0.02%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           1           0           1           1           0           0        [k] __default_send_IPI_dest_field
+           0.00%   0.01%   0.00%   0.03%   0.16%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           1           1           0           0           0           0           0           0           0           0           0           0        [k] mprotect_fixup
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.02%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           1           1           0           0        [k] irqentry_enter_from_user_mode
+           0.00%   0.01%   0.04%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%             0           1           1           0           0           0           0           1           0           0           0           1           0           0           0        [k] hrtimer_update_next_event
+           0.00%   0.01%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           1        [k] enqueue_hrtimer
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] nohz_balance_exit_idle
+           0.00%   0.01%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           1           2           0           0           2           1           0           0           0           0        [k] __rcu_read_lock
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.18%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           2           0           0        [k] __bitmap_and
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.15%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           1           0           3           0           0           0           0           1        [k] __hrtimer_next_event_base
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] begin_new_exec
+           0.00%   0.00%   0.00%   0.03%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           1           1           0           0           0           0           0           0           0           0           0           0        [k] __get_user_8
+           0.00%   0.00%   0.22%   0.00%   0.00%   0.00%   0.00%   0.32%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           2           0           0           1           0           1           0           0           0           0           0           0           0        [k] __mod_memcg_lruvec_state
+           0.00%   0.00%   0.19%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] count_memcg_events.constprop.0
+           0.00%   0.00%   0.18%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] copy_from_kernel_nofault_allowed
+           0.00%   0.00%   0.18%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] vma_interval_tree_remove
+           0.00%   0.00%   0.17%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] __mem_cgroup_threshold
+           0.00%   0.00%   0.16%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] mas_pop_node
+           0.00%   0.00%   0.16%   0.36%   0.00%   0.00%   0.00%   0.49%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           1           0           0           0           1           0           0           0           0           0           0           0        [k] __get_vma_policy
+           0.00%   0.00%   0.15%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] vma_interval_tree_insert
+           0.00%   0.00%   0.14%   0.00%   0.36%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           2           1           0           0           0           0           0           0           0           0           0        [k] vma_alloc_folio
+           0.00%   0.00%   0.13%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           1           0           0           0           0           0           0           0           0           0           0        [k] __rseq_handle_notify_resume
+           0.00%   0.00%   0.11%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.15%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           1        [k] __perf_sw_event
+           0.00%   0.00%   0.11%   0.00%   0.08%   0.01%   0.00%   0.26%   0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           1           5           0           1           0           2           0           0           0           0           0        [k] asm_exc_page_fault
+           0.00%   0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           0           0           0        [k] setup_arg_pages
+           0.00%   0.00%   0.06%   0.00%   0.08%   0.00%   0.00%   0.24%   0.00%   0.01%   0.00%   0.01%   0.03%   0.00%   0.00%             0           0           2           0           2           1           0           1           0           1           0           1           1           0           0        [k] _find_next_and_bit
+           0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%             0           0           1           0           0           0           0           0           0           0           0           0           1           0           0        [k] group_balance_cpu
+           0.00%   0.00%   0.03%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%             0           0           1           0           0           1           0           0           0           0           1           3           0           0           0        [k] sysvec_apic_timer_interrupt
+           0.00%   0.00%   0.00%   0.39%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] vfs_getattr_nosec
+           0.00%   0.00%   0.00%   0.38%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] memcpy
+           0.00%   0.00%   0.00%   0.34%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] vsnprintf
+           0.00%   0.00%   0.00%   0.29%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] link_path_walk.part.0.constprop.0
+           0.00%   0.00%   0.00%   0.27%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] security_vm_enough_memory_mm
+           0.00%   0.00%   0.00%   0.25%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] chacha_permute
+           0.00%   0.00%   0.00%   0.17%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] mas_walk
+           0.00%   0.00%   0.00%   0.14%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] do_vmi_align_munmap
+           0.00%   0.00%   0.00%   0.09%   0.22%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           1           0           0           0           0           0           0           0           0           0           0        [k] kmem_cache_free
+           0.00%   0.00%   0.00%   0.09%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] getname_flags
+           0.00%   0.00%   0.00%   0.08%   0.05%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           1           0           0           0           0           1           0           0           0           0           0        [k] __mod_lruvec_page_state
+           0.00%   0.00%   0.00%   0.02%   0.01%   0.00%   0.00%   0.08%   0.00%   0.04%   0.00%   0.04%   0.03%   0.00%   0.00%             0           0           0           1           1           0           0           1           0           4           0           1           1           0           0        [k] __note_gp_changes
+           0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] perf_event_comm_output
+           0.00%   0.00%   0.00%   0.01%   0.06%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.04%   0.02%   0.00%   0.00%             0           0           0           1           2           0           1           0           0           2           0           3           1           0           0        [k] cgroup_rstat_updated
+           0.00%   0.00%   0.00%   0.00%   0.27%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] mas_wr_bnode
+           0.00%   0.00%   0.00%   0.00%   0.22%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           1           0           0           0           1           0           0           0           0        [k] get_page_from_freelist
+           0.00%   0.00%   0.00%   0.00%   0.22%   0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           1           1           0           0           2           0           0           0           0           0        [k] __handle_mm_fault
+           0.00%   0.00%   0.00%   0.00%   0.19%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] get_random_u32
+           0.00%   0.00%   0.00%   0.00%   0.12%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           1           0           0           1           0           0           0           0           0        [k] percpu_counter_add_batch
+           0.00%   0.00%   0.00%   0.00%   0.05%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%             0           0           0           0           2           1           0           0           0           0           0           0           1           0           0        [k] timekeeping_update
+           0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.00%   0.20%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           1           0           0           0           0           0           0           0        [k] xas_descend
+           0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           1           0           0           0           0           0           0           0           0        [k] rcu_accelerate_cbs
+           0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           3           0           0           0           0           2           0           0           0           0           0        [k] irq_work_run_list
+           0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           3           0           0           0           0           1           0           0           0           0           1        [k] record_times
+           0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           1           0           0           0           0           0        [k] timerqueue_del
+           0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           1           0           0           0        [k] pick_next_entity
+           0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.01%             0           0           0           0           1           0           0           0           0           0           0           1           0           0           1        [k] enqueue_entity
+           0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] __x86_indirect_thunk_array
+           0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] enqueue_timer
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] down_write_killable
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.12%   0.00%   0.02%   0.00%   0.00%   0.03%   0.00%   0.00%             0           0           0           0           1           0           0           1           0           2           0           0           1           0           0        [k] _raw_spin_unlock_irqrestore
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] rcu_async_should_hurry
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] _find_first_bit
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] put_pages_list
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] balance_fair
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] down_read_trylock
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] mas_update_gap
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] lockref_put_or_lock
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] hugepage_vma_check
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] memcg_slab_post_alloc_hook
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [k] __cgroup_throttle_swaprate
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           1           0           0           0           0           0        [k] exc_page_fault
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   1.01%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           1        [k] lru_gen_add_folio
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           1           0           0           0           0        [k] folio_add_new_anon_rmap
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] memset
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] mab_mas_cp
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] perf_iterate_ctx
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.28%   0.00%   0.01%   0.00%   0.07%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           1           0           1           3           1           0           0           0        [k] try_charge_memcg
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] __x64_sys_futex
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.29%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           0           0           0           0           0           0        [k] folio_add_lru
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.22%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           0           0           0           0           0           0        [k] kmem_cache_alloc
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.17%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           1           0           0           0           0           0        [k] mt_find
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.16%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           0           0           0           0           0           0        [k] lru_add_fn
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.08%   0.00%   0.01%   0.00%   0.02%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           1           0           1           0           0           0        [k] irqentry_enter
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.05%   0.00%   0.01%   0.00%   0.01%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           1           0           1           0           0           0        [k] get_nohz_timer_target
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] cap_vm_enough_memory
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] tcp_v4_fill_cb
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.07%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           2           0           0           1           0           0        [k] timekeeping_advance
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] find_busiest_group
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] asm_sysvec_irq_work
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] amd_brs_disable_all
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] account_system_index_time
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] __tcp_transmit_skb
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] try_to_wake_up
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] pfn_pte
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] entry_SYSCALL_64
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.01%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           1           0           0           1        [k] housekeeping_cpumask
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] insert_work
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           3           0           0           0           0        [k] kthread_blkcg
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           1           0           0           0           0        [k] blk_cgroup_congested
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           4           0           0           0        [k] handle_mm_fault
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.08%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] native_sched_clock
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] run_rebalance_domains
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] rcu_segcblist_accelerate
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   2.05%             0           0           0           0           0           0           0           0           0           0           0           0           0           0           2        [k] __alloc_pages
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.19%             0           0           0           0           0           0           0           0           0           0           0           0           0           0           1        [k] do_user_addr_fault
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           0           0           1        [k] kthread_is_per_cpu
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           0           0           1        [k] cpus_share_cache
+        0.33%   0.18%   0.17%   0.34%   0.25%   0.06%   0.00%   0.45%   0.00%   0.14%   0.00%   0.35%   0.24%   0.00%  31.06%             7          11           3           4           8          11           1           2           0           8           1          19           7           1          92        libc.so.6           
+           0.21%   0.04%   0.12%   0.13%   0.06%   0.05%   0.00%   0.42%   0.00%   0.11%   0.00%   0.05%   0.07%   0.00%  14.91%             3           3           2           2           4           5           0           1           0           5           0           3           2           0          46        [.] 0x0000000000157584
+           0.05%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           0           0           0        [.] 0x000000000007db42
+           0.04%   0.11%   0.05%   0.12%   0.16%   0.01%   0.00%   0.04%   0.00%   0.02%   0.00%   0.30%   0.16%   0.00%  16.14%             2           6           1           1           3           4           1           1           0           2           1          16           5           1          46        [.] 0x000000000015758e
+           0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0           0           0           0           0           0           0           0           0        [.] 0x0000000000159844
+           0.00%   0.02%   0.00%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           0        [.] cfree
+           0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [.] 0x000000000005a1dc
+           0.00%   0.00%   0.00%   0.09%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [.] 0x0000000000094bde
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [.] posix_memalign
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [.] 0x000000000015759a
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [.] 0x0000000000157490
+        0.30%   0.13%   0.10%   0.09%   0.08%   0.00%   0.00%   0.01%   0.00%   0.09%   0.00%   0.01%   0.14%   0.00%   0.00%             2           6           2           1           3           0           0           1           0           6           1           1           4           0           1        [kvm]               
+           0.25%   0.03%   0.00%   0.00%   0.07%   0.00%   0.00%   0.01%   0.00%   0.02%   0.00%   0.00%   0.04%   0.00%   0.00%             1           1           0           0           2           0           0           1           0           1           0           0           2           0           0        [k] 0x0000000000022840
+           0.05%   0.00%   0.01%   0.09%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           1           1           1           0           0           0           0           0           0           0           0           0           0        [k] 0x0000000000022905
+           0.00%   0.06%   0.09%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.07%   0.00%   0.01%   0.09%   0.00%   0.00%             0           3           1           0           0           0           0           0           0           4           1           1           2           0           1        [k] 0x0000000000022834
+           0.00%   0.04%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           2           0           0           0           0           0           0           0           0           0           0           0           0           0        [k] 0x00000000000228ca
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] 0x0000000000022894
+        0.12%   0.00%   0.12%   0.33%   0.55%   0.00%   0.00%   0.35%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           1           1           4           1           2           1           0           1           1           0           0           0           0        ld-linux-x86-64.so.2
+           0.12%   0.00%   0.12%   0.00%   0.05%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           1           0           1           0           0           0           0           0           0           0           0           0           0        [.] 0x0000000000004e8d
+           0.00%   0.00%   0.00%   0.33%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [.] 0x0000000000020c07
+           0.00%   0.00%   0.00%   0.00%   0.25%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [.] 0x00000000000087fd
+           0.00%   0.00%   0.00%   0.00%   0.23%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [.] 0x000000000002268b
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           1           0           0           0           0           0        [.] 0x000000000000a186
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           1           0           0           0           0           0           0           0           0           0        [.] 0x000000000000963a
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [.] 0x000000000000ecb4
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [.] 0x000000000001fee0
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.35%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           1           0           0           1           0           0           0           0        [.] 0x00000000000098d0
+        0.00%   0.09%   0.00%   0.00%   0.24%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           0        libgcc_s.so.1       
+           0.00%   0.09%   0.00%   0.00%   0.24%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           1           0           0           0           0           0           0           0           0           0           0        [.] __cpu_indicator_init@GCC_4.8.0
+        0.00%   0.08%   0.00%   0.62%   0.01%   0.00%   0.00%   0.04%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           2           1           0           1           1           0           1           0           0           0           0           0        libstdc++.so.6.0.31 
+           0.00%   0.08%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [.] std::locale::operator=
+           0.00%   0.00%   0.00%   0.32%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           0           0           0           0           0           0           0           0           0        [.] std::locale::_Impl::_M_init_extra
+           0.00%   0.00%   0.00%   0.31%   0.00%   0.00%   0.00%   0.04%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           1           1           0           1           0           0           0           0           0        [.] std::random_device::_M_init
+           0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [.] std::ostream::sentry::sentry
+        0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           1           0           0           0           0           0        [vdso]              
+           0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           0           0           0           0           0           0           0           0           0           0           0           0        [.] 0x00000000000006a3
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [.] __vdso_gettimeofday
+        0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.03%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           1           0           0           1           0           0        [nvidia]            
+           0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           1           0           0           0           0           0           0           0           0           0           0        [k] 0x00000000002879cb
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.02%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           1           0           0           0           0           0        [k] 0x0000000000101872
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.03%   0.00%   0.00%             0           0           0           0           0           0           0           0           0           0           0           0           1           0           0        [k] 0x00000000001122b6
+     0.17%   0.00%   0.06%   0.01%   0.10%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             9           7           9           6           9           9           6           0           0           0           0           0           0           0           0        perf-ex
+        0.17%   0.00%   0.06%   0.01%   0.10%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             9           7           9           6           9           9           6           0           0           0           0           0           0           0           0        [kernel.vmlinux]    
+           0.12%   0.00%   0.04%   0.00%   0.07%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             1           2           1           1           1           1           0           0           0           0           0           0           0           0           0        [k] _raw_spin_lock_irqsave
+           0.05%   0.00%   0.02%   0.00%   0.03%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             8           3           8           2           8           8           1           0           0           0           0           0           0           0           0        [k] perf_event_exec
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] perf_mux_hrtimer_handler
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           1           0           1           0           0           0           0           0           0           0           0           0           0           0        [k] read_hpet
+           0.00%   0.00%   0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           1           0           0           3           0           0           0           0           0           0           0           0        [k] rb_insert_color
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] perf_event_addr_filters_exec
+           0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%   0.00%             0           0           0           0           0           0           1           0           0           0           0           0           0           0           0        [k] __hrtimer_next_event_base
+
+
+#
+# (Tip: To see callchains in a more compact form: perf report -g folded)
+#

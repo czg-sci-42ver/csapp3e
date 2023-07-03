@@ -6207,7 +6207,15 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     - also see [uprof_doc] p38 for **metric group**.
   - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds:
     ```bash
-    
+     # https://stackoverflow.com/questions/11126093/how-do-i-know-if-my-server-has-numa
+    $ numactl --hardware # share the main memory 
+    available: 1 nodes (0)
+    node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    node 0 size: 15360 MB
+    node 0 free: 7910 MB
+    node distances:
+    node   0 
+      0:  10 
     ```
   - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch).
     - '**IO** from this thread's die.'
@@ -6221,6 +6229,118 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     - 'L2 Prefetch Hit in L2' maybe means 'Prefetcher'.
   - The others in `recommended:` are all included in the above subcommands.
   - `SDT` is no use here because the above program not ['use SDT markers'](https://lwn.net/Articles/618956/). See [probe](https://www.gnu.org/software/libc/manual/html_node/Memory-Allocation-Probes.html)
+#### test
+- use this python script [perf_post] or 
+  `awk` by `awk 'FNR >= 12 || FNR <=41 {for(i=22;i<=42;i++) $i=""; print $0}' ~/perf_log/almost_all_cache.log.report | less` (this will make the output format change by make all delimiters ' '. How to select [row and column](https://stackoverflow.com/questions/1506521/select-row-and-element-in-awk)). Also can try [`cut`](https://stackoverflow.com/questions/2626274/print-all-but-the-first-three-columns). `sed` may be difficult to select [column](https://stackoverflow.com/questions/59326355/how-to-get-third-column-first-row-with-sed-in-linux)
+- Better not to sample too many events at one time. It may interfere with each other (not only the value but also the [behavior](#percent_error)). Although the following example is.
+```bash
+$ cd;perf record -g -e L1-dcache-load-misses:u\                            
+,L1-dcache-loads:u,L1-dcache-prefetches:u\
+,L1-icache-load-misses:u,L1-icache-loads:u\
+,dTLB-load-misses:u,dTLB-loads:u\
+,iTLB-load-misses:u,iTLB-loads:u,\
+l2_request_g2.group1,l2_request_g1.group2\
+,l2_request_g1.all_no_prefetch\
+,ic_cache_fill_l2,ic_cache_fill_sys\
+,ic_cache_inval.fill_invalidated,ic_cache_inval.l2_invalidating_probe\
+,l2_cache_req_stat.ic_access_in_l2,l2_cache_req_stat.ic_dc_hit_in_l2,l2_cache_req_stat.ic_dc_miss_in_l2\
+,l2_cache_req_stat.ic_fill_hit_s,l2_cache_req_stat.ic_fill_hit_x,l2_cache_req_stat.ic_fill_miss\
+,l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
+,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
+,l2_cache_req_stat.ls_rd_blk_x\
+,l2_cache_hits_from_l2_hwpf,l2_pf_miss_l2_hit_l3,l2_pf_miss_l2_l3\
+,l2_request_g2.ls_rd_sized,l2_request_g2.ls_rd_sized_nc\
+,ls_hw_pf_dc_fill.ls_mabresp_lcl_cache,ls_hw_pf_dc_fill.ls_mabresp_lcl_dram\
+,ls_hw_pf_dc_fill.ls_mabresp_lcl_l2\
+,ls_hw_pf_dc_fill.ls_mabresp_rmt_cache,ls_hw_pf_dc_fill.ls_mabresp_rmt_dram\
+,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
+,ls_refills_from_sys.ls_mabresp_lcl_l2\
+,ls_refills_from_sys.ls_mabresp_rmt_cache,ls_refills_from_sys.ls_mabresp_rmt_dram\
+,ls_st_commit_cancel2.st_commit_cancel_wcb_full\
+,ls_sw_pf_dc_fill.ls_mabresp_lcl_cache,ls_sw_pf_dc_fill.ls_mabresp_lcl_dram\
+,ls_sw_pf_dc_fill.ls_mabresp_lcl_l2\
+,ls_sw_pf_dc_fill.ls_mabresp_rmt_cache,ls_sw_pf_dc_fill.ls_mabresp_rmt_dram\
+,de_dis_uops_from_decoder.opcache_dispatched\
+,l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
+,l2_request_g1.ls_rd_blk_c_s\
+,l2_request_g1.cacheable_ic_read\
+,l2_request_g1.change_to_x\
+,l2_request_g1.prefetch_l2_cmd\
+,l2_request_g1.l2_hw_pf\
+,l2_request_g1.group2\
+,l2_request_g2.group1 \
+~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/almost_all_cache.log
+$ perf report -i ~/perf_log/almost_all_cache.log --group --stdio
+    64.63%  29.20%  41.34%  57.59%  60.69%  38.60%  88.19%   0.00%   0.00%  65.21%  50.40%  67.62%  50.17%  54.71%  59.13%  74.92%  54.99%  59.81%  73.12%  49.30%   0.00%  57.71%  74.30%  61.44%  93.98%  61.71%  15.27%  55.59%  50.98%  65.77%   0.00%  50.40%  53.77%  61.64%  38.71%   0.00%   0.00%  76.08%  62.43%  67.39%   0.00%   0.00%   0.00%  51.11%   4.98%  46.87%   0.00%   0.00%  32.28%  65.13%  48.90%  84.45%  56.53%  44.01%   0.00%  49.80%  45.69%  62.31%  dgemm    dgemm                 [.] dgemm_basic
+            |
+            ---dgemm_basic
+
+    30.86%  15.92%  51.51%  29.83%  20.86%  42.21%   9.82%   0.00%   0.00%  28.28%  15.99%  27.69%  18.59%  21.63%  22.86%  22.12%  19.75%  35.90%  21.31%  12.93%   0.00%  18.42%  20.16%  13.34%   1.48%  34.16%  37.65%  36.91%  33.59%  21.77%   0.00%  17.84%  35.69%  25.32%  56.31%   0.00%   0.00%  19.75%  19.04%  29.69%   0.00%   0.00%   0.00%  17.88%   0.85%  10.00%   0.00%   0.00%  12.76%  30.34%  25.42%   8.49%  20.81%  11.39%   0.00%  39.32%  20.64%  31.16%  dgemm    dgemm                 [.] calc_speed_up
+            |
+            ---calc_speed_up
+               |          
+               |--18.44%--dgemm_avx256
+               |          
+               |--8.10%--dgemm_unrolled_avx256
+               |          
+                --4.32%--dgemm_blocked_avx256
+
+    18.44%   8.38%  20.42%  13.01%   8.24%  36.91%   7.65%   0.00%   0.00%  17.30%  10.39%  16.11%  11.71%  14.05%  14.43%  16.15%  13.47%  18.40%  15.63%  10.04%   0.00%  13.94%  15.98%  10.43%   1.41%  18.33%   1.59%  21.99%  21.40%   7.19%   0.00%  11.89%  17.04%   9.25%  17.52%   0.00%   0.00%  14.29%  10.78%  16.86%   0.00%   0.00%   0.00%  12.19%   0.43%   6.69%   0.00%   0.00%   7.64%  17.77%   1.63%   5.79%  13.23%   8.44%   0.00%  23.73%  14.83%  19.20%  dgemm    dgemm                 [.] dgemm_avx256
+            |
+            ---calc_speed_up
+               dgemm_avx256
+
+     8.10%   4.99%  19.91%  14.51%  10.63%   3.17%   2.04%   0.00%   0.00%   7.46%   3.73%   7.87%   3.81%   5.08%   5.67%   5.39%   4.48%   9.62%   5.02%   1.94%   0.00%   2.58%   3.66%   1.71%   0.00%   6.55%   0.00%  10.52%  10.58%  11.39%   0.00%   4.62%  16.70%  10.56%  22.38%   0.00%   0.00%   5.08%   3.72%   6.66%   0.00%   0.00%   0.00%   4.61%   0.36%   2.75%   0.00%   0.00%   3.43%   8.44%   0.00%   1.53%   4.86%   1.71%   0.00%  12.64%   3.87%   8.02%  dgemm    dgemm                 [.] dgemm_unrolled_avx256
+            |
+            ---calc_speed_up
+               dgemm_unrolled_avx256
+
+     4.32%   2.55%  11.18%   2.31%   1.99%   2.14%   0.12%   0.00%   0.00%   3.51%   1.87%   3.72%   3.06%   2.47%   2.63%   0.58%   1.81%   7.87%   0.66%   0.95%   0.00%   1.90%   0.52%   1.19%   0.08%   9.28%  36.06%   4.40%   1.61%   3.19%   0.00%   1.32%   1.95%   5.51%  16.41%   0.00%   0.00%   0.38%   4.54%   6.17%   0.00%   0.00%   0.00%   1.08%   0.07%   0.55%   0.00%   0.00%   1.70%   4.13%  23.38%   1.18%   2.72%   1.24%   0.00%   2.96%   1.93%   3.94%  dgemm    dgemm                 [.] dgemm_blocked_avx256
+            |
+            ---calc_speed_up
+               dgemm_blocked_avx256
+
+     4.25%  48.68%   5.88%   9.24%  15.70%   8.48%   1.99%   0.00%   0.00%   6.24%  28.06%   4.61%  30.98%  23.47%  18.01%   2.62%  22.74%   3.92%   5.55%  28.99%   0.00%  22.24%   5.48%  24.10%   3.60%   4.00%   6.40%   7.21%  15.15%   4.78%   0.00%  28.41%  10.53%   5.44%   3.99%   0.00%   0.00%   4.15%  13.12%   2.84%   0.00%   0.00%   0.00%  14.19%   0.50%  15.39%   0.00%   0.00%  46.66%   4.33%   3.16%   6.38%  20.33%  10.92%   0.00%  10.01%  26.02%   6.06%  dgemm    dgemm                 [.] dgemm_basic_blocked
+            |
+            ---dgemm_basic_blocked
+```
+##### TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs] script.
+- not use `l2_request_g1.group2` it may cause sampling failure. And also above weird samples <a id="percent_error"></a>
+```bash
+$ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_all_cache.log.report | less -S
+           729         800         754         416         768         126         718           0           0         779           0         793          45         341         135          69         157         747         800          21           0         407         803         410         215         784         443         821         828         233           0           0         801         322         717           0           0         707          48         652           0           0           0          39           5           8           0           0         755         701          37         436         134           4           0         716           0         688  dgemm    dgemm                 [.] dgemm_basic_blocked
+            |
+            ---dgemm_basic_blocked # here has one weird `779           0`, so `group2` not sampled. But the above percentage still count it.
+$ cd;perf record -F 100000 -g -e l2_request_g2.bus_locks_originator,l2_request_g2.bus_locks_responses\
+,l2_request_g2.ic_rd_sized,l2_request_g2.ic_rd_sized_nc\
+,l2_request_g2.ls_rd_sized,l2_request_g2.ls_rd_sized_nc\
+,l2_request_g2.smc_inval\
+,l2_request_g2.group1,l2_request_g1.group2\
+ ~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/group2.log
+# here also cause `group1` fails to sample.
+$ perf report -i ~/perf_log/group2.log -n --group --stdio
+...
+# Total Lost Samples: 0
+```
+###### so ignore `l2_request_g2.ls_rd_sized` and `l2_request_g2.ls_rd_sized_nc`
+##### `l2_request_g1.all_no_prefetch` is sum of other small events. Ignore it.
+##### `ic_cache_fill_l2` from here use new perf data
+```bash
+$ cd;perf record -g --call-graph fp -e ic_cache_fill_l2,ic_cache_fill_sys\                                      
+,ic_cache_inval.fill_invalidated,ic_cache_inval.l2_invalidating_probe\
+,l2_cache_req_stat.ic_access_in_l2,l2_cache_req_stat.ic_dc_hit_in_l2,l2_cache_req_stat.ic_dc_miss_in_l2\
+,l2_cache_req_stat.ic_fill_hit_s,l2_cache_req_stat.ic_fill_hit_x,l2_cache_req_stat.ic_fill_miss\
+,l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
+,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
+,l2_cache_req_stat.ls_rd_blk_x\
+ ~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log
+# can also use `--no-children` to compare and choose the preferred 
+$ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --stdio -n --hierarchy
+
+```
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
@@ -6248,6 +6368,8 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     - lspci output [meaning](https://www.thegeekstuff.com/2014/04/lspci-examples/) based on bus. Better view [uefi doc](https://uefi.org/specs/UEFI/2.10/14_Protocols_PCI_Bus_Support.html#server-system-with-four-pci-root-bridges)
   - [home node](https://opvizor.medium.com/vmware-vsphere-why-checking-numa-configuration-is-so-important-9764c16a7e73) meaning, also [see](#local_remote_access) also see [uprof_doc] p19.
 - view [event definition](https://perf.wiki.kernel.org/index.php/Tutorial#Hardware_events). See BKDG. Also ['Open-Source Register Reference'](https://www.reddit.com/r/Amd/comments/amovex/requesting_bios_and_kernel_developer_guide_bkdg/)
+- better to view the code, and the wiki may be [outdated](https://stackoverflow.com/questions/67772680/what-is-the-default-behavior-of-perf-record) (here is how to check default freq, i.e. `-F` param in `perf record -F 100000`).
+
 ---
 
 # Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
@@ -6330,6 +6452,10 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     - [RISC_V_Custom_OCR]
   - CAAQA (Computer Architecture: A Quantitative Approach 6th edition) by David A Patterson and John L. Hennessy
     - [CAAQA]
+- source code
+  - perf
+    - []
+
 ---
 
 [Sequential_consistency]:https://en.wikipedia.org/wiki/Consistency_model#Sequential_consistency
@@ -6413,3 +6539,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
 
 [debug_code]:../asm/bfloat16_half.py
+
+<!-- script -->
+[miscs]:../debug/bfloat16_half.py
+[perf_post]:../debug/perf_report_post.py
