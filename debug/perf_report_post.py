@@ -1,75 +1,55 @@
+"""
+use the following bash script to auto feed `events_num`:
+dir=/mnt/ubuntu/home/czg/csapp3e;\
+file=no_prefetch_l2_opcache;\
+events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
+,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
+,l2_cache_req_stat.ls_rd_blk_x\
+,de_dis_uops_from_decoder.opcache_dispatched,de_dis_uops_from_decoder.decoder_dispatched;\
+events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
+cd;perf record -g --call-graph fp -e ${events}\
+ ~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/${file}.log;\
+perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report
+python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${file}.report -o ${dir}/debug/sample_num_${file}.report -n ${events_num}
+"""
+
+from typing import Final
 import sys
 import getopt
 import os
 import re
 
-# remove_start=len('L1-dcache-load-misses, L1-dcache-loads, L1-dcache-prefetches, L1-icache-load-misses, L1-icache-loads, dTLB-load-misses, dTLB-loads, iTLB-load-misses, iTLB-loads, l2_request_g2.group1, l2_request_g1.group2, l2_request_g1.all_no_prefetch, ic_cache_fill_l2, ic_cache_fill_sys, ic_cache_inval.fill_invalidated, ic_cache_inval.l2_invalidating_probe, l2_cache_req_stat.ic_access_in_l2, l2_cache_req_stat.ic_dc_hit_in_l2, l2_cache_req_stat.ic_dc_miss_in_l2, l2_cache_req_stat.ic_fill_hit_s, l2_cache_req_stat.ic_fill_h'.split(","))
-
-# event_str = 'L1-dcache-load-misses:u\
-#     ,L1-dcache-loads:u,L1-dcache-prefetches:u\
-#     ,L1-icache-load-misses:u,L1-icache-loads:u\
-#     ,dTLB-load-misses:u,dTLB-loads:u\
-#     ,iTLB-load-misses:u,iTLB-loads:u,\
-#     l2_request_g2.group1,l2_request_g1.group2\
-#     ,l2_request_g1.all_no_prefetch\
-#     ,ic_cache_fill_l2,ic_cache_fill_sys\
-#     ,ic_cache_inval.fill_invalidated,ic_cache_inval.l2_invalidating_probe\
-#     ,l2_cache_req_stat.ic_access_in_l2,l2_cache_req_stat.ic_dc_hit_in_l2,l2_cache_req_stat.ic_dc_miss_in_l2\
-#     ,l2_cache_req_stat.ic_fill_hit_s,l2_cache_req_stat.ic_fill_hit_x,l2_cache_req_stat.ic_fill_miss\
-#     ,l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
-#     ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
-#     ,l2_cache_req_stat.ls_rd_blk_x\
-#     ,l2_cache_hits_from_l2_hwpf,l2_pf_miss_l2_hit_l3,l2_pf_miss_l2_l3\
-#     ,l2_request_g2.ls_rd_sized,l2_request_g2.ls_rd_sized_nc\
-#     ,ls_hw_pf_dc_fill.ls_mabresp_lcl_cache,ls_hw_pf_dc_fill.ls_mabresp_lcl_dram\
-#     ,ls_hw_pf_dc_fill.ls_mabresp_lcl_l2\
-#     ,ls_hw_pf_dc_fill.ls_mabresp_rmt_cache,ls_hw_pf_dc_fill.ls_mabresp_rmt_dram\
-#     ,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
-#     ,ls_refills_from_sys.ls_mabresp_lcl_l2\
-#     ,ls_refills_from_sys.ls_mabresp_rmt_cache,ls_refills_from_sys.ls_mabresp_rmt_dram\
-#     ,ls_st_commit_cancel2.st_commit_cancel_wcb_full\
-#     ,ls_sw_pf_dc_fill.ls_mabresp_lcl_cache,ls_sw_pf_dc_fill.ls_mabresp_lcl_dram\
-#     ,ls_sw_pf_dc_fill.ls_mabresp_lcl_l2\
-#     ,ls_sw_pf_dc_fill.ls_mabresp_rmt_cache,ls_sw_pf_dc_fill.ls_mabresp_rmt_dram\
-#     ,de_dis_uops_from_decoder.opcache_dispatched\
-#     ,l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
-#     ,l2_request_g1.ls_rd_blk_c_s\
-#     ,l2_request_g1.cacheable_ic_read\
-#     ,l2_request_g1.change_to_x\
-#     ,l2_request_g1.prefetch_l2_cmd\
-#     ,l2_request_g1.l2_hw_pf\
-#     ,l2_request_g1.group2\
-#     ,l2_request_g2.group1'
-
-event_str = "l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
-,l2_request_g1.ls_rd_blk_c_s\
-,l2_request_g1.cacheable_ic_read\
-,l2_request_g1.change_to_x\
-,l2_request_g1.prefetch_l2_cmd\
-,l2_request_g1.l2_hw_pf"
+PREFETCH = True
+L2CHACHE = False
 USE_HIERARCHY = True
-remove_start_child_parent = 0
-remove_start_parent = len(event_str.split(","))*2
-"""
-USE_HIERARCHY -> then parent not exists.
-"""
-if USE_HIERARCHY:
-    remove_end_parent = remove_start_parent
-else:
-    remove_end_parent = remove_start_parent*2
-remove_end_child_parent = remove_end_parent
-
-# https://www.tutorialspoint.com/python/python_command_line_arguments.htm
-
 IGNORE_EXTRA = False
 
+# tuple immutable https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
-def parse_arg(argv: list[str]) -> list[str]:
+
+def set_event_num(event_num: int) -> tuple[int, int, int, int]:
+    REMOVE_START_CHILD_PARENT = 0
+    # https://stackoverflow.com/questions/2682745/how-do-i-create-a-constant-in-python
+    REMOVE_START_PARENT: Final[int] = event_num*2
+    """
+    USE_HIERARCHY -> then parent not exists.
+    """
+    if USE_HIERARCHY:
+        REMOVE_END_PARENT = REMOVE_START_PARENT
+    else:
+        REMOVE_END_PARENT = REMOVE_START_PARENT*2
+    REMOVE_END_CHILD_PARENT = REMOVE_END_PARENT
+    return REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
+
+
+def parse_arg(argv: list[str]) -> tuple[str, str, int, int, int, int]:
     cur_script_file = os.path.relpath(__file__, os.getcwd())
     inputfile = ''
     outputfile = ''
+    event_num = 0
     print("args: ", argv)
-    opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
+    opts, args = getopt.getopt(argv, "hi:o:n:", ["ifile=", "ofile=", "num="])
     for opt, arg in opts:
         if opt == '-h':
             print(cur_script_file, '-i <inputfile> -o <outputfile>')
@@ -77,21 +57,35 @@ def parse_arg(argv: list[str]) -> list[str]:
         elif opt in ("-i", "--ifile"):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
+            print(arg)
             outputfile = arg
+        elif opt in ("-n", "--num"):
+            print(type(arg), arg)
+            event_num = int(arg)
     print('Input file is ', inputfile)
     print('Output file is ', outputfile)
+    print("events num is ", event_num)
+    REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT = set_event_num(
+        event_num=event_num)
     print("arg1 should be file name")
-    return [inputfile, outputfile]
+    return inputfile, outputfile, REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
 
 
 """
 ignore_events: [start_1,end_1,start_2,end_2,...]
 """
+ONLY_KEEP_START_NUM = True
+if ONLY_KEEP_START_NUM:
+    print("enable ONLY_KEEP_START_NUM")
+
+DEBUG_DICT = {"show_skip": True,
+              "show_no_change": False, "show_after_change": False}
 
 
-def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: str, target_inc: int, check_str: str, drop_child: bool, ignore_events: list[int] = [],):
+def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: str, target_inc: int, check_str: str, drop_child: bool, ignore_events: list[int] = []):
     TARGET_FILE = inputfile
-    print("remove_start: ", remove_start,"remove_end: ",remove_end)
+    find_first_start_num = False
+    print("remove_start: ", remove_start, "remove_end: ", remove_end)
     if (outputfile == ''):
         sys.exit("need output file")
     with open(TARGET_FILE, "r+") as file, open(outputfile, "w+") as file_2:
@@ -106,6 +100,8 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
             target_line_func_line = (target_line_index+target_inc)
             touch_end = target_line_func_line >= len(data)
             start_with_num = len(re.findall(r"^ *\d+", target_line)) > 0
+            if start_with_num:
+                find_first_start_num = True
             if not touch_end:
                 # try:
                 target_line_func = data[target_line_func_line]
@@ -118,27 +114,32 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
                 only change `skip` when with number start.
                 """
                 if start_with_num and (len(re.findall(r"^ {10,}\d", target_line)) > 0):
-                    print("found target_line and target_line_func: ",
-                          target_line_func, "check_str")
+                    # print("found target_line and target_line_func: ",
+                    #       target_line_func, "check_str")
                     find_dgemm = target_line_func.find(check_str) != -1
-                    if find_dgemm:
-                        print(target_line_func)
+                    # if find_dgemm:
+                    #     print(target_line_func)
                     skip_row = not find_dgemm  # type: ignore
             if skip_row:
                 # data_output = data_output+target_line
-                print("skip row",target_line)
+                if DEBUG_DICT["show_skip"]:
+                    print("skip row", target_line)
                 continue
             else:
                 # print(target_line_index, "th line: ", target_line)
                 if start_with_num == 0:
-                    print("no change:", target_line)
-                    data_output = data_output+target_line
+                    if DEBUG_DICT["show_no_change"]:
+                        print("no change:", target_line)
+                    if ONLY_KEEP_START_NUM and find_first_start_num:
+                        continue
+                    else:
+                        data_output = data_output+target_line
                 else:
                     # target_line_changed = re.split(r"(^ *)( *)(\d+\.\d+\%)", target_line)
 
-                        # start_margin = re.findall(r"^ *", target_line)
-                        # if len(start_margin) != 0:
-                        #     data_output = data_output + start_margin[0]
+                    # start_margin = re.findall(r"^ *", target_line)
+                    # if len(start_margin) != 0:
+                    #     data_output = data_output + start_margin[0]
                     target_line_changed = re.split(
                         r"( *)(\d+\.\d+\%)", target_line)
                     for split_elem in target_line_changed:
@@ -167,36 +168,49 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
                         """
                         if drop_child and index == remove_end:
                             target_line_changed_str_list.append(
-                            target_line_changed[0]+target_line_changed[index].lstrip())
+                                target_line_changed[0]+target_line_changed[index].lstrip())
                         else:
                             target_line_changed_str_list.append(
-                            target_line_changed[index])
+                                target_line_changed[index])
                     target_line_changed_str = "".join(
                         target_line_changed_str_list)
-                    print("after change: ", target_line_changed_str)
+                    if DEBUG_DICT["show_after_change"]:
+                        print("after change: ", target_line_changed_str)
                     data_output = data_output+target_line_changed_str
         # print(data_output)
         file_2.write(data_output)
 
 
+"""
+recommend use `sample_num` to output minimum required info.
+"""
+
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         sys.exit("need params, use `-h` to view usage")
     else:
-        [inputfile, outputfile] = parse_arg(argv=sys.argv[1:])
+        (INPUT_FILE, OUTPUT_FILE, REMOVE_START_PARENT, REMOVE_END_PARENT,
+         REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT) = parse_arg(argv=sys.argv[1:])
         target_inc = 5
         check_str = "dgemm"
         if IGNORE_EXTRA:
-            if "child" in outputfile:
-                main(sys.argv[1:], remove_start=remove_start_parent,
-                     remove_end=remove_end_parent, inputfile=inputfile, outputfile=outputfile, ignore_events=[0, 9], target_inc=target_inc, check_str=check_str, drop_child=False)
-            elif "sample" in outputfile:
-                main(sys.argv[1:], remove_start=remove_start_child_parent,
-                     remove_end=remove_end_child_parent, inputfile=inputfile, outputfile=outputfile, ignore_events=[0, 9], target_inc=target_inc, check_str=check_str, drop_child=True)
+            if "child" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_PARENT,
+                     remove_end=REMOVE_END_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, ignore_events=[0, 9], target_inc=target_inc, check_str=check_str, drop_child=False)
+            elif "sample" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_CHILD_PARENT,
+                     remove_end=REMOVE_END_CHILD_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, ignore_events=[0, 9], target_inc=target_inc, check_str=check_str, drop_child=True)
+        elif ONLY_KEEP_START_NUM:
+            if "child_num" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_PARENT,
+                     remove_end=REMOVE_END_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, target_inc=target_inc, check_str=check_str, drop_child=False)
+            elif "sample_num" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_CHILD_PARENT,
+                     remove_end=REMOVE_END_CHILD_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, target_inc=target_inc, check_str=check_str, drop_child=True)
         else:
-            if "child" in outputfile:
-                main(sys.argv[1:], remove_start=remove_start_parent,
-                     remove_end=remove_end_parent, inputfile=inputfile, outputfile=outputfile, target_inc=target_inc, check_str=check_str, drop_child=False)
-            elif "sample" in outputfile:
-                main(sys.argv[1:], remove_start=remove_start_child_parent,
-                     remove_end=remove_end_child_parent, inputfile=inputfile, outputfile=outputfile, target_inc=target_inc, check_str=check_str, drop_child=True)
+            if "child" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_PARENT,
+                     remove_end=REMOVE_END_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, target_inc=target_inc, check_str=check_str, drop_child=False)
+            elif "sample" in OUTPUT_FILE:
+                main(sys.argv[1:], remove_start=REMOVE_START_CHILD_PARENT,
+                     remove_end=REMOVE_END_CHILD_PARENT, inputfile=INPUT_FILE, outputfile=OUTPUT_FILE, target_inc=target_inc, check_str=check_str, drop_child=True)
