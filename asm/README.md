@@ -6061,6 +6061,10 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - TODO `+-` [meaning](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses/58139638#58139638) in `perf stat -r`
 - event [definition](https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/arch/x86/events/amd/core.c#L31) (check kernel version) for all amd, referenced [here](https://stackoverflow.com/questions/52170960/hardware-cache-events-and-perf)
 - cache miss may due to both [ITLB](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses) and [dTLB][perf_cache_misses]
+  - notice: from [this](https://community.intel.com/t5/Software-Tuning-Performance/Which-perf-list-events-support-Precise-Event-Based-Sampling-PEBS/td-p/1198098), better use PEBS/[IBS "the instruction indicated **versus** the one causing the interrupt"](https://web.eece.maine.edu/~vweaver/projects/perf_events/sampling/pebs_ibs_sampling.pdf)
+    - also see retirement [travisdowns "two cycles of retiring blocks of 4 nop instructions" TODO read more detailedly](https://travisdowns.github.io/blog/2019/08/20/interrupts.html) which may caused the above imprecision.
+    - PEBS is just to use processor instead of interrupt which may have delay (also see above travisdowns blog). It uses the PEBS buffer, so not all events are supported.
+    - [LBR](https://easyperf.net/blog/2018/06/08/Advanced-profiling-topics-PEBS-and-LBR) just means as it literally says. So it only cares about branch miss but not cache miss. 
 - TODO this `check_events` no use
   ```bash
   $  ~/libpfm4/examples/check_events 0x5:0x01:0x01
@@ -6875,19 +6879,49 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 - zen2 infos can also be got from [7zip benchmark](https://www.7-cpu.com/cpu/Zen2.html)
 
 # awk miscs
+Develop the habit of [`#! /bin/awk -f`](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
+Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
+- [gnu doc](https://www.gnu.org/software/gawk/manual/html_node/String-Functions.html) is similar to `info gawk`
 - see [this](https://stackoverflow.com/a/15969962/21294350) to pass parameter.
 - [matches](https://stackoverflow.com/questions/17001849/awk-partly-string-match-if-column-word-partly-matches): `($0 ~ func_list[Index])` and `(match($0,func_item) != 0)` both work to match regex substr. (can be see from `man`)/
   - notice not mistakenly **redirect** output and not knowing write the output.
-- in new gawk, not type "number" but "strnum" with `typeof()`
+- ~~in new gawk, not type "number" but "strnum" with `typeof()`~~ input num maybe `strnum` from `info`
+  - [regexp type](https://stackoverflow.com/questions/46662790/how-to-check-the-type-of-an-awk-variable)
+- [concatenation](https://stackoverflow.com/questions/11534173/how-to-use-awk-variables-in-regular-expressions) of str when using regex
 - can [ignore the `-e`](https://unix.stackexchange.com/questions/46715/piping-from-grep-to-awk-not-working) to run script.
 - use pipe to pass arg with [`$0`](https://stackoverflow.com/questions/59726081/pipe-command-output-into-awk)
+- `-v`: as doc says, it should be only used in `BEGIN` to **init**. This may be not convenient to *directly* use it in main loop. But it is more explicit and more understandable from how codes should be written.
+  - reading for different files [different parameters](https://unix.stackexchange.com/questions/503047/writing-an-awk-script-that-reads-variable-from-command-line)
+  - more [ways](https://unix.stackexchange.com/questions/496869/how-to-assign-value-at-run-time-in-awk-command) related with bash
+- `nawk` is [not same](https://www.gnu.org/software/gawk/manual/html_node/Scanning-an-Array.html) as `gawk`.
+- [`SYMTAB`](https://unix.stackexchange.com/questions/549540/awk-how-to-use-a-variable-as-part-another-variables-name) like `ARGV`
+- `-o` to [stdout](https://stackoverflow.com/questions/55745956/is-it-possible-to-pretty-print-awks-code)
+- [different subs](https://opensource.com/article/19/11/how-regular-expressions-awk): `sub` -> first; `gsub` -> global (all); `gensub` select *group*.
+- better use `print > ` [instead of `>` in command (also see the 2rd answer)](https://stackoverflow.com/a/14660111/21294350) 
+- bash use ['\n' by `$''`](https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh) in str (zsh doesn't has this problem).
 ## notice
 - notice not use `#` comments mistakenly inside the command when writing one multiple line bash command with `\`
 - `FS = ","`: recommend not to change this because it's global
 - `>` will only flush the file when first used in the awk script, but not flush after the first flush. (here flush means clearing the file).
+- `for (i in array)` is not store array element in `i` but [store **index**](https://www.gnu.org/software/gawk/manual/html_node/For-Statement.html).
+- not to be stuck in how to use something like `${i*2}` to select the field. After all, in assembly it probably just do `tmp=i*2,${tmp}`. The gnu dOC [doesn't offer one related example of this case](https://www.gnu.org/software/gawk/manual/html_node/Fields.html).
+### use awk for simple manipulation.
+- The following may be a little complex.
+  - one [complex pipe](https://unix.stackexchange.com/questions/631947/read-full-pipe-input-from-awk). Maybe `echo` is enough for daily usage.
+  - read from [file](https://www.gnu.org/software/gawk/manual/html_node/Readfile-Function.html) -> just passing filename from cmdline may be better.
+- multiline [comments](https://stackoverflow.com/questions/11575210/multiline-comment-in-awk). 
+  not comment no-use codes.
 ## TODO
 - use [debugger](https://www.gnu.org/software/gawk/manual/html_node/Debugger-Invocation.html)
-
+## cmds
+- [extract str](https://stackoverflow.com/questions/72854794/how-to-extract-substring-in-the-double-quotes-by-using-awk-or-other-methods)
+- print [single quote](https://unix.stackexchange.com/questions/593212/awk-print-apostrophe-single-quote)
+- better use [bash variable with quotes](https://www.cyberciti.biz/faq/linux-unix-appleosx-bsd-bash-passing-variables-to-awk/) and feed to awk by `-v`, although offcinal shows using [escape](https://www.gnu.org/software/gawk/manual/html_node/Quoting.html)
+- use `system` to call at least bash func.
+## debug
+- `(FILENAME=- FNR=1) fatal: division by zero attempted` may be not use quote with the path mistakenly.
+# cmake miscs
+- simple [overview](https://preshing.com/20170522/learn-cmakes-scripting-language-in-15-minutes/)
 
 ---
 

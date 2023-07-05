@@ -1,4 +1,5 @@
 #! /bin/awk -f
+
 BEGIN {
 	print target_funcs " " start_index " " output
 	target_funcs_get = target_funcs
