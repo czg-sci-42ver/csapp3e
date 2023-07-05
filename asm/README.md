@@ -6762,7 +6762,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
           func dgemm_blocked_avx256: 858, 722, 1.18837
         ```
         from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
-        So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache.
+        So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
       - instruction op list see Agner doc p102 with zen2.
         `lea    r10,[r9+rax*1]` -> 1 1-2
         `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1

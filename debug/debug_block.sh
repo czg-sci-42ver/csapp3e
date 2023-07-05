@@ -8,7 +8,7 @@ file=no_prefetch_l2_opcache;\
 sub_dir=debug_block;\
 quotient_dir=debug_quotient;\
 OUTPUT_ANNOTATE=true;\
-annotate_dir=${dir}/debug/${quotient_dir};\
+annotate_dir=${dir}/debug/debug_annotate;\
 events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
 ,l2_cache_req_stat.ls_rd_blk_x\
@@ -20,6 +20,7 @@ if [[ -d ${dir}/debug/${sub_dir}/ ]];then rm -r ${dir}/debug/${sub_dir}/ && mkdi
 else mkdir ${dir}/debug/${sub_dir}/ && echo "mkdir ${dir}/debug/${sub_dir}/" ;fi;\
 mkdir ${dir}/debug/${sub_dir}/${quotient_dir}/;\
 if [[ "${OUTPUT_ANNOTATE}" == true ]];then \
+rm -r ${annotate_dir}/;\
 mkdir ${annotate_dir}/;\
 fi;\
 # touch ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}_quotient.report;\
