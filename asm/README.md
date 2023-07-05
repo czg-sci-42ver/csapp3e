@@ -4899,7 +4899,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 ###### diff with store buffer
 - CAQQA p230,242,247(relation with reorder buffer)
   - notice the design may be different slightly between amd and intel, also different microarchitecture.
-  - [RAT design](../references/other_resources/COD/references/xiao2013.pdf) with 'global checkpoints' for *recovery*
+  - [RAT design](../references/other_resources/COD/references/pipeline/xiao2013_RAT.pdf) with 'global checkpoints' for *recovery* (It may be same as ["RAT (Resource Allocation Table)"](https://easyperf.net/blog/2018/12/29/Understanding-IDQ_UOPS_NOT_DELIVERED) from [this (also says other like IDQ)](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Renaming_.26_Allocation))
   - TODO 
     - RAT hardware design [1](https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp16/cse502/slides/08-superscalar_ooo.pdf) (this [better](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf))or more [abstract](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf)
     - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/) <a id="CAM"></a>
@@ -5959,7 +5959,8 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - why `EXMEMALOUT >> 2` not `EXMEMALOUT >> 1` to just put `64=32<<1` bit data.
 # cache miss debug
 - I use ryzen 7 4800h with [256KiB L1D cache](https://en.wikichip.org/wiki/amd/ryzen_7/4800h#Cache) and each core has [32KiB](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280)
-  [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket ):
+  [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket )
+  from the following, L2 is 64 byte <a id="cacheline_byte"></a>:
   ```bash
   $ lscpu --cache
   NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
@@ -5969,7 +5970,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   L3         4M       8M   16 Unified         3 4096        1             64
   $ for i in $(ls /sys/devices/system/cpu/cpu0/cache/index0);do echo $i;cat /sys/devices/system/cpu/cpu0/cache/index0/$i;echo -e '';done # view by file https://stackoverflow.com/questions/1922249/c-cache-aware-programming
   $ python
-  >>> 64*8*64/2**10
+  >>> 64*8*64/2**10 # L1
   32.0 # implies 64 byte cache block
   $ lscpu | grep -i Thread -A 2
   Thread(s) per core:              2
@@ -6042,7 +6043,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
       $ cat /sys/bus/event_source/devices/cpu/format/umask                                                   
       config:8-15
       ```
-      from p209 should use `0x20043048F` **or** `0x20043078F`(9 bytes). see set bits in [debug_code].
+      from p209 should use `0x20043048F` **or** `0x20043078F`(9 bytes). see set bits in [miscs_py_script].
     - PPR_old see this [repo](https://github.com/tpn/pdfs/blob/master/AMD%20-%20Preliminary%20Processor%20Programming%20Reference%20(PPR)%20for%20AMD%20Family%2017h%20Models%2000h-0Fh%20Processors%20-%20Rev%201.14%20-%20April%2015th%2C%202017%20(54945).pdf)
       - some PPR use `DC` abbr which is in [uprof_doc] p18.
     - [this link_1](https://community.amd.com/t5/server-gurus-discussions/pmc-questions-of-epyc-processor/td-p/439817) may get unit mask from the table in [17h_01h] Table 19 `0xFF0F0000_00400106`(64bits).
@@ -6057,7 +6058,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - TODO L1cache may save TLB page walk cache, so fetching instruction may cause miss.
 - TODO `+-` [meaning](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses/58139638#58139638) in `perf stat -r`
 - event [definition](https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/arch/x86/events/amd/core.c#L31) (check kernel version) for all amd, referenced [here](https://stackoverflow.com/questions/52170960/hardware-cache-events-and-perf)
-- cache miss may due to both [ITLB](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses) and [dTLB](https://stackoverflow.com/q/76593928/21294350)
+- cache miss may due to both [ITLB](https://stackoverflow.com/questions/29881885/can-perf-account-for-all-cache-misses) and [dTLB][perf_cache_misses]
 - TODO this `check_events` no use
   ```bash
   $  ~/libpfm4/examples/check_events 0x5:0x01:0x01
@@ -6078,7 +6079,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 
 ## perf
 ### commands
-- see this [Q&A](https://stackoverflow.com/questions/76593928/can-amd-zen2-cpu-calculate-l1dcache-miss-and-l1icache-miss-separately-with-perf). Here not use [`--call-graph dwarf`](https://stackoverflow.com/questions/59307540/profiling-my-program-with-linux-perf-and-different-call-graph-modes-gives-differ) beacuse it generate much bigger file.
+- see this [perf_cache_misses]. Here not use [`--call-graph dwarf`](https://stackoverflow.com/questions/59307540/profiling-my-program-with-linux-perf-and-different-call-graph-modes-gives-differ) beacuse it generate much bigger file.
   ```bash
   $ cd;perf record -g -e L1-dcache-load-misses:u\
   ,L1-dcache-loads:u,L1-dcache-prefetches:u\
@@ -6134,13 +6135,13 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   The above Q&A may be duplicate of [this](https://stackoverflow.com/questions/73032552/cache-miss-even-if-both-operands-are-registers)
   - it may be due to [event skid](https://stackoverflow.com/a/70026620/21294350). Or see [this branch example](https://easyperf.net/blog/2018/08/29/Understanding-performance-events-skid). So above should be miss at **jump** instruction instead of before jump.
     - no `pp` modifier listed in `man perf-list` available because [`PEBS`](https://easyperf.net/blog/2018/06/08/Advanced-profiling-topics-PEBS-and-LBR). Also see from [source code](https://elixir.bootlin.com/linux/v5.6.14/source/tools/perf/pmu-events/arch/x86/skylakex/cache.json#L630) referenced [here](https://stackoverflow.com/a/62059796/21294350).
-    - maybe also due to [link_1 **fuesd** instruction](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction) (can also be seen from [the comment](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74631685_43794510)) where it also says to use cachegrind to get a [scartch](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74630635_43794510). From Link_2 , it may be also due to ['the instruction that was waiting for it'](https://stackoverflow.com/questions/65906312/inconsistent-perf-annotate-memory-load-store-time-reporting/65907314#65907314) (TODO how [Meltdown](https://meltdownattack.com/) which is [CVE-2017-5754](https://www.cvedetails.com/cve/CVE-2017-5754/) get memory data and whether LSD means [this](https://stackoverflow.com/questions/52054585/can-the-lsd-issue-uops-from-the-next-iteration-of-the-detected-loop)).
+    - maybe also due to [link_1 **fuesd** instruction](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction) (can also be seen from [the comment](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74631685_43794510)) where it also says to use cachegrind to get a [scartch](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74630635_43794510). From Link_2 , it may be also due to ['the instruction that was waiting for it'][perf_delay] (TODO how [Meltdown](https://meltdownattack.com/) which is [CVE-2017-5754](https://www.cvedetails.com/cve/CVE-2017-5754/) get memory data and whether LSD means [this](https://stackoverflow.com/questions/52054585/can-the-lsd-issue-uops-from-the-next-iteration-of-the-detected-loop)).
       - Above two links are in ['Other related ...'](https://stackoverflow.com/questions/69351189/how-does-perf-record-or-other-profilers-pick-which-instruction-to-count-as-cos) where the third also said from OoO and pipeline view.
   - related with above Q&A, `lbr` also not available on amd.
 ### first glance
 - from above, why dgemm_basic behaves like that has been said in the Q&A. 
   `dgemm_avx256`: Then `dgemm_avx256` use `vfmadd231pd` to simplify *speculative* cache prefetch which is also said in Q&A. And it also it won't fetch 
-  next line in `A` in `cij += A[i + k * n] * B[k + j * n];` when `k++`, but loads from the *consecutive* addresses from `_mm256_mul_pd` in `_mm256_mul_pd(_mm256_load_pd(A + i + k * n),_mm256_broadcast_sd(B + k + j * n)));` (at least row major in C works, column major in Fortran is similar.)
+  next line in `A` in `cij += A[i + k * n] * B[k + j * n];` when `k++`, but loads from the *consecutive* addresses from `_mm256_mul_pd` in `_mm256_mul_pd(_mm256_load_pd(A + i + k * n),_mm256_broadcast_sd(B + k + j * n)));` (at least row major in C works, column major in Fortran is similar.) <a id="fetch"></a>
   ```bash
   $ perf annotate -i ~/perf_log/L1_TLB_dgemm_znver2.log  -M intel --stdio --stdio-color always --group
       0.00    0.08    0.04    0.28    0.00    0.00    0.09    0.00    0.00 :   3900:   vfmadd231pd ymm0,ymm1,YMMWORD PTR [r9+rdx*8]
@@ -6148,7 +6149,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
                                                                            : 35   for (uint32_t k = 0; k < n; k++) {
      97.99   97.82   97.91   96.99   96.91   98.19   97.32    0.00    0.00 :   3906:   cmp    r8,rax
   ```
-  `dgemm_unrolled_avx256`: also `dgemm_unrolled_avx256` just load *more* consecutive addresses in `A` and it also use this same method with `B`,~~`c[r]`~~,`C` (above all are done in one j-loop to *avoid fetch new row* of all matrixs).
+  `dgemm_unrolled_avx256`: also `dgemm_unrolled_avx256` just load **more consecutive addresses** in `A` and it also use this same method with `B`,~~`c[r]`~~,`C` (above all are done in one j-loop to *avoid fetch new row* of all matrixs).
   ```bash
     0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00 :   3a10:   mov    edx,r10d
                                                                          : 44   _mm256_broadcast_sd(double const*):
@@ -6183,12 +6184,12 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
    11.34   10.61   10.27   10.51   14.98   11.53   10.31    0.00    0.00 :   3a46:   cmp    r14,rcx
     0.00    0.26    0.00    0.00    0.50    0.19    0.12    0.00    0.00 :   3a49:   jne    3a10 <dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*)+0xd0>
   ```
-  `do_block`: in `do_block`, even not unroll with `#pragma GCC unroll 1`. The miss rate is still low than **all the above**. Because every 3-level subloop only save one small block in L1d cache instead of traversing one whole matrix. Take `A[i + k * n]` as one example, in the above two funcs, they traverse all rows of `A` and `do_block` traverse `BLOCKSIZE` rows.
+  `do_block`: in `do_block`, even not unroll with `#pragma GCC unroll 1`. The miss rate is still low than **all the above**. Because every 3-level subloop **only save one small block** in L1d cache instead of traversing one whole matrix. Take `A[i + k * n]` as one example, in the above two funcs, they traverse all rows of `A` and `do_block` traverse `BLOCKSIZE` rows. <a id="block"></a>
 ### comparison of different events
 - `L1-dcache-load-misses` has been said above.
 #### `L1-dcache-loads` and `L1-dcache-prefetches`
-- obviously, avx loads less because they do SIMD so load more *each time*, then load counts are less. 
-  - `do_block` will duplicately load.See `do_block(n, si, sj, sk, A, B, C);` where when `k++`, at least the block in `C` will be re-traversed. So it is higher than `dgemm_basic`.
+- obviously, **avx** loads less because they do SIMD so load more *each time*, then load counts are less. 
+  - `do_block` will duplicately load.See `do_block(n, si, sj, sk, A, B, C);` where when `k++`, at least the block in `C` will be re-traversed. So it is higher than `dgemm_basic`. <a id="reuse"></a>
     - so `L1-dcache-prefetches` of `do_block` is minimal, because it always use duplicate loads. Why the other `L1-dcache-prefetches` rank like they are is similar to `L1-dcache-loads`.
 #### `L1-icache-load-misses` and `L1-icache-loads`
 - Similar to `L1-dcache-loads`, it is one way to calculate loop counts, although `do_block` and `dgemm_basic` don't hold one proportion relation. 
@@ -6199,10 +6200,11 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 #### L3
 - unluckily my cpu doesn't support that and don't have *PMC*s related with L3.
 ### comparsion after adding `L2` related
+#### terminology explanation
 - view `perf list` to select events.
   - `breakdown` [meaning](https://interviewnoodle.com/cache-problems-cache-penetration-cache-breakdown-cache-avalanche-9b866483e2b7) (Better see its reference which has more **explicit** examples shown): 1. `penetration` ~~can be seem as fetching from disk~~ is one type of attack by using `non-existence data to frequently attack the application` and caused sequential cache miss because 'it will not be written to the cache'. 2. `breakdown` is similar to fetch from mem. 3. `Avalanche` is just too many requests ("multiple hot keys fail at the same time"). Here they are meaningful requests. Think of e-commerce Platform requests at the shopping festival.
   - [L1 prefetcher](http://iccd.et.tudelft.nl/Proceedings/2007/Papers/5.1.4.pdf) and L2 meaning. It is to 'prevent cache pollution' and store to later put them in corresponding cache (L1 prefetcher -> L1 cache).
-    - So [17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [`Core`](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
+    - So [PPR_17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [`Core`](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
   - `l2_request_g1.cacheable_ic_read` related PMCx060 and PMCx061 are ~~not~~ related with L1 miss. ~~So ignore them.~~ Only use `l2_request_g2.ic_rd_sized(_nc)` to test whether avx fetch *sized* data *cacheline*.
     - also see [uprof_doc] p38 for **metric group**.
   - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds:
@@ -6217,7 +6219,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     node   0 
       0:  10 
     ```
-  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch).
+  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [PPR_17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch).
     - '**IO** from this thread's die.'
   - `ls_st_commit_cancel2.st_commit_cancel_wcb_full` see [this](https://stackoverflow.com/a/25877134/21294350) 'never be written to a cache'. Also related with [Replacement_Policies](https://stackoverflow.com/questions/9544094/how-to-mark-some-memory-ranges-as-non-cacheable-from-c)
   - `l2_cache_accesses_from_dc_misses` -> `0xc8` -> `0b11001000`: why not count 'Data Cache Shared Reads' 
@@ -6230,7 +6232,18 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   - The others in `recommended:` are all included in the above subcommands.
   - `SDT` is no use here because the above program not ['use SDT markers'](https://lwn.net/Articles/618956/). See [probe](https://www.gnu.org/software/libc/manual/html_node/Memory-Allocation-Probes.html)
 #### test
-- use this python script [perf_post] or 
+record list
+- [x] ls_refills_from_sys (5 items)
+- [x] ls_hw_pf_dc_fill (5)
+- [x] ls_sw_pf_dc_fill (5)
+- [x] `ls_st_commit_cancel2.st_commit_cancel_wcb_full`
+- [ ] `l2_request_g1`
+  - [x] `change_to_x`
+  - [x] `prefetch_l2_cmd`
+- [ ] `l2_request_g2.group1` and `l2_request_g1.group2`
+---
+
+- use this python script [perf_post_py_script] or 
   `awk` by `awk 'FNR >= 12 || FNR <=41 {for(i=22;i<=42;i++) $i=""; print $0}' ~/perf_log/almost_all_cache.log.report | less` (this will make the output format change by make all delimiters ' '. How to select [row and column](https://stackoverflow.com/questions/1506521/select-row-and-element-in-awk)). Also can try [`cut`](https://stackoverflow.com/questions/2626274/print-all-but-the-first-three-columns). `sed` may be difficult to select [column](https://stackoverflow.com/questions/59326355/how-to-get-third-column-first-row-with-sed-in-linux)
 - Better not to sample too many events at one time. It may interfere with each other (not only the value but also the [behavior](#percent_error)). Although the following example is.
 ```bash
@@ -6305,7 +6318,7 @@ $ perf report -i ~/perf_log/almost_all_cache.log --group --stdio
             |
             ---dgemm_basic_blocked
 ```
-##### TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs] script.
+##### TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A_1](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs_py_script] script.
 - not use `l2_request_g1.group2` it may cause sampling failure. And also above weird samples <a id="percent_error"></a>
 ```bash
 $ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_all_cache.log.report | less -S
@@ -6324,23 +6337,406 @@ $ perf report -i ~/perf_log/group2.log -n --group --stdio
 ...
 # Total Lost Samples: 0
 ```
+- Answering the above Q&A_1, from [PPR_17h_60h] p163, they are just *OR* relation in **most situations**. The unit0 probably just means **reset** state. And from [OCRR_17h] p160, it means that "Miscellaneous events covered in more detail by" in [PPR_17h_60h] "PMCx061" refers to all group1 events.
+  Also note as the [PPR_17h_60h] says "result in misleading counts", sometimes if sum up, we may get not consistent result. See [#750399 post "Not sum. 0xf9:  5091787060.0 , while mask sum:  5150956350.0"](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) which can be also seen in [miscs_py_script]. 
+  From this [llvm review "doesn't really count the 6 pipes."](https://reviews.llvm.org/D94395?id=341995), the [`0xc8`](https://github.com/torvalds/linux/blob/a901a3568fd26ca9c4a82d8bc5ed5b3ed844d451/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json#L31) shown in the above #750399 post may be not accurate just as the post says.
+```bash
+$ perf stat -e r0aa,r1aa sleep 1 
+
+ Performance counter stats for 'sleep 1':
+
+                 0      r0aa                                                                  
+         1,815,971      r1aa
+```
 ###### so ignore `l2_request_g2.ls_rd_sized` and `l2_request_g2.ls_rd_sized_nc`
 ##### `l2_request_g1.all_no_prefetch` is sum of other small events. Ignore it.
 ##### `ic_cache_fill_l2` from here use new perf data
 ```bash
-$ cd;perf record -g --call-graph fp -e ic_cache_fill_l2,ic_cache_fill_sys\                                      
-,ic_cache_inval.fill_invalidated,ic_cache_inval.l2_invalidating_probe\
-,l2_cache_req_stat.ic_access_in_l2,l2_cache_req_stat.ic_dc_hit_in_l2,l2_cache_req_stat.ic_dc_miss_in_l2\
-,l2_cache_req_stat.ic_fill_hit_s,l2_cache_req_stat.ic_fill_hit_x,l2_cache_req_stat.ic_fill_miss\
-,l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
+$ cd;perf record -g --call-graph fp -e l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
 ,l2_cache_req_stat.ls_rd_blk_x\
  ~/matrix-matrix-multiply/build/src/dgemm;\
 mv perf.data ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log
 # can also use `--no-children` to compare and choose the preferred 
 $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --stdio -n --hierarchy
-
+...
+$ 
 ```
+- From above, viewing the value `ic_cache_fill_l2/ic_cache_fill_sys`, it 
+##### `l2_request_g1`; better view `ls_refills_from_sys`. (The following also has `ls_sw_pf_dc_fill` and `ls_hw_pf_dc_fill`)
+###### `l2_request_g1` related cmds
+```bash
+$ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\    
+,l2_request_g1.ls_rd_blk_c_s\
+,l2_request_g1.cacheable_ic_read\
+,l2_request_g1.change_to_x\
+,l2_request_g1.prefetch_l2_cmd\
+,l2_request_g1.l2_hw_pf\
+ ~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/l2_request_g1.log
+$ file=l2_request_g1;perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > /mnt/ubuntu/home/czg/csapp3e/debug/${file}.report
+$ cd /mnt/ubuntu/home/czg/csapp3e;file=l2_request_g1;python debug/perf_report_post.py -i debug/${file}.report -o debug/sample_${file}.report
+$ cat debug/sample_${file}.report
+...
+   26773       12993       19163       11995        1335           0       26645        dgemm  
+       26670       12144       17668        9581          53           0       26483        dgemm               
+          13889       10558       11799        6094          20           0       13775        [.] dgemm_basic
+            |
+            ---0x7f7bf6b27850
+               main
+               calc_speed_up
+               dgemm_basic
+
+          3343         192        2017        1108           0           0        3269        [.] dgemm_avx256
+            |
+            ---0x7f7bf6b27850
+               main
+               calc_speed_up
+               dgemm_avx256
+
+           1127          47         601         386           1           0        1153        [.] dgemm_unrolled_avx256
+            |
+            ---0x7f7bf6b27850
+               main
+               calc_speed_up
+               dgemm_unrolled_avx256
+
+           7753        1008        2894        1734          11           0        7665        [.] dgemm_basic_blocked
+            |
+            ---0x7f7bf6b27850
+               main
+               calc_speed_up
+               dgemm_basic_blocked
+
+           510         271         279         209           0           0         518        [.] dgemm_blocked_avx256
+            |
+            ---0x7f7bf6b27850
+               main
+               calc_speed_up
+               dgemm_blocked_avx256
+```
+- `dgemm_basic` load  more from sys mem, because it traverse range is too large. As said [before](#fetch),
+- `prefetch_l2_cmd` can be seen in [17h_01h] p172, **software prefetch** may interfere hardware prefetch and also if it fetches instruction, then it will interfere the data cache. So above it shows **0**.
+  - similarly, `ls_sw_pf_dc_fill` all no count. See [ls_sw_pf_dc_fill](#ls_sw_pf_dc_fill)
+- `change_to_x`: only `dgemm_basic` and `dgemm_basic_blocked` shows one small value. (The `dgemm_unrolled_avx256` shows 1, ignore it) Because they not use somewhat parallel method like avx, so ~~cpu may schedule a new thread to help running it with original threads~~ it may change cache state. See [SOG_17h] doc p18, it use "Linear address utag" (i.e. ~~at least virtually indexed. ~~ to accelerate selecting way with **hash** after using VIPT,etc to [select **set**](https://en.wikipedia.org/wiki/CPU_cache#Cache_entry_structure).). So it may conflict.
+  - Since avx256 is 32 byte (256=32*8), it corresponds to 'L2 to L1 data path is 32 bytes wide.' in [SOG_17h] p19. So perform better (both load and invalidation less). <a id="data_path"></a>
+    - it is just  and also not exceed [cacheline size](#cacheline_byte). 
+    - Also see [SOG_17h] p17 it conforms to "natural **alignment** boundary". so `__m256d` use `__vector_size__ (32),` in `g++` header.
+    - kw: "two 128-bit loads",
+    - Since it is **loaded together** (So `dgemm_basic_blocked` still has `change_to_x`), it may less possible to cause hash conflict.
+  - [PPR_17h_60h] p164 LS meaning see [SOG_17h] p33.
+    - [PPR_17h_60h] `EX` should be the execution stage. `DE` decoder (Then will 'Dispatch Resource'), `BP` -> 'Branch Prediction' (related with `IC`(Instruction Cache), so put together)
+  - [AGQ](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2) in [SOG_17h] p27. `DE` may means ['directory entry'](https://wiki.osdev.org/Paging)
+- [`Overhead`](https://perf.wiki.kernel.org/index.php/Tutorial) proportion may be not same as `Samples` proportion due to precison of 2. Use `Samples` better.
+- view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
+  (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
+  Here `dgemm_unrolled_avx256` use multiple `ymm` register because of **small** `unroll` size which is optimized by compiler. <a id="ymm"></a>
+- 
+- DAT,WCB(maybe WC(write-combining) buffer),MAB,STP meaning in [SOG_17h] p34.
+- From the close relation between L1 `L1-*` and L2 `l2_request_g1` in `perf annotate`. They may not use uncachable store buffer. So 
+###### `ls_sw_pf_dc_fill`
+- notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
+  Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [`ymm`](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
+  Since most of `l2_request_g1` are not $0$, so it use cacheable write buffer. Then `ls_st_commit_cancel2.st_commit_cancel_wcb_full` is $0$.
+  ```bash
+  $ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
+  ,l2_request_g1.ls_rd_blk_c_s\
+  ,l2_request_g1.cacheable_ic_read\
+  ,l2_request_g1.change_to_x\
+  ,l2_request_g1.prefetch_l2_cmd\
+  ,l2_request_g1.l2_hw_pf\
+  ,ls_sw_pf_dc_fill.ls_mabresp_lcl_cache,ls_sw_pf_dc_fill.ls_mabresp_lcl_dram\
+  ,ls_sw_pf_dc_fill.ls_mabresp_lcl_l2\
+  ,ls_sw_pf_dc_fill.ls_mabresp_rmt_cache,ls_sw_pf_dc_fill.ls_mabresp_rmt_dram\
+  ,ls_st_commit_cancel2.st_commit_cancel_wcb_full\
+  ,ls_hw_pf_dc_fill.ls_mabresp_lcl_cache,ls_hw_pf_dc_fill.ls_mabresp_lcl_dram\
+  ,ls_hw_pf_dc_fill.ls_mabresp_lcl_l2\
+  ,ls_hw_pf_dc_fill.ls_mabresp_rmt_cache,ls_hw_pf_dc_fill.ls_mabresp_rmt_dram\
+  ,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
+  ,ls_refills_from_sys.ls_mabresp_lcl_l2\
+  ,ls_refills_from_sys.ls_mabresp_rmt_cache,ls_refills_from_sys.ls_mabresp_rmt_dram\
+    ~/matrix-matrix-multiply/build/src/dgemm;
+  $ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_prefetch.report
+  ...
+  # Event count (approx.): 2926555774
+  ...
+    7650        4637        5272        2778         294           0        7623        1423          79         186           0           0           0        7678        4680        7700           0           0        7548        3498        7632           0           0        dgemm  
+        7630        4376        4973        2269           5           0        7529        1314          17         134           0           0           0        7667        4474        7688           0           0        7536        2910        7607           0           0        dgemm               
+          3937        3685        3311        1531           3           0        3877         853          13          86           0           0           0        3922        2891        3912           0           0        3917        2253        3929           0           0        [.] dgemm_basic
+            |
+            ---0x7f93f27c3850
+                main
+                calc_speed_up
+                dgemm_basic
+
+          986          56         455         163           1           0        1011         100           0          17           0           0           0        1054         562        1042           0           0        1056         458        1046           0           0        [.] dgemm_avx256
+            |
+            ---0x7f93f27c3850
+                main
+                calc_speed_up
+                dgemm_avx256
+
+            283           2          90         100           0           0         270          49           2           8           0           0           0         317         145         282           0           0         267          86         251           0           0        [.] dgemm_unrolled_avx256
+            |
+            ---0x7f93f27c3850
+                main
+                calc_speed_up
+                dgemm_unrolled_avx256
+
+            2238         509        1031         406           0           0        2191         286           0          21           0           0           0        2250         782        2206           0           0        2210          48        2196           0           0        [.] dgemm_basic_blocked
+            |
+            ---0x7f93f27c3850
+                main
+                calc_speed_up
+                dgemm_basic_blocked
+
+            176         113          67          57           0           0         132          21           1           0           0           0           0         122          31         157           0           0          85          64         185           0           0        [.] dgemm_blocked_avx256
+            |
+            ---0x7f93f27c3850
+                main
+                calc_speed_up
+                dgemm_blocked_avx256
+  ```
+  Here why `dgemm_unrolled_avx256` is that it use `vbroadcastsd` fourth times each k-loop. Then avoid duplicate loads. So that it demands loading less, then `ls_refills_from_sys` is less in `ls_refills_from_sys.ls_mabresp_lcl_dram` (less demands to main mem) (i.e. **comparison_1**: `ls_refills_from_sys.ls_mabresp_lcl_dram` is less than `ls_hw_pf_dc_fill.ls_mabresp_lcl_dram` compared with `dgemm_avx256` and `dgemm_basic`).
+  With respect to `dgemm_basic_blocked`, it use `block` so it must load less from dram. So also has *comparison_1* relation (The `perf annotate` about `dgemm_basic_blocked` is somewhat not accurate, so not post it here.)
+  ```bash
+    0       0       2       0       2       0       0       0       0       0       0       0 :   3252:   vbroadcastsd ymm0,QWORD PTR [rdx]
+    ...
+    0       0       0       0       0       0       0       0       0       0       0       0 :   3261:   vfmadd231pd ymm4,ymm0,YMMWORD PTR [r12+r10*8]
+                                                                                              : 56   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+    0       0     101      37      78       0       0      64      13      74       0       0 :   3267:   lea    r10,[r9+rax*1]
+                                                                                              : 40   _mm256_fmadd_pd(double __vector(4), double __vector(4), double __vector(4)):
+    0       0      22      11      24       0       0      20       4      26       0       0 :   326b:   vfmadd231pd ymm3,ymm0,YMMWORD PTR [r12+r10*8]
+                                                                                              : 50   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+    0       0      20       7      22       0       0       9       6      16       0       0 :   3271:   lea    r10,[r8+rax*1]
+    0       0       0       0       0       0       0       0       0       0       0       0 :   3275:   add    rax,r11
+                                                                                              : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4), double __vector(4)):
+    0       0       0       0       0       0       0       0       0       0       0       0 :   3278:   vfmadd231pd ymm2,ymm0,YMMWORD PTR [r12+r10*8]
+    0       0     130      55     137       0       0     101      40      98       0       0 :   327e:   vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]
+                                                                                              : 51   dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*):
+                                                                                              : 35   for (uint32_t k = 0; k < n; k++) {
+    0       0      35      21      38       0       0      28       9      28       0       0 :   3284:   cmp    r13,rdx
+    0       0       0       0       0       0       0       1       0       0       0       0 :   3287:   jne    3250 <dgemm_unrolled_avx256(unsigned int, double const*, double co>
+  ```
+  So now we only focus on the `ls_hw_pf_dc_fill` among the three group `ls_sw_pf_dc_fill`, `ls_refills_from_sys` and `ls_hw_pf_dc_fill`. [See](#ls_hw_pf_dc_fill)
+  - [when](https://lemire.me/blog/2018/04/30/is-software-prefetching-__builtin_prefetch-useful-for-performance/) will use software prefetch: if "the access pattern looks too unpredictable" (e.g. address has **dependency**). But "software prefetchers have no additional ressources" So it may be difficult to know whether **it is time** to prefetch. TODO "... take into account memory-level parallelism."
+    - better use hardware prefetch instead of software which is said many posts. Also see ["So the hardware prefetcher was **busy** during this time"](https://lwn.net/Articles/444336/)
+###### `ls_hw_pf_dc_fill`
+```python
+$ python debug/bfloat16_half.py
+...
+dgemm_basic_normalized -> [1.36, 1.0, 1.35, 0.0, 0.0]
+dgemm_avx256_normalized -> [1.88, 1.0, 1.85, 0.0, 0.0]
+dgemm_unrolled_avx256_normalized -> [2.19, 1.0, 1.94, 0.0, 0.0]
+dgemm_basic_blocked_normalized -> [2.88, 1.0, 2.82, 0.0, 0.0]
+dgemm_blocked_avx256_normalized -> [3.94, 1.0, 5.06, 0.0, 0.0]
+compare base dram
+dgemm_basic -> 1.0
+dgemm_avx256 -> 0.19
+dgemm_unrolled_avx256 -> 0.05
+dgemm_basic_blocked -> 0.27
+dgemm_blocked_avx256 -> 0.01
+```
+- compare base dram: from above, just as said before, `avx256` load size is [L2 to L1 size](#data_path) (the loads/stores hot location is at `2f26:   cmp    r8,rax` in `perf annotate` because ["waiting for it"][miss_event_blame]).
+  Then `dgemm_unrolled_avx256` with unroll size $4$, so it is $\frac{0.19}{4}\approx0.05$
+  `dgemm_basic_blocked` just [reuse](#reuse).
+- normalized: similar to the above, `avx256` load more from cache because it load unit (256 bits) is larger.
+  `dgemm_basic_blocked` is based on the [block](#block), so even load more from cache.
+##### `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`
+```bash
+$ dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
+file=no_prefetch_l2_opcache;\
+events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
+,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
+,l2_cache_req_stat.ls_rd_blk_x\
+,de_dis_uops_from_decoder.opcache_dispatched,de_dis_uops_from_decoder.decoder_dispatched;\
+events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
+cd;perf record -g --call-graph fp -e ${events}\
+ ~/matrix-matrix-multiply/build/src/dgemm;\
+mv perf.data ~/perf_log/${file}.log;\
+perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report
+python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${file}.report -o ${dir}/debug/sample_num_${file}.report -n ${events_num}
+$ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.report
+   26682       16215       13184       26815       12390       26813       18476        dgemm  
+       26588       15359       12276       26764       11692       26770       16997        dgemm               
+          13891        8187        7173       13914        8837       13692        9066        [.] dgemm_basic
+          3512        1499         967        3524         552        3281        1657        [.] dgemm_avx256
+           7659        4736        3512        7643        1776        7667        5222        [.] dgemm_basic_blocked
+           1031         596         374        1033           6         939         496        [.] dgemm_unrolled_avx256
+           488         150         142         530         355         436         405        [.] dgemm_blocked_avx256
+```
+- `ls_rd_blk_c` is just ``
+###### `de_dis_uops_from_decoder`
+- there seems no related doc about 17h 60h model opcache implementation by "AMD doc "OpCache" site:amd.com". 
+  [zen2 ~~implementation~~ opcache performance](https://chipsandcheese.com/2021/07/03/how-zen-2s-op-cache-affects-performance/) (TODO 'the Twitterverse',)
+- [opcache Q&A](https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged) in intel, **amd** seems to not have many people knowing it.
+  - As it says, it is mainly used in "(speculative) execution" and not store unnecessary things like `0x90 NOP`. 
+    - kw: "doesn't try to populate the uop cache ... ", "has multiple jump entries", maybe "virtually addressed (VIVT)", "This is guesswork"
+    - TODO `0xcc int3` may just use `0xcc` as one *mark*, see "replace the first byte ... without overwriting other instructions".
+  - [MITE,LSD][LSD_DSB_MITE]
+    - as paper p3 says "mis-prediction occurs" and "exceeds the limit", LSD will not be used (also see the figure).
+    - [LSD_DSB_MITE] p3 also says " two threads mutually affects the micro-op decoding". So above Q&A says "decodes the same bytes two different ways.". This implicitly means "forces DSB evictions of micro-ops of the **first thread** to occur" as paper says (i.e. "throw out the uop cache ways " in Q&A).
+    - "filling up all 3 ways and triggering DSB-to-MITE switches" in Q&A see paper "exceeds the limit".
+  - also see how to [measure](https://www.reddit.com/r/hardware/comments/12smvw9/comment/jgzufr3/?utm_source=share&utm_medium=web2x&context=3) opcache.
+- the `de_dis_uops_from_decoder` counts obviously depends on instruction counts fetched. So the order is direct to get.
+  - the `opcache_dispatched/decoder_dispatched` of `avx` is almost $2$ because it use avx instructions (`dgemm_basic` is almost $1.5$).
+    - TODO but why `dgemm_blocked_avx256` is not one mix of `dgemm_unrolled_avx256` and `dgemm_basic_blocked` like something $1.7$. It shows proportion $1$. 
+      - The `annotate` output shows hot `237     204 :   30f5:   cmp    r11,rdx` which is located in k-loop by viewing the comment (the whole proportion of each func is almost same as the proportion of the hot location inside that func.)
+        ```cpp
+           0       0       0       0       0       0       0 :   30c0:   mov    edi,ecx
+                                                             : 31   _mm256_broadcastsd_pd(double __vector(2)):
+                                                             ...
+                                                             : 25   for (uint32_t k = sk; k < sk + BLOCKSIZE; k++) {
+         242      78      76     281     158     237     204 :   30f5:   cmp    r11,rdx
+           0       0       1       0       0       0       0 :   30f8:   jne    30c0 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+0x160>
+        ``` 
+      - guess based on above Q&A:
+        1. "decoded along the path of (speculative) execution". Maybe the loop is some
+        2. from this [paper](https://www.cs.virginia.edu/venkat/papers/isca2021a.pdf), amd has no LSD, so only has opcache and MITE. It can't be LSD to help the **more predictable**(because it targets to one block.) 
+        - [opcache_patent] patent, also [see](#amd_patent_1)
+          - fig2: 3. Maybe due to "Ucode EP:" splits the OC entry, so only 0-3 can store ops and 5-7 store data. See p11. And even only "A micro-coded instruction" can consume the whole **operation 220 position** which can store 4 uop.
+            - "DQ" control whether **bypass** "DQ-bypass multiplexer " and output IC data.
+            - 410 -> 440, because440 needs to forward "physical fetch address".
+            - OCQ is just something like the write buffer.
+              - "OCQ 460 is empty, bypassed around the OCQ 460 as new addresses arrive," -> just skip OCQ to go to 470.
+          - p17 what opcache entry stores.
+          - p18 here utag is only used to predict. it may be imprecise because of hash func and the tag is the real tag.
+            - TODO not change utag? "returns to step 710 of method 700."
+          - mainly see Fig 4&5.
+            - main idea: "OC Fetch Redirect  " and utag control whether in OC/IC mode by "DQ 430 receives the fetch address ...".
+          - kw: "decoded instructions (ops) ", 620: "assembled OC entry contents"
+          - Also [OC/IC ,etc](https://fuse.wikichip.org/news/2458/a-look-at-the-amd-zen-2-core/) TODO BPU meaning.
+          - "FIG. 4" -> "IC decoder": 
+      - after **tweaking `BLOCKSIZE` by setting it to `n`** (i.e. `BLOCKSIZE = 32 * 20;`), with one new parent loop, the compiler seems to better understand the code.
+        ```cpp
+        // dgemm_blocked_avx256
+          30d0:       44 89 d0                mov    eax,r10d
+          30d3:       c4 c2 7d 19 03          vbroadcastsd ymm0,QWORD PTR [r11]
+          30d8:       41 01 f2                add    r10d,esi
+          30db:       49 83 c3 08             add    r11,0x8
+          30df:       4e 8d 34 00             lea    r14,[rax+r8*1]
+          30e3:       c4 a2 fd b8 14 f3       vfmadd231pd ymm2,ymm0,YMMWORD PTR [rbx+r14*8]
+          30e9:       4c 8b 74 24 f8          mov    r14,QWORD PTR [rsp-0x8]
+          30ee:       49 01 c6                add    r14,rax
+          30f1:       c4 a2 fd b8 1c f3       vfmadd231pd ymm3,ymm0,YMMWORD PTR [rbx+r14*8]
+          30f7:       4c 8b 74 24 f0          mov    r14,QWORD PTR [rsp-0x10]
+          30fc:       49 01 c6                add    r14,rax
+          30ff:       c4 a2 fd b8 24 f3       vfmadd231pd ymm4,ymm0,YMMWORD PTR [rbx+r14*8]
+          3105:       4c 8b 74 24 e8          mov    r14,QWORD PTR [rsp-0x18]
+          310a:       4c 01 f0                add    rax,r14
+          310d:       c4 e2 fd b8 0c c3       vfmadd231pd ymm1,ymm0,YMMWORD PTR [rbx+rax*8]
+          3113:       4c 39 5c 24 d8          cmp    QWORD PTR [rsp-0x28],r11
+          3118:       75 b6                   jne    30d0 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+0x170>
+        // dgemm_unrolled_avx256
+          3270:       89 c8                   mov    eax,ecx
+          3272:       c4 e2 7d 19 02          vbroadcastsd ymm0,QWORD PTR [rdx]
+          3277:       48 83 c2 08             add    rdx,0x8
+          327b:       01 d9                   add    ecx,ebx
+          327d:       4c 8d 14 07             lea    r10,[rdi+rax*1]
+          3281:       c4 82 fd b8 24 d4       vfmadd231pd ymm4,ymm0,YMMWORD PTR [r12+r10*8]
+          3287:       4d 8d 14 01             lea    r10,[r9+rax*1]
+          328b:       c4 82 fd b8 1c d4       vfmadd231pd ymm3,ymm0,YMMWORD PTR [r12+r10*8]
+          3291:       4d 8d 14 00             lea    r10,[r8+rax*1]
+          3295:       4c 01 d8                add    rax,r11
+          3298:       c4 82 fd b8 14 d4       vfmadd231pd ymm2,ymm0,YMMWORD PTR [r12+r10*8]
+          329e:       c4 c2 fd b8 0c c4       vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]
+          32a4:       49 39 d5                cmp    r13,rdx
+          32a7:       75 c7                   jne    3270 <dgemm_unrolled_avx256(unsigned int, double const*, double const*, double*)+0xc0>
+        ``` 
+        from above, the `dgemm_unrolled_avx256` is pattern is ~~more unpredictable ~~ less **normalized** than `dgemm_blocked_avx256` (the latter use the similar sequence `vfmadd231pd,mov ... [rsp...],add`)
+        ```cpp
+        // see the last two columns : de_dis_uops_from_decoder.opcache_dispatched,de_dis_uops_from_decoder.decoder_dispatched
+        // dgemm_unrolled_avx256
+           2     421     214 :   3287:   lea    r10,[r9+rax*1]
+                              : 40   _mm256_fmadd_pd(double __vector(4), double __vector(4), doub>
+            0      27      15 :   328b:   vfmadd231pd ymm3,ymm0,YMMWORD PTR [r12+r10*8]
+                              : 50   dgemm_unrolled_avx256(unsigned int, double const*, double co>
+            1      80      52 :   3291:   lea    r10,[r8+rax*1]
+            0       1       1 :   3295:   add    rax,r11
+                              : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4), doub>
+            0       0       0 :   3298:   vfmadd231pd ymm2,ymm0,YMMWORD PTR [r12+r10*8]
+            3     214     117 :   329e:   vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]
+                              : 51   dgemm_unrolled_avx256(unsigned int, double const*, double co>
+                              : 35   for (uint32_t k = 0; k < n; k++) {
+            0      56      29 :   32a4:   cmp    r13,rdx
+            0       1       0 :   32a7:   jne    3270 <dgemm_unrolled_avx256(unsigned int, double>
+        // dgemm_blocked_avx256
+           0       0       1       0 :   30e3:   vfmadd231pd ymm2,ymm0,YMMWORD PTR [rbx+r14*8]
+                                     : 56   do_block_avx_256():
+          21       0     176     150 :   30e9:   mov    r14,QWORD PTR [rsp-0x8]
+          15       1      13      18 :   30ee:   add    r14,rax
+                                     : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4),>
+           0       0       0       0 :   30f1:   vfmadd231pd ymm3,ymm0,YMMWORD PTR [rbx+r14*8]
+                                     : 50   do_block_avx_256():
+          14       1      69      54 :   30f7:   mov    r14,QWORD PTR [rsp-0x10]
+           2       0       0       0 :   30fc:   add    r14,rax
+                                     : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4),>
+           0       0       0       0 :   30ff:   vfmadd231pd ymm4,ymm0,YMMWORD PTR [rbx+r14*8]
+                                     : 50   do_block_avx_256():
+          84       2     152     103 :   3105:   mov    r14,QWORD PTR [rsp-0x18]
+           1       0       2       1 :   310a:   add    rax,r14
+                                     : 41   _mm256_fmadd_pd(double __vector(4), double __vector(4),>
+          15       0      16      15 :   310d:   vfmadd231pd ymm1,ymm0,YMMWORD PTR [rbx+rax*8]
+                                     : 50   do_block_avx_256():
+                                     : 34   for (uint32_t k = sk; k < sk + BLOCKSIZE; k++) {
+          41       4     109      63 :   3113:   cmp    QWORD PTR [rsp-0x28],r11
+           2       0       2       2 :   3118:   jne    30d0 <dgemm_blocked_avx256(unsigned int, do>
+        ```
+        So have the following result:
+        The `dgemm_blocked_avx256` hot path is **longer** although it has one more regular path and average the `de_dis_uops_from_decoder` among them, so its `de_dis_uops_from_decoder.decoder_dispatched` is larger. 
+        See [opcache_patent] p26 fig3 and p11 related description, **longer** hot path may cause the opcache unable to store the significant instructions after storing too many redundant data like duplicate `mov,add` and same registers.
+        Notice: above source code is based on `641a164` of `git@github.com:czg-sci-42ver/matrix-matrix-multiply.git` where use three `#pragma GCC unroll 1` and allow `inline` in both `do_block_avx_256` and `do_block`.
+        ```bash
+         # same as above, see the last two column num 
+         253        1018          13         819         628        [.] dgemm_blocked_avx256
+         340        1042           7         933         481        [.] dgemm_unrolled_avx256
+        4050        8167        2553        8236        5016        [.] do_block
+        ```
+        **Notice**: although it seems that `dgemm_basic_blocked` and `dgemm_blocked_avx256` should have one similar assembly code organization, but compiler may be not ~~think of that~~ unable to do that. From the following and the above cpp, `dgemm_basic_blocked` don't have one "similar sequence" because ~~no~~ not uses [xmm version](https://www.felixcloutier.com/x86/vfmadd132pd:vfmadd213pd:vfmadd231pd) of `vfmadd231pd` to calculate in parallel.
+        Then `do_block` loop counts more, so its `de_dis_uops_from_decoder` must be higher
+        ```cpp
+                                                               : 67   cij += A[i + k * n] * B[k + j * n]; /* cij+=A[i][k]*B[k][j] */
+           328     237     158     350      63     299     210 :   402f:   mov    r8d,edx
+             2       0       3       0       0       1       3 :   4032:   mov    esi,eax
+                                                               : 66   for (uint32_t k = sk; k < sk + BLOCKSIZE; k++) {
+             0       1       1       1       1       0       1 :   4034:   inc    eax
+           726     381     258     760     131     344     329 :   4036:   add    edx,r12d
+                                                               : 67   cij += A[i + k * n] * B[k + j * n]; /* cij+=A[i][k]*B[k][j] */
+           450     273     212     444      98     388     269 :   4039:   vmovsd xmm0,QWORD PTR [r14+r8*8]
+          1073     613     532     909     244    1355     735 :   403f:   vmulsd xmm0,xmm0,QWORD PTR [r13+rsi*8+0x0]
+           761     435     319     690     182     644     450 :   4046:   vaddsd xmm1,xmm1,xmm0
+                                                               : 66   for (uint32_t k = sk; k < sk + BLOCKSIZE; k++) {
+          1738    1222     905    1915     431    1752    1043 :   404a:   cmp    ecx,eax
+          1172     783     543    1219     287     984     653 :   404c:   jne    402f <dgemm_basic_blocked(unsigned int, double const*, double const*, double*)+0xaf>
+        ```
+      - tweaking `BLOCKSIZE` back and view how `dgemm_blocked_avx256` get changed. See [mat_mat_mul] `dgemm_blocked_avx256.cpp`.
+        ```cpp
+        :
+        610         299        [.] dgemm_unrolled_avx256
+        506         408        [.] dgemm_blocked_avx256 // 1.2401960784313726
+
+        /2:
+        600         268        [.] dgemm_unrolled_avx256
+        297         125        [.] dgemm_blocked_avx256 // 2.376
+        /10:
+        615         283        [.] dgemm_unrolled_avx256
+        379         405        [.] dgemm_blocked_avx256 // 0.9358024691358025
+        ```
+        TODO: When using one huge block but not the total,
+        Notice: here diables unroll in `do_block_avx_256` and the `dgemm_blocked_avx256:  elapsed-time=     19547     speed-up=   17.9827` which is not double of `dgemm_unrolled_avx256:  elapsed-time=     24084     speed-up=   13.8905` with `BLOCKSIZE = 32 * 20 / 10` which is `n/10`.
+        Then with `n/20` they have the double relation.
+        So can just ignore it because it won't cause one bottleneck.
+      - [opcache_patent] <a id="amd_patent_1"></a>
+        - p12 at a taken branch target. -> 310b. And "at the last byte of a taken branch instruction." -> 310b and 310d.
+        - Here **cacheline** storage is continuous but opcache is not. It may have unused "the op storage remaining empty.".
+          - This may can explain the above weird `dgemm_blocked_avx256` behavior because it has 
+        - p13 "OC Microtag " is to **predict**. which is also said in [zen_2] "predict the way where the instruction block".
+          But [zen_2] says "Bypassing the clock-gated fetch and **decode** units" while [opcache_patent] says "the OC data array is read and **decoded**". (Wrong)
+            the latter says decode OC entry and get op,imme,uop,etc. But not decode the instruction.
+      - instruction op list see Agner doc p102 with zen2.
+        `lea    r10,[r9+rax*1]` -> 1 1-2
+        `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1
+        ...
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
@@ -6362,13 +6758,58 @@ $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --st
   So, not use `-a` which will track all processes by its output `sys_perf_event_open: pid -1  cpu 0  group_fd -1  flags 0x8 = 3`.
   from [source code](https://elixir.bootlin.com/linux/v4.2/source/tools/perf/builtin-trace.c#L84), it only enables `PERF_FLAG_FD_CLOEXEC` flag.
 - [metric use](https://lwn.net/Articles/732567/)
-- get umask from the doc [17h_60h] p187, also see [linux source](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L23). So `0x10` -> 5th bit -> `CacheableIcRead`. -> 'Instruction cache reads'. <a id="umask"></a>
+- get umask from the doc [PPR_17h_60h] p187, also see [linux source](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L23). So `0x10` -> 5th bit -> `CacheableIcRead`. -> 'Instruction cache reads'. <a id="umask"></a>
 - [`lstopo`](https://unix.stackexchange.com/questions/113544/interpret-the-output-of-lstopo) <a id="lstopo"></a>
   - check [pci](https://stackoverflow.com/questions/25908782/in-linux-is-there-a-way-to-find-out-which-pci-card-is-plugged-into-which-pci-sl)
     - lspci output [meaning](https://www.thegeekstuff.com/2014/04/lspci-examples/) based on bus. Better view [uefi doc](https://uefi.org/specs/UEFI/2.10/14_Protocols_PCI_Bus_Support.html#server-system-with-four-pci-root-bridges)
   - [home node](https://opvizor.medium.com/vmware-vsphere-why-checking-numa-configuration-is-so-important-9764c16a7e73) meaning, also [see](#local_remote_access) also see [uprof_doc] p19.
 - view [event definition](https://perf.wiki.kernel.org/index.php/Tutorial#Hardware_events). See BKDG. Also ['Open-Source Register Reference'](https://www.reddit.com/r/Amd/comments/amovex/requesting_bios_and_kernel_developer_guide_bkdg/)
 - better to view the code, and the wiki may be [outdated](https://stackoverflow.com/questions/67772680/what-is-the-default-behavior-of-perf-record) (here is how to check default freq, i.e. `-F` param in `perf record -F 100000`).
+- umask OR relation, see related [source code](https://github.com/torvalds/linux/blob/a901a3568fd26ca9c4a82d8bc5ed5b3ed844d451/tools/perf/pmu-events/arch/x86/amdzen2/other.json#L11). So they have OR relation, although **same event and umask** may offer different data with same program:
+```bash
+$ perf --debug perf-event-open stat -e r2aa,r1aa,r3aa,rffaa,de_dis_uops_from_decoder sleep 1
+perf_event_attr:
+  type                             4
+  size                             136
+  config                           0xffaa
+  sample_type                      IDENTIFIER
+  read_format                      TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING
+  disabled                         1
+  inherit                          1
+  enable_on_exec                   1
+  exclude_guest                    1
+------------------------------------------------------------
+sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 9
+------------------------------------------------------------
+perf_event_attr:
+  type                             4
+  size                             136
+  config                           0xffaa
+  sample_type                      IDENTIFIER
+  read_format                      TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING
+  disabled                         1
+  inherit                          1
+  enable_on_exec                   1
+  exclude_guest                    1
+------------------------------------------------------------
+sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
+
+ Performance counter stats for 'sleep 1':
+
+           478,357      r2aa                                                                  
+         1,824,584      r1aa                                                                  
+         2,303,227      r3aa                                                                  
+         2,303,513      rffaa                                                                 
+         2,303,803      de_dis_uops_from_decoder
+```
+- From all the above tests, all the PMC count hot locations are same for almost all events. So probably as the [perf_delay] says "choose **exactly one** of the in-flight instructions to "blame"" and "Be very **suspicious** of ... very small scales".
+  - The [perf_delay] references [one interesting link](https://stackoverflow.com/questions/45442458/loop-with-function-call-faster-than-an-empty-loop) where highlights the alignment significance to keep function **order** not influencing the performance. See ["If you remove the **nops** it gets much slower."](https://stackoverflow.com/questions/45442458/loop-with-function-call-faster-than-an-empty-loop#comment83955473_45529487),
+    - kw: ' (Your lack of an **ALIGN** directive ... changing the first one would have **changed** the alignment of the loop branch in the 2nd)',"help Skylake observe lower **store-forwarding** latency from push to pop" (from push to pop -> in the function,
+    - TODO: 'You should see a huge speedup if you push edx but pop eax', "the stack engine"
+- [LLC](https://fuse.wikichip.org/nehalem-sandy_bridge_overview_change/) (more [detailed](https://en.wikichip.org/wiki/intel/microarchitectures/coffee_lake)) also see QPI
+  - [QPI vs FSB](https://superuser.com/questions/593651/confusion-with-terms-fsb-qpi-ht-dmi-umi): the latter is for older cpu which is probably one core ("kept a single FSB"), ~~so unit is Hz~~. The latter just increases the **bandwidth** and support more cpus to connect. Also [see "the frequency", "how many cpus"](https://linustechtips.com/topic/703903-whats-the-difference-between-qpi-and-fsb/?do=findComment&comment=8997108)
+    - QPI resembles ["network"](https://en.wikipedia.org/wiki/Intel_QuickPath_Interconnect#Protocol_layers)
+- zen2 infos can also be got from [7zip benchmark](https://www.7-cpu.com/cpu/Zen2.html)
 
 ---
 
@@ -6455,6 +6896,9 @@ $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --st
 - source code
   - perf
     - []
+- Q&A
+  - stackoverflow
+    - [perf_cache_misses]
 
 ---
 
@@ -6526,20 +6970,30 @@ $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --st
 <!-- amd_ppr -->
 [19h_01h_vol_1]:../references/AMD/PPR/PPR_19h_01h/PPR_Family_19h_Model_01h_Rev_B1_Vol1.pdf
 [17h_01h]:../references/AMD/PPR/PPR_17h_amd_01h/54945_3.03_ppr_ZP_B2_pub.pdf
-[17h_60h]:../references/AMD/PPR/PPR_17h_60h_model_amd/55922-A1-PUB_3.06.pdf
+[PPR_17h_60h]:../references/AMD/PPR/PPR_17h_60h_model_amd/55922-A1-PUB_3.06.pdf
 <!-- from this https://www.amd.com/en/support/tech-docs/open-source-register-reference-for-amd-family-17h-processors, it applies to all 17h family -->
-[OCRR_17h]:../references/AMD/OSRR_17h.pdf
-[]
+[OCRR_17h]:../references/AMD/OSRR/OSRR_17h.pdf
+[SOG_17h]:../references/AMD/SwOpt/17h/55723_SOG_3.01_PUB.pdf
 
 <!-- wikichip -->
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
 [shared_tag_patent]:../references/AMD/shared_tag.pdf
+<!-- https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy WO 2018/106736 A1. -->
+[opcache_patent]:../
+[zen_2]:https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy
 
 <!-- paper -->
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
-
-[debug_code]:../asm/bfloat16_half.py
+[LSD_DSB_MITE]:../references/papers/opcache_LSD_DSB_MITE_etc_2105.12224.pdf
 
 <!-- script -->
-[miscs]:../debug/bfloat16_half.py
-[perf_post]:../debug/perf_report_post.py
+[miscs_py_script]:../debug/bfloat16_half.py
+[perf_post_py_script]:../debug/perf_report_post.py
+
+<!-- Q&A -->
+[perf_cache_misses]:https://stackoverflow.com/q/76593928/21294350
+[miss_event_blame]:https://stackoverflow.com/questions/65906312
+[perf_delay]:https://stackoverflow.com/a/65907314/21294350
+
+<!-- repo -->
+[mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply

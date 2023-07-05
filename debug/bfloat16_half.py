@@ -10,10 +10,13 @@ from https://stackoverflow.com/questions/1425493/convert-hex-to-binary
 format:
 use '0' fill and '>' align https://docs.python.org/3/library/string.html#grammar-token-format-spec-fill refered by https://peps.python.org/pep-0498/
 """
+
+
+
+
+import copy
 import sys
 import re
-
-
 def my_double(annotate_str, hex_num, bits, exp_size):
     my_hexdata = f'{hex_num:0>{bits}b}'
     sign = int(my_hexdata[0], 2)
@@ -25,7 +28,6 @@ def my_double(annotate_str, hex_num, bits, exp_size):
     # exp_bin=bin(int(my_hexdata[1:11],2))
     # frac_bin=bin(int(my_hexdata[exp_size+1:63],2))
     # print(sign,exp_bin,frac,int(frac_bin,2),int(frac_bin,2)-1023)
-
 
     # print(type(bin(int(my_hexdata, scale))[0:2]),bin(int(my_hexdata, scale))[2:].zfill(num_of_bits))
     # binary_string=
@@ -414,3 +416,55 @@ if (group_1 == sum_events_data):
     print("equal sum")
 else:
     print("sum: ", sum_events_data, "while group1 misc:", group_1)
+
+"""
+`ls_hw_pf_dc_fill.ls_mabresp_lcl_dram/ls_mabresp_lcl_cache/ls_mabresp_lcl_l2` comparison 
+
+use command to get data. https://linuxhint.com/print-columns-awk/
+TODO how to use something like `${i+1}` in other script language with `awk`
+$ awk 'BEGIN { events=23;start_index=events-9;print start_index;begin_str_index=events+2;print begin_str_index;}{quote_str=$begin_str_index;printf("\"%s\":[ ",quote_str);for (i = start_index; i < start_index+5; ++i) {printf("%s, ",$i)};print "],"}' /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_prefetch.report 
+14
+25
+"":[ 7678, 4680, 7700, 0, 0, ],
+"":[ 7667, 4474, 7688, 0, 0, ],
+"dgemm_basic":[ 3922, 2891, 3912, 0, 0, ],
+"dgemm_avx256":[ 1054, 562, 1042, 0, 0, ],
+"dgemm_unrolled_avx256":[ 317, 145, 282, 0, 0, ],
+"dgemm_basic_blocked":[ 2250, 782, 2206, 0, 0, ],
+"dgemm_blocked_avx256":[ 122, 31, 157, 0, 0, ],
+"""
+dgemm_ls_hw_pf_dc_fill_dict = {
+    "dgemm_basic": [3922, 2891, 3912, 0, 0, ],
+    "dgemm_avx256": [1054, 562, 1042, 0, 0, ],
+    "dgemm_unrolled_avx256": [317, 145, 282, 0, 0, ],
+    "dgemm_basic_blocked": [2250, 782, 2206, 0, 0, ],
+    "dgemm_blocked_avx256": [122, 31, 157, 0, 0, ],
+}
+print(dgemm_ls_hw_pf_dc_fill_dict["dgemm_basic"])
+dgemm_ls_hw_pf_dc_fill_dict = {k: [
+    float(v_elem) for v_elem in v] for k, v in dgemm_ls_hw_pf_dc_fill_dict.items()}
+dgemm_ls_hw_pf_dc_fill_dict_cp = copy.deepcopy(dgemm_ls_hw_pf_dc_fill_dict)
+# https://stackoverflow.com/questions/23896199/loop-for-inside-lambda
+
+
+def print_key_value(dict): return [print(
+    key, '->', value) for key, value in dict.items()]
+
+
+print_key_value(dgemm_ls_hw_pf_dc_fill_dict)
+# from decimal import getcontext # https://docs.python.org/3/library/decimal.html
+# getcontext().prec = 2
+suffix_str = "_normalized"
+for key, value in zip(dgemm_ls_hw_pf_dc_fill_dict.keys(), dgemm_ls_hw_pf_dc_fill_dict.values()):
+    add_key = key+suffix_str
+    add_value = [round(i/value[1], 2) for i in value]
+    dgemm_ls_hw_pf_dc_fill_dict_cp[add_key] = add_value
+print("after changed")
+print_key_value(dgemm_ls_hw_pf_dc_fill_dict_cp)
+
+compare_index = 1
+compare_event_strs = ["local CCX", "dram", "local L2"]
+base_compare = {key: round(value[compare_index]/dgemm_ls_hw_pf_dc_fill_dict["dgemm_basic"]
+                                      [compare_index], 2) for key, value in dgemm_ls_hw_pf_dc_fill_dict.items()}
+print("compare base", compare_event_strs[compare_index])
+print_key_value(base_compare)

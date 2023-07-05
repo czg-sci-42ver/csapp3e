@@ -1,6 +1,6 @@
 """
-use the following bash script to auto feed `events_num`:
-dir=/mnt/ubuntu/home/czg/csapp3e;\
+1. use the following bash script to auto feed `events_num`:
+dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
 file=no_prefetch_l2_opcache;\
 events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
@@ -10,7 +10,7 @@ events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
 cd;perf record -g --call-graph fp -e ${events}\
  ~/matrix-matrix-multiply/build/src/dgemm;\
 mv perf.data ~/perf_log/${file}.log;\
-perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report
+perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report;\
 python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${file}.report -o ${dir}/debug/sample_num_${file}.report -n ${events_num}
 """
 
