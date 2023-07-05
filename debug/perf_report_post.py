@@ -100,26 +100,20 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
             target_line_func_line = (target_line_index+target_inc)
             touch_end = target_line_func_line >= len(data)
             start_with_num = len(re.findall(r"^ *\d+", target_line)) > 0
+            """
+            only begin skip when find the first number line
+            so this will keep the header.
+            """
             if start_with_num:
                 find_first_start_num = True
-            if not touch_end:
-                # try:
-                target_line_func = data[target_line_func_line]
-                # except IndexError:
-                #     print("target_line_func_line: ",target_line_func_line,". while data len: ",len(data))
-
                 """
                 this is specific to conditions with `hierarchy` like `$ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --stdio -n --hierarchy` 
 
                 only change `skip` when with number start.
+
+                here will keep all lines with `dgemm_` and not skip them
                 """
-                if start_with_num and (len(re.findall(r"^ {10,}\d", target_line)) > 0):
-                    # print("found target_line and target_line_func: ",
-                    #       target_line_func, "check_str")
-                    find_dgemm = target_line_func.find(check_str) != -1
-                    # if find_dgemm:
-                    #     print(target_line_func)
-                    skip_row = not find_dgemm  # type: ignore
+                skip_row = len(re.findall(r"dgemm_", target_line)) == 0
             if skip_row:
                 # data_output = data_output+target_line
                 if DEBUG_DICT["show_skip"]:

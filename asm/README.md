@@ -3,6 +3,8 @@
 - stackoverflow image [size](https://meta.stackoverflow.com/questions/253403/how-to-reduce-image-size-on-stack-overflow) based on imgur.
 - the following `''` is assumed as *quote* of link contents.
 - vscode sign in with [kwallet](https://github.com/microsoft/vscode/issues/104319) fails
+- vscode `awk IDE` can't format and keep bracket highlight with comment, 
+  just use something like `gawk -f ~/dgemm_de_dis_before.awk -o${HOME}/dgemm_de_dis_p.awk;mv ${HOME}/dgemm_de_dis_p.awk ~/dgemm_de_dis.awk`.
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -6810,6 +6812,21 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
   - [QPI vs FSB](https://superuser.com/questions/593651/confusion-with-terms-fsb-qpi-ht-dmi-umi): the latter is for older cpu which is probably one core ("kept a single FSB"), ~~so unit is Hz~~. The latter just increases the **bandwidth** and support more cpus to connect. Also [see "the frequency", "how many cpus"](https://linustechtips.com/topic/703903-whats-the-difference-between-qpi-and-fsb/?do=findComment&comment=8997108)
     - QPI resembles ["network"](https://en.wikipedia.org/wiki/Intel_QuickPath_Interconnect#Protocol_layers)
 - zen2 infos can also be got from [7zip benchmark](https://www.7-cpu.com/cpu/Zen2.html)
+
+# awk miscs
+- see [this](https://stackoverflow.com/a/15969962/21294350) to pass parameter.
+- [matches](https://stackoverflow.com/questions/17001849/awk-partly-string-match-if-column-word-partly-matches): `($0 ~ func_list[Index])` and `(match($0,func_item) != 0)` both work to match regex substr. (can be see from `man`)/
+  - notice not mistakenly **redirect** output and not knowing write the output.
+- in new gawk, not type "number" but "strnum" with `typeof()`
+- can [ignore the `-e`](https://unix.stackexchange.com/questions/46715/piping-from-grep-to-awk-not-working) to run script.
+- use pipe to pass arg with [`$0`](https://stackoverflow.com/questions/59726081/pipe-command-output-into-awk)
+## notice
+- notice not use `#` comments mistakenly inside the command when writing one multiple line bash command with `\`
+- `FS = ","`: recommend not to change this because it's global
+- `>` will only flush the file when first used in the awk script, but not flush after the first flush. (here flush means clearing the file).
+## TODO
+- use [debugger](https://www.gnu.org/software/gawk/manual/html_node/Debugger-Invocation.html)
+
 
 ---
 
