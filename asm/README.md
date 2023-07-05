@@ -6735,6 +6735,34 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         - p13 "OC Microtag " is to **predict**. which is also said in [zen_2] "predict the way where the instruction block".
           But [zen_2] says "Bypassing the clock-gated fetch and **decode** units" while [opcache_patent] says "the OC data array is read and **decoded**". (Wrong)
             the latter says decode OC entry and get op,imme,uop,etc. But not decode the instruction.
+      - tested with correction from `UNROLL * 8` to `UNROLL * 4`
+        changing `BLOCK_DENOMINATOR`:
+        ```bash
+          $ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block/quotient/sample_num_no_prefetch_l2_opcache_quotient.report 
+          1:
+          func dgemm_unrolled_avx256: 961, 464, 2.07112
+          func dgemm_blocked_avx256: 1118, 633, 1.76619
+          2:
+          func dgemm_unrolled_avx256: 946, 462, 2.04762
+          func dgemm_blocked_avx256: 1048, 584, 1.79452
+          4:
+          func dgemm_unrolled_avx256: 921, 436, 2.11239
+          func dgemm_blocked_avx256: 1071, 402, 2.66418
+          5:
+          func dgemm_unrolled_avx256: 936, 542, 1.72694
+          func dgemm_blocked_avx256: 943, 498, 1.89357
+          10:
+          func dgemm_unrolled_avx256: 905, 384, 2.35677
+          func dgemm_blocked_avx256: 1009, 585, 1.72479
+          20:
+          func dgemm_unrolled_avx256: 963, 519, 1.85549
+          func dgemm_blocked_avx256: 889, 708, 1.25565
+          40:
+          func dgemm_unrolled_avx256: 906, 461, 1.96529
+          func dgemm_blocked_avx256: 858, 722, 1.18837
+        ```
+        from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
+        So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache.
       - instruction op list see Agner doc p102 with zen2.
         `lea    r10,[r9+rax*1]` -> 1 1-2
         `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1
@@ -6996,7 +7024,7 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
 [shared_tag_patent]:../references/AMD/shared_tag.pdf
 <!-- https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy WO 2018/106736 A1. -->
-[opcache_patent]:../
+[opcache_patent]:../references/patents/opcache_WO2018106736A1.pdf
 [zen_2]:https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy
 
 <!-- paper -->

@@ -6,11 +6,12 @@ BEGIN {
 	output_file = output
 	denominator_get = denominator
 	printf("%s:\n",denominator) >> output_file
+	print denominator
+	fflush(output_file)
 }
 
 {
 	split(target_funcs_get, func_list, ",")
-	fflush(output_file)
 	for (Index in func_list) {
 		func_item = func_list[Index]
 		if (match($0, func_item) != 0) {

@@ -75,3 +75,4 @@ dkms.conf
 !x64_ISA_manual_intel/
 !other_resources/
 !memory_consistency/
+!debug_annotate/
