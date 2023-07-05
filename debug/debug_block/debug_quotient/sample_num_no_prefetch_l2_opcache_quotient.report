@@ -1,0 +1,21 @@
+1:
+func dgemm_blocked_avx256: 1171, 552, 2.12138
+func dgemm_unrolled_avx256: 951, 446, 2.13229
+2:
+func dgemm_unrolled_avx256: 944, 463, 2.03888
+func dgemm_blocked_avx256: 956, 601, 1.59068
+4:
+func dgemm_unrolled_avx256: 869, 325, 2.67385
+func dgemm_blocked_avx256: 934, 538, 1.73606
+5:
+func dgemm_unrolled_avx256: 1021, 580, 1.76034
+func dgemm_blocked_avx256: 991, 362, 2.73757
+10:
+func dgemm_unrolled_avx256: 955, 420, 2.27381
+func dgemm_blocked_avx256: 1008, 648, 1.55556
+20:
+func dgemm_unrolled_avx256: 945, 516, 1.8314
+func dgemm_blocked_avx256: 861, 696, 1.23707
+40:
+func dgemm_unrolled_avx256: 950, 449, 2.11581
+func dgemm_blocked_avx256: 812, 702, 1.1567

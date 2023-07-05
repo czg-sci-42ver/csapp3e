@@ -1,0 +1,19 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 168K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_cache_req_stat.ls_rd_blk_cs, l2_cache_req_stat.ls_rd_blk_l_hit_s, l2_cache_req_stat.ls_rd_blk_l_hit_x, l2_cache_req_stat.ls_rd_blk_x, de_dis_uops_from_decoder.opcache_dispatched, de_dis_uops_from_decoder.decoder_dispatched'
+# Event count (approx.): 69843825701
+#
+#                                                       Overhead                                                                               Samples  Command / Shared Object / Symbol
+# ....................................................................................................................................................  .........................................................................................................................................................................................
+#
+   30707       19121       19739       31055       15398       32291       20364        dgemm_2
+       30161       17412       17988       30606       14023       31597       17885        dgemm_2             
+          15449        8436        8137       15529       10415       15327        9018        [.] dgemm_basic
+          3228        2063        1761        3240         136        3044        1701        [.] dgemm_avx256
+           1032         505         372        1047           4         944         463        [.] dgemm_unrolled_avx256
+           7127        4173        4246        7100        1768        7221        4788        [.] dgemm_basic_blocked
+           717         370         382        1001           4         956         601        [.] dgemm_blocked_avx256
+           2599        1621        2931        2542        1597        3138        1125        [.] dgemm_openmp_256

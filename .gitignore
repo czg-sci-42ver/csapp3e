@@ -76,3 +76,5 @@ dkms.conf
 !other_resources/
 !memory_consistency/
 !debug_annotate/
+!debug_block/
+!debug_quotient/
