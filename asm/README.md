@@ -6761,8 +6761,41 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
           func dgemm_unrolled_avx256: 906, 461, 1.96529
           func dgemm_blocked_avx256: 858, 722, 1.18837
         ```
+        1- With respect to `dgemm_blocked_avx256`:
         from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
         So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
+
+        2. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed.
+
+        3. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
+
+        However, the speed is not same as the above trend (which is almost monotonically increasing). So maybe we can just ignore these two metrics.
+        Maybe above only running 4-level loop once in each call decrease the loop dependency in some way and **no need to predict** the branch. So it is faster although the opcache is always refreshed. 
+        ```bash
+        # after running dgemm
+        $ cat debug_block_log/speed_etc.log
+        BLOCK_DENOMINATOR: 1
+                 dgemm_unrolled_avx256:  elapsed-time=     29333     speed-up=   12.2435
+                  dgemm_blocked_avx256:  elapsed-time=     31841     speed-up=   11.2792
+        BLOCK_DENOMINATOR: 2
+                 dgemm_unrolled_avx256:  elapsed-time=     27729     speed-up=   13.5138
+                  dgemm_blocked_avx256:  elapsed-time=     29398     speed-up=   12.7466
+        BLOCK_DENOMINATOR: 4
+                 dgemm_unrolled_avx256:  elapsed-time=     27758     speed-up=   13.2672
+                  dgemm_blocked_avx256:  elapsed-time=     26863     speed-up=   13.7092
+        BLOCK_DENOMINATOR: 5
+                 dgemm_unrolled_avx256:  elapsed-time=     27299     speed-up=   14.4009
+                  dgemm_blocked_avx256:  elapsed-time=     27655     speed-up=   14.2155
+        BLOCK_DENOMINATOR: 10
+                 dgemm_unrolled_avx256:  elapsed-time=     27401     speed-up=   13.8638
+                  dgemm_blocked_avx256:  elapsed-time=     30401     speed-up=   12.4957
+        BLOCK_DENOMINATOR: 20
+                 dgemm_unrolled_avx256:  elapsed-time=     26033     speed-up=    13.958
+                  dgemm_blocked_avx256:  elapsed-time=     23261     speed-up=   15.6214
+        BLOCK_DENOMINATOR: 40
+                 dgemm_unrolled_avx256:  elapsed-time=     25894     speed-up=   13.7683
+                  dgemm_blocked_avx256:  elapsed-time=     22291     speed-up=   15.9937
+        ```
       - instruction op list see Agner doc p102 with zen2.
         `lea    r10,[r9+rax*1]` -> 1 1-2
         `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1

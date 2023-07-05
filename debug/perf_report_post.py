@@ -78,7 +78,7 @@ ONLY_KEEP_START_NUM = True
 if ONLY_KEEP_START_NUM:
     print("enable ONLY_KEEP_START_NUM")
 
-DEBUG_DICT = {"show_skip": True,
+DEBUG_DICT = {"show_skip": False,
               "show_no_change": False, "show_after_change": False}
 
 

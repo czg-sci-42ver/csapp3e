@@ -3,11 +3,19 @@
 # at least in zsh, `ls ./////` function same as `ls ./`
 #cd ~/matrix-matrix-multiply/build;cmake ..;make;\
 # bash bool https://stackoverflow.com/questions/2953646/how-can-i-declare-and-use-boolean-variables-in-a-shell-script
+#############
+# not use RUN_MULTIPLE which will output too many dirs and files. 
+# Just run whatever times you want with this script and see the `debug_quotient` output file.
+#############
 dir=/mnt/ubuntu/home/czg/csapp3e;\
 file=no_prefetch_l2_opcache;\
 sub_dir=debug_block;\
 quotient_dir=debug_quotient;\
-OUTPUT_ANNOTATE=true;\
+OUTPUT_ANNOTATE=false;\
+RUN_MULTIPLE=false;\
+if [[ ${RUN_MULTIPLE} == true ]];then \
+run_times=5;\
+else run_times=1;fi;\
 annotate_dir=${dir}/debug/debug_annotate;\
 events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
@@ -28,6 +36,7 @@ fi;\
 #fi;\
 \
 start_index=$((${events_num}-1));\
+for ((index=0;index<${run_times};index++));do \
 for BLOCK_DENOMINATOR in ${BLOCK_DENOMINATOR_LIST};do \
 perf record -g --call-graph fp -e ${events} \
 ~/matrix-matrix-multiply/build/${sub_dir}/dgemm_${BLOCK_DENOMINATOR};\
@@ -46,4 +55,5 @@ awk \
 -v denominator="${BLOCK_DENOMINATOR}" \
 -f ${dir}/debug/dgemm_de_dis.awk \
 ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report;\
+;done \
 ;done
