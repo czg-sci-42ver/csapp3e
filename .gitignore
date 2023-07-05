@@ -75,6 +75,7 @@ dkms.conf
 !x64_ISA_manual_intel/
 !other_resources/
 !memory_consistency/
-!debug_annotate/
-!debug_block/
-!debug_quotient/
+# only add once consistent output, see 20ecf72bf9ad47a8240b9ddffa434799db4f269e
+debug_annotate/
+debug_block/
+debug_quotient/
