@@ -79,3 +79,4 @@ dkms.conf
 debug_annotate/
 debug_block/
 debug_quotient/
+!bison_flex/

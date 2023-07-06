@@ -6877,7 +6877,152 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
   - [QPI vs FSB](https://superuser.com/questions/593651/confusion-with-terms-fsb-qpi-ht-dmi-umi): the latter is for older cpu which is probably one core ("kept a single FSB"), ~~so unit is Hz~~. The latter just increases the **bandwidth** and support more cpus to connect. Also [see "the frequency", "how many cpus"](https://linustechtips.com/topic/703903-whats-the-difference-between-qpi-and-fsb/?do=findComment&comment=8997108)
     - QPI resembles ["network"](https://en.wikipedia.org/wiki/Intel_QuickPath_Interconnect#Protocol_layers)
 - zen2 infos can also be got from [7zip benchmark](https://www.7-cpu.com/cpu/Zen2.html)
+- some perf lists may be disabled ["because of errata"](https://unix.stackexchange.com/questions/733053/unable-to-use-perf-to-find-l3-cache-miss-rate#comment1391228_733053)
+  - also see [SKL150](https://lists.debian.org/debian-devel/2017/06/msg00308.html) which is seen from one blog.
+- something not has one valid PMC counter may be due to that it is [software event](https://www.brendangregg.com/perf.html#SoftwareEvents) ([search](https://github.com/search?q=repo%3Atorvalds%2Flinux+0x0b+language%3Ajson+path%3Atools%2Fperf%2Fpmu-events%2Farch%2Fx86%2Famdzen2&type=code) of linux codes).
+## AMDuProf
+- from [uprof_doc] chapter 3,4,5. Zen2 17h 60h ryzen 7 4800h not support many features.
+### installation 
+- recommend using dkms, so should run `sudo dkms autoinstall`
+- if manually build, maybe not use `sudo` if using rust (if system has rust, it may be only installed with the user but not root.). Also see [rust supported host](https://rust-lang.github.io/rustup-components-history/)
+  rust config: [rustup](https://stackoverflow.com/questions/44303915/no-default-toolchain-configured-after-installing-rustup)
 
+  ~~Notice: **Not use manually build** which may destroy the ``~~
+```bash
+$ rustup show                              
+Default host: x86_64-unknown-linux-gnu
+rustup home:  /home/czg/.rustup
+
+stable-x86_64-unknown-linux-gnu (default)
+rustc 1.70.0 (90c541806 2023-05-31)
+# https://stackoverflow.com/questions/26581161/make-modules-install-restarts-configuration-process-for-cross-compile
+[/var/lib/dkms/AMDPowerProfiler/10.0/source]$ sudo bear -- make ARCH=x86
+...
+error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
+help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
+crypto/Kconfig:1393: can't open file "arch/arm/crypto/Kconfig" # weird read arm ... ;https://bbs.archlinux.org/viewtopic.php?id=286563
+...
+make[1]: *** [include/config/auto.conf] Deleting file 'include/generated/rustc_cfg'
+make[1]: *** [include/config/auto.conf] Deleting file 'include/generated/autoconf.h' # Notice here `/usr/lib/modules/6.4.1-arch2-1/build/include/generated/autoconf.h` has been destroyed. So `bcc` will not be available.
+
+[/var/lib/dkms/AMDPowerProfiler/10.0/source]$ bear -- make ARCH=x86 # works fine
+make -C /lib/modules/6.4.1-arch2-1/build M=/var/lib/dkms/AMDPowerProfiler/10.0/source  EXTRA_CFLAGS="-I/var/lib/dkms/AMDPowerProfiler/10.0/source/inc -mpopcnt -DKERNEL_MODULE" modules
+# the above one will not generate new `/usr/lib/modules/6.4.1-arch2-1/build/include/generated/autoconf.h`
+
+# https://nanxiao.me/en/install-bcc-on-archlinux/
+$ /usr/share/bcc/tools/execsnoop                                                                                            
+In file included from <built-in>:1:
+././include/linux/kconfig.h:5:10: fatal error: 'generated/autoconf.h' file not found
+#include <generated/autoconf.h>
+...
+
+# need reinstall headers to repair.
+
+```
+  - bcc source compilation needs [`flex`](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison](https://aquamentus.com/flex_bison.html) (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
+    flex [only support `/**/`](https://www.cs.virginia.edu/~cr4bd/flex-manual/Comments-in-the-Input.html) but not `//` C-style comments at the file **begin location**.
+    [skenz][skenz_flex_bison]
+    - flex is just based **regex**, see [skenz_flex_bison] first example and this [concrete repo](https://github.com/czg-sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
+      - from the above repo, flex also has one *Prologue section* as bison has.
+    - highly recommend this [Q&A](https://stackoverflow.com/questions/34495544/using-flex-and-bison-together) which explains **lex(scanner/lexer) and yacc(parser)** (i.e. flex and bison) relation (also see [this](https://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)). Based on the following, reread the 'bison_flex/skenz' codes. They are more understandable now.
+      > A file such as exercise4.l is the input to flex which defines the **mapping** from lexemes to tokens, and exercise4.y would be the input to bison which defines the **order** of the tokens in a grammar. 
+      
+      So we use `%option header-file="lex.yy.h"` to generate header to use `yyin` in other *source codes* to let lexer process the file.
+
+      miscs :If having redundant time and nothing to do, read the related [book](https://web.iitd.ac.in/~sumeet/flex__bison.pdf) (Better to learn coding instead this.)
+      - viewing the generated codes to see the flex and bison relation. (All related funcs description can be also seen from [skenz_flex_bison])
+        ```bash
+        $ rm ./main;\          
+        gcc -g -c -o scanner.o lex.yy.c;
+        gcc -g -c -o parser.o parser.tab.c -DYYDEBUG=1;
+        gcc -g -c -o main.o main.c;
+        gcc -g -o main parser.o scanner.o main.o;./main example.txt
+        ```
+        `lex.yy.c`
+        ```c
+        extern int yylex (void);
+        #define YY_DECL int yylex (void)
+        ...
+        case 1:
+        YY_RULE_SETUP
+        #line 15 "scanner.l"
+        {return AV;}
+        	YY_BREAK
+        ```
+        the above `AV` is defined in `parser.tab.h` which is generated by `parser.y`. This is the **main relation**. Also [see](https://www.reddit.com/r/learnprogramming/comments/qdtkcq/comment/hhoszk8/?utm_source=share&utm_medium=web2x&context=3) and also `info flex` "To use 'flex' with 'yacc', one specifies ..."
+        ```h
+        enum yytokentype
+        {
+          AV = 270,                      /* AV  */
+        ...
+        };
+        typedef enum yytokentype yytoken_kind_t;
+        ```
+        In `parser.tab.c`. Here just use one huge predefined array `yytranslate[YYX]` to translate *token* shared by `flex` and `bison` to *YYSYMBOL_AV* which will be used by `bison` inside.
+        ```c
+        #   define YY_CAST(Type, Val) ((Type) (Val))
+        ...
+        enum yysymbol_kind_t
+        {
+          YYSYMBOL_AV = 15,                        /* AV  */
+        ...
+        };
+        typedef enum yysymbol_kind_t yysymbol_kind_t;
+        ...
+        #define YYTRANSLATE(YYX)                                \
+          (0 <= (YYX) && (YYX) <= YYMAXUTOK                     \
+           ? YY_CAST (yysymbol_kind_t, yytranslate[YYX])        \
+           : YYSYMBOL_YYUNDEF)
+        ...
+            yychar = yylex ();
+          }
+
+        if (yychar <= YYEOF)
+          {
+            yychar = YYEOF;
+            ...
+        else
+          {
+            yytoken = YYTRANSLATE (yychar);
+        ```
+      - `yywrap` see `lex.yy.c`. So maybe just as this [quora](https://www.quora.com/What-is-noyywrap-in-Lex) says, to "stop lexing when the first end-of-file is reached." (i.e. **only process one file**.)
+        ```c
+        if ( yywrap(  ) )
+        ...
+        else 
+            {
+					if ( ! (yy_did_buffer_switch_on_eof) )
+						YY_NEW_FILE;
+					}
+        ```
+- msr with amd: 1. from [this](https://lore.kernel.org/linux-pm/20201007161439.312534-5-kim.phillips@amd.com/T/), linux developer just use `intel_rapl` with amd cpu ("especially to allow existing tools to seamlessly run on AMD"). But maybe it is not used.
+```bash
+$ lsmod | grep msr
+intel_rapl_msr         20480  0
+intel_rapl_common      36864  1 intel_rapl_msr
+$ modinfo msr     
+name:           msr
+filename:       (builtin)
+license:        GPL
+file:           arch/x86/kernel/msr
+description:    x86 generic MSR driver
+author:         H. Peter Anvin <hpa@zytor.com>
+$ cat /sys/class/powercap/intel-rapl/intel-rapl:0/enabled
+0
+$ systool -v -m intel_rapl_msr                           
+Module = "intel_rapl_msr"
+
+  Attributes:
+    coresize            = "20480"
+    initsize            = "0"
+    initstate           = "live"
+    refcnt              = "0"
+    srcversion          = "79D2BA6F3CAE9071A919E63"
+    taint               = ""
+    uevent              = <store method only>
+```
+### `AMDuProfPcm`
+- 
 # awk miscs
 Develop the habit of [`#! /bin/awk -f`](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
 Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
@@ -7109,3 +7254,5 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
+
+[skenz_flex_bison]:https://www.skenz.it/compilers/flex_bison

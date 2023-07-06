@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../../../../../home/czg/.local/share/fcitx5/rime"
+		},
+		{
+			"path": "../../../../../var/lib/dkms/AMDPowerProfiler/10.0"
 		}
 	],
 	"settings": {
