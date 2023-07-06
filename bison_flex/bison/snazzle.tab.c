@@ -1071,7 +1071,8 @@ yyreduce:
   case 3: /* snazzle: FLOAT snazzle  */
 #line 43 "snazzle.y"
                    {
-      cout << "bison found a float: " << (yyvsp[-1].fval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl;
+      // cout << "bison found a float: " << (yyvsp[-1].fval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl;
+      cout << "bison found a float: " << (yyvsp[-1].fval) << endl;
     }
 #line 1076 "snazzle.tab.c"
     break;
@@ -1079,7 +1080,8 @@ yyreduce:
   case 4: /* snazzle: STRING snazzle  */
 #line 46 "snazzle.y"
                    {
-      cout << "bison found a string: " << (yyvsp[-1].sval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl; free((yyvsp[-1].sval));
+      // cout << "bison found a string: " << (yyvsp[-1].sval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl; free((yyvsp[-1].sval));
+      cout << "bison found a string: " << (yyvsp[-1].sval) << endl; free((yyvsp[-1].sval));
     }
 #line 1084 "snazzle.tab.c"
     break;
