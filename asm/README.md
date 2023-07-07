@@ -5,6 +5,7 @@
 - vscode sign in with [kwallet](https://github.com/microsoft/vscode/issues/104319) fails
 - vscode `awk IDE` can't format and keep bracket highlight with comment, 
   just use something like `gawk -f ~/dgemm_de_dis_before.awk -o${HOME}/dgemm_de_dis_p.awk;mv ${HOME}/dgemm_de_dis_p.awk ~/dgemm_de_dis.awk`.
+- use "\[`(.[^(]*)`\]" -> "[$1]" in vscode to avoid something like `[``]()` (Here rendering fails, see original markdown doc).
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -7119,30 +7120,60 @@ lex.yy.c-// ;
 - the above `#line` is to [change](https://learn.microsoft.com/en-us/cpp/preprocessor/hash-line-directive-c-cpp?view=msvc-170) `__LINE__` etc macro
 - how to debug the above codes
   - view the correct glic [codes](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L519)
-  - above [_IO_fwrite](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwrite.c#L35-L36) mainly `written = _IO_sputn (fp, (const char *) buf, request);`
-    - [_IO_sputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L177-L178) is `#define _IO_XSPUTN(FP, DATA, N) JUMP2 (__xsputn, FP, DATA, N)` (better view the gdb stack with **debuginfod**)
-      - Or just see [**codebrowser**](https://codebrowser.dev/glibc/glibc/libio/iofwrite.c.html#39) which can expand all define (linux source codes always use `#define` to avoid too many calls).
-      - see this for detailed infos about `_IO_new_file_xsputn`
-        - So this func will **not always flush** the output. This is why `ioputs` use [_IO_putc_unlocked](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#41) then which is also said in `man 3 puts` "puts() writes the string s and a trailing newline to stdout.".
-        - here [`f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);`](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L1235-L1236) is what `man fwrite` "The file position indicator for the stream is *advanced* by the number of bytes successfully read or written." means. <a id="_IO_write_ptr"></a>
-        - real write generates when [_IO_do_write (f, f->_IO_write_base,f->_IO_write_ptr - f->_IO_write_base)](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L783-L784) with `awd stdout->_IO_write_end` to get this.
-          ```bash
-          ─── Stack ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-          [0] from 0x00007f85b87a6bea in new_do_write+170 at fileops.c:456
-          [1] from 0x00007f85b87a8859 in _IO_new_do_write+25 at fileops.c:425
-          [2] from 0x00007f85b87a8cf3 in _IO_new_file_overflow+259 at fileops.c:783
-          [3] from 0x00007f85b879d5ba in __GI__IO_puts+506 at ioputs.c:41
-          [4] from 0x0000000000401dd2 in yyparse()+2076 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
-          ```
-          normally, the `_IO_write_...` should be same. But with `fwrite` changing `_IO_write_ptr` maybe, it is [not the case](#_IO_write_ptr).
-          ```bash
-          ─── Expressions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-          stdout->_IO_write_base = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
-          stdout->_IO_write_end = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
-          stdout->_IO_write_ptr = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
-          ```
+## _IO_fwrite
+- above [_IO_fwrite](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwrite.c#L35-L36) mainly `written = _IO_sputn (fp, (const char *) buf, request);`
+  - [_IO_sputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L177-L178) is `#define _IO_XSPUTN(FP, DATA, N) JUMP2 (__xsputn, FP, DATA, N)` (better view the gdb stack with **debuginfod**)
+    - Or just see [**codebrowser**](https://codebrowser.dev/glibc/glibc/libio/iofwrite.c.html#39) which can expand all define (linux source codes always use `#define` to avoid too many calls).
+    - see this for detailed infos about `_IO_new_file_xsputn`
+      - So this func will **not always flush** the output. This is why `ioputs` use [_IO_putc_unlocked](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#41) then which is also said in `man 3 puts` "puts() writes the string s and a trailing newline to stdout.". Also [see](#_IO_new_file_xsputn)
+      - here [`f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);`](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L1235-L1236) is what `man fwrite` "The file position indicator for the stream is *advanced* by the number of bytes successfully read or written." means. <a id="_IO_write_ptr"></a>
+      - real write generates when [_IO_do_write (f, f->_IO_write_base,f->_IO_write_ptr - f->_IO_write_base)](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L783-L784) with `awd stdout->_IO_write_end` to get this.
+        ```bash
+        ─── Stack ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        [0] from 0x00007f85b87a6bea in new_do_write+170 at fileops.c:456
+        [1] from 0x00007f85b87a8859 in _IO_new_do_write+25 at fileops.c:425
+        [2] from 0x00007f85b87a8cf3 in _IO_new_file_overflow+259 at fileops.c:783
+        [3] from 0x00007f85b879d5ba in __GI__IO_puts+506 at ioputs.c:41
+        [4] from 0x0000000000401dd2 in yyparse()+2076 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
+        ```
+        normally, the `_IO_write_...` should be same. But with `fwrite` changing `_IO_write_ptr` maybe, it is [not the case](#_IO_write_ptr).
+        ```bash
+        ─── Expressions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        stdout->_IO_write_base = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+        stdout->_IO_write_end = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+        stdout->_IO_write_ptr = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+        ```
+  - [`_IO_fwide (stdout, -1) == -1`](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#39): see `man fwide`
+    - See [this](https://learn.microsoft.com/en-us/cpp/c-runtime-library/byte-and-wide-streams?view=msvc-170),"wide-character oriented" just means something like utf, "byte oriented" just means ascii.
+    - notice [here link_1](https://codebrowser.dev/glibc/glibc/libio/libio.h.html#253) not use nested macro, but use [`_IO_fwide` func](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwide.c#L46)
+      - ~~from the link_1, ~~
+      - it controls [whether `f->_IO_write_end = f->_IO_write_ptr;`](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L772-L773) which is called in `_IO_new_file_overflow` (It may be not runned by some optimization. See the following) <a id="overflow"></a>
+        ```bash
+        $ 
+        => 0x00007f85b87a8c13 <_IO_new_file_overflow+35>:       0f 84 67 01 00 00       je     0x7f85b87a8d80 <_IO_new_file_overflow+400 at fileops.c:744>
+        0x00007f85b87a8c19 <_IO_new_file_overflow+41>:       48 8b 57 28             mov    rdx,QWORD PTR [rdi+0x28]
+        0x00007f85b87a8c1d <_IO_new_file_overflow+45>:       83 fd ff                cmp    ebp,0xffffffff
+        0x00007f85b87a8c20 <_IO_new_file_overflow+48>:       0f 84 a2 00 00 00       je     0x7f85b87a8cc8 <_IO_new_file_overflow+216 at fileops.c:775>
+        ...
+        0x00007f85b87a8cc8 <_IO_new_file_overflow+216>:      48 8b 73 20             mov    rsi,QWORD PTR [rbx+0x20]
+        0x00007f85b87a8ccc <_IO_new_file_overflow+220>:      48 89 df                mov    rdi,rbx
+        0x00007f85b87a8ccf <_IO_new_file_overflow+223>:      5b                      pop    rbx
+        0x00007f85b87a8cd0 <_IO_new_file_overflow+224>:      5d                      pop    rbp
+        0x00007f85b87a8cd1 <_IO_new_file_overflow+225>:      41 5c                   pop    r12
+        0x00007f85b87a8cd3 <_IO_new_file_overflow+227>:      48 29 f2                sub    rdx,rsi
+        0x00007f85b87a8cd6 <_IO_new_file_overflow+230>:      e9 65 fb ff ff          jmp    0x7f85b87a8840 <_IO_new_do_write at fileops.c:423>
+        ```
+        the above code just corresponds to [(f->_flags & _IO_CURRENTLY_PUTTING) == 0 || f->_IO_write_base == NULL](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L739-L740) (with `stdout`,this should be false because stdout probably used to write out to something like the terminal and by [man setvbuf](https://stackoverflow.com/questions/61842165), stdout "(as stdout normally does), it is *line buffered*.")
+        here [EOF -> -1](https://stackoverflow.com/questions/1782080/what-is-eof-in-the-c-programming-language)
+
+## _IO_puts
 - [_IO_new_file_xsputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L1196)
-  - here 
+  - here `if (to_do + must_flush > 0)` is probably zero because no ` if (*--p == '\n')` (because data probably has no trailing '\n'. Then `must_flush` is 0) and `to_do` is also 0 because `f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);` probably succeeds. <a id="_IO_new_file_xsputn"></a>
+  - So above `_IO_fwrite` not flush.
+- [`(__builtin_expect (((stdout)->_IO_write_ptr >= (stdout)->_IO_write_end), 0) ? __overflow (stdout, (unsigned char) ('\n'))`](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#41) shows why the original `ECHO` causing "`_IO_write_ptr` > `_IO_write_end`" will cause output *more* than the input parameter of `puts`(here `__overflow` will call [`_IO_new_file_overflow`](#overflow)).
+```bash
+
+```
 
 
 
