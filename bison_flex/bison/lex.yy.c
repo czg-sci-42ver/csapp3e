@@ -765,7 +765,8 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 27 "snazzle.l"
-// ECHO;
+ECHO;
+// ;
 	YY_BREAK
 #line 770 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):

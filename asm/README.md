@@ -42,7 +42,7 @@
     4. Server [List](https://forum.emule-project.net/index.php?showtopic=130625)  
     5. turn off the [firewall](https://support.microsoft.com/en-us/windows/turn-microsoft-defender-firewall-on-or-off-ec0844f7-aebd-0583-67fe-601ecf5d774f)  
     6. [kad](https://kelseyc18.github.io/kademlia_vis/basics/2/) ( i.e. p2p users list ) can be got from [nodes file](http://www.nodes-dat.com)  
-    7. `telnet` check tcp while [`nc`](https://serverfault.com/questions/395342/telnet-counterpart-for-udp) check udp  
+    7. `telnet` check tcp while [nc](https://serverfault.com/questions/395342/telnet-counterpart-for-udp) check udp  
     8. [port forwarding](http://www.emule-project.net/home/perl/help.cgi?l=1&rm=show_topic&topic_id=669)  is same as [虚拟服务器](https://resource.tp-link.com.cn/pc/docCenter/showDoc?source=search&id=1655112584878540) in tplink (I used the tplink at my home, and I asked the JD Customer Service for- the above help).
     9.  [**test**](https://www.emule-project.com/home/perl/general.cgi?rm=porttest&tcpport=8067&udpport=16905&lang=1033&l=1&obf=1&clienthash=1935FB3FA00E795668A4B180747E6FA7) always 'tcp failed' even when I has turned the firewall off ,configured the proxy in `emule/amule` and used the first [server](https://www.emule-security.org/serverlist/). telnet test of the router connection works: `telnet 192.168.1.2 8099`
         1.  check [Wan ip](https://resource.tp-link.com.cn/pc/docCenter/showDoc?id=1655112544705438)
@@ -182,7 +182,7 @@ main:
 - [wiki](https://stackoverflow.com/tags/sse/info) in stackoverflow
 ## miscs
 - `as` used by `gcc` assembly code comment [definition](https://sourceware.org/binutils/docs/as/index.html#SEC_Contents), also [see](https://stackoverflow.com/questions/24787769/what-are-lfb-lbb-lbe-lvl-loc-in-the-compiler-generated-assembly-code) [source](https://github.com/gcc-mirror/gcc/blob/releases/gcc-4.8.2/gcc/dwarf2out.c) code
-  - [`L..`](https://slowstarter80.github.io/gcc/labels_in_assembly_code/) like [`.LFB0`](https://sourceware.org/binutils/docs/as/Symbol-Names.html)
+  - [L..](https://slowstarter80.github.io/gcc/labels_in_assembly_code/) like [.LFB0](https://sourceware.org/binutils/docs/as/Symbol-Names.html)
 - [.cfi_def_cfa_offset](https://sourceware.org/binutils/docs/as/CFI-directives.html#g_t_002ecfi_005fdef_005fcfa_005foffset-offset)
 - [pushq](https://stackoverflow.com/questions/48251829/whats-the-difference-between-push-and-pushq-in-att-assembly)
   - [opcode p96 & 327](../references/amd64.pdf)
@@ -626,7 +626,7 @@ $ objdump -d 010-mstore.o
 3:  48 8b da                mov    %rdx,%rbx
 ```
   > notice: `+` may mean different in opcode, detailed in [p598](../references/intel_64.pdf)
-  > [this](https://stackoverflow.com/questions/71774299/how-do-you-understand-rex-w-b8-rd-io-form-for-x86-64-assembly) indicates [`MOV r64, imm64`](https://www.felixcloutier.com/x86/mov) `REX.W` not added to opcode, but prefix.
+  > [this](https://stackoverflow.com/questions/71774299/how-do-you-understand-rex-w-b8-rd-io-form-for-x86-64-assembly) indicates [MOV r64, imm64](https://www.felixcloutier.com/x86/mov) `REX.W` not added to opcode, but prefix.
   > above `push` indicates `rd` is added to opcode.
   - [`89`, where Op/En->`MR`: 'ModRM:r/m (w)' | 'ModRM:reg (r)'](https://www.felixcloutier.com/x86/mov) -> `r/m64 r64`; d3 -> 'dx,bx' satisfies
     > notice: p528 '/digit...REG' -> p598 '/digit:... r/m'
@@ -1277,7 +1277,7 @@ $ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/pro
   - [pdf p532](../references/intel_64.pdf) said `66h` prefix usage in SSE (related with AVX [pdf p537](../references/intel_64.pdf))
     - 66h [usage](https://stackoverflow.com/questions/30090566/x64-maskmovdqu-store-selected-bytes-of-double-quadword-and-vex-segment-overrid#comment48338171_30099598) or [table](https://wiki.osdev.org/X86-64_Instruction_Encoding#Operand-size_and_address-size_override_prefix)
   - [multiple](https://stackoverflow.com/questions/2404364/combining-prefixes-in-sse) 66H prefix
-### [`.rela.plt`](https://reverseengineering.stackexchange.com/questions/21521/pyelftools-relocation-section-symbols) <a id="rela"></a>
+### [.rela.plt](https://reverseengineering.stackexchange.com/questions/21521/pyelftools-relocation-section-symbols) <a id="rela"></a>
 > [TODO .plt.got (it seems no use anymore)](https://systemoverlord.com/2017/03/19/got-and-plt-for-pwning.html)
 ```asm
 [0x00401000]> iS~plt
@@ -2270,9 +2270,9 @@ find: False
 - `data16 cs nop WORD PTR [rax+rax*1+0x0]`
   - [disable](https://stackoverflow.com/questions/4486301/gcc-function-padding-value) alignment manually
   - here `cs` just to align, can be any [segment register](#segment) po.
-    - [`2e`](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode) 'addressing mode'
+    - [2e](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode) 'addressing mode'
   - [data16](https://stackoverflow.com/questions/36706280/what-does-data16-mean-in-objdump-output) 'the sixth is the w in the nopw' (i.e. above `nop WORD PTR`), also see [pdf p1385](../references/intel_64.pdf)
-    - here `WORD` or [`DWORD`](https://stackoverflow.com/questions/43991155/what-does-nop-dword-ptr-raxrax-x64-assembly-instruction-do?rq=3) ~~is based on `mode` and how assembler reads instruction bytes~~ see [prefix](#prefix) ‘table’ -> '1	N/A	Yes	16-bit'
+    - here `WORD` or [DWORD](https://stackoverflow.com/questions/43991155/what-does-nop-dword-ptr-raxrax-x64-assembly-instruction-do?rq=3) ~~is based on `mode` and how assembler reads instruction bytes~~ see [prefix](#prefix) ‘table’ -> '1	N/A	Yes	16-bit'
     - more detailed with 
     [this link](http://john.freml.in/amd64-nopl) from [this](https://stackoverflow.com/questions/4798356/amd64-nopw-assembly-instruction)
       - this link:nop different bytes [C code](https://chromium.googlesource.com/native_client/nacl-toolchain/+/  feaa0af17a4d4e1a87c7de1d53a72fe19e708286/binutils/gas/config/tc-i386.c)
@@ -2308,7 +2308,7 @@ find: False
 # gdb usage
 - use `x/g` to avoid accidental truncate of variable in stack (can tested with `voltron`)  
 ## voltron
-- [`add byte [eax], al`](https://reverseengineering.stackexchange.com/questions/17555/radare-produces-a-bunch-of-add-byte-rax-al-but-why) all zeroes.
+- [add byte [eax], al](https://reverseengineering.stackexchange.com/questions/17555/radare-produces-a-bunch-of-add-byte-rax-al-but-why) all zeroes.
 ## pwndbg ([pwnlib/pwntools](https://docs.pwntools.com/en/stable/about.html))
 - setting with [EFLAGS](http://www.c-jump.com/CIS77/ASM/Instructions/I77_0070_eflags_bits.htm) [pdf p80](../references/intel_64.pdf) in [gdb `p $eflags`](https://gist.github.com/mepcotterell/199b86a558b3f944589674f53ff681b0)
 - [readthedoc wiki](https://browserpwndbg.readthedocs.io/en/docs/commands/misc/pwndbg/)
@@ -2561,7 +2561,7 @@ $ make --always-make --dry-run \
 $ bear -- make --always-make # work
 ```
 ### miscs
-- [`%`](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
+- [%](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
   - more [general](https://www.gnu.org/software/make/manual/make.html#Text-Functions) with `subst`
 # csapp -> intel manual
 - zero extended [pdf p77](../references/intel_64.pdf)
@@ -3265,7 +3265,7 @@ __readdir (DIR *dirp)
 - [see](https://stackoverflow.com/questions/24903442/i-o-between-input-and-output-in-c-programme) [or](https://stackoverflow.com/questions/54067462/why-input-functions-cannot-follow-output-functions-or-vice-versa-in-c), if output follows input with the same file, should 'save the data from the buffer into the file'
   - if input follows output with the same file, should change file pos because ‘in the last position of the file’
 ### problem 11.4
-- why can use `(struct sockaddr_in *)` cast: see [`gni_host_inet_numeric`](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html#gni_host_inet_numeric) called by callee ... of [gni_host](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html)
+- why can use `(struct sockaddr_in *)` cast: see [gni_host_inet_numeric](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html#gni_host_inet_numeric) called by callee ... of [gni_host](https://codebrowser.dev/glibc/glibc/inet/getnameinfo.c.html)
 ### open_listenfd
 - from `man setsockopt`, 'optlen is a value-result argument, initially containing the size of the buffer pointed to by optval, and modified', so here `optlen` set as `sizeof(int)` initially, although unmodifiable.
 ### echoserveri.c
@@ -3279,7 +3279,7 @@ __readdir (DIR *dirp)
   but one writer will never update `mutex`, so it will never influence reader.
 ### p932
 - why use rio
-  - TODO complex [`read`](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/read.c.html) may not append EOF if reading something (also implied by `man 2 read`: 'the  number of bytes read is returned (zero indicates end of file)' and 'because fewer bytes are actually available right now (maybe because we were close to end-of-file, or because we are reading from a pipe, or from a terminal' -> so splitted to two return.)
+  - TODO complex [read](https://codebrowser.dev/glibc/glibc/sysdeps/unix/sysv/linux/read.c.html) may not append EOF if reading something (also implied by `man 2 read`: 'the  number of bytes read is returned (zero indicates end of file)' and 'because fewer bytes are actually available right now (maybe because we were close to end-of-file, or because we are reading from a pipe, or from a terminal' -> so splitted to two return.)
   so use multiple `read` in `rio_readn` with `nleft`.
 ### p1049
 - most `while(1)` is related with state machine.
@@ -3605,7 +3605,7 @@ if (!Rio_readlineb(&server_rio, s_buf, MAXLINE)) {
 +  printf("write file end\n");
 +#endif
 ```
-#### use `write` instead of `printf` to better flush or use [`fsync`](https://stackoverflow.com/questions/259355/how-can-you-flush-a-write-using-a-file-descriptor) to flush.
+#### use `write` instead of `printf` to better flush or use [fsync](https://stackoverflow.com/questions/259355/how-can-you-flush-a-write-using-a-file-descriptor) to flush.
 #### notice `\0`
 ```bash
 $ diff tiny_proxy_mhts_free_right.c tiny_proxy_mhtsfr_get_image.c
@@ -3793,7 +3793,7 @@ $ LD_DEBUG=all ./prog2r 2>&1 |less
 - negated [errno](https://softwareengineering.stackexchange.com/questions/170694/why-error-codes-are-negated)
 - syscall [param](https://www.cs.fsu.edu/~langley/CNT5605/2017-Summer/assembly-example/assembly.html)
 - [fflush](https://www.quora.com/Why-do-we-use-the-functions-fflush-stdin-and-fflush-stdout-in-c) just to 'flush' the buffer out ('which is flushed when it is full or when you call fflush')
-  - [`fflush(stdin)`](https://www.geeksforgeeks.org/use-fflushstdin-c/#)
+  - [fflush(stdin)](https://www.geeksforgeeks.org/use-fflushstdin-c/#)
   - `%[^\n]s` , [this](https://www.geeksforgeeks.org/use-fflushstdin-c/) is wrong, [see](https://stackoverflow.com/questions/40038538/how-does-scanf-n-str-work-in-c-programming) 
 ```bash
 [czg /mnt/ubuntu/home/czg/csapp3e/test]$ cat flush_stdin.c
@@ -3836,7 +3836,7 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - get [predefined macro](https://stackoverflow.com/questions/2224334/gcc-dump-preprocessor-defines) ` echo | gcc -dM -E -` [or](https://stackoverflow.com/questions/19409847/how-does-eclipse-cdt-understand-size-type)
 - stat structure not shown in `man 2 stat` in archlinux, shown in [man7](https://man7.org/linux/man-pages/man2/stat.2.html)
   - [S_ISREG](https://linux.die.net/man/2/stat)
-  - or [`man inode`](https://stackoverflow.com/questions/40163270/what-is-s-isreg-and-what-does-it-do)
+  - or [man inode](https://stackoverflow.com/questions/40163270/what-is-s-isreg-and-what-does-it-do)
 - `<` [redirection](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 - Descriptor table Open file table [detailed](https://www.usna.edu/Users/cs/wcbrown/courses/IC221/classes/L09/Class.html) [simplified](https://biriukov.dev/docs/fd-pipe-session-terminal/1-file-descriptor-and-open-file-description/)
 - [why](https://stackoverflow.com/questions/985051/what-is-the-purpose-of-fork) use fork()
@@ -3848,7 +3848,7 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - [difference](https://stackoverflow.com/questions/3581585/whats-the-difference-between-a-null-pointer-and-a-void-pointer#:~:text=A%20null%20pointer%20points%20has,the%20pointer%20has%20been%20nullified.) between a Null pointer & a Void pointer
 - two [same](https://stackoverflow.com/questions/17353461/open-what-happens-if-i-open-twice-the-same-file) `open` not point to same thing in `Open file table`(Figure 10.12) 
   - vs Problem 12.27
-- [`stty -icanon`](https://man7.org/linux/man-pages/man3/termios.3.html) which disable 'Input is made available line by line' by searching 'stty "canon" line buffering' from [this comment](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337), ~~and can be seen clearly in `vim` with '/<backspace>' where will show '/^?' defaultly.~~ ~~TODO what does `stty -icanon` do?~~
+- [stty -icanon](https://man7.org/linux/man-pages/man3/termios.3.html) which disable 'Input is made available line by line' by searching 'stty "canon" line buffering' from [this comment](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337), ~~and can be seen clearly in `vim` with '/<backspace>' where will show '/^?' defaultly.~~ ~~TODO what does `stty -icanon` do?~~
 ```bash
 $ stty -a | grep -e '?'  
 intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
@@ -3904,7 +3904,7 @@ $ stty -icanon && vim
     - HTTP request [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
 - CGI [env](https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html)
 - http/1.1 [rfc](https://datatracker.ietf.org/doc/html/rfc2616)
-- [`Connection reset by peer`](https://stackoverflow.com/a/1434592/21294350) [see problem 12.23](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.23/)
+- [Connection reset by peer](https://stackoverflow.com/a/1434592/21294350) [see problem 12.23](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.23/)
 ### threads
 - [asynchronous](https://unix.stackexchange.com/questions/386814/what-do-asynchronous-and-synchronous-mean-in-notifying-processes-of-system-event) event
 - CPU Context Switching [save](https://www.scaler.com/topics/operating-system/context-switching-in-os/) CPU state in cooperation with separate virtual memory.
@@ -3914,7 +3914,7 @@ $ stty -icanon && vim
 - [cancellation point](https://stackoverflow.com/questions/27374707/what-exactly-is-a-cancellation-point) may be simply some point where OS can cancel the thread ('The write function is a cancellation').
 - [closed-form solution](https://stats.stackexchange.com/questions/70848/what-does-a-closed-form-solution-mean)
 - although `pthread_join()` blocks, but it doesn't influence peer thread running and only blocks main thread.
-- [`time`](https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1) usage (here user bigger than real because of [`threads`](https://stackoverflow.com/questions/15928334/user-time-larger-than-real-time))
+- [time](https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1) usage (here user bigger than real because of [threads](https://stackoverflow.com/questions/15928334/user-time-larger-than-real-time))
 ```bash
 $ bash -c 'time ./psum-array 32 30'
 
@@ -3981,7 +3981,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
     see csapp Figure 12.26 -> `rw1.c`, if we prepend `P(&w)` in `writer(void)` with `V(&w)` (although this is insane but it is able to do it), then can run Critical section between `V(&w)` and `P(&w)`.
 
     but it may be not for `mutex`,
-  - difference with [`Java Monitor`](https://www.javatpoint.com/semaphore-vs-monitor#:~:text=Semaphore%20is%20an%20integer%20variable%2C%20whereas%20monitor%20is%20an%20abstract,crucial%20section%20at%20a%20time.) 
+  - difference with [Java Monitor](https://www.javatpoint.com/semaphore-vs-monitor#:~:text=Semaphore%20is%20an%20integer%20variable%2C%20whereas%20monitor%20is%20an%20abstract,crucial%20section%20at%20a%20time.) 
     po, java Monitor implementation is mostly encapsulated (i.e. abstraction) without too much care. 
 - why r7 4800h can run 32 [threads](https://unix.stackexchange.com/questions/342014/hyperthreading-is-there-a-way-to-know-from-the-command-line-if-it-is-enabled-in)
 ```bash
@@ -4040,7 +4040,7 @@ $ objdump -D badcnt | grep 2609 -A 20
   - [also](https://godbolt.org/) [from](https://www.felixcloutier.com/documents/gcc-asm.html#examples) 
 # misc syntax
 ## C
-- struct dot before variable like [`struct timeval t = {.tv_sec = 5};`](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337)
+- struct dot before variable like [struct timeval t = {.tv_sec = 5};](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337)
 - not to overlap dst and src str although csapp `tiny.c` use, and here if move `%s` after const str like `sprintf(buf, "Server: Tiny Web Server%s\r\n", buf); ` , then generate weird wrong result. 
 ```bash
 [czg /mnt/ubuntu/home/czg/csapp3e/netp/tiny]$ cat tiny.c | grep sprin
@@ -4063,9 +4063,9 @@ NOTES
   - 'safely ignore them'
 ## Makefile
 - /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35/Makefile
-  - use [`shell`](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
-  - [`+=`](https://stackoverflow.com/questions/55500865/how-to-append-lists-in-makefile-using-loops)
-- why `clean` has [`*~`](https://stackoverflow.com/questions/38002190/what-is-happening-in-this-make-clean) (which is emacs backup)
+  - use [shell](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
+  - [+=](https://stackoverflow.com/questions/55500865/how-to-append-lists-in-makefile-using-loops)
+- why `clean` has [*~](https://stackoverflow.com/questions/38002190/what-is-happening-in-this-make-clean) (which is emacs backup)
 - [diff](https://unix.stackexchange.com/questions/100786/why-does-diff-fail-when-invoked-from-a-makefile)
 - clang-format not change Include order<a id="format"></a> [1](https://unix.stackexchange.com/questions/32908/how-to-insert-the-content-of-a-file-into-another-file-before-a-pattern-marker) 2
 - using [variable](https://stackoverflow.com/questions/16267379/variables-in-makefile-prerequisites)
@@ -4102,8 +4102,8 @@ as -alhnd test.s > test.lst
 - read `man sed`, just find address 'Addresses' and run command like 'Zero- or One- address commands', read [example](#format)
 # `.gitignore`
 ## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. [glob](https://stackoverflow.com/questions/33189437/explain-gitignore-pattern-matching)) although current latest `.gitignore` file not show it. **NOT using regex**
-- so use [`git check-ignore -v **/* `](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
-- regex `+` by [`?*`](https://stackoverflow.com/questions/28281504/what-is-the-gitignore-equivalent-of-one-or-more-occurrence)
+- so use [git check-ignore -v **/* ](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
+- regex `+` by [?*](https://stackoverflow.com/questions/28281504/what-is-the-gitignore-equivalent-of-one-or-more-occurrence)
 - [debug](https://stackoverflow.com/questions/2937407/test-whether-a-glob-has-any-matches-in-bash) glob with `compgen`
 - [pattern-list](https://www.linuxjournal.com/content/pattern-matching-bash)
 - using [make](https://www.codesynthesis.com/~boris/blog/2009/03/23/generating-gitignore/) to generate
@@ -4237,7 +4237,7 @@ $ cat .gitignore
 ![A-Z]*
 # !**                                            
 ```
-## must use suffix or constant name in subdirs so that [`.gitignore`]() can be used better, then just write in parent `.gitignore` is enough ('it matches files and folders in any folder or subfolder.').
+## must use suffix or constant name in subdirs so that [.gitignore]() can be used better, then just write in parent `.gitignore` is enough ('it matches files and folders in any folder or subfolder.').
 -[recommend](https://www.golinuxcloud.com/gitignore-examples/), also [see](https://gist.github.com/chichunchen/970a7e97c74a253a4503)
 - if not suffix, remove exe will be more [complex](https://stackoverflow.com/questions/63590953/gitignore-on-executable) because need deal with every subdir.
 > notice above link 5.2, 5.6
@@ -4251,7 +4251,7 @@ $ cat .gitignore
    1863         ecf/_build/
 ```
 ## git miscs
-- caret [`^`](https://stackoverflow.com/questions/1955985/what-does-the-caret-character-mean-in-git) or tilde `~`
+- caret [^](https://stackoverflow.com/questions/1955985/what-does-the-caret-character-mean-in-git) or tilde `~`
 # assembly pseudo instruction
 - TODO dd meaning [here](https://en.wikipedia.org/wiki/Spinlock#Example_implementation) same as [this](https://stackoverflow.com/questions/46513413/x86-asm-dd-being-used-as-an-instruction) ?
   - dd [example](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html)
@@ -4548,7 +4548,7 @@ B[k][j] B[k][j] ...
   - here dalay is not real delay, because the `beq` is changed before `add`, so the delay of `add` is just how the `beq` should do originally.
   - kw: 'automatically arrange','the add instruction before the branch ','moved after the branch'
   - [delay slot](https://en.wikipedia.org/wiki/Delay_slot) 'execute *a pair* of instructions following a branch instruction before the branch takes effect','this instruction will execute *even if* the preceding branch is taken','typical for *assemblers* to *automatically reorder* instructions', so it is just to make ‘the *pipeline* must be full of instructions at all times’，‘Each cycle where a *stall* is inserted is considered one branch delay slot’
-    - notice: the main purpose of [`delay slot`](https://stackoverflow.com/questions/15375084/what-is-the-point-of-delay-slots) is not to add stall which doesn't has any influence to pipeline performance. Instead, as the book say, it is to **`reorder`**.
+    - notice: the main purpose of [delay slot](https://stackoverflow.com/questions/15375084/what-is-the-point-of-delay-slots) is not to add stall which doesn't has any influence to pipeline performance. Instead, as the book say, it is to **`reorder`**.
       - 'instead of execute, empty, empty, execute'
     - [example](http://web.cecs.pdx.edu/~zeshan/ece586_lec12_1.pdf)
   - CODv5 p316 <a id="Elaboration274"></a>
@@ -4766,7 +4766,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - logic is [2-state](https://www.verilogpro.com/verilog-reg-verilog-wire-systemverilog-logic/)
       - `sum_t'(a + b)` : `sum_t` is bit-width. 
       - carry out 'Using a prefix like unused_' (here `unused_` is used to store carry out bit).
-    - [`.*`](https://stackoverflow.com/questions/58436253/in-systemverilog-what-does-mean)
+    - [.*](https://stackoverflow.com/questions/58436253/in-systemverilog-what-does-mean)
     - TODO: 'formal analysis/model checking,...','rather than using *two mechanisms* to achieve the same effect', why '4'b000?,'-> 'STATUS_ERROR', ~~(a+b) meaning in 'sum_t'(a + b)',~~ 'particularly with multipliers','generate an optimised adder implementation for the given set','*complexity* of a block','unnamed scope'，'Avoid logic in module instantiations.' vs 'named signals','the extension of operands as inputs to binary operations'
     - wave viewer: 'common prefixes for related signals, *sorting*'
     - coding [tips p25('– Ignoring “unoptimizable” warnings can drop performance by 2x'),32,35(TODO graph Optimizations)](https://www.veripool.org/papers/verilator_philips_internals.pdf)
@@ -5493,7 +5493,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - Then UJ to be similar to U and B, 'inst[19:12]', 'inst[30:25]' and 'inst[31]' has been put in the slots and based on [‘immediate bit 1’](https://stackoverflow.com/questions/39427092/risc-v-immediate-encoding-variants), bit 24-21 also are put. (TODO )
 - [why](https://stackoverflow.com/questions/62807066/riscv32-vs-riscv64) RV64I
 - why [pc+4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) because instruction length
-- TODO here [`jalr`](https://stackoverflow.com/questions/53036468/what-is-the-definition-of-jal-in-risc-v-and-how-does-one-use-it) maybe just indirect, not return always
+- TODO here [jalr](https://stackoverflow.com/questions/53036468/what-is-the-definition-of-jal-in-risc-v-and-how-does-one-use-it) maybe just indirect, not return always
 #### [registers](https://en.wikichip.org/wiki/risc-v/registers),see this more [specific](https://msyksphinz-self.github.io/riscv-isadoc/html/regs.html) which is from manual chapter 25
 - [global](https://five-embeddev.com/quickref/global_pointer.html) pointer function like base pointer related with 'Global variables'
 - [thread pointer](https://www.indes.com/embedded/en/news/2020/12/450_Code_size__Closing_the_gap_between_RISC-V_and_Arm_for_embedded_applications/) (see link 'second global base','the model for the thread pointer') only used in 'thread-local' (thread [share](https://stackoverflow.com/questions/1762418/what-resources-are-shared-between-threads) (also see csapp)) 
@@ -5501,7 +5501,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - pdf link [1](https://escholarship.org/uc/item/7zj0b3m7#page=59) or [2](https://news.ycombinator.com/item?id=19165301)
 - here [saved](https://stackoverflow.com/questions/64545005/which-registers-are-saved-and-not-saved-in-risc-v) (similar to x86-64 design) is related with **callee**
 #### manual interpretation
-- p21 jalr still use multiple of 2 bytes by [`&∼1`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jalr), 
+- p21 jalr still use multiple of 2 bytes by [&∼1](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jalr), 
   - `r` means register.
   - 'error checking' because of dropping the least-significant bit which will jump to one non-instruction location.
   - 'the lowest 2 KiB or highest 2 KiB' -> -2^11 byte ~ 2^11-1 byte = -2KiB(2^10 bytes) ...
@@ -5539,7 +5539,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - Macro-operation fusion [vs](https://stackoverflow.com/questions/56413517/what-is-instruction-fusion-in-contemporary-x86-processors#comment99423928_56413517) Micro-operation fusion
     - here based on angle [doc p109](../references/microarchitecture.pdf), 'multiple' should be 'two' and Micro-op is just 'read/write' action,etc while [Macro-op](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro-operations%20are%20a%20fixed-length,%2C%20modify%2C%20and%20write%20operation) is instruction
     - [TODO](https://easyperf.net/blog/2018/02/15/MicroFusion-in-Intel-CPUs)
-- Macro-Operation Fusion example [`cmpjne`](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Instruction_Queue_.26_MOP-Fusion) (notice: this instruction is not available in ISA set)
+- Macro-Operation Fusion example [cmpjne](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Instruction_Queue_.26_MOP-Fusion) (notice: this instruction is not available in ISA set)
   - here `50` in 'duplicated over for each thread (i.e. 50 total entries)' is mainly because that Broadwell has 2 threads all
 - [better](https://community.intel.com/t5/Software-Tuning-Performance/Macro-fusion-merges-two-instructions-into-a-single-micro-op/m-p/1139693#M6608) to read [Agner‘s microarchitecture doc](../references/Agner/microarchitecture.pdf) '8.9 Execution units' and '8.5，4'
   - [branch hint](https://stackoverflow.com/questions/14332848/intel-x86-0x2e-0x3e-prefix-branch-prediction-actually-used) not used now.
@@ -5664,7 +5664,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - also [see](https://projectacrn.github.io/latest/developer-guides/hld/hv-memmgt.html) where [EPT](https://en.wikipedia.org/wiki/Second_Level_Address_Translation#Extended_Page_Tables) is SLAT (guset and host: two level)
     - p2
       - With linux, it [doesn't offer](https://forums.sifive.com/t/tlb-miss-and-page-table-fault-handling/2618) 'interrupt handler to ”walk” the page table' where SBI means 'Supervisor Binary Interface' in risc-v.
-        - [`grub`](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders#GNU_GRUB) use 'Two-Stage' because by convention ['the last word of the sector must contain the signature 0xAA55'](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders) ([Single Stage](https://wiki.osdev.org/Bootloader#Single_Stage_Bootloader) is small)
+        - [grub](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders#GNU_GRUB) use 'Two-Stage' because by convention ['the last word of the sector must contain the signature 0xAA55'](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders) ([Single Stage](https://wiki.osdev.org/Bootloader#Single_Stage_Bootloader) is small)
       - TODO [check with `opcontrol` perf tool][TLBs_and_costs] self machine TLB
       - from [this where *hardware* 'the state machine handles a TLB miss'](https://dl.acm.org/doi/pdf/10.1145/291069.291065) 'the reorder buffer need not be flushed'
       - nTLB (skip nested table,see appendix p25) (the following link p2 'caching the full 2D translation') see amd doc p1005 and [also](https://pages.cs.wisc.edu/~remzi/Classes/838/Spring2013/Papers/p26-bhargava.pdf)
@@ -5995,7 +5995,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   - 'This is where oprofile is currently *hard* to use' because it use something not general like `DTLB_MISSES`.
   - 'Oprofile performs *stochastic* profiling' (maybe not very stochastic...) 'Only every Nth event'.
   - 'corresponds to the *actual* hardware'. So *can't simulate* like cachegrind.
-  - [`__builtin_expect`](https://stackoverflow.com/questions/7346929/what-is-the-advantage-of-gccs-builtin-expect-in-if-else-statements) just use *prefetch* and branch prediction. Then L1i cache miss should be decreased at least because of fetching less instructions.
+  - [__builtin_expect](https://stackoverflow.com/questions/7346929/what-is-the-advantage-of-gccs-builtin-expect-in-if-else-statements) just use *prefetch* and branch prediction. Then L1i cache miss should be decreased at least because of fetching less instructions.
   - should use `perf` over `oprofile` by this [Q&A](https://stackoverflow.com/questions/8126311/how-much-of-what-every-programmer-should-know-about-memory-is-still-valid)
 - [pfmon](https://sourceforge.net/p/perfmon2/libpfm4/ci/master/tree/) ([same](https://askubuntu.com/questions/637144/how-to-install-perfmon2-on-ubuntu)) is one lib instead of one software to use like cachegrind, also for [papi](https://aur.archlinux.org/packages/papi) (see [example](https://stackoverflow.com/questions/54638486/counting-l1-cache-misses-with-papi-read-counters-gives-unexpected-results))
   - TODO use [pfmon software](https://www.cse.iitd.ac.in/~rkpal/pfmon.html)
@@ -6086,7 +6086,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 
 ## perf
 ### commands
-- see this [perf_cache_misses]. Here not use [`--call-graph dwarf`](https://stackoverflow.com/questions/59307540/profiling-my-program-with-linux-perf-and-different-call-graph-modes-gives-differ) beacuse it generate much bigger file.
+- see this [perf_cache_misses]. Here not use [--call-graph dwarf](https://stackoverflow.com/questions/59307540/profiling-my-program-with-linux-perf-and-different-call-graph-modes-gives-differ) beacuse it generate much bigger file.
   ```bash
   $ cd;perf record -g -e L1-dcache-load-misses:u\
   ,L1-dcache-loads:u,L1-dcache-prefetches:u\
@@ -6141,7 +6141,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   ```
   The above Q&A may be duplicate of [this](https://stackoverflow.com/questions/73032552/cache-miss-even-if-both-operands-are-registers)
   - it may be due to [event skid](https://stackoverflow.com/a/70026620/21294350). Or see [this branch example](https://easyperf.net/blog/2018/08/29/Understanding-performance-events-skid). So above should be miss at **jump** instruction instead of before jump.
-    - no `pp` modifier listed in `man perf-list` available because [`PEBS`](https://easyperf.net/blog/2018/06/08/Advanced-profiling-topics-PEBS-and-LBR). Also see from [source code](https://elixir.bootlin.com/linux/v5.6.14/source/tools/perf/pmu-events/arch/x86/skylakex/cache.json#L630) referenced [here](https://stackoverflow.com/a/62059796/21294350).
+    - no `pp` modifier listed in `man perf-list` available because [PEBS](https://easyperf.net/blog/2018/06/08/Advanced-profiling-topics-PEBS-and-LBR). Also see from [source code](https://elixir.bootlin.com/linux/v5.6.14/source/tools/perf/pmu-events/arch/x86/skylakex/cache.json#L630) referenced [here](https://stackoverflow.com/a/62059796/21294350).
     - maybe also due to [link_1 **fuesd** instruction](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction) (can also be seen from [the comment](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74631685_43794510)) where it also says to use cachegrind to get a [scartch](https://stackoverflow.com/questions/43794510/linux-perf-reporting-cache-misses-for-unexpected-instruction#comment74630635_43794510). From Link_2 , it may be also due to ['the instruction that was waiting for it'][perf_delay] (TODO how [Meltdown](https://meltdownattack.com/) which is [CVE-2017-5754](https://www.cvedetails.com/cve/CVE-2017-5754/) get memory data and whether LSD means [this](https://stackoverflow.com/questions/52054585/can-the-lsd-issue-uops-from-the-next-iteration-of-the-detected-loop)).
       - Above two links are in ['Other related ...'](https://stackoverflow.com/questions/69351189/how-does-perf-record-or-other-profilers-pick-which-instruction-to-count-as-cos) where the third also said from OoO and pipeline view.
   - related with above Q&A, `lbr` also not available on amd.
@@ -6211,7 +6211,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - view `perf list` to select events.
   - `breakdown` [meaning](https://interviewnoodle.com/cache-problems-cache-penetration-cache-breakdown-cache-avalanche-9b866483e2b7) (Better see its reference which has more **explicit** examples shown): 1. `penetration` ~~can be seem as fetching from disk~~ is one type of attack by using `non-existence data to frequently attack the application` and caused sequential cache miss because 'it will not be written to the cache'. 2. `breakdown` is similar to fetch from mem. 3. `Avalanche` is just too many requests ("multiple hot keys fail at the same time"). Here they are meaningful requests. Think of e-commerce Platform requests at the shopping festival.
   - [L1 prefetcher](http://iccd.et.tudelft.nl/Proceedings/2007/Papers/5.1.4.pdf) and L2 meaning. It is to 'prevent cache pollution' and store to later put them in corresponding cache (L1 prefetcher -> L1 cache).
-    - So [PPR_17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [`Core`](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
+    - So [PPR_17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [Core](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
   - `l2_request_g1.cacheable_ic_read` related PMCx060 and PMCx061 are ~~not~~ related with L1 miss. ~~So ignore them.~~ Only use `l2_request_g2.ic_rd_sized(_nc)` to test whether avx fetch *sized* data *cacheline*.
     - also see [uprof_doc] p38 for **metric group**.
   - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds:
@@ -6251,7 +6251,7 @@ record list
 ---
 
 - use this python script [perf_post_py_script] or 
-  `awk` by `awk 'FNR >= 12 || FNR <=41 {for(i=22;i<=42;i++) $i=""; print $0}' ~/perf_log/almost_all_cache.log.report | less` (this will make the output format change by make all delimiters ' '. How to select [row and column](https://stackoverflow.com/questions/1506521/select-row-and-element-in-awk)). Also can try [`cut`](https://stackoverflow.com/questions/2626274/print-all-but-the-first-three-columns). `sed` may be difficult to select [column](https://stackoverflow.com/questions/59326355/how-to-get-third-column-first-row-with-sed-in-linux)
+  `awk` by `awk 'FNR >= 12 || FNR <=41 {for(i=22;i<=42;i++) $i=""; print $0}' ~/perf_log/almost_all_cache.log.report | less` (this will make the output format change by make all delimiters ' '. How to select [row and column](https://stackoverflow.com/questions/1506521/select-row-and-element-in-awk)). Also can try [cut](https://stackoverflow.com/questions/2626274/print-all-but-the-first-three-columns). `sed` may be difficult to select [column](https://stackoverflow.com/questions/59326355/how-to-get-third-column-first-row-with-sed-in-linux)
 - Better not to sample too many events at one time. It may interfere with each other (not only the value but also the [behavior](#percent_error)). Although the following example is.
 ```bash
 $ cd;perf record -g -e L1-dcache-load-misses:u\                            
@@ -6346,7 +6346,7 @@ $ perf report -i ~/perf_log/group2.log -n --group --stdio
 ```
 - Answering the above Q&A_1, from [PPR_17h_60h] p163, they are just *OR* relation in **most situations**. The unit0 probably just means **reset** state. And from [OCRR_17h] p160, it means that "Miscellaneous events covered in more detail by" in [PPR_17h_60h] "PMCx061" refers to all group1 events.
   Also note as the [PPR_17h_60h] says "result in misleading counts", sometimes if sum up, we may get not consistent result. See [#750399 post "Not sum. 0xf9:  5091787060.0 , while mask sum:  5150956350.0"](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) which can be also seen in [miscs_py_script]. 
-  From this [llvm review "doesn't really count the 6 pipes."](https://reviews.llvm.org/D94395?id=341995), the [`0xc8`](https://github.com/torvalds/linux/blob/a901a3568fd26ca9c4a82d8bc5ed5b3ed844d451/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json#L31) shown in the above #750399 post may be not accurate just as the post says.
+  From this [llvm review "doesn't really count the 6 pipes."](https://reviews.llvm.org/D94395?id=341995), the [0xc8](https://github.com/torvalds/linux/blob/a901a3568fd26ca9c4a82d8bc5ed5b3ed844d451/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json#L31) shown in the above #750399 post may be not accurate just as the post says.
 ```bash
 $ perf stat -e r0aa,r1aa sleep 1 
 
@@ -6434,7 +6434,7 @@ $ cat debug/sample_${file}.report
   - [PPR_17h_60h] p164 LS meaning see [SOG_17h] p33.
     - [PPR_17h_60h] `EX` should be the execution stage. `DE` decoder (Then will 'Dispatch Resource'), `BP` -> 'Branch Prediction' (related with `IC`(Instruction Cache), so put together)
   - [AGQ](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2) in [SOG_17h] p27. `DE` may means ['directory entry'](https://wiki.osdev.org/Paging)
-- [`Overhead`](https://perf.wiki.kernel.org/index.php/Tutorial) proportion may be not same as `Samples` proportion due to precison of 2. Use `Samples` better.
+- [Overhead](https://perf.wiki.kernel.org/index.php/Tutorial) proportion may be not same as `Samples` proportion due to precison of 2. Use `Samples` better.
 - view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
   (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
   Here `dgemm_unrolled_avx256` use multiple `ymm` register because of **small** `unroll` size which is optimized by compiler. <a id="ymm"></a>
@@ -6443,7 +6443,7 @@ $ cat debug/sample_${file}.report
 - From the close relation between L1 `L1-*` and L2 `l2_request_g1` in `perf annotate`. They may not use uncachable store buffer. So 
 ###### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
-  Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [`ymm`](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
+  Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
   Since most of `l2_request_g1` are not $0$, so it use cacheable write buffer. Then `ls_st_commit_cancel2.st_commit_cancel_wcb_full` is $0$.
   ```bash
   $ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
@@ -6827,7 +6827,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
   from [source code](https://elixir.bootlin.com/linux/v4.2/source/tools/perf/builtin-trace.c#L84), it only enables `PERF_FLAG_FD_CLOEXEC` flag.
 - [metric use](https://lwn.net/Articles/732567/)
 - get umask from the doc [PPR_17h_60h] p187, also see [linux source](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L23). So `0x10` -> 5th bit -> `CacheableIcRead`. -> 'Instruction cache reads'. <a id="umask"></a>
-- [`lstopo`](https://unix.stackexchange.com/questions/113544/interpret-the-output-of-lstopo) <a id="lstopo"></a>
+- [lstopo](https://unix.stackexchange.com/questions/113544/interpret-the-output-of-lstopo) <a id="lstopo"></a>
   - check [pci](https://stackoverflow.com/questions/25908782/in-linux-is-there-a-way-to-find-out-which-pci-card-is-plugged-into-which-pci-sl)
     - lspci output [meaning](https://www.thegeekstuff.com/2014/04/lspci-examples/) based on bus. Better view [uefi doc](https://uefi.org/specs/UEFI/2.10/14_Protocols_PCI_Bus_Support.html#server-system-with-four-pci-root-bridges)
   - [home node](https://opvizor.medium.com/vmware-vsphere-why-checking-numa-configuration-is-so-important-9764c16a7e73) meaning, also [see](#local_remote_access) also see [uprof_doc] p19.
@@ -6920,7 +6920,7 @@ In file included from <built-in>:1:
 # need reinstall headers to repair.
 
 ```
-  - bcc source compilation needs [`flex`](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison][aquamentus_flex_bison] (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
+  - bcc source compilation needs [flex](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison][aquamentus_flex_bison] (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
     flex [only support `/**/`](https://www.cs.virginia.edu/~cr4bd/flex-manual/Comments-in-the-Input.html) but not `//` C-style comments at the file **begin location**.
     [skenz][skenz_flex_bison]
     - flex is just based **regex**, see [skenz_flex_bison] first example and this [concrete repo](https://github.com/czg-sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
@@ -7033,7 +7033,7 @@ Module = "intel_rapl_msr"
 ### `AMDuProfPcm`
 - 
 # awk miscs
-Develop the habit of [`#! /bin/awk -f`](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
+Develop the habit of [#! /bin/awk -f](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
 Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
 - [gnu doc](https://www.gnu.org/software/gawk/manual/html_node/String-Functions.html) is similar to `info gawk`
 - see [this](https://stackoverflow.com/a/15969962/21294350) to pass parameter.
@@ -7043,12 +7043,12 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
   - [regexp type](https://stackoverflow.com/questions/46662790/how-to-check-the-type-of-an-awk-variable)
 - [concatenation](https://stackoverflow.com/questions/11534173/how-to-use-awk-variables-in-regular-expressions) of str when using regex
 - can [ignore the `-e`](https://unix.stackexchange.com/questions/46715/piping-from-grep-to-awk-not-working) to run script.
-- use pipe to pass arg with [`$0`](https://stackoverflow.com/questions/59726081/pipe-command-output-into-awk)
+- use pipe to pass arg with [$0](https://stackoverflow.com/questions/59726081/pipe-command-output-into-awk)
 - `-v`: as doc says, it should be only used in `BEGIN` to **init**. This may be not convenient to *directly* use it in main loop. But it is more explicit and more understandable from how codes should be written.
   - reading for different files [different parameters](https://unix.stackexchange.com/questions/503047/writing-an-awk-script-that-reads-variable-from-command-line)
   - more [ways](https://unix.stackexchange.com/questions/496869/how-to-assign-value-at-run-time-in-awk-command) related with bash
 - `nawk` is [not same](https://www.gnu.org/software/gawk/manual/html_node/Scanning-an-Array.html) as `gawk`.
-- [`SYMTAB`](https://unix.stackexchange.com/questions/549540/awk-how-to-use-a-variable-as-part-another-variables-name) like `ARGV`
+- [SYMTAB](https://unix.stackexchange.com/questions/549540/awk-how-to-use-a-variable-as-part-another-variables-name) like `ARGV`
 - `-o` to [stdout](https://stackoverflow.com/questions/55745956/is-it-possible-to-pretty-print-awks-code)
 - [different subs](https://opensource.com/article/19/11/how-regular-expressions-awk): `sub` -> first; `gsub` -> global (all); `gensub` select *group*.
 - better use `print > ` [instead of `>` in command (also see the 2rd answer)](https://stackoverflow.com/a/14660111/21294350) 
@@ -7082,8 +7082,68 @@ $ git rev-parse HEAD
 93a5a9c9497b26121cc0e21deb35793229d262d3 # this commit has changed `snazzle.tab.c` and `lex.yy.c` which are used in debug.
 $ cp ~/.gdbinit ~/.gdbinit.bk;cp ~/.gdbinit_py_orig.py ~/.gdbinit # pwndbg still can't use `rr` with `2f3438ddb245dfdcc8e1a65548f858966cb1011e`
 $ cd /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison # must change dir, because `FILE *myfile = fopen("a.snazzle.file", "r");` in `snazzle.y`
+$ git rev-parse HEAD
+06e04ff4fc958d5749f90fe7484688facc3bcd93
+# use `2>&1` to redirect stderr to pipe
+$ g++ -fno-omit-frame-pointer -fno-pie -no-pie -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main -g;./main 2>&1 | grep !
+# show nothing
 
+# then change to original weird code by uncommenting `ECHO;` in `lex.yy.c`
+$ cat debug.gdb
+# this where 'text' got outputed -> `printf("%s\n",test_str);` in 'snazzle.tab.c'
+br *yyparse+2068
+# catch when the 'stdout->_IO_write_end' was changed
+watch *(char*)stdout->_IO_write_end!='!'
+disable 2
+c
+enable 2
+awd stdout->_IO_write_end
+rc
+$ g++ -fno-omit-frame-pointer -fno-pie -no-pie -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main -g;rr record ./main
+/mnt/ubuntu/home/czg/csapp3e/bison_flex/bison $ rr replay # use gdb dashboard; use `rr replay -x debug.gdb` the running order is unexpected.
+>>> source ./debug.gdb
+...
+─── Stack ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[0] from 0x00007f85b887fb54 in __memcpy_avx_unaligned_erms+84 at ../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:325
+[1] from 0x00007f85b87a7e0c in _IO_new_file_xsputn+54 at fileops.c:1235
+[2] from 0x00007f85b87a7e0c in _IO_new_file_xsputn+92 at fileops.c:1196
+[3] from 0x00007f85b879c279 in __GI__IO_fwrite+201 at /usr/src/debug/glibc/glibc/libio/libioP.h:946
+[4] from 0x00000000004026e6 in yylex()+801 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.l:27
+# here snazzle.l:27 -> showed where stdout end changed.
+$ grep "27 " -r *.c -A 2
+lex.yy.c:#line 27 "snazzle.l"
+lex.yy.c-ECHO; # this is the significant location
+lex.yy.c-// ;
+--
 ```
+- the above `#line` is to [change](https://learn.microsoft.com/en-us/cpp/preprocessor/hash-line-directive-c-cpp?view=msvc-170) `__LINE__` etc macro
+- how to debug the above codes
+  - view the correct glic [codes](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L519)
+  - above [_IO_fwrite](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwrite.c#L35-L36) mainly `written = _IO_sputn (fp, (const char *) buf, request);`
+    - [_IO_sputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L177-L178) is `#define _IO_XSPUTN(FP, DATA, N) JUMP2 (__xsputn, FP, DATA, N)` (better view the gdb stack with **debuginfod**)
+      - Or just see [**codebrowser**](https://codebrowser.dev/glibc/glibc/libio/iofwrite.c.html#39) which can expand all define (linux source codes always use `#define` to avoid too many calls).
+      - see this for detailed infos about `_IO_new_file_xsputn`
+        - So this func will **not always flush** the output. This is why `ioputs` use [_IO_putc_unlocked](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#41) then which is also said in `man 3 puts` "puts() writes the string s and a trailing newline to stdout.".
+        - here [`f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);`](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L1235-L1236) is what `man fwrite` "The file position indicator for the stream is *advanced* by the number of bytes successfully read or written." means. <a id="_IO_write_ptr"></a>
+        - real write generates when [_IO_do_write (f, f->_IO_write_base,f->_IO_write_ptr - f->_IO_write_base)](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L783-L784) with `awd stdout->_IO_write_end` to get this.
+          ```bash
+          ─── Stack ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+          [0] from 0x00007f85b87a6bea in new_do_write+170 at fileops.c:456
+          [1] from 0x00007f85b87a8859 in _IO_new_do_write+25 at fileops.c:425
+          [2] from 0x00007f85b87a8cf3 in _IO_new_file_overflow+259 at fileops.c:783
+          [3] from 0x00007f85b879d5ba in __GI__IO_puts+506 at ioputs.c:41
+          [4] from 0x0000000000401dd2 in yyparse()+2076 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
+          ```
+          normally, the `_IO_write_...` should be same. But with `fwrite` changing `_IO_write_ptr` maybe, it is [not the case](#_IO_write_ptr).
+          ```bash
+          ─── Expressions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+          stdout->_IO_write_base = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+          stdout->_IO_write_end = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+          stdout->_IO_write_ptr = 0x5f6540 "bison found a string: is\nt\n\n": 0x62
+          ```
+- [_IO_new_file_xsputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L1196)
+  - here 
+
 
 
 ---
