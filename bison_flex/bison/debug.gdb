@@ -9,3 +9,7 @@ awd stdout->_IO_write_end
 rc
 we stdout->_IO_write_ptr
 we stdout->_IO_write_base
+si
+fin
+fin
+# disable

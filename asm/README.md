@@ -6,6 +6,9 @@
 - vscode `awk IDE` can't format and keep bracket highlight with comment, 
   just use something like `gawk -f ~/dgemm_de_dis_before.awk -o${HOME}/dgemm_de_dis_p.awk;mv ${HOME}/dgemm_de_dis_p.awk ~/dgemm_de_dis.awk`.
 - use "\[`(.[^(]*)`\]" -> "[$1]" in vscode to avoid something like `[``]()` (Here rendering fails, see original markdown doc).
+## TODO
+- why [glibc](https://stackoverflow.com/questions/57650895/why-does-glibcs-strlen-need-to-be-so-complicated-to-run-quickly) defined strlen somewhat complicated. 1. at least for alignment. In ['glibc-2.37'](https://github.com/bminor/glibc/blob/glibc-2.37/string/strlen.c), it is same as the Q&A shows. but later [changed](https://github.com/bminor/glibc/commit/350d8d13661a863e6b189f02d876fa265fe71302#diff-dcfbf226df3ebab574846a48fc7f2f69d6aa1bde910adcc24065d80597691e73)
+  - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -7118,8 +7121,9 @@ lex.yy.c-// ;
 --
 ```
 - the above `#line` is to [change](https://learn.microsoft.com/en-us/cpp/preprocessor/hash-line-directive-c-cpp?view=msvc-170) `__LINE__` etc macro
+- FILE may be can be known more by reading [`man fcntl`](https://stackoverflow.com/questions/29731672/getting-the-file-mode-from-the-file-struct)
 - how to debug the above codes
-  - view the correct glic [codes](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L519)
+  - view the same version glic [codes](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L519) as [`ldd -v`](https://iq.opengenus.org/find-glibc-version/#:~:text=Method%201%3A%20Use%20ldd,-Use%20the%20following&text=The%20output%20will%20give%20the,2020%20Free%20Software%20Foundation%2C%20Inc.) used.
 ## _IO_fwrite
 - above [_IO_fwrite](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwrite.c#L35-L36) mainly `written = _IO_sputn (fp, (const char *) buf, request);`
   - [_IO_sputn](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L177-L178) is `#define _IO_XSPUTN(FP, DATA, N) JUMP2 (__xsputn, FP, DATA, N)` (better view the gdb stack with **debuginfod**)
@@ -7191,6 +7195,15 @@ stdout->_IO_write_ptr = 0x5f6545 "tr text copyed to text\n": 0x74
 stdout->_IO_read_ptr = 0x5f6540 "!texttr text copyed to text\n": 0x21
 stdout->_mode = 0xffffffff
 stdout->_IO_write_end = 0x5f6540 "!texttr text copyed to text\n": 0x21
+# view the most original write to `stdout->_IO_write_ptr` with '!'
+$
+$ rr replay
+>>> source ./debug.gdb
+─── Expressions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+stdout->_IO_write_end = 0x5f6540 "!et str text copyed to text\n": 0x21
+stdout->_IO_write_base = 0x5f6540 "!et str text copyed to text\n": 0x21
+stdout->_IO_write_ptr = 0x5f6541 "et str text copyed to text\n": 0x65
+
 ```
 
 
