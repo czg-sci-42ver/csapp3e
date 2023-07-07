@@ -1,3 +1,15 @@
+#0  __GI___libc_write (fd=0x1, buf=0x152f540, nbytes=0x6) at ../sysdeps/unix/sysv/linux/write.c:25
+#1  0x00007f0f2dc9481d in _IO_new_file_write (f=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, data=0x152f540, n=0x6) at fileops.c:1180
+#2  0x00007f0f2dc93ba4 in new_do_write (fp=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, data=0x152f540 "!text\nr text copyed to text\n", to_do=to_do@entry=0x6)
+    at /usr/src/debug/glibc/glibc/libio/libioP.h:946
+#3  0x00007f0f2dc95859 in _IO_new_do_write (fp=fp@entry=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, data=<optimized out>, to_do=0x6) at fileops.c:425
+#4  0x00007f0f2dc95cf3 in _IO_new_file_overflow (f=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, ch=0xa) at fileops.c:783
+#5  0x00007f0f2dc8a5ba in __GI__IO_puts (str=0x7ffe5e2cf530 "text") at ioputs.c:41
+#6  0x0000000000401dd2 in yyparse () at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
+#7  0x000000000040237a in main () at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:78
+
+---
+
 [0] from 0x00007f181dc22bb0 in __GI___libc_write+0 at ../sysdeps/unix/sysv/linux/write.c:25
 [1] from 0x00007f181dba781d in _IO_new_file_write+45 at fileops.c:1180
 [2] from 0x00007f181dba6ba4 in new_do_write+100 at /usr/src/debug/glibc/glibc/libio/libioP.h:946
@@ -6,6 +18,7 @@
 [5] from 0x00007f181db9d5ba in __GI__IO_puts+506 at ioputs.c:41
 [6] from 0x0000000000401d86 in yyparse()+2016 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:57
 [7] from 0x000000000040232e in main(int, char**)+102 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:78
+
 
 [0] from 0x00007f181dba9999 in __GI___overflow+73 at genops.c:203 -> _IO_new_file_overflow+0
 [1] from 0x00007f181db9d5ba in __GI__IO_puts+506 at ioputs.c:41
@@ -49,9 +62,15 @@ $3 = 0x7f181dd056a0
 
 
 #change to target rdi
+ [0] from 0x00007f0f2dc8a449 in __GI__IO_puts+137 at ioputs.c:4
+ 0x00007f0f2dc8a449  __GI__IO_puts+137 mov    rdi,QWORD PTR [r13+0x0]
    0x00007f679908a449 <+137>:   mov    rdi,QWORD PTR [r13+0x0] # after 137, rdi=0x7f67991f26a0; r13=0x408100
    # r13 unchanged
 
+  # rdi -> stdout
+    0x00007f0f2dc8a5b5  __GI__IO_puts+501 call   0x7f0f2dc96950 <__GI___overflow at genops.c:199>
+
+   Dump of assembler code for function _IO_new_file_overflow:
  0x00007f6799095bfa  _IO_new_file_overflow+10 mov    rbx,rdi
  # after running,rbx=0x7f67991f26a0;rdi=0x7f67991f26a0
 
@@ -71,3 +90,25 @@ awatch *0x01f37540
 
 use this awatch:
 *(char[28]*)(*(long*)(*(long*)(*(long*)0x7f67991f0d70)+0x20))
+################ weird problems
+1.  0x00007f0f2dc94dd2  _IO_new_file_xsputn+34 sub    rsp,0x8
+why jump to  '0x00007f0f2dc94dd6  _IO_new_file_xsputn+0  mov    eax,DWORD PTR [rbx] ' then.
+1.1 more weirdly func changed
+   0x00007f0f2dc94db1 <_IO_new_file_xsputn+1>:  0f 1e fa                nop    edx
+   0x00007f0f2dc94db4 <_IO_new_file_xsputn+4>:  31 c0                   xor    eax,eax
+   0x00007f0f2dc94db6 <_IO_new_file_xsputn+6>:  48 85 d2                test   rdx,rdx
+   0x00007f0f2dc94db9 <_IO_new_file_xsputn+9>:  0f 84 b1 00 00 00       je     0x7f0f2dc94e70 <_IO_new_file_xsputn+192 at fileops.c:1267>
+   0x00007f0f2dc94dbf <_IO_new_file_xsputn+15>: 41 57                   push   r15
+   0x00007f0f2dc94dc1 <_IO_new_file_xsputn+17>: 41 56                   push   r14
+   0x00007f0f2dc94dc3 <_IO_new_file_xsputn+19>: 41 55                   push   r13
+   0x00007f0f2dc94dc5 <_IO_new_file_xsputn+21>: 41 54                   push   r12
+   0x00007f0f2dc94dc7 <_IO_new_file_xsputn+23>: 49 89 f4                mov    r12,rsi
+   0x00007f0f2dc94dca <_IO_new_file_xsputn+26>: 55                      push   rbp
+   0x00007f0f2dc94dcb <_IO_new_file_xsputn+27>: 48 89 d5                mov    rbp,rdx
+   0x00007f0f2dc94dce <_IO_new_file_xsputn+30>: 53                      push   rbx
+   0x00007f0f2dc94dcf <_IO_new_file_xsputn+31>: 48 89 fb                mov    rbx,rdi
+=> 0x00007f0f2dc94dd2 <_IO_new_file_xsputn+34>: 48 83 ec 08             sub    rsp,0x8
+after:
+# seems to be dashboard bug; gdb show no problem.
+=> 0x00007f0f2dc94dd6 <_IO_new_file_xsputn+38>: 8b 03                   mov    eax,DWORD PTR [rbx]
+

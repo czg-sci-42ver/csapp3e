@@ -7077,7 +7077,11 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
 # cmake miscs
 - simple [overview](https://preshing.com/20170522/learn-cmakes-scripting-language-in-15-minutes/)
 # ioputs_debug
-```
+```bash
+$ git rev-parse HEAD 
+93a5a9c9497b26121cc0e21deb35793229d262d3 # this commit has changed `snazzle.tab.c` and `lex.yy.c` which are used in debug.
+$ cp ~/.gdbinit ~/.gdbinit.bk;cp ~/.gdbinit_py_orig.py ~/.gdbinit # pwndbg still can't use `rr` with `2f3438ddb245dfdcc8e1a65548f858966cb1011e`
+$ cd /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison # must change dir, because `FILE *myfile = fopen("a.snazzle.file", "r");` in `snazzle.y`
 
 ```
 
