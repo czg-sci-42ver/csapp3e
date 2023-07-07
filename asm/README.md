@@ -57,6 +57,7 @@
 - [ROP](https://tc.gts3.org/cs6265/tut/tut06-01-rop.html)
   - [endbr64](https://stackoverflow.com/questions/56905811/what-does-the-endbr64-instruction-actually-do) with `endbr64` <a id="rop"></a>
 - `pwndbg` '<>' label in 'DISASM' meaning (in doc / code)
+  can use `x` two times to get `(rip=0x401046)+0x2fc2` store one ptr `[rip+0x2fc2]`, then jmp to `addr=[rip+0x2fc2]`.
 ```bash
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
   0x401040<printf@plt>      jmp    qwordptr[rip+0x2fc2]          <printf@got[plt]>
@@ -6919,7 +6920,7 @@ In file included from <built-in>:1:
 # need reinstall headers to repair.
 
 ```
-  - bcc source compilation needs [`flex`](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison](https://aquamentus.com/flex_bison.html) (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
+  - bcc source compilation needs [`flex`](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison][aquamentus_flex_bison] (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
     flex [only support `/**/`](https://www.cs.virginia.edu/~cr4bd/flex-manual/Comments-in-the-Input.html) but not `//` C-style comments at the file **begin location**.
     [skenz][skenz_flex_bison]
     - flex is just based **regex**, see [skenz_flex_bison] first example and this [concrete repo](https://github.com/czg-sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
@@ -6995,6 +6996,14 @@ In file included from <built-in>:1:
 						YY_NEW_FILE;
 					}
         ```
+    - [aquamentus_flex_bison] on my archlinux `uname -r`->'6.4.1-arch2-1' with `gcc version 13.1.1 20230429 (GCC)` has one weird exclamation symbol output.
+      ```bash
+      $ g++ -fno-pie -no-pie -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main -g;./main
+      ...
+      !bison found a string: text
+      ...
+      ```
+      after viewing assembly codes, some strange things happened. See [here](#ioputs_debug)
 - msr with amd: 1. from [this](https://lore.kernel.org/linux-pm/20201007161439.312534-5-kim.phillips@amd.com/T/), linux developer just use `intel_rapl` with amd cpu ("especially to allow existing tools to seamlessly run on AMD"). But maybe it is not used.
 ```bash
 $ lsmod | grep msr
@@ -7067,6 +7076,11 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
 - `(FILENAME=- FNR=1) fatal: division by zero attempted` may be not use quote with the path mistakenly.
 # cmake miscs
 - simple [overview](https://preshing.com/20170522/learn-cmakes-scripting-language-in-15-minutes/)
+# ioputs_debug
+```
+
+```
+
 
 ---
 
@@ -7164,6 +7178,9 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
 [mosberger93memory]:https://www.cse.psu.edu/~buu1/teaching/spring07/598d/_assoc/CCBD250576DD4E41ABC1EC82207C66A0/mosberger93memory.pdf
 [Cache_Consistency_def]:https://en.wikipedia.org/wiki/Cache_coherence#Definition
 
+<!-- blog -->
+
+[aquamentus_flex_bison]:https://aquamentus.com/flex_bison.html
 
 [Memory_Barriers]:https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/
 [Weak_vs_Strong_Memory_Models]:https://preshing.com/20120930/weak-vs-strong-memory-models/

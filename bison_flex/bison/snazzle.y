@@ -53,7 +53,7 @@ snazzle:
       cout << "bison found a float: " << $1 << endl;
     }
   | STRING         {
-      cout << $1 << endl;
+      printf("%s\n",yyvsp[0].sval);
       cout << "bison found a string: " << $1 << endl; free($1);
     }
   ;

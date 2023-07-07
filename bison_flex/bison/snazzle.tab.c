@@ -71,6 +71,7 @@
 
   #include <cstdio>
   #include <iostream>
+  #include <string.h>
   
   using namespace std;
 
@@ -741,15 +742,16 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp,
       yy_symbol_print (stderr,
                        YY_ACCESSING_SYMBOL (+yyssp[yyi + 1 - yynrhs]),
                        &yyvsp[(yyi + 1) - (yynrhs)]);
-      // fprintf(stderr,"split to test\n");
+      fprintf(stderr,";split to test\n");
       YYFPRINTF (stderr, "\n");
     }
 }
 
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
-  if (yydebug)                          \
+  if (yydebug){                          \
     yy_reduce_print (yyssp, yyvsp, Rule); \
+    fprintf(stderr, ";split outside\n");} \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1105,7 +1107,13 @@ yyreduce:
   case 7: /* snazzle: STRING  */
 #line 55 "snazzle.y"
                    {
-      cout << (yyvsp[0].sval) << endl;
+      // cout << (yyvsp[0].sval) << "\n";
+      
+      char test_str[20] = "";
+      strcpy(test_str,yyvsp[0].sval);
+      
+      // printf("%s\n",yyvsp[0].sval);
+      printf("%s\n",test_str);
       cout << "bison found a string: " << (yyvsp[0].sval) << endl; free((yyvsp[0].sval));
     }
 #line 1109 "snazzle.tab.c"

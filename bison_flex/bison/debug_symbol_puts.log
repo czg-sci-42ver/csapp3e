@@ -1,0 +1,73 @@
+[0] from 0x00007f181dc22bb0 in __GI___libc_write+0 at ../sysdeps/unix/sysv/linux/write.c:25
+[1] from 0x00007f181dba781d in _IO_new_file_write+45 at fileops.c:1180
+[2] from 0x00007f181dba6ba4 in new_do_write+100 at /usr/src/debug/glibc/glibc/libio/libioP.h:946
+[3] from 0x00007f181dba8859 in _IO_new_do_write+25 at fileops.c:425
+[4] from 0x00007f181dba8cf3 in _IO_new_file_overflow+259 at fileops.c:783
+[5] from 0x00007f181db9d5ba in __GI__IO_puts+506 at ioputs.c:41
+[6] from 0x0000000000401d86 in yyparse()+2016 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:57
+[7] from 0x000000000040232e in main(int, char**)+102 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:78
+
+[0] from 0x00007f181dba9999 in __GI___overflow+73 at genops.c:203 -> _IO_new_file_overflow+0
+[1] from 0x00007f181db9d5ba in __GI__IO_puts+506 at ioputs.c:41
+
+
+>>> p $rsi
+$2 = 0xa
+>>> p $rdi
+$3 = 0x7f181dd056a0
+
+
+
+   # _IO_new_file_overflow
+   => 0x00007f181dba8bfa <+10>:    mov    rbx,rdi
+   ...
+   >>> x/s 0x0000000001c5f540
+	0x1c5f540:      "!texttr text copyed to text\n"
+	...
+
+   [0] from 0x00007f181dc7fb5f in __memcpy_avx_unaligned_erms+95 at ../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:334
+   # only this the last access by `awatch` but weirdly changed to '\n' between this instruction and the `__GI___libc_write+0`
+
+   0x00007f181dba8d60 <+368>:   mov    rsi,QWORD PTR [rbx+0x20]
+   ...
+  0x00007f181dba8d67 <+375>:   sub    rdx,rsi
+   0x00007f181dba8d6a <+378>:   call   0x7f181dba8840 <_IO_new_do_write at fileops.c:423>
+
+
+#####################
+ 0x0000000000401d81  yyparse()+2011 call   0x401180 <puts@plt>
+# after call [0x7f67991f0d70]:0x00408100;  same as the below
+
+0x7f67991f3940 `rdi` of puts
+
+   0x00007f679908a3d8 <+24>:    mov    r13,QWORD PTR [rip+0x166991]        # 0x7f67991f0d70 
+   # after 24, r13=0x408100;[r13]=0x00007f67991f26a0
+   # >>> x/wx 0x00408100
+
+	# 0x408100 <stdout@GLIBC_2.2.5>:  0x991f26a0
+
+
+
+#change to target rdi
+   0x00007f679908a449 <+137>:   mov    rdi,QWORD PTR [r13+0x0] # after 137, rdi=0x7f67991f26a0; r13=0x408100
+   # r13 unchanged
+
+ 0x00007f6799095bfa  _IO_new_file_overflow+10 mov    rbx,rdi
+ # after running,rbx=0x7f67991f26a0;rdi=0x7f67991f26a0
+
+
+# call _IO_new_file_overflow+254; 2rd param is target data; track $rsi
+   0x00007f6799095ce0 <_IO_new_file_overflow+240>:      48 8b 73 20             mov    rsi,QWORD PTR [rbx+0x20]
+	# after running, rsi = 0x1f37540; rbx=0x7f67991f26a0
+
+
+
+# final addr data=0x1f37540 
+
+
+0x7f67991f26a0
+
+awatch *0x01f37540
+
+use this awatch:
+*(char[28]*)(*(long*)(*(long*)(*(long*)0x7f67991f0d70)+0x20))

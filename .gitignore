@@ -80,3 +80,4 @@ debug_annotate/
 debug_block/
 debug_quotient/
 !bison_flex/
+!debug_symbol_puts.log
