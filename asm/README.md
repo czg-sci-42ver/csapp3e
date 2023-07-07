@@ -7146,6 +7146,7 @@ lex.yy.c-// ;
   - [`_IO_fwide (stdout, -1) == -1`](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#39): see `man fwide`
     - See [this](https://learn.microsoft.com/en-us/cpp/c-runtime-library/byte-and-wide-streams?view=msvc-170),"wide-character oriented" just means something like utf, "byte oriented" just means ascii.
     - notice [here link_1](https://codebrowser.dev/glibc/glibc/libio/libio.h.html#253) not use nested macro, but use [`_IO_fwide` func](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/iofwide.c#L46)
+      - better see [bootlin](https://elixir.bootlin.com/glibc/glibc-2.29/C/ident/_IO_fwide) which tells where is prototype and function, etc.
       - ~~from the link_1, ~~
       - it controls [whether `f->_IO_write_end = f->_IO_write_ptr;`](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/fileops.c#L772-L773) which is called in `_IO_new_file_overflow` (It may be not runned by some optimization. See the following) <a id="overflow"></a>
         ```bash
@@ -7172,7 +7173,24 @@ lex.yy.c-// ;
   - So above `_IO_fwrite` not flush.
 - [`(__builtin_expect (((stdout)->_IO_write_ptr >= (stdout)->_IO_write_end), 0) ? __overflow (stdout, (unsigned char) ('\n'))`](https://codebrowser.dev/glibc/glibc/libio/ioputs.c.html#41) shows why the original `ECHO` causing "`_IO_write_ptr` > `_IO_write_end`" will cause output *more* than the input parameter of `puts`(here `__overflow` will call [`_IO_new_file_overflow`](#overflow)).
 ```bash
+$ git rev-parse HEAD
+27aeba06225cc5e6b8ac730dae666386d2948121
+$ rr replay
+>>> source ./debug_puts_no_dive_in.gdb
+...
+stdout->_IO_write_ptr = 0x5f6541 "et str text copyed to text\n": 0x65
+stdout->_IO_write_end = 0x5f6540 "!et str text copyed to text\n": 0x21
 
+$ rr replay
+>>> source ./debug_puts.gdb
+─── Expressions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+stdout->_IO_buf_end = 0x5f6940 "": 0x0
+stdout->_flags = 0xfbad2a84
+stdout->_IO_write_base = 0x5f6540 "!texttr text copyed to text\n": 0x21
+stdout->_IO_write_ptr = 0x5f6545 "tr text copyed to text\n": 0x74
+stdout->_IO_read_ptr = 0x5f6540 "!texttr text copyed to text\n": 0x21
+stdout->_mode = 0xffffffff
+stdout->_IO_write_end = 0x5f6540 "!texttr text copyed to text\n": 0x21
 ```
 
 
