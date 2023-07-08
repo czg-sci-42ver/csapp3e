@@ -12,6 +12,11 @@ cd;perf record -g --call-graph fp -e ${events}\
 mv perf.data ~/perf_log/${file}.log;\
 perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report;\
 python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${file}.report -o ${dir}/debug/sample_num_${file}.report -n ${events_num}
+
+2. better view https://python-reference.readthedocs.io/en/latest/docs/tuple/ for tuple or dict etc manipulation 
+which may not well documented at official web https://docs.python.org/3/tutorial/datastructures.html
+and this https://docs.python.org/3/c-api/tuple.html contains ABI which may be good for developing packages 
+but not good for daily usage. 
 """
 
 from typing import Final

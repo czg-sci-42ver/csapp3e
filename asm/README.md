@@ -6,6 +6,7 @@
 - vscode `awk IDE` can't format and keep bracket highlight with comment, 
   just use something like `gawk -f ~/dgemm_de_dis_before.awk -o${HOME}/dgemm_de_dis_p.awk;mv ${HOME}/dgemm_de_dis_p.awk ~/dgemm_de_dis.awk`.
 - use "\[`(.[^(]*)`\]" -> "[$1]" in vscode to avoid something like `[``]()` (Here rendering fails, see original markdown doc).
+- [bash pitfalls](https://mywiki.wooledge.org/BashPitfalls) from [this](https://stackoverflow.com/a/52901093/21294350)
 ## TODO
 - why [glibc](https://stackoverflow.com/questions/57650895/why-does-glibcs-strlen-need-to-be-so-complicated-to-run-quickly) defined strlen somewhat complicated. 1. at least for alignment. In ['glibc-2.37'](https://github.com/bminor/glibc/blob/glibc-2.37/string/strlen.c), it is same as the Q&A shows. but later [changed](https://github.com/bminor/glibc/commit/350d8d13661a863e6b189f02d876fa265fe71302#diff-dcfbf226df3ebab574846a48fc7f2f69d6aa1bde910adcc24065d80597691e73)
   - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
@@ -6579,6 +6580,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 ```
 - `ls_rd_blk_c` is just ``
 ###### `de_dis_uops_from_decoder`
+DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf) TODO p14 32B->32bit/[bytes](https://stackoverflow.com/questions/5983389/how-to-align-stack-at-32-byte-boundary-in-gcc)(both align to 32bit but not 32 bytes)?
 - there seems no related doc about 17h 60h model opcache implementation by "AMD doc "OpCache" site:amd.com". 
   [zen2 ~~implementation~~ opcache performance](https://chipsandcheese.com/2021/07/03/how-zen-2s-op-cache-affects-performance/) (TODO 'the Twitterverse',)
 - [opcache Q&A][opcache] in intel, **amd** seems to not have many people knowing it.
@@ -6771,11 +6773,11 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
           func dgemm_unrolled_avx256: 906, 461, 1.96529
           func dgemm_blocked_avx256: 858, 722, 1.18837
         ```
-        1- With respect to `dgemm_blocked_avx256`:
+        - With respect to `dgemm_blocked_avx256`:
         from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
         So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
 
-        1. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed. So the hot path is 3-level loop instead of 1-level loop (i.e. the most inner loop). See intel [vtune](http://portal.nacad.ufrj.br/online/intel/vtune2017/help/GUID-143D1B76-D97F-454F-9B4B-91F2D791B66D.html) (more elegant [official](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html))
+        - Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed. So the hot path is 3-level loop instead of 1-level loop (i.e. the most inner loop). See intel [vtune](http://portal.nacad.ufrj.br/online/intel/vtune2017/help/GUID-143D1B76-D97F-454F-9B4B-91F2D791B66D.html) (more elegant [official][vtune_online]) <a id="4-level"></a>
           Then reread the [opcache], based on the above "run each nested loop once" and "caches uops that get decoded along the path of (speculative) execution" in the link, the speculative execution is probably not reused, although they are all not taken, but their tags are different.
           
           Moreover, if with more threads, it maybe can be worse. See the [figure](../debug/no_prefetch_l2_opcache.svg). But sometimes not.
@@ -6792,15 +6794,22 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
           $ git rev-parse HEAD
           7b1ff8da81e6bb59d69c60558e43326b04712d99
           $ env OMP_PLACES="{0:3}" ./debug_block.sh # this may be similar to above.
+             # https://stackoverflow.com/questions/10856129/setting-an-environment-variable-before-a-command-in-bash-is-not-working-for-the
+          $ OMP_PLACES="{0:3}" eval 'echo ${OMP_PLACES};. /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh'
           $ env OMP_PLACES="{0:4}" ./debug_block.sh # this will make `dgemm_openmp_256` higher than `dgemm_blocked_avx256`
           ```
 
           TODO check 'div use up a whole way of the uop cache' influence in [opcache]
 
           Maybe have one *extra buffer for opcache* between it and the decoder 'IDK if there's some kind of buffering for non-branching uop fetch.'. The above buffer is "merge buffer" in "uop cache into some merge buffer.".
-        2. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
+          - Also see intel vtune doc.
+            From [this](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html#id-d33822e1302), [MS "microcode to implement ones that take **multiple** clock cycles to complete." ](https://en.wikipedia.org/wiki/Microsequencer#:~:text=In%20computer%20architecture%20and%20engineering,alone%20generator%20for%20address%20ranges.) switch may cause more overhead then DSB and MITE (i.e. the above `de_dis_uops_from_decoder` events)
+            - microcode are *mostly* stored in [ROM](https://en.wikipedia.org/wiki/Microcode#Micro-operations). 
+            - TODO: code *restrictions* for caching in the DSB
+            - ["when two *reads map to the same bank*, we have a bank conflict."](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=5ed3fe8b0f9332b03f4e61ea5f7a25a406c08ccb#:~:text=Thus%2C%20caches%20in%20processors%20are,we%20have%20a%20bank%20conflict.) -> so influence bandwidth because not all data transmit lines related with banks are used.
+        2. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with *each counter*. Then it may be not easy to give one *accurate* explanation to why the above decoder and opcache data show as they are.
 
-        However, the speed is not same as the above trend (which is almost monotonically increasing). So maybe we can just ignore these two metrics.
+        However, the **speed** is not same as the above trend (which is almost monotonically increasing). So maybe we can just ignore these two metrics.
         Maybe above only running 4-level loop once in each call decrease the loop dependency in some way and **no need to predict** the branch. So it is faster although the opcache is always refreshed. 
         ```bash
         # after running dgemm
@@ -6833,6 +6842,41 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1
         ...
         - in this blog about zen2, Mop can be guessed to be something like m(a/i)cro cache. It should be explicitly be [macro ops](https://community.arm.com/support-forums/f/architectures-and-processors-forum/48877/mops-macro-ops-uops-micro-ops)
+      - based on [intel_SOM] which is referenced in [vtune_online]
+        - p103 
+          - "less than about 750 instructions" explains [this](#4-level)
+          - "Decoded ICache *residency*" means whether [invalidate it](https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-430.html). It is related with hyper-threading because hyper-threading will change the context and may change virtual memory map which is related with CR3
+            - Adaptive Mode: just not "competitively shared" (i.e. which may cause invalidation) when CR3 and [paging mode (similar riscv hugepage)](https://en.wikipedia.org/wiki/Intel_5-level_paging) are unchanged.
+            - loop-fission is just the opposite of loop-unrolling. The former is to [achieve better utilization of *locality* of reference](https://en.wikipedia.org/wiki/Loop_fission_and_fusion) while the latter is to avoid too frequent branching.
+            - "to about 1500 instructions." implies one opcache per core if two threads per core (this is the normal case). 
+            - ~~"among two different 32-byte chunks"~~ "adding multiple byte NOPs" is used in the above codes
+              ```bash
+              $ git rev-parse HEAD                                                                                 
+              634c69e2bb639ded35537635811024381aa7babc
+              $ less -R /mnt/ubuntu/home/czg/csapp3e/debug/debug_annotate/no_prefetch_l2_opcache_10_annotated.report
+                  #  in dgemm_basic_blocked
+              4450:   test   edi,edi
+              ...
+              44cd:   nop    DWORD PTR [rax]
+              44d0:   mov    edi,DWORD PTR [rbp-0x3c]
+              $ ipython -c "0x44d0/32-0x4450/32"
+              Out[1]: 4.0
+              ```
+              - 'Align the code' is also probably done by adding nop. See:
+                ```bash
+                $ gcc no_align.c -o no_align.o
+                $ d2c "objdump -d no_align.o" "objdump -d align.o" | diffr
+                +    1139:      0f 1f 80 00 00 00 00    nopl   0x0(%rax)
+                ...
+                +    1194:      66 66 2e 0f 1f 84 00    data16 cs nopw 0x0(%rax,%rax,1)
+                +    119b:      00 00 00 00 
+                +    119f:      90                      nop
+                +
+                +00000000000011a0 <add5>:
+                +    11a0:      55                      push   %rbp
+                $ ipython -c "0x11a0/16"
+                Out[1]: 282.0
+                ```
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
@@ -7113,7 +7157,7 @@ $ /opt/amduprof/bin/AMDPerf/AMDuProfSys.py collect --config l3 -a sleep 5
 Unable to open file  /opt/amduprof/bin/AMDPerf/data/0x17_0x6/configs/l3/l3_config.yaml # view the python script, it just means not supported.
 ```
 # awk miscs
-Develop the habit of [#! /bin/awk -f](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
+Develop the habit of [#! /bin/awk -f](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html) which is [shebang](https://stackoverflow.com/a/50144357/21294350)
 Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
 - [gnu doc](https://www.gnu.org/software/gawk/manual/html_node/String-Functions.html) is similar to `info gawk`
 - see [this](https://stackoverflow.com/a/15969962/21294350) to pass parameter.
@@ -7494,3 +7538,9 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
 
 [skenz_flex_bison]:https://www.skenz.it/compilers/flex_bison
+
+<!-- webdoc -->
+[vtune_online]:https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html
+
+<!-- manual -->
+[intel_SOM]:../references/x64_ISA_manual_intel/intel_Software-Optimization-Manual.pdf
