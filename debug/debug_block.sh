@@ -1,4 +1,3 @@
-#! /bin/bash
 ############### not use `#...` inside the awk command !!!!
 
 # at least in zsh, `ls ./////` function same as `ls ./`
@@ -61,4 +60,9 @@ ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report\
 ;echo "current BLOCK_DENOMINATOR: " ${BLOCK_DENOMINATOR}\
 ;done \
 ;echo "finish the nest loop"\
+;cd ${dir}/debug/${sub_dir}/${quotient_dir}/\
+;${dir}/debug/compare_rate_draw.py \
+-i sample_num_${file}_quotient.report \
+-o ../../${file}.svg ${file}.log \
+-l "dgemm_blocked_avx256,dgemm_openmp_256" \
 ;done

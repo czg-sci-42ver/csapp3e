@@ -76,8 +76,6 @@ class miscs:
 ignore_events: [start_1,end_1,start_2,end_2,...]
 """
 ONLY_KEEP_START_NUM = True
-if ONLY_KEEP_START_NUM:
-    print("enable ONLY_KEEP_START_NUM")
 
 DEBUG_DICT = {"show_skip": False,
               "show_no_change": False, "show_after_change": False}
@@ -184,6 +182,8 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         sys.exit("need params, use `-h` to view usage")
     else:
+        if ONLY_KEEP_START_NUM:
+            print("enable ONLY_KEEP_START_NUM")
         (INPUT_FILE, OUTPUT_FILE, REMOVE_START_PARENT, REMOVE_END_PARENT,
          REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT) = miscs.parse_arg(argv=sys.argv[1:])
         target_inc = 5

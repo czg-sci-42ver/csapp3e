@@ -83,3 +83,4 @@ debug_quotient/
 !debug_symbol_puts.log
 main
 *.output
+!*.svg
