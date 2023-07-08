@@ -5976,7 +5976,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   L1i       32K     256K    8 Instruction     1   64        1             64
   L2       512K       4M    8 Unified         2 1024        1             64
   L3         4M       8M   16 Unified         3 4096        1             64
-  $ for i in $(ls /sys/devices/system/cpu/cpu0/cache/index0);do echo $i;cat /sys/devices/system/cpu/cpu0/cache/index0/$i;echo -e '';done # view by file https://stackoverflow.com/questions/1922249/c-cache-aware-programming
+  $ for i in $(ls /sys/devices/system/cpu/cpu0/cache/index0);do echo $i;cat /sys/devices/system/cpu/cpu0/cache/index0/$i;echo -e '';done # view by file https://stackoverflow.com/questions/1922249/c-cache-aware-programming ;  Or see https://unix.stackexchange.com/a/419672/568529
   $ python
   >>> 64*8*64/2**10 # L1
   32.0 # implies 64 byte cache block
@@ -6032,7 +6032,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - My cpu L2 cache is inclusive
   - here L3 isn't inclusive but to be 'populated by L2 *victims*'. '**shadow tags**' stores 'state information' of L2 cache which includes MOESI related 'coherency state' and *allocation* property related with victim and invalidation. Although [intel](https://stackoverflow.com/questions/57702498/the-way-to-get-cache-placement-policy-of-cpu-on-linux) L3 is inclusive.
     - shadow tags:
-      - also see [zen2_wikichip](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2). The shadow tags also function between CCXs by 'exclusive to this CCX' and 'CCXs are not directly connected'.
+      - also see [zen2_wikichip][zen_2]. The shadow tags also function between CCXs by 'exclusive to this CCX' and 'CCXs are not directly connected'.
       - Better see this [patent][shared_tag_patent].
       - not totally same as [shadow memory](https://electronics.stackexchange.com/questions/240248/cache-memory-vs-shadow-ram) beacuse it adds some infos like 'state' and 'allocation property'.
       - also see this [slide](https://my.eng.utah.edu/~cs7810/pres/14-7810-12.pdf) 
@@ -6040,7 +6040,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
         - p4 die layout.
       - ~~TODO~~ no relation with [Shadow memory](https://en.wikipedia.org/wiki/Shadow_memory) better see valgrind [paper][shadow_memory].
 ## perf doc use [epyc 7713](https://en.wikichip.org/wiki/amd/cores/milan) which should share the same model `0x01` in one location of [19h](https://en.wikichip.org/wiki/amd/cpuid#Family_25_.2819h.29) just as [renoir](https://en.wikichip.org/wiki/amd/cores/renoir) including 4800h does in [17h](https://en.wikichip.org/wiki/amd/cpuid#Family_23_.2817h.29) 
-- TODO [QoS Monitoring and Enforcement](https://www.amd.com/system/files/TechDocs/56375_1.03_PUB.pdf) in [L3 cache](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2)
+- TODO [QoS Monitoring and Enforcement](https://www.amd.com/system/files/TechDocs/56375_1.03_PUB.pdf) in [L3 cache][zen_2]
 - ~~recommend read [perf](https://man7.org/linux/man-pages/man1/perf-list.1.html) online in man7 which is newer than archlinux `man-db`.~~ `man perf-list`
   - It offers this valuable amd doc repo in [bugzilla](https://bugzilla.kernel.org/show_bug.cgi?id=206537) :-)
   - ~~TODO ~~ the man said `If ... 28FH     03H` while the [19h_01h_vol_1] p217 ~~has no umask shows. And where is ''~~
@@ -6438,7 +6438,7 @@ $ cat debug/sample_${file}.report
     - Since it is **loaded together** (So `dgemm_basic_blocked` still has `change_to_x`), it may less possible to cause hash conflict.
   - [PPR_17h_60h] p164 LS meaning see [SOG_17h] p33.
     - [PPR_17h_60h] `EX` should be the execution stage. `DE` decoder (Then will 'Dispatch Resource'), `BP` -> 'Branch Prediction' (related with `IC`(Instruction Cache), so put together)
-  - [AGQ](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2) in [SOG_17h] p27. `DE` may means ['directory entry'](https://wiki.osdev.org/Paging)
+  - [AGQ][zen_2] in [SOG_17h] p27. `DE` may means ['directory entry'](https://wiki.osdev.org/Paging)
 - [Overhead](https://perf.wiki.kernel.org/index.php/Tutorial) proportion may be not same as `Samples` proportion due to precison of 2. Use `Samples` better.
 - view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
   (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
@@ -6742,8 +6742,8 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         - p12 at a taken branch target. -> 310b. And "at the last byte of a taken branch instruction." -> 310b and 310d.
         - Here **cacheline** storage is continuous but opcache is not. It may have unused "the op storage remaining empty.".
           - This may can explain the above weird `dgemm_blocked_avx256` behavior because it has 
-        - p13 "OC Microtag " is to **predict**. which is also said in [zen_2] "predict the way where the instruction block".
-          But [zen_2] says "Bypassing the clock-gated fetch and **decode** units" while [opcache_patent] says "the OC data array is read and **decoded**". (Wrong)
+        - p13 "OC Microtag " is to **predict**. which is also said in [zen_2_Memory_Hierarchy] "predict the way where the instruction block".
+          But [zen_2_Memory_Hierarchy] says "Bypassing the clock-gated fetch and **decode** units" while [opcache_patent] says "the OC data array is read and **decoded**". (Wrong)
             the latter says decode OC entry and get op,imme,uop,etc. But not decode the instruction.
       - tested with correction from `UNROLL * 8` to `UNROLL * 4`
         changing `BLOCK_DENOMINATOR`:
@@ -6777,8 +6777,18 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 
         2. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed.
           Then reread the [opcache], based on the above "run each nested loop once" and "caches uops that get decoded along the path of (speculative) execution" in the link, the speculative execution is probably not reused, although they are all not taken, but their tags are different.
-          Moreover, if with more threads, it can be worse.
-
+          
+          Moreover, if with more threads, it maybe can be worse. See the [figure](../debug/no_prefetch_l2_opcache.svg). But sometimes not.
+          ```bash
+          $ git rev-parse HEAD                                                                                
+          375452b9ef5f84af09159e307597adc45f745d1e
+          $ ./debug_block.sh
+          ```
+          Notice: from [this](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Individual_Core) opcache should be separately contained in the core same as L1 cache. Also [see](https://www.anandtech.com/show/10578/amd-zen-microarchitecture-dual-schedulers-micro-op-cache-memory-hierarchy-revealed) and [this where also says "don't think AMD/Intel generally disclose the size of uOps"](https://www.reddit.com/r/hardware/comments/12smvw9/comment/jh6918m/?utm_source=share&utm_medium=web2x&context=3) 
+          ```bash
+          $ export OMP_PLACES="{0,1}"
+          $ ./debug_block.sh # this will 
+          ```
         3. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
 
         However, the speed is not same as the above trend (which is almost monotonically increasing). So maybe we can just ignore these two metrics.
@@ -7454,7 +7464,8 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [shared_tag_patent]:../references/AMD/shared_tag.pdf
 <!-- https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy WO 2018/106736 A1. -->
 [opcache_patent]:../references/patents/opcache_WO2018106736A1.pdf
-[zen_2]:https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy
+[zen_2]:https://en.wikichip.org/wiki/amd/microarchitectures/zen_2
+[zen_2_Memory_Hierarchy]:https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Memory_Hierarchy
 
 <!-- paper -->
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
