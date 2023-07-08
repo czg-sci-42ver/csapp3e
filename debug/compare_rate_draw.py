@@ -18,6 +18,14 @@ func dgemm_openmp_256: 1141, 705, 1.61844
 
 """
 
+class data_check:
+    @staticmethod
+    def check_zero(func_str:str,find_cnt:dict):
+        for index,data in enumerate(find_cnt[func_str]['datas']):
+            if data == 0:
+                # miscs.print_err('weird data zero at '+str(index)+"th of "+str(func_str))
+                miscs.print_err('weird data zero at ',index,"th of ",func_str)
+
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         sys.exit("need params, use `-h` to view usage")
@@ -68,6 +76,9 @@ if __name__ == "__main__":
                 target_line_list = target_line.split(' ')
                 for func_str in func_list:
                     find_func = False
+                    """
+                    count to update `block_denominator_list` and then skip lines without func_str
+                    """
                     if len(re.findall(func_str,target_line)) != 0:
                         find_cnt[func_str]['cnt']+=1
                         find_func = True
@@ -89,6 +100,8 @@ if __name__ == "__main__":
                         else:
                             data = float(target_line_list[-1])
                             compare_data = data/find_cnt[func_str]['base']
+                            if compare_data == 0:
+                                miscs.print_err(data,"/",find_cnt[func_str]['base']," is 0 with ",func_str)
                             find_cnt[func_str]['datas'].append(compare_data)
                             contents_output += func_str+": "+str(compare_data)+" ("+str(data)+")"+newline_symbol
         if image_output != '':
@@ -102,6 +115,7 @@ if __name__ == "__main__":
                 line_chart.title = 'Comparison'
                 line_chart.x_labels = list(map(str, block_denominator_list))
                 for func_str in func_list:
+                    data_check.check_zero(func_str=func_str,find_cnt=find_cnt)
                     line_chart.add(func_str,find_cnt[func_str]['datas'])
                 line_chart.render_to_file(image_output)
             else:

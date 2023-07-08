@@ -1,12 +1,11 @@
 #! /bin/awk -f
-
 BEGIN {
 	print target_funcs " " start_index " " output
 	target_funcs_get = target_funcs
 	start_index_get = start_index
 	output_file = output
 	denominator_get = denominator
-	printf("%s:\n",denominator) >> output_file
+	printf("%s:\n", denominator) >> output_file
 	print denominator
 	fflush(output_file)
 }
@@ -21,13 +20,17 @@ BEGIN {
 			fflush(output_file)
 			for (i = start_index_get; i < start_index_get + 2; ++i) {
 				printf("%s, ", $i) >> output_file
-			fflush(output_file)
+				fflush(output_file)
 			}
 			denominator_index = start_index_get + 1
 			if (typeof($start_index_get) ~ /strnum/) {
-				quotient = $start_index_get / $denominator_index
-				printf("%s\n", quotient) >> output_file
-			fflush(output_file)
+				if ($denominator_index == 0) {
+					printf("%s\nabove has error\n", 0) >> output_file
+				} else {
+					quotient = $start_index_get / $denominator_index
+					printf("%s\n", quotient) >> output_file
+					fflush(output_file)
+				}
 			}
 		}
 	}

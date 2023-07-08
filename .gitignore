@@ -84,3 +84,4 @@ debug_quotient/
 main
 *.output
 !*.svg
+*.bk

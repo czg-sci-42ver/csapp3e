@@ -50,6 +50,9 @@ fi;\
 perf report -i ~/perf_log/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.log --group --stdio -n --hierarchy > ${dir}/debug/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.report;\
 python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.report -o ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report -n ${events_num};\
 echo "awk ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report";\
+cp ${dir}/debug/dgemm_de_dis.awk ${dir}/debug/dgemm_de_dis.awk.bk;\
+gawk -f ${dir}/debug/dgemm_de_dis.awk -o${dir}/debug/dgemm_de_dis_format.awk;\
+mv ${dir}/debug/dgemm_de_dis_format.awk ${dir}/debug/dgemm_de_dis.awk;\
 awk \
 -v start_index=${start_index} \
 -v target_funcs="dgemm_unrolled_avx256,dgemm_blocked_avx256,dgemm_openmp_256" \

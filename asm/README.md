@@ -6775,7 +6775,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
         So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
 
-        2. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed.
+        1. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed. So the hot path is 3-level loop instead of 1-level loop (i.e. the most inner loop). See intel [vtune](http://portal.nacad.ufrj.br/online/intel/vtune2017/help/GUID-143D1B76-D97F-454F-9B4B-91F2D791B66D.html) (more elegant [official](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html))
           Then reread the [opcache], based on the above "run each nested loop once" and "caches uops that get decoded along the path of (speculative) execution" in the link, the speculative execution is probably not reused, although they are all not taken, but their tags are different.
           
           Moreover, if with more threads, it maybe can be worse. See the [figure](../debug/no_prefetch_l2_opcache.svg). But sometimes not.
@@ -6786,10 +6786,19 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
           ```
           Notice: from [this](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Individual_Core) opcache should be separately contained in the core same as L1 cache. Also [see](https://www.anandtech.com/show/10578/amd-zen-microarchitecture-dual-schedulers-micro-op-cache-memory-hierarchy-revealed) and [this where also says "don't think AMD/Intel generally disclose the size of uOps"](https://www.reddit.com/r/hardware/comments/12smvw9/comment/jh6918m/?utm_source=share&utm_medium=web2x&context=3) 
           ```bash
+              # https://stackoverflow.com/questions/35071321/set-number-of-cores-in-openmp
           $ export OMP_PLACES="{0,1}"
-          $ ./debug_block.sh # this will 
+          $ ./debug_block.sh # this will show that `dgemm_openmp_256` is a little lower than `dgemm_blocked_avx256` because cpu0-1 share L1 cache. see `7b1ff8da81e6bb59d69c60558e43326b04712d99` for svg view.
+          $ git rev-parse HEAD
+          7b1ff8da81e6bb59d69c60558e43326b04712d99
+          $ env OMP_PLACES="{0:3}" ./debug_block.sh # this may be similar to above.
+          $ env OMP_PLACES="{0:4}" ./debug_block.sh # this will make `dgemm_openmp_256` higher than `dgemm_blocked_avx256`
           ```
-        3. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
+
+          TODO check 'div use up a whole way of the uop cache' influence in [opcache]
+
+          Maybe have one *extra buffer for opcache* between it and the decoder 'IDK if there's some kind of buffering for non-branching uop fetch.'. The above buffer is "merge buffer" in "uop cache into some merge buffer.".
+        2. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
 
         However, the speed is not same as the above trend (which is almost monotonically increasing). So maybe we can just ignore these two metrics.
         Maybe above only running 4-level loop once in each call decrease the loop dependency in some way and **no need to predict** the branch. So it is faster although the opcache is always refreshed. 

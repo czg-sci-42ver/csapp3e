@@ -19,6 +19,7 @@ import sys
 import getopt
 import os
 import re
+from colorama import Fore, Style
 
 PREFETCH = True
 L2CHACHE = False
@@ -70,6 +71,15 @@ class miscs:
             event_num=event_num)
         print("arg1 should be file name")
         return inputfile, outputfile, REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
+    @staticmethod
+    def print_err(*values: object):
+        values_str=''
+        for value in values:
+            if type(value) == type(''):
+                values_str += value
+            else:
+                values_str +=str(value)
+        print(f"{Fore.RED}{values_str}{Style.RESET_ALL}",file=sys.stderr)
 
 
 """
@@ -133,11 +143,30 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
                     # start_margin = re.findall(r"^ *", target_line)
                     # if len(start_margin) != 0:
                     #     data_output = data_output + start_margin[0]
+                    """
+                    1. this should get target_line_changed with something like 
+                    ['           ','0.00%','  ',...,'             1           0 ... [.] dgemm_openmp_256'] 
+                    after `target_line_changed.remove(split_elem)`
+
+                    2. here can use match and group to avoid searching with something like '   '. 
+                    But API will change. So I just left it unchanged.
+                    """
                     target_line_changed = re.split(
                         r"( *)(\d+\.\d+\%)", target_line)
                     for split_elem in target_line_changed:
                         if split_elem == '':
                             target_line_changed.remove(split_elem)
+                    
+                    """
+                    skip something weird like 
+                    `0.00%   0.01%   0.00%   0.00%   0.00%   0.00%   0.00%             1           0           0           0           0           0           0        [.] dgemm_openmp_256`
+                    """
+                    target_line_changed_no_space = [split_elem for split_elem in target_line_changed if len(re.findall(r' +',split_elem)) == 0]
+                    print("len of target_line_changed_no_space: ",len(target_line_changed_no_space)," -> ",target_line_changed_no_space)
+                    if len(re.findall(r'0.0[0-9]%',''.join(target_line_changed_no_space))) == len(target_line_changed_no_space):
+                        print("skip all zero row: ",target_line)
+                        continue
+
                     # print("target_rm_start: ",target_line_changed[remove_start],"after ",target_line_changed[remove_start-1])
 
                     # target_line_changed_str = "".join([target_line_changed[index] for index in range(len(
@@ -150,6 +179,9 @@ def main(argv, remove_start: int, remove_end: int, inputfile: str, outputfile: s
                             (index >= remove_start) and (index < remove_end))
                         if found_first_step_rm:
                             continue
+                        """
+                        ignore mutliple events
+                        """
                         if IGNORE_EXTRA:
                             if not found_first_step_rm:
                                 bool_set = [(index >= ignore_events[sub_index]) and (
