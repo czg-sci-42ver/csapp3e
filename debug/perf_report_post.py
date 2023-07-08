@@ -1,6 +1,6 @@
 """
 1. use the following bash script to auto feed `events_num`:
-dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
+dir=/mnt/ubuntu/home/czg/csapp3e;\                                             
 file=no_prefetch_l2_opcache;\
 events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
@@ -27,48 +27,49 @@ IGNORE_EXTRA = False
 
 # tuple immutable https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
+class miscs:
+    @staticmethod
+    def set_event_num(event_num: int) -> tuple[int, int, int, int]:
+        REMOVE_START_CHILD_PARENT = 0
+        # https://stackoverflow.com/questions/2682745/how-do-i-create-a-constant-in-python
+        REMOVE_START_PARENT: Final[int] = event_num*2
+        """
+        USE_HIERARCHY -> then parent not exists.
+        """
+        if USE_HIERARCHY:
+            REMOVE_END_PARENT = REMOVE_START_PARENT
+        else:
+            REMOVE_END_PARENT = REMOVE_START_PARENT*2
+        REMOVE_END_CHILD_PARENT = REMOVE_END_PARENT
+        return REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
 
-def set_event_num(event_num: int) -> tuple[int, int, int, int]:
-    REMOVE_START_CHILD_PARENT = 0
-    # https://stackoverflow.com/questions/2682745/how-do-i-create-a-constant-in-python
-    REMOVE_START_PARENT: Final[int] = event_num*2
-    """
-    USE_HIERARCHY -> then parent not exists.
-    """
-    if USE_HIERARCHY:
-        REMOVE_END_PARENT = REMOVE_START_PARENT
-    else:
-        REMOVE_END_PARENT = REMOVE_START_PARENT*2
-    REMOVE_END_CHILD_PARENT = REMOVE_END_PARENT
-    return REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
-
-
-def parse_arg(argv: list[str]) -> tuple[str, str, int, int, int, int]:
-    cur_script_file = os.path.relpath(__file__, os.getcwd())
-    inputfile = ''
-    outputfile = ''
-    event_num = 0
-    print("args: ", argv)
-    opts, args = getopt.getopt(argv, "hi:o:n:", ["ifile=", "ofile=", "num="])
-    for opt, arg in opts:
-        if opt == '-h':
-            print(cur_script_file, '-i <inputfile> -o <outputfile>')
-            sys.exit()
-        elif opt in ("-i", "--ifile"):
-            inputfile = arg
-        elif opt in ("-o", "--ofile"):
-            print(arg)
-            outputfile = arg
-        elif opt in ("-n", "--num"):
-            print(type(arg), arg)
-            event_num = int(arg)
-    print('Input file is ', inputfile)
-    print('Output file is ', outputfile)
-    print("events num is ", event_num)
-    REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT = set_event_num(
-        event_num=event_num)
-    print("arg1 should be file name")
-    return inputfile, outputfile, REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
+    @staticmethod
+    def parse_arg(argv: list[str]) -> tuple[str, str, int, int, int, int]:
+        cur_script_file = os.path.relpath(__file__, os.getcwd())
+        inputfile = ''
+        outputfile = ''
+        event_num = 0
+        print("args: ", argv)
+        opts, args = getopt.getopt(argv, "hi:o:n:", ["ifile=", "ofile=", "num="])
+        for opt, arg in opts:
+            if opt == '-h':
+                print(cur_script_file, '-i <inputfile> -o <outputfile>')
+                sys.exit()
+            elif opt in ("-i", "--ifile"):
+                inputfile = arg
+            elif opt in ("-o", "--ofile"):
+                print(arg)
+                outputfile = arg
+            elif opt in ("-n", "--num"):
+                print(type(arg), arg)
+                event_num = int(arg)
+        print('Input file is ', inputfile)
+        print('Output file is ', outputfile)
+        print("events num is ", event_num)
+        REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT = miscs.set_event_num(
+            event_num=event_num)
+        print("arg1 should be file name")
+        return inputfile, outputfile, REMOVE_START_PARENT, REMOVE_END_PARENT, REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT
 
 
 """
@@ -184,7 +185,7 @@ if __name__ == "__main__":
         sys.exit("need params, use `-h` to view usage")
     else:
         (INPUT_FILE, OUTPUT_FILE, REMOVE_START_PARENT, REMOVE_END_PARENT,
-         REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT) = parse_arg(argv=sys.argv[1:])
+         REMOVE_START_CHILD_PARENT, REMOVE_END_CHILD_PARENT) = miscs.parse_arg(argv=sys.argv[1:])
         target_inc = 5
         check_str = "dgemm"
         if IGNORE_EXTRA:
