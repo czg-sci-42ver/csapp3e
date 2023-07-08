@@ -23,9 +23,9 @@ BEGIN {
 				printf("%s, ", $i) >> output_file
 			fflush(output_file)
 			}
-			denominator = start_index_get + 1
+			denominator_index = start_index_get + 1
 			if (typeof($start_index_get) ~ /strnum/) {
-				quotient = $start_index_get / $denominator
+				quotient = $start_index_get / $denominator_index
 				printf("%s\n", quotient) >> output_file
 			fflush(output_file)
 			}

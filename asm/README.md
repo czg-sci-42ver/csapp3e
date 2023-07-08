@@ -6581,13 +6581,13 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 ###### `de_dis_uops_from_decoder`
 - there seems no related doc about 17h 60h model opcache implementation by "AMD doc "OpCache" site:amd.com". 
   [zen2 ~~implementation~~ opcache performance](https://chipsandcheese.com/2021/07/03/how-zen-2s-op-cache-affects-performance/) (TODO 'the Twitterverse',)
-- [opcache Q&A](https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged) in intel, **amd** seems to not have many people knowing it.
+- [opcache Q&A][opcache] in intel, **amd** seems to not have many people knowing it.
   - As it says, it is mainly used in "(speculative) execution" and not store unnecessary things like `0x90 NOP`. 
     - kw: "doesn't try to populate the uop cache ... ", "has multiple jump entries", maybe "virtually addressed (VIVT)", "This is guesswork"
     - TODO `0xcc int3` may just use `0xcc` as one *mark*, see "replace the first byte ... without overwriting other instructions".
   - [MITE,LSD][LSD_DSB_MITE]
     - as paper p3 says "mis-prediction occurs" and "exceeds the limit", LSD will not be used (also see the figure).
-    - [LSD_DSB_MITE] p3 also says " two threads mutually affects the micro-op decoding". So above Q&A says "decodes the same bytes two different ways.". This implicitly means "forces DSB evictions of micro-ops of the **first thread** to occur" as paper says (i.e. "throw out the uop cache ways " in Q&A).
+    - [LSD_DSB_MITE] p3 also says " two threads mutually affects the micro-op decoding". So above Q&A says "decodes the same bytes two different ways.". This implicitly means "forces DSB evictions of micro-ops of the **first thread** to occur" as paper says (i.e. "can't cache both ways at the same time ... throw out the uop cache ways " in Q&A). <a id="thread_opcache"></a>
     - "filling up all 3 ways and triggering DSB-to-MITE switches" in Q&A see paper "exceeds the limit".
   - also see how to [measure](https://www.reddit.com/r/hardware/comments/12smvw9/comment/jgzufr3/?utm_source=share&utm_medium=web2x&context=3) opcache.
 - the `de_dis_uops_from_decoder` counts obviously depends on instruction counts fetched. So the order is direct to get.
@@ -6776,6 +6776,8 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
 
         2. Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed.
+          Then reread the [opcache], based on the above "run each nested loop once" and "caches uops that get decoded along the path of (speculative) execution" in the link, the speculative execution is probably not reused, although they are all not taken, but their tags are different.
+          Moreover, if with more threads, it can be worse.
 
         3. Because as [perf_cache_misses] says, the **PMC counters** aren't accurately related with assembly codes, so it may be difficult to know opcache infomation with each counter. Then it may be not easy to give one accurate explanation to why the above decoder and opcache data show as they are.
 
@@ -6783,6 +6785,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         Maybe above only running 4-level loop once in each call decrease the loop dependency in some way and **no need to predict** the branch. So it is faster although the opcache is always refreshed. 
         ```bash
         # after running dgemm
+        $ 
         $ cat debug_block_log/speed_etc.log
         BLOCK_DENOMINATOR: 1
                  dgemm_unrolled_avx256:  elapsed-time=     29333     speed-up=   12.2435
@@ -6810,6 +6813,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
         `lea    r10,[r9+rax*1]` -> 1 1-2
         `vfmadd231pd ymm1,ymm0,YMMWORD PTR [r12+rax*8]` -> v,v,v/m 1
         ...
+        - in this blog about zen2, Mop can be guessed to be something like m(a/i)cro cache. It should be explicitly be [macro ops](https://community.arm.com/support-forums/f/architectures-and-processors-forum/48877/mops-macro-ops-uops-micro-ops)
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
@@ -6886,10 +6890,14 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 - some perf lists may be disabled ["because of errata"](https://unix.stackexchange.com/questions/733053/unable-to-use-perf-to-find-l3-cache-miss-rate#comment1391228_733053)
   - also see [SKL150](https://lists.debian.org/debian-devel/2017/06/msg00308.html) which is seen from one blog.
 - something not has one valid PMC counter may be due to that it is [software event](https://www.brendangregg.com/perf.html#SoftwareEvents) ([search](https://github.com/search?q=repo%3Atorvalds%2Flinux+0x0b+language%3Ajson+path%3Atools%2Fperf%2Fpmu-events%2Farch%2Fx86%2Famdzen2&type=code) of linux codes).
+- the `[46.17%]` shown in `perf stat` is probably unused. See the source [codes](https://github1s.com/torvalds/linux/blob/master/tools/perf/util/stat-shadow.c#L688-L689).
+  - `print_metric` is one func pointer, it may be [`script_print_metric`](https://github1s.com/torvalds/linux/blob/master/tools/perf/builtin-script.c#L2043-L2044) where the unit like `"%c/sec"` is output at last.
+  - TODO see `perf_stat__print_shadow_stats_metricgroup`
 ## AMDuProf
 - from [uprof_doc] chapter 3,4,5. Zen2 17h 60h ryzen 7 4800h not support many features.
+- from [this](https://stackoverflow.com/questions/67959438/linux-perf-to-measure-memory-bandwidth-on-amd-epyc-2nd-gen#comment120569435_67959438), it may offer more than `perf` can offer.
 ### installation 
-- recommend using dkms, so should run `sudo dkms autoinstall`
+- recommend using dkms, so should run `sudo dkms autoinstall` instead of `sudo ./AMDPowerProfilerDriver.sh install` as [uprof_doc] says.
   - maybe has problem like `assignment of read-only member ‘vm_flags’`. See [this](https://forums.developer.nvidia.com/t/driver-470-182-03-fails-to-compile-with-linux-6-3-1/251992/4). This [patch](https://gist.github.com/vejeta/9078219f082d2bfd62b08b6eada780e6) works or just use `vma->__vm_flags       |= VM_RESERVED;` by viewing `vm_flags_set` source code with `compile_commands.json` generated by `bear -- make ARCH=x86` although not recommended (see [below](#vm_flags_set)).
 - if manually build, maybe not use `sudo` if using rust (if system has rust, it may be only installed with the user but not root.). Also see [rust supported host](https://rust-lang.github.io/rustup-components-history/)
   rust config: [rustup](https://stackoverflow.com/questions/44303915/no-default-toolchain-configured-after-installing-rustup)
@@ -6926,7 +6934,7 @@ In file included from <built-in>:1:
 ...
 
 # need reinstall headers to repair.
-
+$ yay -S linux-headers --noconfirm
 ```
 - msr with amd: 1. from [this](https://lore.kernel.org/linux-pm/20201007161439.312534-5-kim.phillips@amd.com/T/), linux developer just use `intel_rapl` with amd cpu ("especially to allow existing tools to seamlessly run on AMD"). But maybe it is not used.
 ```bash
@@ -7075,7 +7083,16 @@ Module = "intel_rapl_msr"
       ```
 - above two links are enough to understand what are flex and bison and their relations. Todo more [see](https://www.usna.edu/Users/cs/roche/courses/f18si413/lab/04/).
 ### `AMDuProfPcm`
-- 
+```bash
+$ /opt/amduprof/bin/AMDuProfPcm -m memory
+Missing configuration file - unsupported processor model.
+```
+### `AMDuProfSys`
+```bash
+$ . ~/.virtualenv/misc/bin/activate
+$ /opt/amduprof/bin/AMDPerf/AMDuProfSys.py collect --config l3 -a sleep 5
+Unable to open file  /opt/amduprof/bin/AMDPerf/data/0x17_0x6/configs/l3/l3_config.yaml # view the python script, it just means not supported.
+```
 # awk miscs
 Develop the habit of [#! /bin/awk -f](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html)
 Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
@@ -7451,6 +7468,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [perf_cache_misses]:https://stackoverflow.com/q/76593928/21294350
 [miss_event_blame]:https://stackoverflow.com/questions/65906312
 [perf_delay]:https://stackoverflow.com/a/65907314/21294350
+[opcache]:https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply

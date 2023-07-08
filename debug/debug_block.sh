@@ -1,3 +1,4 @@
+#! /bin/bash
 ############### not use `#...` inside the awk command !!!!
 
 # at least in zsh, `ls ./////` function same as `ls ./`
@@ -7,6 +8,7 @@
 # not use RUN_MULTIPLE which will output too many dirs and files. 
 # Just run whatever times you want with this script and see the `debug_quotient` output file.
 #############
+# bash is different from zsh not supporting ${BLOCK_DENOMINATOR_LIST} to get list ; https://stackoverflow.com/questions/52901012/what-is-a-list-in-bash.
 dir=/mnt/ubuntu/home/czg/csapp3e;\
 file=no_prefetch_l2_opcache;\
 sub_dir=debug_block;\
@@ -37,7 +39,8 @@ fi;\
 \
 start_index=$((${events_num}-1));\
 for ((index=0;index<${run_times};index++));do \
-for BLOCK_DENOMINATOR in ${BLOCK_DENOMINATOR_LIST};do \
+echo "list: " ${BLOCK_DENOMINATOR_LIST[@]};\
+for BLOCK_DENOMINATOR in ${BLOCK_DENOMINATOR_LIST[@]};do \
 perf record -g --call-graph fp -e ${events} \
 ~/matrix-matrix-multiply/build/${sub_dir}/dgemm_${BLOCK_DENOMINATOR};\
 mv perf.data ~/perf_log/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.log;\
@@ -50,10 +53,12 @@ python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${sub_dir}/${file}_${BLO
 echo "awk ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report";\
 awk \
 -v start_index=${start_index} \
--v target_funcs="dgemm_unrolled_avx256,dgemm_blocked_avx256" \
+-v target_funcs="dgemm_unrolled_avx256,dgemm_blocked_avx256,dgemm_openmp_256" \
 -v output="${dir}/debug/${sub_dir}/${quotient_dir}/sample_num_${file}_quotient.report" \
 -v denominator="${BLOCK_DENOMINATOR}" \
 -f ${dir}/debug/dgemm_de_dis.awk \
-${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report;\
+${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report\
+;echo "current BLOCK_DENOMINATOR: " ${BLOCK_DENOMINATOR}\
 ;done \
+;echo "finish the nest loop"\
 ;done
