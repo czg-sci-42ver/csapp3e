@@ -82,3 +82,4 @@ debug_quotient/
 !bison_flex/
 !debug_symbol_puts.log
 main
+*.output
