@@ -8,3 +8,4 @@ a b c
 123*233
 http://www.polito.it
 /home/
+/* test */
