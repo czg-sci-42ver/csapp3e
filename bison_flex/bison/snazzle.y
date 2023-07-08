@@ -60,8 +60,8 @@ snazzle:
 %%
 
 int main(int, char**) {
-  #ifdef YYDEBUG
-  yydebug = 1;
+  #if YYDEBUG
+    yydebug = 1;
   #endif
 
   // Open a file handle to a particular file:

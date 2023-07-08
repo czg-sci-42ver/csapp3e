@@ -1,0 +1,116 @@
+Grammar
+
+    0 $accept: snazzle $end
+
+    1 snazzle: INT snazzle
+    2        | FLOAT snazzle
+    3        | STRING snazzle
+    4        | INT
+    5        | FLOAT
+    6        | STRING
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    INT <ival> (258) 1 4
+    FLOAT <fval> (259) 2 5
+    STRING <sval> (260) 3 6
+
+
+Nonterminals, with rules where they appear
+
+    $accept (6)
+        on left: 0
+    snazzle (7)
+        on left: 1 2 3 4 5 6
+        on right: 0 1 2 3
+
+
+State 0
+
+    0 $accept: • snazzle $end
+
+    INT     shift, and go to state 1
+    FLOAT   shift, and go to state 2
+    STRING  shift, and go to state 3
+
+    snazzle  go to state 4
+
+
+State 1
+
+    1 snazzle: INT • snazzle
+    4        | INT •
+
+    INT     shift, and go to state 1
+    FLOAT   shift, and go to state 2
+    STRING  shift, and go to state 3
+
+    $default  reduce using rule 4 (snazzle)
+
+    snazzle  go to state 5
+
+
+State 2
+
+    2 snazzle: FLOAT • snazzle
+    5        | FLOAT •
+
+    INT     shift, and go to state 1
+    FLOAT   shift, and go to state 2
+    STRING  shift, and go to state 3
+
+    $default  reduce using rule 5 (snazzle)
+
+    snazzle  go to state 6
+
+
+State 3
+
+    3 snazzle: STRING • snazzle
+    6        | STRING •
+
+    INT     shift, and go to state 1
+    FLOAT   shift, and go to state 2
+    STRING  shift, and go to state 3
+
+    $default  reduce using rule 6 (snazzle)
+
+    snazzle  go to state 7
+
+
+State 4
+
+    0 $accept: snazzle • $end
+
+    $end  shift, and go to state 8
+
+
+State 5
+
+    1 snazzle: INT snazzle •
+
+    $default  reduce using rule 1 (snazzle)
+
+
+State 6
+
+    2 snazzle: FLOAT snazzle •
+
+    $default  reduce using rule 2 (snazzle)
+
+
+State 7
+
+    3 snazzle: STRING snazzle •
+
+    $default  reduce using rule 3 (snazzle)
+
+
+State 8
+
+    0 $accept: snazzle $end •
+
+    $default  accept

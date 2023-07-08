@@ -71,7 +71,6 @@
 
   #include <cstdio>
   #include <iostream>
-  #include <string.h>
   
   using namespace std;
 
@@ -742,16 +741,14 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp,
       yy_symbol_print (stderr,
                        YY_ACCESSING_SYMBOL (+yyssp[yyi + 1 - yynrhs]),
                        &yyvsp[(yyi + 1) - (yynrhs)]);
-      fprintf(stderr,";split to test\n");
       YYFPRINTF (stderr, "\n");
     }
 }
 
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
-  if (yydebug){                          \
+  if (yydebug)                          \
     yy_reduce_print (yyssp, yyvsp, Rule); \
-    fprintf(stderr, ";split outside\n");} \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1073,7 +1070,6 @@ yyreduce:
   case 3: /* snazzle: FLOAT snazzle  */
 #line 43 "snazzle.y"
                    {
-      // cout << "bison found a float: " << (yyvsp[-1].fval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl;
       cout << "bison found a float: " << (yyvsp[-1].fval) << endl;
     }
 #line 1076 "snazzle.tab.c"
@@ -1082,7 +1078,6 @@ yyreduce:
   case 4: /* snazzle: STRING snazzle  */
 #line 46 "snazzle.y"
                    {
-      // cout << "bison found a string: " << (yyvsp[-1].sval) << " size: " <<  sizeof(yyvsp)/sizeof(yyvsp[-1]) << " has zero index value : " << yyvsp[0].sval << endl; free((yyvsp[-1].sval));
       cout << "bison found a string: " << (yyvsp[-1].sval) << endl; free((yyvsp[-1].sval));
     }
 #line 1084 "snazzle.tab.c"
@@ -1107,13 +1102,7 @@ yyreduce:
   case 7: /* snazzle: STRING  */
 #line 55 "snazzle.y"
                    {
-      // cout << (yyvsp[0].sval) << "\n";
-      
-      char test_str[20] = "";
-      strcpy(test_str,yyvsp[0].sval);
-      
-      // printf("%s\n",yyvsp[0].sval);
-      printf("%s\n",test_str);
+      printf("%s\n",yyvsp[0].sval);
       cout << "bison found a string: " << (yyvsp[0].sval) << endl; free((yyvsp[0].sval));
     }
 #line 1109 "snazzle.tab.c"
@@ -1317,8 +1306,8 @@ yyreturnlab:
 
 
 int main(int, char**) {
-  #ifdef YYDEBUG
-  yydebug = 1;
+  #if YYDEBUG
+    yydebug = 1;
   #endif
 
   // Open a file handle to a particular file:

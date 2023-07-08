@@ -7039,8 +7039,27 @@ Module = "intel_rapl_msr"
     ...
     ```
     after viewing assembly codes, some strange things happened. See [here](#ioputs_debug)
+    - here `INT snazzle` or `snazzle INT` all works. Just see the original web link.
   - [debug](https://stackoverflow.com/questions/50821203/how-can-i-debug-my-flex-bison-grammar) bison and flex
-  - 
+    ```bash
+    $ flex -d snazzle.l;bison -d snazzle.y -t;g++ snazzle.tab.c lex.yy.c -o main;./main
+     # or
+    $ flex -d snazzle.l;bison -d snazzle.y;g++ -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main;./main
+     # the following won't have bison debug output 
+    $ flex -d snazzle.l;bison -d snazzle.y;g++ snazzle.tab.c lex.yy.c -o main;./main
+    $ bison -V    
+    bison (GNU Bison) 3.8.2
+    $ flex -V
+    flex 2.6.4
+    ```
+    - notice: maybe in newer `bison`, we should use `#if YYDEBUG` because in `snazzle.tab.h` it has:
+      ```h
+      #ifndef YYDEBUG
+      # define YYDEBUG 0
+      #endif
+      ```
+      - also bison doesn't have `Next token is token ...` (just see the generated source code. It is explicit).
+    - also see the official manuals referenced in the link. From [this](https://flex.sourceforge.net/), [this](https://westes.github.io/flex/manual/) is the official flex manual.
 ### `AMDuProfPcm`
 - 
 # awk miscs
