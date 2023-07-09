@@ -12,8 +12,9 @@ dir=/mnt/ubuntu/home/czg/csapp3e;\
 file=no_prefetch_l2_opcache;\
 sub_dir=debug_block;\
 quotient_dir=debug_quotient;\
-OUTPUT_ANNOTATE=false;\
+OUTPUT_ANNOTATE=true;\
 RUN_MULTIPLE=false;\
+USE_BLOCK_DENOMINATOR_LIST=false;\
 if [[ ${RUN_MULTIPLE} == true ]];then \
 run_times=5;\
 else run_times=1;fi;\
@@ -23,7 +24,11 @@ events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_x\
 ,de_dis_uops_from_decoder.opcache_dispatched,de_dis_uops_from_decoder.decoder_dispatched;\
 events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
-cd;BLOCK_DENOMINATOR_LIST=(1 2 4 5 10 20 40);\
+cd;\
+if [[ "${USE_BLOCK_DENOMINATOR_LIST}" == true ]];\
+then BLOCK_DENOMINATOR_LIST=(1 2 4 5 10 20 40);\
+else BLOCK_DENOMINATOR_LIST=(10);\
+fi;\
 if [[ ! -d ~/perf_log/${sub_dir}/ ]];then echo "mkdir";mkdir ~/perf_log/${sub_dir}/;fi;\
 if [[ -d ${dir}/debug/${sub_dir}/ ]];then rm -r ${dir}/debug/${sub_dir}/ && mkdir ${dir}/debug/${sub_dir}/ && echo "mkdir ${dir}/debug/${sub_dir}/";\
 else mkdir ${dir}/debug/${sub_dir}/ && echo "mkdir ${dir}/debug/${sub_dir}/" ;fi;\

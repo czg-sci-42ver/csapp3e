@@ -6246,6 +6246,8 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   - `SDT` is no use here because the above program not ['use SDT markers'](https://lwn.net/Articles/618956/). See [probe](https://www.gnu.org/software/libc/manual/html_node/Memory-Allocation-Probes.html)
 #### test
 record list
+- [x] `L1-...` (5 events)
+- [x] `(d/i)TLB-load(...)` (4)
 - [x] ls_refills_from_sys (5 items)
 - [x] ls_hw_pf_dc_fill (5)
 - [x] ls_sw_pf_dc_fill (5)
@@ -6254,7 +6256,8 @@ record list
   - [x] `change_to_x`
   - [x] `prefetch_l2_cmd`
 - [ ] `l2_request_g2.group1` and `l2_request_g1.group2`
-- [ ] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
+- [x] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
+- [x] `l2_request_g1.all_no_prefetch` ignored because ["UMask": "0xf9"](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L53C5-L53C20)
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6579,7 +6582,11 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
            1031         596         374        1033           6         939         496        [.] dgemm_unrolled_avx256
            488         150         142         530         355         436         405        [.] dgemm_blocked_avx256
 ```
-- `ls_rd_blk_c` is just ``
+- `ls_rd_blk_c`
+  - similar to above, `dgemm_basic_blocked` use block to cache and `dgemm_avx256` use ymm to cache which is better because it has corresponding instructions like `vfmadd` to help. And `dgemm_unrolled_avx256` has factor of `UNROLL`.
+    ```bash
+    
+    ```
 ###### `de_dis_uops_from_decoder`
 DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf) TODO p14 32B->32bit/[bytes](https://stackoverflow.com/questions/5983389/how-to-align-stack-at-32-byte-boundary-in-gcc)(both align to 32bit but not 32 bytes)?
 - there seems no related doc about 17h 60h model opcache implementation by "AMD doc "OpCache" site:amd.com". 
