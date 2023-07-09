@@ -26,7 +26,10 @@ run_times=5;\
 else run_times=1;fi;\
 annotate_dir=${dir}/debug/debug_annotate;\
 events=l2_cache_req_stat.ls_rd_blk_c\
-,l2_cache_hits_from_l2_hwpf,l2_pf_miss_l2_hit_l3,l2_pf_miss_l2_l3\
+,l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
+,l2_request_g1.ls_rd_blk_c_s\
+,l2_request_g1.cacheable_ic_read\
+,l2_request_g1.l2_hw_pf\
 ;\
 events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
 cd;\
@@ -68,7 +71,7 @@ awk \
 -v target_funcs="${func_list}" \
 -v output="${dir}/debug/${sub_dir}/${quotient_dir}/sample_num_${file}_quotient.report" \
 -v denominator="${BLOCK_DENOMINATOR}" \
--v select_column_str="3,4" \
+-v select_column_str="2,3" \
 -f ${dir}/debug/dgemm_de_dis.awk \
 ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report\
 ;echo "current BLOCK_DENOMINATOR: " ${BLOCK_DENOMINATOR}\
