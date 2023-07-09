@@ -6448,7 +6448,7 @@ Unable to open file  /opt/amduprof/bin/AMDPerf/data/0x17_0x6/configs/l3/l3_confi
     - 'L2 Prefetch Hit in L2' maybe means 'Prefetcher'.
   - The others in `recommended:` are all included in the above subcommands.
   - `SDT` is no use here because the above program not ['use SDT markers'](https://lwn.net/Articles/618956/). See [probe](https://www.gnu.org/software/libc/manual/html_node/Memory-Allocation-Probes.html)
-## continue above [perf](#perf) test
+# continue above [perf](#perf) test
 record list
 - [x] `L1-...` (5 events)
 - [x] `(d/i)TLB-load(...)` (4)
@@ -6543,7 +6543,7 @@ $ perf report -i ~/perf_log/almost_all_cache.log --group --stdio
             |
             ---dgemm_basic_blocked
 ```
-### TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A_1](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs_py_script] script.
+## TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A_1](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs_py_script] script.
 - not use `l2_request_g1.group2` it may cause sampling failure. And also above weird samples <a id="percent_error"></a>
 ```bash
 $ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_all_cache.log.report | less -S
@@ -6557,10 +6557,10 @@ $ cd;perf record -F 100000 -g -e l2_request_g2.bus_locks_originator,l2_request_g
 ,l2_request_g2.group1,l2_request_g1.group2\
  ~/matrix-matrix-multiply/build/src/dgemm;\
 mv perf.data ~/perf_log/group2.log
-# here also cause `group1` fails to sample.
+ here also cause `group1` fails to sample.
 $ perf report -i ~/perf_log/group2.log -n --group --stdio
 ...
-# Total Lost Samples: 0
+ Total Lost Samples: 0
 ```
 - Answering the above Q&A_1, from [PPR_17h_60h] p163, they are just *OR* relation in **most situations**. The unit0 probably just means **reset** state. And from [OCRR_17h] p160, it means that "Miscellaneous events covered in more detail by" in [PPR_17h_60h] "PMCx061" refers to all group1 events.
   Also note as the [PPR_17h_60h] says "result in misleading counts", sometimes if sum up, we may get not consistent result. See [#750399 post "Not sum. 0xf9:  5091787060.0 , while mask sum:  5150956350.0"](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) which can be also seen in [miscs_py_script]. 
@@ -6573,23 +6573,23 @@ $ perf stat -e r0aa,r1aa sleep 1
                  0      r0aa                                                                  
          1,815,971      r1aa
 ```
-#### so ignore `l2_request_g2.ls_rd_sized` and `l2_request_g2.ls_rd_sized_nc`
-### `l2_request_g1.all_no_prefetch` is sum of other small events. Ignore it.
-### `ic_cache_fill_l2` from here use new perf data
+### so ignore `l2_request_g2.ls_rd_sized` and `l2_request_g2.ls_rd_sized_nc`
+## `l2_request_g1.all_no_prefetch` is sum of other small events. Ignore it.
+## `ic_cache_fill_l2` from here use new perf data
 ```bash
 $ cd;perf record -g --call-graph fp -e l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
 ,l2_cache_req_stat.ls_rd_blk_x\
  ~/matrix-matrix-multiply/build/src/dgemm;\
 mv perf.data ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log
-# can also use `--no-children` to compare and choose the preferred 
+ can also use `--no-children` to compare and choose the preferred 
 $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --stdio -n --hierarchy
 ...
 $ 
 ```
 - From above, viewing the value `ic_cache_fill_l2/ic_cache_fill_sys`, it 
-### `l2_request_g1`; better view `ls_refills_from_sys`. (The following also has `ls_sw_pf_dc_fill` and `ls_hw_pf_dc_fill`)
-#### `l2_request_g1` related cmds
+## `l2_request_g1`; better view `ls_refills_from_sys`. (The following also has `ls_sw_pf_dc_fill` and `ls_hw_pf_dc_fill`)
+### `l2_request_g1` related cmds
 ```bash
 $ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\    
 ,l2_request_g1.ls_rd_blk_c_s\
@@ -6653,18 +6653,34 @@ $ cat debug/sample_${file}.report
     - [PPR_17h_60h] `EX` should be the execution stage. `DE` decoder (Then will 'Dispatch Resource'), `BP` -> 'Branch Prediction' (related with `IC`(Instruction Cache), so put together)
   - [AGQ][zen_2] in [SOG_17h] p27. `DE` may means ['directory entry'](https://wiki.osdev.org/Paging)
 - [Overhead](https://perf.wiki.kernel.org/index.php/Tutorial) proportion may be not same as `Samples` proportion due to precison of 2. Use `Samples` better.
-- view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
-  (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
-  Here `dgemm_unrolled_avx256` use multiple `ymm` register because of **small** `unroll` size which is optimized by compiler. <a id="ymm"></a>
-
-  here cpu probably uses WCB
-  ```bash
-
-  ```
-
 - DAT,WCB(~~maybe~~ WC(write-combining) buffer, can be seen in `perf list`),MAB,STP meaning in [SOG_17h] p34.
 - From the close relation between L1 `L1-*` and L2 `l2_request_g1` in `perf annotate`. They may not use uncachable store buffer. So 
-#### `ls_sw_pf_dc_fill`
+### view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
+- (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
+  Here `dgemm_unrolled_avx256` use multiple `ymm` register because of **small** `unroll` size which is optimized by compiler. <a id="ymm"></a>
+
+  here cpu probably uses WCB,(sometimes `dgemm_blocked_avx256` is higher than `dgemm_unrolled_avx256` which is more obvious because the former store unit is bigger.)
+  Notice: WCB is directly to L2, not through L1. just see the [figure](https://en.wikichip.org/wiki/File:amd_zen_hc28_memory.png) which is from [SOG_17h] as [this](https://stackoverflow.com/a/49961612/21294350) says.
+  intel use WCB from L1 to L2, and [others](https://stackoverflow.com/questions/49959963/where-is-the-write-combining-buffer-located-x86#comment86939708_49961612) call "superqueue". "Write Combining Buffers" may be just same as LFBs as the reference in the former link says, but maybe not in the comments of that.
+
+  Here `dgemm_avx256` wcb is more than `dgemm_unrolled_avx256`, but the former's `rd_blk_x` (write counts of wcb and others) is more because [SOG_17h] p37 says "one efficient 64-byte memory write" which is 512bit and *up to 7* from one thread. So the latter combines more efficiently *within the WC range*. Then `dgemm_blocked_avx256` maybe uses *too large* store unit, so it will use more wcb and then `rd_blk_x` is less.
+
+  [PCI posted](https://en.wikipedia.org/wiki/Posted_write) is similar to WC and not "*wait* for the done" in this [doc](https://download.intel.com/design/PentiumII/applnots/24442201.pdf).
+
+  dgemm_openmp_256 is lower, because they are split into different threads and WCB is *related with L2 cache* per core.
+  ```bash
+  10:
+  func dgemm_basic: 15836, 12430, 1.27401
+  func dgemm_avx256: 3773, 113, 33.3894
+  func dgemm_unrolled_avx256: 1202, 10, 120.2
+  func dgemm_basic_blocked: 9368, 3089, 3.0327
+  func dgemm_blocked_avx256: 1362, 51, 26.7059
+  func dgemm_openmp_256: 2610, 1534, 1.70143
+  ```
+### `l2_request_g1.ls_rd_blk_c_s` just similar to `l2_cache_req_stat.ls_rd_blk_cs` 
+- the former including prefetches is higher than the latter except for `dgemm_openmp_256`.
+- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see ``
+### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
   Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
   Since most of `l2_request_g1` are not $0$, so it use cacheable write buffer. Then `ls_st_commit_cancel2.st_commit_cancel_wcb_full` is $0$.
@@ -6751,7 +6767,7 @@ $ cat debug/sample_${file}.report
   So now we only focus on the `ls_hw_pf_dc_fill` among the three group `ls_sw_pf_dc_fill`, `ls_refills_from_sys` and `ls_hw_pf_dc_fill`. [See](#ls_hw_pf_dc_fill)
   - [when](https://lemire.me/blog/2018/04/30/is-software-prefetching-__builtin_prefetch-useful-for-performance/) will use software prefetch: if "the access pattern looks too unpredictable" (e.g. address has **dependency**). But "software prefetchers have no additional ressources" So it may be difficult to know whether **it is time** to prefetch. TODO "... take into account memory-level parallelism."
     - better use hardware prefetch instead of software which is said many posts. Also see ["So the hardware prefetcher was **busy** during this time"](https://lwn.net/Articles/444336/)
-#### `ls_hw_pf_dc_fill`
+### `ls_hw_pf_dc_fill`
 ```python
 $ python debug/bfloat16_half.py
 ...
@@ -6772,7 +6788,7 @@ dgemm_blocked_avx256 -> 0.01
   `dgemm_basic_blocked` just [reuse](#reuse).
 - normalized: similar to the above, `avx256` load more from cache because it load unit (256 bits) is larger.
   `dgemm_basic_blocked` is based on the [block](#block), so even load more from cache.
-### `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`, `l2_pf_miss_l2_hit_l3`,`l2_pf_miss_l2_l3`, `l2_wcb_req`
+## `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`, `l2_pf_miss_l2_hit_l3`,`l2_pf_miss_l2_l3`, `l2_wcb_req`
 ```bash
 $ dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
 file=no_prefetch_l2_opcache;\
@@ -6814,7 +6830,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
                1815        1153        2227        1955        1272        2116        1271        [.] dgemm_openmp_256
                917         722         588        1103           5         852         671        [.] dgemm_blocked_avx256
     ```
-- `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and less *required* share hits. Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
+- `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and **less** *required* share hits. Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
 - `ls_rd_blk_l_hit_s` [TODO](https://stackoverflow.com/questions/76646899)
 - `ls_rd_blk_l_hit_x/ls_rd_blk_c` are all almost $1$. Why all similar? TODO
   - ~~after all, this quotient is not the main part to optimize. Just to decrease the miss count is .~~
@@ -6867,7 +6883,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
   func dgemm_blocked_avx256: 102, 114, 0.894737
   ```
 
-#### `de_dis_uops_from_decoder`
+### `de_dis_uops_from_decoder`
 DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf) TODO p14 32B->32bit/[bytes](https://stackoverflow.com/questions/5983389/how-to-align-stack-at-32-byte-boundary-in-gcc)(both align to 32bit but not 32 bytes)?
 - there seems no related doc about 17h 60h model opcache implementation by "AMD doc "OpCache" site:amd.com". 
   [zen2 ~~implementation~~ opcache performance](https://chipsandcheese.com/2021/07/03/how-zen-2s-op-cache-affects-performance/) (TODO 'the Twitterverse',)
