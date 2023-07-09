@@ -26,8 +26,7 @@ run_times=5;\
 else run_times=1;fi;\
 annotate_dir=${dir}/debug/debug_annotate;\
 events=l2_cache_req_stat.ls_rd_blk_c\
-,l2_wcb_req.cl_zero,l2_wcb_req.wcb_close\
-,l2_wcb_req.wcb_write,l2_wcb_req.zero_byte_store\
+,l2_cache_hits_from_l2_hwpf,l2_pf_miss_l2_hit_l3,l2_pf_miss_l2_l3\
 ;\
 events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
 cd;\

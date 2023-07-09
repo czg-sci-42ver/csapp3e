@@ -6235,7 +6235,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
     node   0 
       0:  10 
     ```
-  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [PPR_17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch).
+  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [PPR_17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch -> hardware prefetch) or prefetch (**implicit** fetch).
     - '**IO** from this thread's die.'
   - `ls_st_commit_cancel2.st_commit_cancel_wcb_full` see [this](https://stackoverflow.com/a/25877134/21294350) 'never be written to a cache'. Also related with [Replacement_Policies](https://stackoverflow.com/questions/9544094/how-to-mark-some-memory-ranges-as-non-cacheable-from-c)
   - `l2_cache_accesses_from_dc_misses` -> `0xc8` -> `0b11001000`: why not count 'Data Cache Shared Reads' 
@@ -6264,6 +6264,7 @@ record list
 - [ ] `l2_cache_req_stat.ls...` (ls(load/store) unit) (5 except `ls_rd_blk_l_hit_s` and `ls_rd_blk_l_hit_x`)
 - [x] `l2_pf_miss...` (2)
 - [ ] `l2_wcb_req` (4 except `wcb_close/wcb_write`)
+- [x] `l2_request_g2.ls_rd_sized...` (2)
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6454,8 +6455,11 @@ $ cat debug/sample_${file}.report
 - view the `rate1=l2_request_g1.rd_blk_l/l2_request_g1.rd_blk_x`, here obviously avx `rate1` is higher because store one **packet** with four data instead of one data 
   (although with `-O3` `basic` get use `xmm` 128 bit but not use `vfmadd231pd`).
   Here `dgemm_unrolled_avx256` use multiple `ymm` register because of **small** `unroll` size which is optimized by compiler. <a id="ymm"></a>
-- 
-- DAT,WCB(maybe WC(write-combining) buffer),MAB,STP meaning in [SOG_17h] p34.
+  ```bash
+  
+  ```
+
+- DAT,WCB(~~maybe~~ WC(write-combining) buffer, can be seen in `perf list`),MAB,STP meaning in [SOG_17h] p34.
 - From the close relation between L1 `L1-*` and L2 `l2_request_g1` in `perf annotate`. They may not use uncachable store buffer. So 
 ###### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
@@ -6618,7 +6622,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
   relation between the funcs of each events are same as L2 related.
 
   from the following, `dgemm_openmp_256` is higher (just see [above](#l2_pf_miss_l2_hit_l3)). Same as above, bigger blocks caused less fetch from L3 (numerator smaller), so more L3 *compulsory* *miss* proportion (denominator larger). 
-  also see locality and successful prefetch [inverse proportion "generate a lot of L2 misses, and often a lot of L3 hits"](https://stackoverflow.com/a/50035058/21294350) relation with L3 hit
+  also see locality and successful prefetch [inverse proportion "generate a lot of L2 misses, and often a lot of L3 hits"][miss_rate] relation with L3 hit
   - TODO BFS relation with cache in the above link.
   ```bash
   $ git rev-parse HEAD                                   
@@ -7027,7 +7031,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
           - see p88 for "Local impact",etc with "M impact, M generality" meaning. 
             - "Avoid putting explicit references to *ESP* in a sequence" may means above *virtual table method* should not use frequently the *stacks* which will increase the overheads because these functions are recommended to be small to *fit in* the opcache.
 ##### `l2_cache_hits_from_l2_hwpf`
-
+- most of time, it is equal to `l2_pf_miss_l2_hit_l3` means [prefetch][#miss_rate] always right.
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
@@ -7684,6 +7688,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [miss_event_blame]:https://stackoverflow.com/questions/65906312
 [perf_delay]:https://stackoverflow.com/a/65907314/21294350
 [opcache]:https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged
+[miss_rate]:https://stackoverflow.com/a/50035058/21294350
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
