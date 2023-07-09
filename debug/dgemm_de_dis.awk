@@ -14,13 +14,14 @@ BEGIN {
 	print "begin"
 	split(target_funcs_get, func_list, ",")
 	split(select_column, select_column_list, ",")
+	# https://stackoverflow.com/questions/5808971/casting-to-int-in-awk str with %,etc -> int
 	start_index_get = select_column_list[1] + 0
 	denominator_index = select_column_list[2] + 0
 	print "begin"
 	for (Index in func_list) {
 		func_item = func_list[Index]
 		print "^" func_item "$" "\n"
-		if (match($0, func_item"$") != 0) {
+		if (match($0, func_item "$") != 0) {
 			print $0 " find " func_list[Index] "; write to file"
 			printf("func %s: ", $NF) >> output_file
 			fflush(output_file)

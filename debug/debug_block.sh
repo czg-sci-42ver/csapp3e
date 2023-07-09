@@ -18,16 +18,14 @@ quotient_dir=debug_quotient;\
 OUTPUT_ANNOTATE=false;\
 RUN_MULTIPLE=false;\
 USE_BLOCK_DENOMINATOR_LIST=false;\
+RUN_AWK=true;\
 # func_list=dgemm_unrolled_avx256,dgemm_blocked_avx256,dgemm_openmp_256;\
 func_list=dgemm_avx256,dgemm_basic,dgemm_basic_blocked,dgemm_unrolled_avx256,dgemm_blocked_avx256,dgemm_openmp_256;\
 if [[ ${RUN_MULTIPLE} == true ]];then \
 run_times=5;\
 else run_times=1;fi;\
 annotate_dir=${dir}/debug/debug_annotate;\
-events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
-,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
-,l2_cache_req_stat.ls_rd_blk_x\
-,l2_pf_miss_l2_hit_l3,l2_pf_miss_l2_l3\
+events=l2_cache_req_stat.ls_rd_blk_c\
 ,l2_wcb_req.cl_zero,l2_wcb_req.wcb_close\
 ,l2_wcb_req.wcb_write,l2_wcb_req.zero_byte_store\
 ;\
@@ -62,6 +60,7 @@ perf annotate -M intel --stdio --stdio-color always --group -n \
 fi;\
 perf report -i ~/perf_log/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.log --group --stdio -n --hierarchy > ${dir}/debug/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.report;\
 python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${sub_dir}/${file}_${BLOCK_DENOMINATOR}.report -o ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report -n ${events_num};\
+if [[ ${RUN_AWK} == true ]];then \
 echo "awk ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report";\
 cp ${dir}/debug/dgemm_de_dis.awk ${dir}/debug/dgemm_de_dis.awk.bk;\
 gawk -f ${dir}/debug/dgemm_de_dis.awk -o${dir}/debug/dgemm_de_dis_format.awk;\
@@ -70,15 +69,18 @@ awk \
 -v target_funcs="${func_list}" \
 -v output="${dir}/debug/${sub_dir}/${quotient_dir}/sample_num_${file}_quotient.report" \
 -v denominator="${BLOCK_DENOMINATOR}" \
--v select_column_str="6,7" \
+-v select_column_str="3,4" \
 -f ${dir}/debug/dgemm_de_dis.awk \
 ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report\
 ;echo "current BLOCK_DENOMINATOR: " ${BLOCK_DENOMINATOR}\
+;fi \
 ;done \
+;if [[ ${RUN_AWK} == true ]];then \
 ;echo "finish the nest loop"\
 ;cd ${dir}/debug/${sub_dir}/${quotient_dir}/\
 ;${dir}/debug/compare_rate_draw.py \
 -i sample_num_${file}_quotient.report \
 -o ../../${file}.svg ${file}.log \
 -l "dgemm_blocked_avx256,dgemm_openmp_256" \
+;fi \
 ;done

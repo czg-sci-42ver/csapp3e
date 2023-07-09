@@ -6261,6 +6261,9 @@ record list
 - [ ] `l2_request_g2.group1` and `l2_request_g1.group2`
 - [x] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
 - [x] `l2_request_g1.all_no_prefetch` ignored because ["UMask": "0xf9"](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L53C5-L53C20)
+- [ ] `l2_cache_req_stat.ls...` (ls(load/store) unit) (5 except `ls_rd_blk_l_hit_s` and `ls_rd_blk_l_hit_x`)
+- [x] `l2_pf_miss...` (2)
+- [ ] `l2_wcb_req` (4 except `wcb_close/wcb_write`)
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6562,7 +6565,7 @@ dgemm_blocked_avx256 -> 0.01
   `dgemm_basic_blocked` just [reuse](#reuse).
 - normalized: similar to the above, `avx256` load more from cache because it load unit (256 bits) is larger.
   `dgemm_basic_blocked` is based on the [block](#block), so even load more from cache.
-##### `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`, `l2_pf_miss_l2_hit_l3`,`l2_pf_miss_l2_l3`
+##### `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`, `l2_pf_miss_l2_hit_l3`,`l2_pf_miss_l2_l3`, `l2_wcb_req`
 ```bash
 $ dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
 file=no_prefetch_l2_opcache;\
@@ -6587,7 +6590,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 ```
 - `ls_rd_blk_c`
   - similar to above, `dgemm_basic_blocked` use block to cache and `dgemm_avx256` use ymm to cache which is better because it has corresponding instructions like `vfmadd` to help. And `dgemm_unrolled_avx256` has one factor of nearly `UNROLL` over `dgemm_avx256`.
-    From [this](https://stackoverflow.com/a/59868861/21294350), "bumped up to (at least on Intel CPUs) L3 cache" implies why `dgemm_openmp_256`'s ls_rd_blk_c is higher than `dgemm_blocked_avx256` (view the `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3` difference). Here "cache might be guessing" ~~may be not possible to guess how ~~ is probably based on consecutive access. Since multithread split the access, so they are *not consecutive on every core*, then also make `ls_rd_blk_c` higher. Also see "drop hints" to control how to tweak cache prefetch.
+    From [this](https://stackoverflow.com/a/59868861/21294350), "bumped up to (at least on Intel CPUs) L3 cache" implies why `dgemm_openmp_256`'s ls_rd_blk_c is higher than `dgemm_blocked_avx256` (view the `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3` difference). Here "cache might be guessing" ~~may be not possible to guess how ~~ is probably based on consecutive access. Since multithread split the access, so they are *not consecutive on every core*, then also make `ls_rd_blk_c` higher. Also see "drop hints" to control how to tweak cache prefetch. <a id="l2_pf_miss_l2_hit_l3"></a>
     ```bash
     $ git rev-parse HEAD                                                        
     6d7767c463ff8e069e6ee5d5be7d88ce7e8a5330
@@ -6611,10 +6614,15 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 - `ls_rd_blk_x` better compare with store miss, but perf with my cpu not support that.
   - [store hit p6](https://cseweb.ucsd.edu/classes/wi02/cse141/c16moreCache.pdf) just means data is in cache (maybe dirty).
     - 'store hit' of `dgemm_unrolled_avx256` and `dgemm_blocked_avx256` are low because their store block is large. And `dgemm_openmp_256` split it, so it is higher.
-  - `l2_wcb_req.cl_zero` just means something like clearing cache "repeated zero-ing of the same memory buffer".
-    It and `l2_wcb_req.zero_byte_store` are probably $0$.
 - `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3`
+  relation between the funcs of each events are same as L2 related.
+
+  from the following, `dgemm_openmp_256` is higher (just see [above](#l2_pf_miss_l2_hit_l3)). Same as above, bigger blocks caused less fetch from L3 (numerator smaller), so more L3 *compulsory* *miss* proportion (denominator larger). 
+  also see locality and successful prefetch [inverse proportion "generate a lot of L2 misses, and often a lot of L3 hits"](https://stackoverflow.com/a/50035058/21294350) relation with L3 hit
+  - TODO BFS relation with cache in the above link.
   ```bash
+  $ git rev-parse HEAD                                   
+  5baa17aeddab268007100aa3ed68f360fee165ff
   $ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh 
   $ cat sample_num_no_prefetch_l2_opcache_quotient.report
   func dgemm_basic: 8144, 4669, 1.74427
@@ -6623,6 +6631,33 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
   func dgemm_basic_blocked: 4399, 2947, 1.4927
   func dgemm_openmp_256: 1395, 867, 1.609
   func dgemm_blocked_avx256: 626, 470, 1.33191
+  ```
+- `l2_wcb_req.cl_zero` just means something like clearing cache "repeated zero-ing of the same memory buffer".
+  It and `l2_wcb_req.zero_byte_store` are probably $0$.
+
+  relation between the funcs of each events are same as ~~ above `l2_pf_miss_l2_hit_l3` and~~ L2 related.
+
+  TODO `wcb_close` may be to cancel write.
+  Then `wcb_close/wcb_write < 1` normally but almost near 1. Why?
+  ```bash
+  $ cat ../sample_num_no_prefetch_l2_opcache_10.report
+  # Samples: 40K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_wcb_req.cl_zero, l2_wcb_req.wcb_close, l2_wcb_req.wcb_write, l2_wcb_req.zero_byte_store'
+   32898           0        3433        3985           0        dgemm_10
+       32296           0        2901        3174           0        dgemm_10            
+          14878           0        1312        1443           0        [.] dgemm_basic
+          3853           0         348         364           0        [.] dgemm_avx256
+           1112           0          88          69           0        [.] dgemm_unrolled_avx256
+           8897           0         795         828           0        [.] dgemm_basic_blocked
+           2420           0         253         352           0        [.] dgemm_openmp_256
+           1125           0         102         114           0        [.] dgemm_blocked_avx256
+  $ cat sample_num_no_prefetch_l2_opcache_quotient.report
+  10:
+  func dgemm_basic: 1312, 1443, 0.909217
+  func dgemm_avx256: 348, 364, 0.956044
+  func dgemm_unrolled_avx256: 88, 69, 1.27536
+  func dgemm_basic_blocked: 795, 828, 0.960145
+  func dgemm_openmp_256: 253, 352, 0.71875
+  func dgemm_blocked_avx256: 102, 114, 0.894737
   ```
 
 ###### `de_dis_uops_from_decoder`
@@ -6991,6 +7026,8 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
           - Conclusion: make sure "hot code block" *fit in* opcache by 1. spliting complex instruction (m1,i.e. method 1 in the doc) or loops (m0.2) 2. aligning by adding nop *outside* (m1.2,m2 "among the branches" but "not executed",m3 " are not part of hot code") or in the loop (m1.3) 3. change ordering (m3.) 4. limit unroll (m0.1) 5. tweak based on 1/2 threads running per core (m0.3).
           - see p88 for "Local impact",etc with "M impact, M generality" meaning. 
             - "Avoid putting explicit references to *ESP* in a sequence" may means above *virtual table method* should not use frequently the *stacks* which will increase the overheads because these functions are recommended to be small to *fit in* the opcache.
+##### `l2_cache_hits_from_l2_hwpf`
+
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).

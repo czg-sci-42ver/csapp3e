@@ -92,13 +92,19 @@ if __name__ == "__main__":
                         continue
                     if find_func:
                         if find_cnt[func_str]['cnt']==1:
-                            base_data = float(target_line_list[-1])
+                            try:
+                                base_data = float(target_line_list[-1])
+                            except ValueError:
+                                sys.exit(''.join(target_line_list)+"\n with "+target_line_list[-1]+" is error")
                             find_cnt[func_str]['base'] = base_data
                             find_cnt[func_str]['datas'].append(1)
                             print(func_str,"'s base: ",find_cnt[func_str]['base'])
                             contents_output += func_str+": "+"1 ("+str(base_data)+")"+newline_symbol
                         else:
-                            data = float(target_line_list[-1])
+                            try:
+                                data = float(target_line_list[-1])
+                            except ValueError:
+                                sys.exit(''.join(target_line_list)+"\n with "+target_line_list[-1]+" is error")
                             compare_data = data/find_cnt[func_str]['base']
                             if compare_data == 0:
                                 miscs.print_err(data,"/",find_cnt[func_str]['base']," is 0 with ",func_str)
