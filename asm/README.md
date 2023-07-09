@@ -6877,6 +6877,43 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
                 $ ipython -c "0x11a0/16"
                 Out[1]: 282.0
                 ```
+          - see this for jump table [without switch](https://godbolt.org/z/n6c3q6sPc) which use stack and `call` from [this](https://www.sanfoundry.com/c-tutorials-jump-tables/) 
+            and this one with [switch](https://godbolt.org/z/1o7K8bczY) based on [this](https://stackoverflow.com/a/48033/21294350) where [`goto`](https://en.wikipedia.org/wiki/Branch_table#Other_uses_of_technique) is unconditional (if without something like `state++;`, just optimize by combining `case` and `goto` to one conditional jump.)
+            [switch with break,etc](http://books.gigatux.nl/mirror/cinanutshell/0596006977/cinanut-CHP-6-SECT-5.html) implies [unconditional jump](https://godbolt.org/z/PKvEbbMh5).
+            - [.zero](https://stackoverflow.com/questions/65641034/what-is-zero-in-gnu-gas#comment116055951_65641122)
+            - TODO view detailedly how virtual table is [dynamic](https://www.learncpp.com/cpp-tutorial/the-virtual-table/) or [this](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/)
+              - here the Virtual Destructors are probably done by [`_Unwind_Resume`](https://refspecs.linuxfoundation.org/LSB_3.1.0/LSB-Core-S390/LSB-Core-S390/baselib--unwind-resume.html) because they are [same](https://godbolt.org/z/3zn9G8Eqz)
+            - view virtual table in gdb `13.1`
+              ```bash
+              
+              ```
+              - cpp ~~not~~ uses unconditional jump with `call` for virtual table. With [this code](../self_test/miscs_test/jump_table/virtual_method/virtual_method.cpp), `operator new` first return a `p` without `_vptr.Base` init. Then update `_vptr.Base` in `Derived::Derived(int)` (the vtbl addr is hardcoded, at least without `-O`).
+                ```bash
+                  # here use `rbp` to save arg.
+                $ g++ -fno-pic -no-pie -fno-pie virtual_method.cpp -o virtual_method_no_pie.o -g
+                $ gdb virtual_method_no_pie.o -x debug.gdb
+                   0x0000000000401287 <+9>:     mov    QWORD PTR [rbp-0x18],rdi # rdi is 1st param: ptr p,[rbp-0x18] stores `this`
+                   0x000000000040128b <+13>:    mov    DWORD PTR [rbp-0x1c],esi
+                   0x000000000040128e <+16>:    mov    rax,QWORD PTR [rbp-0x18] # the two lines just make `rax` -> `this`
+                   0x0000000000401292 <+20>:    mov    rdi,rax
+                   0x0000000000401295 <+23>:    call   0x401266 <Base::Base() at virtual_method.cpp:3>
+                   0x000000000040129a <+28>:    mov    edx,0x402040
+                   0x000000000040129f <+33>:    mov    rax,QWORD PTR [rbp-0x18]
+                => 0x00000000004012a3 <+37>:    mov    QWORD PTR [rax],rdx  # store `0x402040` addr to `[rax]` (i.e. this[0])
+                ...
+                   0x00000000004012bd <+63>:    jmp    0x4012d9 <Derived::Derived(int)+91 at virtual_method.cpp:18>
+                    ...
+                   # use this to get to addr
+                   0x00000000004011c0  main()+58 mov    rdx,QWORD PTR [rax]
+                   0x00000000004011c3  main()+61 add    rdx,0x8
+                   0x00000000004011c7  main()+65 mov    rdx,QWORD PTR [rdx]
+                   0x00000000004011ca  main()+68 mov    rdi,rax
+                   0x00000000004011cd  main()+71 call   rdx # call Derived::~Derived()
+                $ gdb virtual_method_no_pie.o -x debug.gdb
+                $ 
+                ```
+                The above `ptr_uninit` is inited by compiler when `_start`.
+          - ~~TODO why~~ unconditional branch *may* consume [five bytes](https://www.felixcloutier.com/x86/jmp) if displacement is one somewhat [too negative number](https://godbolt.org/z/eWEdbWM83).
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
