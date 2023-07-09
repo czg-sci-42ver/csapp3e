@@ -29,6 +29,6 @@ private:
 
 int main()
 {
-  Base* p = new Derived(5);
-  delete p;
+  Base* pObject = new Derived(5);
+  delete pObject;
 }

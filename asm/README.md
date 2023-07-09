@@ -6254,6 +6254,7 @@ record list
   - [x] `change_to_x`
   - [x] `prefetch_l2_cmd`
 - [ ] `l2_request_g2.group1` and `l2_request_g1.group2`
+- [ ] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6803,7 +6804,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
 
           Maybe have one *extra buffer for opcache* between it and the decoder 'IDK if there's some kind of buffering for non-branching uop fetch.'. The above buffer is "merge buffer" in "uop cache into some merge buffer.".
           - Also see intel vtune doc.
-            From [this](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html#id-d33822e1302), [MS "microcode to implement ones that take **multiple** clock cycles to complete." ](https://en.wikipedia.org/wiki/Microsequencer#:~:text=In%20computer%20architecture%20and%20engineering,alone%20generator%20for%20address%20ranges.) switch may cause more overhead then DSB and MITE (i.e. the above `de_dis_uops_from_decoder` events)
+            From [this](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/cpu-metrics-reference.html#id-d33822e1302), [MS "microcode to implement ones that take **multiple** clock cycles to complete." ](https://en.wikipedia.org/wiki/Microsequencer#:~:text=In%20computer%20architecture%20and%20engineering,alone%20generator%20for%20address%20ranges.) switch may cause *more overheads then* DSB and MITE (i.e. the above `de_dis_uops_from_decoder` events)
             - microcode are *mostly* stored in [ROM](https://en.wikipedia.org/wiki/Microcode#Micro-operations). 
             - TODO: code *restrictions* for caching in the DSB
             - ["when two *reads map to the same bank*, we have a bank conflict."](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=5ed3fe8b0f9332b03f4e61ea5f7a25a406c08ccb#:~:text=Thus%2C%20caches%20in%20processors%20are,we%20have%20a%20bank%20conflict.) -> so influence bandwidth because not all data transmit lines related with banks are used.
@@ -6849,7 +6850,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
             - Adaptive Mode: just not "competitively shared" (i.e. which may cause invalidation) when CR3 and [paging mode (similar riscv hugepage)](https://en.wikipedia.org/wiki/Intel_5-level_paging) are unchanged.
             - loop-fission is just the opposite of loop-unrolling. The former is to [achieve better utilization of *locality* of reference](https://en.wikipedia.org/wiki/Loop_fission_and_fusion) while the latter is to avoid too frequent branching.
             - "to about 1500 instructions." implies one opcache per core if two threads per core (this is the normal case). 
-            - ~~"among two different 32-byte chunks"~~ "adding multiple byte NOPs" is used in the above codes
+            - ~~"among two different 32-byte chunks"~~ "adding multiple byte NOPs" is used in the *above codes*
               ```bash
               $ git rev-parse HEAD                                                                                 
               634c69e2bb639ded35537635811024381aa7babc
@@ -6878,12 +6879,19 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
                 Out[1]: 282.0
                 ```
           - see this for jump table [without switch](https://godbolt.org/z/n6c3q6sPc) which use stack and `call` from [this](https://www.sanfoundry.com/c-tutorials-jump-tables/) 
+
+            since the above codes not used "jump tables and switch declarations", so the nops used in the above codes are not related with them.
+            But here "unconditional branches are too *dense*" and the following "Dense branches in a 32 byte aligned chunk," can explain why above `BLOCK_DENOMINATOR=40` is the worst.
+
             and this one with [switch](https://godbolt.org/z/1o7K8bczY) based on [this](https://stackoverflow.com/a/48033/21294350) where [`goto`](https://en.wikipedia.org/wiki/Branch_table#Other_uses_of_technique) is unconditional (if without something like `state++;`, just optimize by combining `case` and `goto` to one conditional jump.)
             [switch with break,etc](http://books.gigatux.nl/mirror/cinanutshell/0596006977/cinanut-CHP-6-SECT-5.html) implies [unconditional jump](https://godbolt.org/z/PKvEbbMh5).
             - [.zero](https://stackoverflow.com/questions/65641034/what-is-zero-in-gnu-gas#comment116055951_65641122)
             - TODO view detailedly how virtual table is [dynamic in 'learncpp'](https://www.learncpp.com/cpp-tutorial/the-virtual-table/) or [this](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/)
               - here the Virtual Destructors are probably done by [`_Unwind_Resume`](https://refspecs.linuxfoundation.org/LSB_3.1.0/LSB-Core-S390/LSB-Core-S390/baselib--unwind-resume.html) because they are [same](https://godbolt.org/z/3zn9G8Eqz)
             - view virtual table in gdb `13.1`
+
+              also can viewed by [compiler](https://stackoverflow.com/a/7678464/21294350)
+
               also see the vtbl [layout](https://en.wikipedia.org/wiki/Virtual_method_table#Example) 
               [link_1](https://stackoverflow.com/q/37213562/21294350): 1st on use; 2nd maybe too many if using causal `info variables .*p`; 3rd **useful**; 4th not convenient used in gdb script.
               [this](https://stackoverflow.com/a/7965579/21294350) is much better
@@ -6903,6 +6911,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
               type = void *
               ```
               - cpp ~~not~~ uses unconditional jump with `call` for virtual table. With [this code](../self_test/miscs_test/jump_table/virtual_method/virtual_method.cpp), `operator new` first return a `p` without `_vptr.Base` init. Then update `_vptr.Base` in `Derived::Derived(int)` (the vtbl addr is hardcoded, at least without `-O`).
+                notice: [old 8085 processors](https://www.geeksforgeeks.org/branching-instructions-8085-microprocessor/) has conditional call (is substituted by [conditional jmp](https://godbolt.org/z/eWEdbWM83) in x86-64)
                 ```bash
                   # here use `rbp` to save arg.
                 $ g++ -fno-pic -no-pie -fno-pie virtual_method.cpp -o virtual_method_no_pie.o -g
@@ -6932,6 +6941,11 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
                 ```
                 The above `ptr_uninit` is inited by compiler when `_start`.
           - ~~TODO why~~ unconditional branch *may* consume [five bytes](https://www.felixcloutier.com/x86/jmp) if displacement is one somewhat [too negative number](https://godbolt.org/z/eWEdbWM83).
+          - here `only three` is probably based on one somewhat worst condition from "up to *seven* of them can be associated with a 32-byte chunk": think of the instruction in the branch is at least 5 bytes.
+          - Here guess: probably opcache loads one small code block (i.e. 32 byte aligned chunk) at least every time loading by "prohibit *all* the micro-ops of the instructions in the chunk" and "the unconditional branches are too *dense* in each 32Byte-aligned chunk".
+          - Conclusion: make sure "hot code block" *fit in* opcache by 1. spliting complex instruction (m1,i.e. method 1 in the doc) or loops (m0.2) 2. aligning by adding nop *outside* (m1.2,m2 "among the branches" but "not executed",m3 " are not part of hot code") or in the loop (m1.3) 3. change ordering (m3.) 4. limit unroll (m0.1) 5. tweak based on 1/2 threads running per core (m0.3).
+          - see p88 for "Local impact",etc with "M impact, M generality" meaning. 
+            - "Avoid putting explicit references to *ESP* in a sequence" may means above *virtual table method* should not use frequently the *stacks* which will increase the overheads because these functions are recommended to be small to *fit in* the opcache.
 ### comparsion after adding `store` related
 ### perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).

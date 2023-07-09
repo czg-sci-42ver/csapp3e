@@ -2,7 +2,8 @@ start
 br *main+13
 #we *p
 # https://sourceware.org/gdb/onlinedocs/gdb/Convenience-Vars.html
-set var $ptr_uninit = p
+#set var $ptr_uninit = p
+set var $ptr_uninit = pObject
 we $ptr_uninit
 until *main+23
 set var $ptr=$rax
@@ -19,7 +20,7 @@ fin
 si
 until *main+58
 #d-- $rip
-disassemble /r *(long*)((void*)p[0]+0x8)
+disassemble /r *(long*)((void*)pObject[0]+0x8)
 
 # weird this won't watch data at the addr ; https://stackoverflow.com/a/31202563/21294350
 #awatch *(long*)$ptr_uninit
