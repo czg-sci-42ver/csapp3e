@@ -6881,11 +6881,26 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
             and this one with [switch](https://godbolt.org/z/1o7K8bczY) based on [this](https://stackoverflow.com/a/48033/21294350) where [`goto`](https://en.wikipedia.org/wiki/Branch_table#Other_uses_of_technique) is unconditional (if without something like `state++;`, just optimize by combining `case` and `goto` to one conditional jump.)
             [switch with break,etc](http://books.gigatux.nl/mirror/cinanutshell/0596006977/cinanut-CHP-6-SECT-5.html) implies [unconditional jump](https://godbolt.org/z/PKvEbbMh5).
             - [.zero](https://stackoverflow.com/questions/65641034/what-is-zero-in-gnu-gas#comment116055951_65641122)
-            - TODO view detailedly how virtual table is [dynamic](https://www.learncpp.com/cpp-tutorial/the-virtual-table/) or [this](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/)
+            - TODO view detailedly how virtual table is [dynamic in 'learncpp'](https://www.learncpp.com/cpp-tutorial/the-virtual-table/) or [this](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/)
               - here the Virtual Destructors are probably done by [`_Unwind_Resume`](https://refspecs.linuxfoundation.org/LSB_3.1.0/LSB-Core-S390/LSB-Core-S390/baselib--unwind-resume.html) because they are [same](https://godbolt.org/z/3zn9G8Eqz)
             - view virtual table in gdb `13.1`
+              also see the vtbl [layout](https://en.wikipedia.org/wiki/Virtual_method_table#Example) 
+              [link_1](https://stackoverflow.com/q/37213562/21294350): 1st on use; 2nd maybe too many if using causal `info variables .*p`; 3rd **useful**; 4th not convenient used in gdb script.
+              [this](https://stackoverflow.com/a/7965579/21294350) is much better
               ```bash
-              
+              >>> p /a (*(void ***)p)[0]@10 # here `*` and `[]` derefereence two times. -> void*; this is similar to how to get the vtbl in the cpp code https://stackoverflow.com/a/5101754/21294350; 
+              $7 = {[0x0] = 0x4012e0 <Derived::~Derived() at virtual_method.cpp:20>...
+              # p -> vtable for Derived -> Derived::~Derived; so `void ***`; also see the following 
+              >>> p p[0]
+              $13 = (Derived) {
+                <Base> = {
+                  _vptr.Base = 0x402040 <vtable for Derived+16>
+              ...
+              >>> x (void*)p[0]
+              0x402040 <vtable for Derived+16>:       0x4012e0 <Derived::~Derived() at virtual_method.cpp:20>
+              # https://stackoverflow.com/a/63404160/21294350
+              >>> ptype ((*(void **)p))
+              type = void *
               ```
               - cpp ~~not~~ uses unconditional jump with `call` for virtual table. With [this code](../self_test/miscs_test/jump_table/virtual_method/virtual_method.cpp), `operator new` first return a `p` without `_vptr.Base` init. Then update `_vptr.Base` in `Derived::Derived(int)` (the vtbl addr is hardcoded, at least without `-O`).
                 ```bash
@@ -6910,7 +6925,10 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
                    0x00000000004011ca  main()+68 mov    rdi,rax
                    0x00000000004011cd  main()+71 call   rdx # call Derived::~Derived()
                 $ gdb virtual_method_no_pie.o -x debug.gdb
-                $ 
+                $ cat 
+                disassemble /r *(long*)((void*)p[0]+0x8) # this implies " the entry for function2 points to D2::function2()." in above learncpp link.
+                $ git rev-parse HEAD                                      
+                6f3cf370460a4413ac1be0f0a33931e43bd76bec
                 ```
                 The above `ptr_uninit` is inited by compiler when `_start`.
           - ~~TODO why~~ unconditional branch *may* consume [five bytes](https://www.felixcloutier.com/x86/jmp) if displacement is one somewhat [too negative number](https://godbolt.org/z/eWEdbWM83).
