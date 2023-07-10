@@ -180,7 +180,6 @@ main:
 ## computer basics
 - stack always [multiple of eight](https://stackoverflow.com/questions/66816732/memory-allocation-in-the-power-of-two-vs-multiple-of-eight)
 ## stackoverflow Q to ask
-- https://stackoverflow.com/questions/76646899 : If so, on the different PMC from the above PMCx060, [`l2_cache_accesses_from_dc_misses`][2] don't have [`l2_request_g1.ls_rd_blk_c_s`](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L18C15-L18C19) unit mask set. Why does `l2_cache_accesses_from_dc_misses` not take `l2_request_g1.ls_rd_blk_c_s` in account?
 # resources
 ## categories
 - [registers](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture) [or](https://wiki.osdev.org/CPU_Registers_x86-64) 
@@ -5972,7 +5971,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 # cache miss debug
 - I use ryzen 7 4800h with [256KiB L1D cache](https://en.wikichip.org/wiki/amd/ryzen_7/4800h#Cache) and each core has [32KiB](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280)
   [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket )
-  from the following, L2 is 64 byte <a id="cacheline_byte"></a>:
+  from the following, L2 is 64 byte (cacheline size per way) <a id="cacheline_byte"></a>:
   ```bash
   $ lscpu --cache
   NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
@@ -6459,13 +6458,15 @@ record list
 - [ ] `l2_request_g1`
   - [x] `change_to_x`
   - [x] `prefetch_l2_cmd`
-- [ ] `l2_request_g2.group1` and `l2_request_g1.group2`
+- [x] `l2_request_g2.group1` and `l2_request_g1.group2` ignored because they contains multiple small events
 - [x] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
 - [x] `l2_request_g1.all_no_prefetch` ignored because ["UMask": "0xf9"](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L53C5-L53C20)
-- [ ] `l2_cache_req_stat.ls...` (ls(load/store) unit) (5 except `ls_rd_blk_l_hit_s` and `ls_rd_blk_l_hit_x`)
+- [ ] `l2_cache_req_stat.ls...` (ls(load/store) unit) (5 except `ls_rd_blk_l_hit_x`)
 - [x] `l2_pf_miss...` (2)
 - [ ] `l2_wcb_req` (4 except `wcb_close/wcb_write`)
 - [x] `l2_request_g2.ls_rd_sized...` (2)
+- [x] `l2_request_g1.ls_rd_blk_c_s`
+- [x] `l2_request_g1.rd_blk_l/x` (2)
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6679,7 +6680,11 @@ $ cat debug/sample_${file}.report
   ```
 ### `l2_request_g1.ls_rd_blk_c_s` just similar to `l2_cache_req_stat.ls_rd_blk_cs` 
 - the former including prefetches is higher than the latter except for `dgemm_openmp_256`.
-- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see ``
+- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see:
+  ```bash
+  $ git rev-parse HEAD
+  54bd59d29b60647ab676f8d4e82343669a7fd93d
+  ```
 ### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
   Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
@@ -6811,77 +6816,94 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
            1031         596         374        1033           6         939         496        [.] dgemm_unrolled_avx256
            488         150         142         530         355         436         405        [.] dgemm_blocked_avx256
 ```
-- `ls_rd_blk_c`
-  - similar to above, `dgemm_basic_blocked` use block to cache and `dgemm_avx256` use ymm to cache which is better because it has corresponding instructions like `vfmadd` to help. And `dgemm_unrolled_avx256` has one factor of nearly `UNROLL` over `dgemm_avx256`.
-    From [this](https://stackoverflow.com/a/59868861/21294350), "bumped up to (at least on Intel CPUs) L3 cache" implies why `dgemm_openmp_256`'s ls_rd_blk_c is higher than `dgemm_blocked_avx256` (view the `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3` difference). Here "cache might be guessing" ~~may be not possible to guess how ~~ is probably based on consecutive access. Since multithread split the access, so they are *not consecutive on every core*, then also make `ls_rd_blk_c` higher. Also see "drop hints" to control how to tweak cache prefetch. <a id="l2_pf_miss_l2_hit_l3"></a>
-    ```bash
-    $ git rev-parse HEAD                                                        
-    6d7767c463ff8e069e6ee5d5be7d88ce7e8a5330
-    $ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh
-        # change events to l3 
-    $ cat ../sample_num_no_prefetch_l2_opcache_10.report
-    # Samples: 157K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_cache_req_stat.ls_rd_blk_cs, l2_cache_req_stat.ls_rd_blk_l_hit_s, l2_cache_req_stat.ls_rd_blk_l_hit_x, l2_cache_req_stat.ls_rd_blk_x, l2_pf_miss_l2_hit_l3, l2_pf_miss_l2_l3'
-       29625       20479       18437       29845       13018       27928       18627        dgemm_10
-           28768       19026       16707       29224       11750       27314       17842        dgemm_10            
-              13455        8656        7891       13439        8355       12890        8119        [.] dgemm_basic
-              3534        2375        1713        3571         199        3515        2469        [.] dgemm_avx256
-               996         325         423        1002           2         924         509        [.] dgemm_unrolled_avx256
-               8037        5568        3721        8023        1771        6856        4077        [.] dgemm_basic_blocked
-               1815        1153        2227        1955        1272        2116        1271        [.] dgemm_openmp_256
-               917         722         588        1103           5         852         671        [.] dgemm_blocked_avx256
-    ```
-- `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and **less** *required* share hits. Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
-- `ls_rd_blk_l_hit_s` [TODO](https://stackoverflow.com/questions/76646899)
-- `ls_rd_blk_l_hit_x/ls_rd_blk_c` are all almost $1$. Why all similar? TODO
-  - ~~after all, this quotient is not the main part to optimize. Just to decrease the miss count is .~~
-- `ls_rd_blk_x` better compare with store miss, but perf with my cpu not support that.
-  - [store hit p6](https://cseweb.ucsd.edu/classes/wi02/cse141/c16moreCache.pdf) just means data is in cache (maybe dirty).
-    - 'store hit' of `dgemm_unrolled_avx256` and `dgemm_blocked_avx256` are low because their store block is large. And `dgemm_openmp_256` split it, so it is higher.
-- `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3`
-  relation between the funcs of each events are same as L2 related.
-
-  from the following, `dgemm_openmp_256` is higher (just see [above](#l2_pf_miss_l2_hit_l3)). Same as above, bigger blocks caused less fetch from L3 (numerator smaller), so more L3 *compulsory* *miss* proportion (denominator larger). 
-  also see locality and successful prefetch [inverse proportion "generate a lot of L2 misses, and often a lot of L3 hits"][miss_rate] relation with L3 hit
-  - TODO BFS relation with cache in the above link.
+### `l2_cache_req_stat.ls_rd_blk_c`
+- similar to above, `dgemm_basic_blocked` use block to cache and `dgemm_avx256` use ymm to cache which is better because it has corresponding instructions like `vfmadd` to help. And `dgemm_unrolled_avx256` has one factor of nearly `UNROLL` over `dgemm_avx256`.
+  From [this](https://stackoverflow.com/a/59868861/21294350), "bumped up to (at least on Intel CPUs) L3 cache" implies why `dgemm_openmp_256`'s ls_rd_blk_c is higher than `dgemm_blocked_avx256` (view the `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3` difference). Here "cache might be guessing" ~~may be not possible to guess how ~~ is probably based on consecutive access. Since multithread split the access, so they are *not consecutive on every core*, then also make `ls_rd_blk_c` higher. Also see "drop hints" to control how to tweak cache prefetch. <a id="l2_pf_miss_l2_hit_l3"></a>
   ```bash
-  $ git rev-parse HEAD                                   
-  5baa17aeddab268007100aa3ed68f360fee165ff
-  $ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh 
-  $ cat sample_num_no_prefetch_l2_opcache_quotient.report
-  func dgemm_basic: 8144, 4669, 1.74427
-  func dgemm_avx256: 2150, 1369, 1.57049
-  func dgemm_unrolled_avx256: 573, 397, 1.44332
-  func dgemm_basic_blocked: 4399, 2947, 1.4927
-  func dgemm_openmp_256: 1395, 867, 1.609
-  func dgemm_blocked_avx256: 626, 470, 1.33191
-  ```
-- `l2_wcb_req.cl_zero` just means something like clearing cache "repeated zero-ing of the same memory buffer".
-  It and `l2_wcb_req.zero_byte_store` are probably $0$.
-
-  relation between the funcs of each events are same as ~~ above `l2_pf_miss_l2_hit_l3` and~~ L2 related.
-
-  TODO `wcb_close` may be to cancel write.
-  Then `wcb_close/wcb_write < 1` normally but almost near 1. Why?
-  ```bash
+  $ git rev-parse HEAD                                                        
+  6d7767c463ff8e069e6ee5d5be7d88ce7e8a5330
+  $ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh
+      # change events to l3 
   $ cat ../sample_num_no_prefetch_l2_opcache_10.report
-  # Samples: 40K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_wcb_req.cl_zero, l2_wcb_req.wcb_close, l2_wcb_req.wcb_write, l2_wcb_req.zero_byte_store'
-   32898           0        3433        3985           0        dgemm_10
-       32296           0        2901        3174           0        dgemm_10            
-          14878           0        1312        1443           0        [.] dgemm_basic
-          3853           0         348         364           0        [.] dgemm_avx256
-           1112           0          88          69           0        [.] dgemm_unrolled_avx256
-           8897           0         795         828           0        [.] dgemm_basic_blocked
-           2420           0         253         352           0        [.] dgemm_openmp_256
-           1125           0         102         114           0        [.] dgemm_blocked_avx256
-  $ cat sample_num_no_prefetch_l2_opcache_quotient.report
-  10:
-  func dgemm_basic: 1312, 1443, 0.909217
-  func dgemm_avx256: 348, 364, 0.956044
-  func dgemm_unrolled_avx256: 88, 69, 1.27536
-  func dgemm_basic_blocked: 795, 828, 0.960145
-  func dgemm_openmp_256: 253, 352, 0.71875
-  func dgemm_blocked_avx256: 102, 114, 0.894737
+  # Samples: 157K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_cache_req_stat.ls_rd_blk_cs, l2_cache_req_stat.ls_rd_blk_l_hit_s, l2_cache_req_stat.ls_rd_blk_l_hit_x, l2_cache_req_stat.ls_rd_blk_x, l2_pf_miss_l2_hit_l3, l2_pf_miss_l2_l3'
+     29625       20479       18437       29845       13018       27928       18627        dgemm_10
+         28768       19026       16707       29224       11750       27314       17842        dgemm_10            
+            13455        8656        7891       13439        8355       12890        8119        [.] dgemm_basic
+            3534        2375        1713        3571         199        3515        2469        [.] dgemm_avx256
+             996         325         423        1002           2         924         509        [.] dgemm_unrolled_avx256
+             8037        5568        3721        8023        1771        6856        4077        [.] dgemm_basic_blocked
+             1815        1153        2227        1955        1272        2116        1271        [.] dgemm_openmp_256
+             917         722         588        1103           5         852         671        [.] dgemm_blocked_avx256
   ```
+### `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and **less** *required* share hits. 
+Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
+### `ls_rd_blk_l_hit_s` [has been solved](https://stackoverflow.com/questions/76646899)
+from the below `l2_cache_req_stat.ls_rd_blk_cs/l2_cache_req_stat.ls_rd_blk_l_hit_s`, openmp split into threads so it has more owned states of cache which make others "non-modifiable" in [17h_A0h], then the denominator is bigger.
+small store unit size but larger than `dgemm_basic` (i.e. `dgemm_avx256` and `dgemm_basic_blocked`) just more efficiently used the [cache line](#cacheline_byte).
+
+`dgemm_unrolled_avx256` store unit size may be too big just as [this](#store_size) said.
+
+`dgemm_blocked_avx256` sometimes higher / lower than `dgemm_unrolled_avx256`.
+```bash
+$ cat sample_num_no_prefetch_l2_opcache_quotient.report
+10:
+func               dgemm_basic:  2965,  1903,    1.55807; 
+func              dgemm_avx256:  1321,   406,    3.25369; 
+func       dgemm_basic_blocked:  1360,   522,    2.60536; 
+func     dgemm_unrolled_avx256:    68,    54,    1.25926; 
+func          dgemm_openmp_256:   618,  2250,   0.274667; 
+func      dgemm_blocked_avx256:   146,    84,     1.7381; 
+```
+### `ls_rd_blk_l_hit_x/ls_rd_blk_c` are all almost $1$. Why all similar? TODO
+- ~~after all, this quotient is not the main part to optimize. Just to decrease the miss count is .~~
+### `ls_rd_blk_x` better compare with store miss, but perf with my cpu not support that.
+- [store hit p6](https://cseweb.ucsd.edu/classes/wi02/cse141/c16moreCache.pdf) just means data is in cache (maybe dirty).
+  - 'store hit' of `dgemm_unrolled_avx256` and `dgemm_blocked_avx256` are low because their store block is large. And `dgemm_openmp_256` split it, so it is higher. <a id="store_size"></a>
+### `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3`
+relation between the funcs of each events are same as L2 related.
+
+from the following, `dgemm_openmp_256` is higher (just see [above](#l2_pf_miss_l2_hit_l3)). Same as above, bigger blocks caused less fetch from L3 (numerator smaller), so more L3 *compulsory* *miss* proportion (denominator larger). 
+also see locality and successful prefetch [inverse proportion "generate a lot of L2 misses, and often a lot of L3 hits"][miss_rate] relation with L3 hit
+- TODO BFS relation with cache in the above link.
+```bash
+$ git rev-parse HEAD                                   
+5baa17aeddab268007100aa3ed68f360fee165ff
+$ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh 
+$ cat sample_num_no_prefetch_l2_opcache_quotient.report
+func dgemm_basic: 8144, 4669, 1.74427
+func dgemm_avx256: 2150, 1369, 1.57049
+func dgemm_unrolled_avx256: 573, 397, 1.44332
+func dgemm_basic_blocked: 4399, 2947, 1.4927
+func dgemm_openmp_256: 1395, 867, 1.609
+func dgemm_blocked_avx256: 626, 470, 1.33191
+```
+### `l2_wcb_req.cl_zero` just means something like clearing cache "repeated zero-ing of the same memory buffer".
+It and `l2_wcb_req.zero_byte_store` are probably $0$.
+
+relation between the funcs of each events are same as ~~ above `l2_pf_miss_l2_hit_l3` and~~ L2 related.
+
+TODO `wcb_close` may be to cancel write.
+Then `wcb_close/wcb_write < 1` normally but almost near 1. Why?
+```bash
+$ cat ../sample_num_no_prefetch_l2_opcache_10.report
+# Samples: 40K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_wcb_req.cl_zero, l2_wcb_req.wcb_close, l2_wcb_req.wcb_write, l2_wcb_req.zero_byte_store'
+  32898           0        3433        3985           0        dgemm_10
+      32296           0        2901        3174           0        dgemm_10            
+        14878           0        1312        1443           0        [.] dgemm_basic
+        3853           0         348         364           0        [.] dgemm_avx256
+          1112           0          88          69           0        [.] dgemm_unrolled_avx256
+          8897           0         795         828           0        [.] dgemm_basic_blocked
+          2420           0         253         352           0        [.] dgemm_openmp_256
+          1125           0         102         114           0        [.] dgemm_blocked_avx256
+$ cat sample_num_no_prefetch_l2_opcache_quotient.report
+10:
+func dgemm_basic: 1312, 1443, 0.909217
+func dgemm_avx256: 348, 364, 0.956044
+func dgemm_unrolled_avx256: 88, 69, 1.27536
+func dgemm_basic_blocked: 795, 828, 0.960145
+func dgemm_openmp_256: 253, 352, 0.71875
+func dgemm_blocked_avx256: 102, 114, 0.894737
+```
 
 ### `de_dis_uops_from_decoder`
 DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf) TODO p14 32B->32bit/[bytes](https://stackoverflow.com/questions/5983389/how-to-align-stack-at-32-byte-boundary-in-gcc)(both align to 32bit but not 32 bytes)?
@@ -7330,6 +7352,9 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 - the `[46.17%]` shown in `perf stat` is probably unused. See the source [codes](https://github1s.com/torvalds/linux/blob/master/tools/perf/util/stat-shadow.c#L688-L689).
   - `print_metric` is one func pointer, it may be [`script_print_metric`](https://github1s.com/torvalds/linux/blob/master/tools/perf/builtin-script.c#L2043-L2044) where the unit like `"%c/sec"` is output at last.
   - TODO see `perf_stat__print_shadow_stats_metricgroup`
+## TODO
+- Why does `l2_cache_accesses_from_dc_misses` not include `l2_request_g1.ls_rd_blk_c_s` in zen2, see [this](https://stackoverflow.com/questions/76646899) and also [this](https://unix.stackexchange.com/questions/750399)
+  - "Read Shared Hit" can be also seen from [here p146](https://scholarworks.utrgv.edu/cgi/viewcontent.cgi?article=1307&context=etd) (it corresponds to shared if MESI) and also [related](https://www.gamedev.net/tutorials/_/technical/general-programming/cache-in-a-multi-core-environment-r4098/) with False Sharing
 # awk miscs
 Develop the habit of [#! /bin/awk -f](https://www.gnu.org/software/gawk/manual/html_node/Executable-Scripts.html) which is [shebang](https://stackoverflow.com/a/50144357/21294350)
 Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.awk.txt) to get one scratch and how to use `awk`.
@@ -7685,6 +7710,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 <!-- from this https://www.amd.com/en/support/tech-docs/open-source-register-reference-for-amd-family-17h-processors, it applies to all 17h family -->
 [OCRR_17h]:../references/AMD/OSRR/OSRR_17h.pdf
 [SOG_17h]:../references/AMD/SwOpt/17h/55723_SOG_3.01_PUB.pdf
+[17h_A0h]:../references/AMD/PPR/17_A0/57243-A0-PUB_3.00.pdf
 
 <!-- wikichip -->
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
