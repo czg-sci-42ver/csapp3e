@@ -6423,7 +6423,7 @@ Unable to open file  /opt/amduprof/bin/AMDPerf/data/0x17_0x6/configs/l3/l3_confi
     - So [PPR_17h_60h] p167 just means not to fetch into L2cache. But just use L2cache to offer service to L1 cache. So [Core](https://github.com/torvalds/linux/blob/995b406c7e972fab181a4bb57f3b95e59b8e5bf3/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L184C26-L184C30) means `L1`. (Also see [this](https://unix.stackexchange.com/questions/326621/what-are-kernel-pmu-event-s-in-perf-events-list) related with intel)
   - `l2_request_g1.cacheable_ic_read` related PMCx060 and PMCx061 are ~~not~~ related with L1 miss. ~~So ignore them.~~ Only use `l2_request_g2.ic_rd_sized(_nc)` to test whether avx fetch *sized* data *cacheline*.
     - also see [uprof_doc] p38 for **metric group**.
-  - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds:
+  - `ls_hw_pf_dc_fill.ls_mabresp_rmt_cache` here shoule be 0, because my cpu only has one numa. This can be seen from [lstopo](#lstopo) and cmds <a id="numa"></a>:
     ```bash
      # https://stackoverflow.com/questions/11126093/how-do-i-know-if-my-server-has-numa
     $ numactl --hardware # share the main memory 
@@ -6435,7 +6435,7 @@ Unable to open file  /opt/amduprof/bin/AMDPerf/data/0x17_0x6/configs/l3/l3_confi
     node   0 
       0:  10 
     ```
-  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [PPR_17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch -> hardware prefetch) or prefetch (**implicit** fetch).
+  - `ls_refills_from_sys.ls_mabresp_lcl_cache` '**Home Node** is on this thread's die'. Better also see [PPR_17h_60h] doc. It is similar to above `ls_hw_pf_dc_fill`, only different in the aspect of whether demand (by instruction or explicit fetch) or prefetch (**implicit** fetch -> hardware prefetch).
     - '**IO** from this thread's die.'
   - `ls_st_commit_cancel2.st_commit_cancel_wcb_full` see [this](https://stackoverflow.com/a/25877134/21294350) 'never be written to a cache'. Also related with [Replacement_Policies](https://stackoverflow.com/questions/9544094/how-to-mark-some-memory-ranges-as-non-cacheable-from-c)
   - `l2_cache_accesses_from_dc_misses` -> `0xc8` -> `0b11001000`: why not count 'Data Cache Shared Reads' 
@@ -6467,6 +6467,7 @@ record list
 - [x] `l2_request_g2.ls_rd_sized...` (2)
 - [x] `l2_request_g1.ls_rd_blk_c_s`
 - [x] `l2_request_g1.rd_blk_l/x` (2)
+- [x] `l2_request_g1.l2_hw_pf`
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6680,15 +6681,40 @@ $ cat debug/sample_${file}.report
   ```
 ### `l2_request_g1.ls_rd_blk_c_s` just similar to `l2_cache_req_stat.ls_rd_blk_cs` 
 - the former including prefetches is higher than the latter except for `dgemm_openmp_256`.
-- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see:
+- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` (same as others how to get this data) may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see:
   ```bash
   $ git rev-parse HEAD
   54bd59d29b60647ab676f8d4e82343669a7fd93d
   ```
+### `l2_request_g1.change_to_x` is similar to `l2_cache_req_stat.ls_rd_blk_x`, see [this](#ls_rd_blk_x)
+### `l2_request_g1.l2_hw_pf` is just similar to `ls_refills_from_sys.ls_mabresp_lcl_l2` which is also similar to [`ls_hw_pf_dc_fill.ls_mabresp_lcl_l2`](#ls_refills_from_sys)
+- first 3 columns: why openmp and blocked showed `0.673953`,etc is same as [here](#non_modifiable) "split" and "unit size".
+
+  2nd 3 columns: still because unit size -> `dgemm_avx256` > `dgemm_unrolled_avx256` > `dgemm_blocked_avx256` (here similar `ls_mabresp_lcl_dram` with less `ls_mabresp_lcl_cache` is better.)
+  openmp split -> more share inside *home node*.
+```bash
+$ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh | grep events= -A 5
+events=l2_cache_req_stat.ls_rd_blk_c\
+,l2_request_g1.l2_hw_pf\
+,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
+,ls_refills_from_sys.ls_mabresp_lcl_l2\
+$ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh | grep select_column_str=     
+-v select_column_str="3,5;3,4" \
+$
+10:
+func               dgemm_basic: 16447, 16402,    1.00274; 16447, 11362,    1.44754; 
+func              dgemm_avx256:  3861,  3847,    1.00364;  3861,   812,    4.75493; 
+func       dgemm_basic_blocked:  9516,  9349,    1.01786;  9516,  3361,     2.8313; 
+func     dgemm_unrolled_avx256:  1186,  1189,   0.997477;  1186,   398,     2.9799; 
+func          dgemm_openmp_256:  1449,  2150,   0.673953;  1449,   351,    4.12821; 
+func      dgemm_blocked_avx256:   862,  1205,   0.715353;   862,   836,     1.0311; 
+```
 ### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
   Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
   Since most of `l2_request_g1` are not $0$, so it use cacheable write buffer. Then `ls_st_commit_cancel2.st_commit_cancel_wcb_full` is $0$.
+
+  Here, `ls_refills_from_sys.ls_mabresp_rmt_cache` and `ls_refills_from_sys.ls_mabresp_rmt_dram` is 0, because only one [numa](#numa) node. <a id="ls_refills_from_sys"></a>
   ```bash
   $ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_blk_x\
   ,l2_request_g1.ls_rd_blk_c_s\
@@ -6838,10 +6864,10 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 ### `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and **less** *required* share hits. 
 Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
 ### `ls_rd_blk_l_hit_s` [has been solved](https://stackoverflow.com/questions/76646899)
-from the below `l2_cache_req_stat.ls_rd_blk_cs/l2_cache_req_stat.ls_rd_blk_l_hit_s`, openmp split into threads so it has more owned states of cache which make others "non-modifiable" in [17h_A0h], then the denominator is bigger.
+from the below `l2_cache_req_stat.ls_rd_blk_cs/l2_cache_req_stat.ls_rd_blk_l_hit_s`, *openmp* split into threads so it has more owned states of cache which make others "non-modifiable" in [17h_A0h], then the denominator is bigger. <a id="non_modifiable"></a>
 small store unit size but larger than `dgemm_basic` (i.e. `dgemm_avx256` and `dgemm_basic_blocked`) just more efficiently used the [cache line](#cacheline_byte).
 
-`dgemm_unrolled_avx256` store unit size may be too big just as [this](#store_size) said.
+`dgemm_unrolled_avx256` *store unit size* may be too big just as [this](#store_size) said.
 
 `dgemm_blocked_avx256` sometimes higher / lower than `dgemm_unrolled_avx256`.
 ```bash
@@ -6859,6 +6885,19 @@ func      dgemm_blocked_avx256:   146,    84,     1.7381;
 ### `ls_rd_blk_x` better compare with store miss, but perf with my cpu not support that.
 - [store hit p6](https://cseweb.ucsd.edu/classes/wi02/cse141/c16moreCache.pdf) just means data is in cache (maybe dirty).
   - 'store hit' of `dgemm_unrolled_avx256` and `dgemm_blocked_avx256` are low because their store block is large. And `dgemm_openmp_256` split it, so it is higher. <a id="store_size"></a>
+- Also see [this](#non_modifiable) why `dgemm_openmp_256` higher (related with MOESI).
+  Notice `ls_rd_blk_x` of `dgemm_basic` and `dgemm_basic_blocked` because they store counts are high. (`change_to_x` not includes store but only `state change requests`) <a id="ls_rd_blk_x"></a>
+```bash
+$ cat ../sample_num_no_prefetch_l2_opcache_10.report
+# Samples: 55K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_request_g1.change_to_x, l2_cache_req_stat.ls_rd_blk_x, l2_cache_req_stat.ls_rd_blk_l_hit_s'
+...
+          16080          15        8436        1740        [.] dgemm_basic
+          3638           1           2         253        [.] dgemm_avx256
+           9205           3         328         409        [.] dgemm_basic_blocked
+           1182           0           3          48        [.] dgemm_unrolled_avx256
+           1187           0           1          55        [.] dgemm_blocked_avx256
+           2315        1169        1466        2487        [.] dgemm_openmp_256
+```
 ### `l2_pf_miss_l2_hit_l3/l2_pf_miss_l2_l3`
 relation between the funcs of each events are same as L2 related.
 
