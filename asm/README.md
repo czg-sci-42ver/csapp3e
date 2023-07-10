@@ -6455,9 +6455,12 @@ record list
 - [x] ls_hw_pf_dc_fill (5)
 - [x] ls_sw_pf_dc_fill (5)
 - [x] `ls_st_commit_cancel2.st_commit_cancel_wcb_full`
-- [ ] `l2_request_g1`
+- [ ] `l2_request_g1` (6)
   - [x] `change_to_x`
   - [x] `prefetch_l2_cmd`
+  - [x] `l2_request_g1.ls_rd_blk_c_s`
+  - [x] `l2_request_g1.rd_blk_l/x` (2)
+  - [x] `l2_request_g1.l2_hw_pf`
 - [x] `l2_request_g2.group1` and `l2_request_g1.group2` ignored because they contains multiple small events
 - [x] `de_dis_uops_from_decoder.opcache_dispatched` and `de_dis_uops_from_decoder.decoder_dispatched`
 - [x] `l2_request_g1.all_no_prefetch` ignored because ["UMask": "0xf9"](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L53C5-L53C20)
@@ -6465,9 +6468,10 @@ record list
 - [x] `l2_pf_miss...` (2)
 - [ ] `l2_wcb_req` (4 except `wcb_close/wcb_write`)
 - [x] `l2_request_g2.ls_rd_sized...` (2)
-- [x] `l2_request_g1.ls_rd_blk_c_s`
-- [x] `l2_request_g1.rd_blk_l/x` (2)
-- [x] `l2_request_g1.l2_hw_pf`
+- [ ] ic
+  - [x] `l2_cache_req_stat.ic_fill_hit_x`
+  - [x] `l2_cache_req_stat.ic_access_in_l2`
+  - [ ] ``
 ---
 
 - use this python script [perf_post_py_script] or 
@@ -6589,7 +6593,33 @@ $ perf report -i ~/perf_log/l2_cache_req_stat_ic_cache_fill_etc.log --group --st
 ...
 $ 
 ```
-- From above, viewing the value `ic_cache_fill_l2/ic_cache_fill_sys`, it 
+### viewing the value `ic_cache_fill_l2/ic_cache_fill_sys`
+  normally, they are all around 0.2. And more bigger store units implies less instruction fetch.
+  ```bash
+  func               dgemm_basic:   358,  1619,   0.221124; 
+  func       dgemm_basic_blocked:   133,   740,    0.17973; 
+  func              dgemm_avx256:    69,   352,   0.196023; 
+  func     dgemm_unrolled_avx256:    39,   220,   0.177273; 
+  func          dgemm_openmp_256:    23,   157,   0.146497; 
+  func      dgemm_blocked_avx256:    23,    91,   0.252747; 
+  ```
+### `l2_cache_req_stat.ic_fill_hit_x` is probably 0, since no ["modifiable line in L2"](https://github.com/torvalds/linux/blob/1c7873e3364570ec89343ff4877e0f27a7b21a61/tools/perf/pmu-events/arch/x86/amdzen2/cache.json#L166C120-L166C141) with instructions.
+### `l2_request_g1.cacheable_ic_read/l2_cache_req_stat.ic_access_in_l2` are almost $1$, meaning that all fetch from L2.
+### TODO `ic_dc_hit_in_l2/ic_dc_miss_in_l2` almost 1 and `ls_rd_blk_l_hit_x` is almost same as `ic_dc_hit_in_l2` (seems that `ic` no hit counts). <a id="ic_dc_miss_in_l2"></a>
+The relation between funcs see other description. The reasons are same.
+```bash
+$ 
+$ cat sample_num_no_prefetch_l2_opcache_quotient.report                               
+10:
+func               dgemm_basic: 11666, 11669,   0.999743; 11660, 11668,   0.999314;   990,  7723,   0.128189;  4902,  4775,     1.0266; 
+func      dgemm_blocked_avx256:   901,   775,    1.16258;   914,   760,    1.20263;    95,   358,   0.265363;   320,   295,    1.08475; 
+func              dgemm_avx256:  3035,  3020,    1.00497;  3004,  2974,    1.01009;   298,  1906,   0.156348;  1264,  1114,    1.13465; 
+func     dgemm_unrolled_avx256:   905,   905,          1;   910,   908,     1.0022;   100,   653,   0.153139;   478,   437,    1.09382; 
+func       dgemm_basic_blocked:  6900,  6913,   0.998119;  6858,  6899,   0.994057;   652,  3177,   0.205225;  2838,  2225,    1.27551; 
+func          dgemm_openmp_256:  1461,  1318,     1.1085;  1698,  1366,    1.24305;   115,   485,   0.237113;   623,   264,    2.35985;
+```
+### `l2_cache_req_stat.ic_fill_hit_s/l2_cache_req_stat.ic_fill_miss` is smaller because they are all fetched into L1. See [above](#ic_dc_miss_in_l2)
+- `dgemm_openmp_256`'s `L1-icache-loads/L1-icache-load-misses` is higher because all threads may be assigned same works (i.e. same instructions which can be reused.)
 ## `l2_request_g1`; better view `ls_refills_from_sys`. (The following also has `ls_sw_pf_dc_fill` and `ls_hw_pf_dc_fill`)
 ### `l2_request_g1` related cmds
 ```bash
@@ -7310,9 +7340,9 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
           - Conclusion: make sure "hot code block" *fit in* opcache by 1. spliting complex instruction (m1,i.e. method 1 in the doc) or loops (m0.2) 2. aligning by adding nop *outside* (m1.2,m2 "among the branches" but "not executed",m3 " are not part of hot code") or in the loop (m1.3) 3. change ordering (m3.) 4. limit unroll (m0.1) 5. tweak based on 1/2 threads running per core (m0.3).
           - see p88 for "Local impact",etc with "M impact, M generality" meaning. 
             - "Avoid putting explicit references to *ESP* in a sequence" may means above *virtual table method* should not use frequently the *stacks* which will increase the overheads because these functions are recommended to be small to *fit in* the opcache.
-### `l2_cache_hits_from_l2_hwpf`
+### `l2_cache_hits_from_l2_hwpf` (here is [L2 prefetch from L3](https://github.com/torvalds/linux/blob/06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json#L84C48-L84C52))
 - most of time, it is equal to `l2_pf_miss_l2_hit_l3` means [prefetch][#miss_rate] always right.
-## comparsion after adding `store` related
+- 
 # perf miscs
 - get event code and mask from this kernel [maillist](https://lore.kernel.org/all/YZE8SDkzq0OMcmhS@krava/T/).
   ```bash

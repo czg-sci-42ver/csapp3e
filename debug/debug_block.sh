@@ -25,10 +25,10 @@ if [[ ${RUN_MULTIPLE} == true ]];then \
 run_times=5;\
 else run_times=1;fi;\
 annotate_dir=${dir}/debug/debug_annotate;\
-events=l2_cache_req_stat.ls_rd_blk_c\
-,l2_request_g1.l2_hw_pf\
-,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
-,ls_refills_from_sys.ls_mabresp_lcl_l2\
+events=l2_cache_req_stat.ls_rd_blk_l_hit_x,l2_cache_req_stat.ls_rd_blk_c\
+,l2_cache_req_stat.ic_dc_hit_in_l2,l2_cache_req_stat.ic_dc_miss_in_l2\
+,l2_cache_req_stat.ic_fill_hit_s,l2_cache_req_stat.ic_fill_miss\
+,L1-icache-loads,L1-icache-load-misses\
 ;\
 events_num=$(echo ${events} | awk -F "," "{print NF}" -);\
 cd;\
@@ -70,7 +70,7 @@ awk \
 -v target_funcs="${func_list}" \
 -v output="${dir}/debug/${sub_dir}/${quotient_dir}/sample_num_${file}_quotient.report" \
 -v denominator="${BLOCK_DENOMINATOR}" \
--v select_column_str="3,5;3,4" \
+-v select_column_str="1,2;3,4;5,6;7,8" \
 -f ${dir}/debug/dgemm_de_dis.awk \
 ${dir}/debug/${sub_dir}/sample_num_${file}_${BLOCK_DENOMINATOR}.report\
 ;echo "current BLOCK_DENOMINATOR: " ${BLOCK_DENOMINATOR}\
