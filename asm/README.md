@@ -6581,7 +6581,7 @@ $ perf stat -e r0aa,r1aa sleep 1
 ```
 ### so ignore `l2_request_g2.ls_rd_sized` and `l2_request_g2.ls_rd_sized_nc`
 ## `l2_request_g1.all_no_prefetch` is sum of other small events. Ignore it.
-## `ic_cache_fill_l2` from here use new perf data
+## ic related events ~~`ic_cache_fill_l2`~~ ~~from here use new perf data~~
 ```bash
 $ cd;perf record -g --call-graph fp -e l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
@@ -6608,7 +6608,8 @@ $
 ### TODO `ic_dc_hit_in_l2/ic_dc_miss_in_l2` almost 1 and `ls_rd_blk_l_hit_x` is almost same as `ic_dc_hit_in_l2` (seems that `ic` no hit counts). <a id="ic_dc_miss_in_l2"></a>
 The relation between funcs see other description. The reasons are same.
 ```bash
-$ 
+$ git rev-parse HEAD                                   
+0d9693ff32151c0c96d35f0145a55301f04e9a32
 $ cat sample_num_no_prefetch_l2_opcache_quotient.report                               
 10:
 func               dgemm_basic: 11666, 11669,   0.999743; 11660, 11668,   0.999314;   990,  7723,   0.128189;  4902,  4775,     1.0266; 
@@ -6620,6 +6621,47 @@ func          dgemm_openmp_256:  1461,  1318,     1.1085;  1698,  1366,    1.243
 ```
 ### `l2_cache_req_stat.ic_fill_hit_s/l2_cache_req_stat.ic_fill_miss` is smaller because they are all fetched into L1. See [above](#ic_dc_miss_in_l2)
 - `dgemm_openmp_256`'s `L1-icache-loads/L1-icache-load-misses` is higher because all threads may be assigned same works (i.e. same instructions which can be reused.)
+### `l2_request_g1.cacheable_ic_read` func relation same as others.
+- here `dgemm_openmp_256` is similar to `dgemm_blocked_avx256`. Maybe it has reached the threshold where hot instructions can be fit in cache. 
+### `ic_cache_inval.l2_invalidating_probe`
+- the main idea 
+- notice it is not included in my cpu PPR [PPR_17h_60h] but it exists in [17h_18h].
+  - here [SMC](https://web.inf.ufpr.br/mazalves/wp-content/uploads/sites/13/2020/03/jcvht2020.pdf) and [CMC](https://cr.openjdk.org/~jrose/jvm/hotspot-cmc.html) are just as they literally mean.
+  - From [Intel doc](https://stackoverflow.com/questions/10989403/how-is-x86-instruction-cache-synchronized), it should only invalidate icache when *code segment*/[text segment](https://en.wikipedia.org/wiki/Data_segment#Code) changed.
+    And may also invalidate when "different linear address" (i.e. different addressing mode.)
+
+    But PowerPC always "flush of deeper data processing units" (consistent with *data memory*) even when "caches are disabled".
+    - Then use [`objdump -h`](https://stackoverflow.com/a/26701642/21294350) to verify. From the output, no data segment in the [code segment "CODE" ](https://stackoverflow.com/a/11196894/21294350).
+      ```bash
+      $ objdump -h ~/matrix-matrix-multiply/build/src/dgemm| less
+       11 .init         0000001b  0000000000003000  0000000000003000  00003000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+       12 .plt          00000390  0000000000003020  0000000000003020  00003020  2**4
+                        CONTENTS, ALLOC, LOAD, READONLY, CODE
+       13 .text         000040cb  00000000000033b0  00000000000033b0  000033b0  2**4
+                        CONTENTS, ALLOC, LOAD, READONLY, CODE
+       14 .fini         0000000d  000000000000747c  000000000000747c  0000747c  2**2
+                        CONTENTS, ALLOC, LOAD, READONLY, CODE
+      ```
+    - [TSX](https://en.wikipedia.org/wiki/Transactional_Synchronization_Extensions) in p406 is related with programming based on the transactional memory.
+  - with [`0x8d` not supported](https://github.com/search?q=repo%3Atorvalds%2Flinux+0x8d+language%3Ajson+path%3Atools%2Fperf%2Fpmu-events%2Farch%2Fx86%2Famdzen2&type=code) and `0x8c` test, my cpu may not support since C [not auto](https://stackoverflow.com/a/43162641/21294350) supports self modifying code.
+    Then both shows counts when `perf stat ...`, which implies maybe both is unvalid.
+- L2 invalidating probe
+  - related with L2 is inclusive of L1 and the former has [Back invalidation](https://en.wikipedia.org/wiki/Cache_inclusion_policy). See [this](https://cs.stackexchange.com/questions/29136/back-invalidation-to-maintain-inclusion-in-inclusive-cache) for more details.
+    - TODO [Bloom Filter](https://brilliant.org/wiki/bloom-filter/#:~:text=A%20bloom%20filter%20is%20a,is%20added%20to%20the%20set.) just use hash. See how probability is calculated.
+    - "compression coherence directory" -> [this][icpp07]
+      TODO why this decompression "approximate filter". and section 3.
+
+      It use independent "PROTOCOL CORE" to help compression.
+      Here " if at least ... using the second *algorithm*" all to simplify implementation, and "which of the four *subschemes* is used for each 64-bit chunk"
+    - [a directory coherence entry p10](http://www.cs.cmu.edu/afs/cs/academic/class/15418-s19/www/lectures/13_directory.pdf) to record all cpu cache state per cache line. It just explains "use one bit per L1 cache".
+    - Also see [comment](https://cs.stackexchange.com/questions/29136/back-invalidation-to-maintain-inclusion-in-inclusive-cache#comment58755_29141)
+      - Better see codes how to implement 
+      - That "SOME *core* owns a cache line." but not thread implies "approximate" knowledge. and "inclusion" implies "no knowledge".
+- overwriting fill response
+  - [fill](http://mertboru.com/?tag=cache-line-fill) just means fetch. "a write misses the cache ... a cache line fill," implies the fill is just init by reading the upper level memory.
+    Setting the [CD](https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-76.html) flag will influence.
+  - so "overwriting fill response" maybe just means fetching wrongly (maybe misprediction of branch ).
 ## `l2_request_g1`; better view `ls_refills_from_sys`. (The following also has `ls_sw_pf_dc_fill` and `ls_hw_pf_dc_fill`)
 ### `l2_request_g1` related cmds
 ```bash
@@ -6894,7 +6936,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
 ### `l2_cache_req_stat.ls_rd_blk_cs` is just opposite of `ls_rd_blk_c`. Since more **consecutive** access implies cache hit -> less cache miss and **less** *required* share hits. 
 Notice: `dgemm_openmp_256` is split into too sparse into 16 threads -> less consecutive and more share hits because of multi threads than `dgemm_blocked_avx256`.
 ### `ls_rd_blk_l_hit_s` [has been solved](https://stackoverflow.com/questions/76646899)
-from the below `l2_cache_req_stat.ls_rd_blk_cs/l2_cache_req_stat.ls_rd_blk_l_hit_s`, *openmp* split into threads so it has more owned states of cache which make others "non-modifiable" in [17h_A0h], then the denominator is bigger. <a id="non_modifiable"></a>
+from the below `l2_cache_req_stat.ls_rd_blk_cs/l2_cache_req_stat.ls_rd_blk_l_hit_s`, *openmp* split into threads so it has more owned states of cache which make others "non-modifiable" in [17h_A0h](this is one [new](https://review.coreboot.org/c/coreboot/+/60984/2) ~~cpu~~ [soc](https://cs50.harvard.edu/ap/2020/assets/pdfs/cpu_and_soc.pdf). It use [Mendocino](https://wccftech.com/amd-zen-4-and-mendocino-cpus-receive-cpu-temperature-driver-patch-in-linux/) codename. It is [succeeder](https://forums.anandtech.com/threads/amd-bristol-stoney-ridge-thread.2463487/page-61) of 20h which is also [soc](https://en.wikichip.org/wiki/amd/cores/dali)), then the denominator is bigger. <a id="non_modifiable"></a>
 small store unit size but larger than `dgemm_basic` (i.e. `dgemm_avx256` and `dgemm_basic_blocked`) just more efficiently used the [cache line](#cacheline_byte).
 
 `dgemm_unrolled_avx256` *store unit size* may be too big just as [this](#store_size) said.
@@ -7421,6 +7463,13 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 - the `[46.17%]` shown in `perf stat` is probably unused. See the source [codes](https://github1s.com/torvalds/linux/blob/master/tools/perf/util/stat-shadow.c#L688-L689).
   - `print_metric` is one func pointer, it may be [`script_print_metric`](https://github1s.com/torvalds/linux/blob/master/tools/perf/builtin-script.c#L2043-L2044) where the unit like `"%c/sec"` is output at last.
   - TODO see `perf_stat__print_shadow_stats_metricgroup`
+- manual_1
+  - Group leader by `{}`
+  - `perf script -g python`.
+  - ... TODO
+- better use something like [`ocperf.py`](https://stackoverflow.com/questions/49027207/where-to-find-perf-event-document#comment85061775_49027207) to understand `perf`.
+  - TODO how to read the [perf C source](https://stackoverflow.com/questions/49027207/where-to-find-perf-event-document#comment85061775_49027207), there seems to be [no zen2 counterpart](https://github.com/search?q=repo%3Atorvalds%2Flinux+zen2+path%3Aarch%2Fx86%2Fevents%2Famd%2F&type=code).
+    - See [this](https://stackoverflow.com/questions/63653406/using-the-perf-events-from-perf-list-programatically)
 ## TODO
 - Why does `l2_cache_accesses_from_dc_misses` not include `l2_request_g1.ls_rd_blk_c_s` in zen2, see [this](https://stackoverflow.com/questions/76646899) and also [this](https://unix.stackexchange.com/questions/750399)
   - "Read Shared Hit" can be also seen from [here p146](https://scholarworks.utrgv.edu/cgi/viewcontent.cgi?article=1307&context=etd) (it corresponds to shared if MESI) and also [related](https://www.gamedev.net/tutorials/_/technical/general-programming/cache-in-a-multi-core-environment-r4098/) with False Sharing
@@ -7780,6 +7829,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [OCRR_17h]:../references/AMD/OSRR/OSRR_17h.pdf
 [SOG_17h]:../references/AMD/SwOpt/17h/55723_SOG_3.01_PUB.pdf
 [17h_A0h]:../references/AMD/PPR/17_A0/57243-A0-PUB_3.00.pdf
+[17h_18h]:../references/AMD/PPR/17_18/55570-B1-3.16_PUB_NRV.pdf
 
 <!-- wikichip -->
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
@@ -7792,6 +7842,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 <!-- paper -->
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
 [LSD_DSB_MITE]:../references/papers/opcache_LSD_DSB_MITE_etc_2105.12224.pdf
+[icpp07]:../references/papers/icpp07.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
