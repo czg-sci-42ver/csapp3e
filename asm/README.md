@@ -5213,7 +5213,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p918
   - 'merge requests' is similar to SIMD (here data are merged. po). 
 
-##### In this `###` from here, Not use the [old book][RISC_V_Custom], use the [new book][RISC_V_Orig] page as the index.
+##### from here, Not use the [old book][RISC_V_Custom], use the [new book][RISC_V_Orig] page as the index.
 - p464
   - 'special purpose and systems category'
     - special purpose -> status register 
@@ -5448,6 +5448,39 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - see 
 - p408
   - [GFLOPS:gflop/s](https://en.wikipedia.org/wiki/FLOPS)
+- p465
+  - p220 subword-parallel instructions -> AVX
+  - p342 instruction-level parallelism: just allow multiple `_mm256_mul_pd`,etc to issue because they rely on different `c[x]`.
+  - here "40 and 28 instructions respectively" may diff when using different `-O`
+    With `-O3`, `dgemm_unrolled_avx256` puts `j...` after the loop which implies always do the loop the first time. And `dgemm_blocked_avx256` at least save variable `si/sj... + BLOCKSIZE` by something like `lea    eax,[r9+0x40]` when using `BLOCKSIZE = 32 * 20 / BLOCK_DENOMINATOR;` and `BLOCK_DENOMINATOR=10` -> `0x40=64`. So the latter use more instructions **before** the original `dgemm_unrolled_avx256` loop.
+
+    use `gdb` and `rr` to view which branch is related with which for loop.
+    Here `dgemm_blocked_avx256` use more loops, so it has more instructions **after** the original `dgemm_unrolled_avx256` loop to solve with the 3-level loop outside `do_block_avx_256`.
+    ```bash
+    >>> br *dgemm_blocked_avx256+487
+    >>> c
+    >>> si # view the stack in dashboard. Here inline `do_block_avx_256` in `dgemm_blocked_avx256`
+    [0] from 0x0000564374a9e447 in do_block_avx_256+412 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87
+    [1] from 0x0000564374a9e447 in dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+487 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:117
+    ...
+    >>> disassemble dgemm_blocked_avx256
+    ...
+       0x0000564374a9e2f0 <+144>:   mov    r14d,0x4 # this is BLOCKSIZE/(UNROLL * 4)=4 when using 'constexpr' both in `constexpr uint32_t BLOCKSIZE = 32 * 20 / BLOCK_DENOMINATOR` , `constexpr uint32_t UNROLL = 4;` and `BLOCK_DENOMINATOR=10`.
+       0x0000564374a9e2f6 <+150>:   mov    DWORD PTR [rsp-0x1c],ebx
+       0x0000564374a9e2fa <+154>:   mov    QWORD PTR [rsp-0x38],rbx
+       0x0000564374a9e2ff <+159>:   mov    DWORD PTR [rsp-0x44],ecx
+       0x0000564374a9e303 <+163>:   mov    DWORD PTR [rsp-0x48],r9d
+       0x0000564374a9e308 <+168>:   mov    ebx,r13d # find the last r14 assignment before the jump target.
+    ...
+       0x0000564374a9e41d <+445>:   vmovapd YMMWORD PTR [r8],ymm1
+       0x0000564374a9e422 <+450>:   jne    0x564374a9e34a <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+234 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:93>
+    ...
+       0x0000564374a9e444 <+484>:   dec    r14d
+    => 0x0000564374a9e447 <+487>:   jne    0x564374a9e308 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+168 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:89>
+    ...
+       0x0000564374a9e45b <+507>:   cmp    r15d,esi
+       0x0000564374a9e45e <+510>:   jb     0x564374a9e2e6 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+134 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87> # this is similar to how above is analysised.
+    ```
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -7466,6 +7499,7 @@ sys_perf_event_open: pid 22216  cpu -1  group_fd -1  flags 0x8 = 10
 - manual_1
   - Group leader by `{}`
   - `perf script -g python`.
+  - `perf test`
   - ... TODO
 - better use something like [`ocperf.py`](https://stackoverflow.com/questions/49027207/where-to-find-perf-event-document#comment85061775_49027207) to understand `perf`.
   - TODO how to read the [perf C source](https://stackoverflow.com/questions/49027207/where-to-find-perf-event-document#comment85061775_49027207), there seems to be [no zen2 counterpart](https://github.com/search?q=repo%3Atorvalds%2Flinux+zen2+path%3Aarch%2Fx86%2Fevents%2Famd%2F&type=code).
