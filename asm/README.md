@@ -8,6 +8,8 @@
 - use "\[`(.[^(]*)`\]" -> "[$1]" in vscode to avoid something like `[``]()` (Here rendering fails, see original markdown doc).
 - [bash pitfalls](https://mywiki.wooledge.org/BashPitfalls) from [this](https://stackoverflow.com/a/52901093/21294350)
 - I used r7 4800h cpu which is 16 threads 8 cores. The following `perf` is based on that.
+## bash
+- use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
 - why [glibc](https://stackoverflow.com/questions/57650895/why-does-glibcs-strlen-need-to-be-so-complicated-to-run-quickly) defined strlen somewhat complicated. 1. at least for alignment. In ['glibc-2.37'](https://github.com/bminor/glibc/blob/glibc-2.37/string/strlen.c), it is same as the Q&A shows. but later [changed](https://github.com/bminor/glibc/commit/350d8d13661a863e6b189f02d876fa265fe71302#diff-dcfbf226df3ebab574846a48fc7f2f69d6aa1bde910adcc24065d80597691e73)
   - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
@@ -5477,7 +5479,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     ...
     >>> disassemble dgemm_blocked_avx256
     ...
-       0x0000564374a9e2f0 <+144>:   mov    r14d,0x4 # this is BLOCKSIZE/(UNROLL * 4)=4 when using 'constexpr' both in `constexpr uint32_t BLOCKSIZE = 32 * 20 / BLOCK_DENOMINATOR` , `constexpr uint32_t UNROLL = 4;` and `BLOCK_DENOMINATOR=10`.
+       0x0000564374a9e2f0 <+144>:   mov    r14d,0x4 # this is BLOCKSIZE/(UNROLL * 4)=4 when using 'constexpr' both in `constexpr uint32_t BLOCKSIZE = 32 * 20 / BLOCK_DENOMINATOR` , `constexpr uint32_t UNROLL = UNROLL_DEF;` and `BLOCK_DENOMINATOR=10`.
        0x0000564374a9e2f6 <+150>:   mov    DWORD PTR [rsp-0x1c],ebx
        0x0000564374a9e2fa <+154>:   mov    QWORD PTR [rsp-0x38],rbx
        0x0000564374a9e2ff <+159>:   mov    DWORD PTR [rsp-0x44],ecx
