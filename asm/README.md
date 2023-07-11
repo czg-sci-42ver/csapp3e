@@ -5457,6 +5457,18 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     use `gdb` and `rr` to view which branch is related with which for loop.
     Here `dgemm_blocked_avx256` use more loops, so it has more instructions **after** the original `dgemm_unrolled_avx256` loop to solve with the 3-level loop outside `do_block_avx_256`.
     ```bash
+    $ typeset -f id2c
+    id2c () {
+            . ~/.virtualenv/misc/bin/activate
+            icdiff <(eval " $1") <(eval " $2")
+    }
+     # here sed  not support '\d' https://stackoverflow.com/a/14671415/21294350
+    $ id2c \         
+    "objdump_base -d ~/matrix-matrix-multiply/build/debug_block/dgemm_10 | sed -E '/^[[:alnum:]]+ <dgemm_unrolled_avx256.*/,/^[[:alnum:]]+ <[a-z].*/p'" \
+    "objdump_base -d ~/matrix-matrix-multiply/build/debug_block/dgemm_10 | sed -E '/^[[:alnum:]]+ <dgemm_blocked_avx256.*/,/^[[:alnum:]]+ <[a-z].*/p'" | less_n
+
+    $ rr record ~/matrix-matrix-multiply/build/debug_block/dgemm_10
+    $ rr replay
     >>> br *dgemm_blocked_avx256+487
     >>> c
     >>> si # view the stack in dashboard. Here inline `do_block_avx_256` in `dgemm_blocked_avx256`
