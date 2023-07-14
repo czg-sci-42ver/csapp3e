@@ -8,11 +8,14 @@
 - use "\[`(.[^(]*)`\]" -> "[$1]" in vscode to avoid something like `[``]()` (Here rendering fails, see original markdown doc).
 - [bash pitfalls](https://mywiki.wooledge.org/BashPitfalls) from [this](https://stackoverflow.com/a/52901093/21294350)
 - I used r7 4800h cpu which is 16 threads 8 cores. The following `perf` is based on that.
+- "etc." used in the [middle](https://www.englishtipz.com/2020/09/etc-etc-or-etc-how-to-use-etc-in-middle.html) of a sentence. -> "etc.," (notice: need to [turn on case](https://github.com/microsoft/vscode/issues/66357#issuecomment-515265641) using regex in vscode `"(etc\.)([^\n) ^log$])" -> "$1,$2"`)
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
 - why [glibc](https://stackoverflow.com/questions/57650895/why-does-glibcs-strlen-need-to-be-so-complicated-to-run-quickly) defined strlen somewhat complicated. 1. at least for alignment. In ['glibc-2.37'](https://github.com/bminor/glibc/blob/glibc-2.37/string/strlen.c), it is same as the Q&A shows. but later [changed](https://github.com/bminor/glibc/commit/350d8d13661a863e6b189f02d876fa265fe71302#diff-dcfbf226df3ebab574846a48fc7f2f69d6aa1bde910adcc24065d80597691e73)
   - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
+- what is the differences between fallacy and pitfalls in [COD_RISC_V_Orig].
+- try [hyperdbg](https://hyperdbg.github.io/commands-map/) which not supports amd now and support [hypervisor](https://docs.hyperdbg.org/getting-started/faq).
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -81,13 +84,13 @@ GOT protection: Partial RELRO | GOT functions: 2
 [0x404008] printf@GLIBC_2.2.5 -> 0x401046 (printf@plt+6) ◂— push 1
 ```
 - [segment descriptor](https://www.felixcloutier.com/x86/push.html) / [this](https://stackoverflow.com/questions/51322139/what-does-the-d-flag-in-the-code-segment-descriptor-do-for-x86-64-instructions)
-  - in [pdf p3095](../references/intel_64.pdf) 
-  - [unable](https://stackoverflow.com/questions/28263624/can-i-print-the-gdtr-and-gdt-descriptor-under-gdb) to view (GDTR, LDTR, IDTR, and TR) reg, same with segment descriptor in GDT, also [CR](https://stackoverflow.com/questions/7415515/how-to-access-the-control-registers-cr0-cr2-cr3-from-a-program-getting-segmenta) reg like CR0 except in ring 0 (kerenel code) 
+  - in [pdf p3095][intel_64] 
+  - [unable](https://stackoverflow.com/questions/28263624/can-i-print-the-gdtr-and-gdt-descriptor-under-gdb) to view (GDTR, LDTR, IDTR, and TR) reg, same with segment descriptor in GDT, also [CR](https://stackoverflow.com/questions/7415515/how-to-access-the-control-registers-cr0-cr2-cr3-from-a-program-getting-segmenta) reg like CR0 except in *ring 0* (kerenel code) 
     - [workaround](https://forum.osdev.org/viewtopic.php?f=1&t=25968) in emulator like qemu
   - but [this](https://wiki.osdev.org/Global_Descriptor_Table#Segment_Descriptor) says to ignore Segment Descriptor ‘In 64-bit mode’.
 - `GOT` more [specific](http://www.infosecwriters.com/text_resources/pdf/GOT_Hijack.pdf) than '## 8' below.
 - [DIY](https://www.righto.com/2016/06/y-combinators-xerox-alto-restoring.html) old computer
-## [intel reference](../references/x64_ISA_manual/intel_64.pdf)
+## [intel reference][intel_64]
 - p597 `Op/En` in 'Opcode Column in the Instruction Summary Table (Instructions without VEX Prefix)'
 - p529 ModR/M table
 - 533 REX meaning
@@ -185,7 +188,7 @@ main:
 # resources
 ## categories
 - [registers](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture) [or](https://wiki.osdev.org/CPU_Registers_x86-64) 
-- [online opcode](https://www.felixcloutier.com/x86/push.html) or [pdf p615](../references/intel_64.pdf) or [this](http://ref.x86asm.net/coder64.html)
+- [online opcode](https://www.felixcloutier.com/x86/push.html) or [pdf p615][intel_64] or [this](http://ref.x86asm.net/coder64.html)
 - how to [interpret](https://stackoverflow.com/questions/28664856/how-to-interpret-x86-opcode-map) opcode
 - gdb [rc tutorial](https://sourceware.org/gdb/onlinedocs/gdb/Process-Record-and-Replay.html) or [target](https://sourceware.org/gdb/onlinedocs/gdb/Target-Commands.html#Target-Commands) in [this](https://sourceware.org/gdb/onlinedocs/gdb/index.html#SEC_Contents)
   - [this is out-dated](https://sourceware.org/gdb/wiki/ProcessRecord)
@@ -199,7 +202,7 @@ main:
 - [r/m](https://cs.fit.edu/~mmahoney/cse3101/nasmdocb.html) from [this](https://stackoverflow.com/questions/22445347/how-do-i-interpret-this-instruction)
 - [CS.D](https://stackoverflow.com/questions/11970750/rex-prefix-decoding-for-intel-x64-arch)
 - callee and caller saved [regs](https://stackoverflow.com/questions/9268586/what-are-callee-and-caller-saved-registers)
-- [N.E.](https://stackoverflow.com/questions/71753270/intel-reference-specification-questions#comment126817567_71753270) in [pdf p605](../references/intel_64.pdf) means x86 instruction **not encodable** in 64-bit OS.(po)
+- [N.E.](https://stackoverflow.com/questions/71753270/intel-reference-specification-questions#comment126817567_71753270) in [pdf p605][intel_64] means x86 instruction **not encodable** in 64-bit OS.(po)
 - [IA-32e](https://news.ycombinator.com/item?id=22280184)
 - [RTLD](https://nxmnpg.lemoda.net/1/rtld) -> RTLD_GLOBAL
 - [fs:[0x18]](https://rvsec0n.wordpress.com/2019/09/13/routines-utilizing-tebs-and-pebs/)
@@ -218,15 +221,15 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
 - why segment reg <a id="segment"></a> [not](https://stackoverflow.com/questions/21165678/why-64-bit-mode-long-mode-doesnt-use-segment-registers) used in 64, because 'When your normal addressing modes with normal 64-bit registers can already address vastly more memory than your computer can contain...', 
   - kw: 'larger addressable memory space than the 16-bit addresses could reach', 'an address **above** the (65536 byte) 16-bit address space.', '**add** the instruction specified address to the appropriate (or specified) "segment register"'
     - 'something like 40-bits to 48-bits of physical memory','would ever imagine reaching.', 'have a great many purposes, which segment registers do not', 'doubled the number of [truly] general purpose registers when they designed their 64-bit x86_64 CPUs'
-  - more detailed [pdf p78](../references/intel_64.pdf) and register [definition](https://wiki.osdev.org/Segmentation)
-    - module [pdf p162](../references/intel_64.pdf) [also](https://github.com/LordNoteworthy/cpu-internals/blob/master/README.md)
+  - more detailed [pdf p78][intel_64] and register [definition](https://wiki.osdev.org/Segmentation)
+    - module [pdf p162][intel_64] [also](https://github.com/LordNoteworthy/cpu-internals/blob/master/README.md)
     - so code segment [not default](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode/49995022#comment87006918_49995022) Intuitively
       - above `CS segment override` may be not needed because call [default 'code segment'](https://www.felixcloutier.com/x86/jmp) use CS
       - also [see 'always modify all segment registers except CS (the code segment selector).'](https://en.wikipedia.org/wiki/X86_memory_segmentation#Practices)
         - here also says about `ES` segment register usage 'extra segment specified by the segment selector held in the ES register.'
 - compare [binary](https://superuser.com/questions/125376/how-do-i-compare-binary-files-in-linux)
 ### cpu specific
-- my cpu 4800h doesn‘t [support](https://gist.github.com/kohnakagawa/fb77904fcc44fc5652ef6d338c35a718) 'CET'， so `ENDBR64` does [nothing](https://vstinner.readthedocs.io/assembly_x86.html), see [pdf p413 INDIRECT BRANCH TRACKING](../references/intel_64.pdf)
+- my cpu 4800h doesn‘t [support](https://gist.github.com/kohnakagawa/fb77904fcc44fc5652ef6d338c35a718) 'CET'， so `ENDBR64` does [nothing](https://vstinner.readthedocs.io/assembly_x86.html), see [pdf p413 INDIRECT BRANCH TRACKING][intel_64]
   - from [this](https://stackoverflow.com/questions/56905811/what-does-the-endbr64-instruction-actually-do), some keywords are ‘control flow violations’， ‘WAIT_FOR_ENDBRANCH’， ‘state machine’
   > from [this](https://en.wikipedia.org/wiki/Return-oriented_programming) , [above](#rop) maybe related with return address overwriting， so related with instructions like `jmp` -> related with `ENDBR64`.
   - TODO see kernel code related with above gist.
@@ -235,7 +238,7 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
 ## registers
 - r9 save parameter and [rax](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/x64-architecture) save return [pdf p7](../references/x64_cheatsheet.pdf) [save order](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
 - whether [callee pdf p26](../references/abi.pdf)
-### [r9,etc Caller-saved registers](https://stackoverflow.com/questions/9268586/what-are-callee-and-caller-saved-registers)
+### [r9,etc.,Caller-saved registers](https://stackoverflow.com/questions/9268586/what-are-callee-and-caller-saved-registers)
 - according to [this](https://web.stanford.edu/class/archive/cs/cs107/cs107.1174/guide_x86-64.html), although it said `Caller-saved`， but it doesn't mean **must to save**
   - more [intuitive p4 and in p6 caller and callee save can both exist with the same call ( see below "'r12-15' is used ( except r14-15 )to save caller")](https://courses.cs.washington.edu/courses/cse410/17wi/lectures/CSE410-L13-procedures-II_17wi.pdf)
     - p13 said exactly Caller-save may be not needed
@@ -593,11 +596,12 @@ printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
 ## miscs
 - SMP and [AMP](https://en.wikipedia.org/wiki/Asymmetric_multiprocessing), also [see](https://github.com/rr-debugger/rr/issues/3531)
 ## memory
-- currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3`
+- currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3` where "segmented memory model" is mostly used by old cpus.
+  Notice: In [COD_RISC_V_Orig] p469, the total size of "16 bits of segment to the existing 16-bit" is same as "unsegmented 32-bit address space", but their physical implementation is different, at least the former memory only needs to search 16-bit range while the latter needs to 32-bit. See [this](https://en.wikipedia.org/wiki/Flat_memory_model#x86_segmented_memory_model) and Segmentation with *paging* just means using [page table](https://en.wikipedia.org/wiki/Memory_segmentation#Segmentation_with_paging) <a id="Segmentation"></a>
   - Internal Fragmentation is caused by being used by process. [whereas](https://www.tutorialspoint.com/difference-between-internal-fragmentation-and-external-fragmentation#:~:text=Internal%20Fragmentation%20occurs%20when%20a,removed%20from%20the%20main%20memory.&text=Best%20Fit%20Block%20Search%20is,the%20solution%20for%20external%20fragmentation.) External Fragmentation is cauesd by small unused spaces between used spaces.
   - [secondary](https://en.wikipedia.org/wiki/Computer_data_storage) memory
   - paging [diffs with](https://www.tutorialspoint.com/difference-between-paging-and-segmentation) segmentation 
-  - [pdf p72](../references/intel_64.pdf) Real-Address Mode Model -> 'Real mode' in x86
+  - [pdf p72][intel_64] Real-Address Mode Model -> 'Real mode' in x86
 - DIMM dual [meaning ('both the sides')](https://www.geeksforgeeks.org/what-is-dimmdual-inline-memory-module/),also [see](https://en.wikipedia.org/wiki/DIMM#History)
   - [LRDIMM,etc](https://community.fs.com/blog/dimm-types-udimm-vs-rdimm-vs-lrdimm.html) different w.r.t the buffer.
   - logical DIMM is one abstraction either by using [buffer](https://techlibrary.hpe.com/docs/iss/DL380_Gen9/setup_install/GUID-85811F5E-E204-474C-B670-2F4C7F90C7AA.html) or [amd doc says p27 by multiple physical DIMMs](https://en.wikipedia.org/wiki/Multi-channel_memory_architecture#cite_note-amd-bkdg-10h-11)
@@ -628,14 +632,14 @@ $ objdump -d 010-mstore.o
     1145:       5b                      pop    %rbx
     1146:       c3                      ret
 ```
-- [push](https://www.felixcloutier.com/x86/push.html) `r64` -> [`rd` p598; note here `REX.W` indicates REX prefix instead of one bit](../references/intel_64.pdf)
+- [push](https://www.felixcloutier.com/x86/push.html) `r64` -> [`rd` p598; note here `REX.W` indicates REX prefix instead of one bit][intel_64]
 ### 1.1
 - `mov r/m64 r64` [with](https://stackoverflow.com/questions/67368069/how-to-resolve-ambivalence-in-x64-assembly) `mov r64 r/m64`
 ```bash
 0:  48 89 d3                mov    %rdx,%rbx
 3:  48 8b da                mov    %rdx,%rbx
 ```
-  > notice: `+` may mean different in opcode, detailed in [p598](../references/intel_64.pdf)
+  > notice: `+` may mean different in opcode, detailed in [p598][intel_64]
   > [this](https://stackoverflow.com/questions/71774299/how-do-you-understand-rex-w-b8-rd-io-form-for-x86-64-assembly) indicates [MOV r64, imm64](https://www.felixcloutier.com/x86/mov) `REX.W` not added to opcode, but prefix.
   > above `push` indicates `rd` is added to opcode.
   - [`89`, where Op/En->`MR`: 'ModRM:r/m (w)' | 'ModRM:reg (r)'](https://www.felixcloutier.com/x86/mov) -> `r/m64 r64`; d3 -> 'dx,bx' satisfies
@@ -689,7 +693,7 @@ or `att`
 0x0000555555558006 <+6>:     00 00                   add    %al,(%rax)
 ```
 - maybe 'r/m 64' [can](https://stackoverflow.com/questions/68605218/understanding-instruction-encoding) be 'r/m 32' with suffix like `w` in `movw`
-  - so maybe above code `BYTE PTR` can make `r/m 64` -> `r/m 8`, and therefore in 64 bit OS -> [00 /r](https://www.felixcloutier.com/x86/add) and [pdf p530](../references/intel_64.pdf)
+  - so maybe above code `BYTE PTR` can make `r/m 64` -> `r/m 8`, and therefore in 64 bit OS -> [00 /r](https://www.felixcloutier.com/x86/add) and [pdf p530][intel_64]
   > after all, disasm from binary to assembly, so binary is first to read. (assembly code can be different based on how interpreted)
 ## 4
 ```asm
@@ -703,7 +707,7 @@ or `att`
 ```
 - `48` -> REX.W; 
   `c1` [opcode](https://www.felixcloutier.com/x86/sal:sar:shl:shr) -> `shl r/m64, imm8`; 
-  `e2` [pdf p529](../references/intel_64.pdf) -> `edx`(`rdx` when `REX.W` set ,p533), 
+  `e2` [pdf p529][intel_64] -> `edx`(`rdx` when `REX.W` set ,p533), 
   `20`->`id`
 
 ## 6
@@ -711,8 +715,8 @@ or `att`
 0x00007ffff7fe5b61:  80 25 7e 82 01 00 df    and    BYTE PTR [rip+0x1827e],0xdf        # 0x7ffff7ffdde6 <_rtld_global+3558>
 ```
 - `80` -> `AND r/m8, imm8	` [here](https://www.felixcloutier.com/x86/and)
-  `25` -> `disp32` in column 4 [pdf p530](../references/intel_64.pdf)
-  `7e 82 01 00` -> 4 byte(specified in [pdf p525](../references/intel_64.pdf)) little endian of `0x1827e`
+  `25` -> `disp32` in column 4 [pdf p530][intel_64]
+  `7e 82 01 00` -> 4 byte(specified in [pdf p525][intel_64]) little endian of `0x1827e`
   `df` -> `id`
 ## 7 AVX
 - see [VEX field bit intel doc p539 (say `C5H form` meaing) ](https://stackoverflow.com/questions/51773399/vex-prefixes-encoding-and-sse-avx-movupd-s-instructions) (where also say `WIG` meaning)
@@ -720,21 +724,21 @@ or `att`
 0x00007ffff7ecd9a4:  c5 f9 6e c6             vmovd  xmm0,esi
 ```
 - `vmovd  xmm0,esi` -> `VMOVD xmm1, r32/m32` -> `VEX.128.66.0F.W0 6E /`(here `/` may be mistaken, should be `/r`)
-  - here `xmm1` in [pdf p603](../references/intel_64.pdf) -> `indicates the first source operand using an XMM register`
-  - [4800h](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280) not contain avx-512, so not use EVEX [pdf p561](../references/intel_64.pdf)
+  - here `xmm1` in [pdf p603][intel_64] -> `indicates the first source operand using an XMM register`
+  - [4800h](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280) not contain avx-512, so not use EVEX [pdf p561][intel_64]
     - also check `grep avx /proc/cpuinfo --color=always | uniq` only has `avx` and `avx2`
-- `c5` -> [pdf p539](../references/intel_64.pdf) -> `11000101`
+- `c5` -> [pdf p539][intel_64] -> `11000101`
   so use 2-byte VEX prefix
 - `f9` -> `11111001` -> `1 1111 0 01` based on [this form '|~R |     ~vvvv     | L |   pp  |' ](https://wiki.osdev.org/X86-64_Instruction_Encoding#VEX.2FXOP_opcodes)
   - from binary to asm(recommended)
-    - `R` = 1 -> 32bit [pdf p539](../references/intel_64.pdf)
-    - `vvvv` should read `Instruction Operand Encoding` table [pdf p601,1997](../references/intel_64.pdf),here is encoded by `ModRM` -> `1111`
+    - `R` = 1 -> 32bit [pdf p539][intel_64]
+    - `vvvv` should read `Instruction Operand Encoding` table [pdf p601,1997][intel_64],here is encoded by `ModRM` -> `1111`
     - `L` & `pp` see below
   - from asm to binary(not recommended because the asm is generated by disassembly)
-    - `128` -> `L` = 0 [pdf p599](../references/intel_64.pdf)
+    - `128` -> `L` = 0 [pdf p599][intel_64]
     - `66` -> [SIMD(single instruction, multiple data) prefix](https://codeforces.com/blog/entry/98594#:~:text=SIMD%20stands%20for%20single%20instruction,the%20code%20to%20run%20faster.)
 - `6e` -> opcode
-- `c6` in `R=1` 32bit mode [pdf p530](../references/intel_64.pdf) based on this 'Instruction Operand Encoding' [table](https://www.felixcloutier.com/x86/movd:movq) -> 
+- `c6` in `R=1` 32bit mode [pdf p530][intel_64] based on this 'Instruction Operand Encoding' [table](https://www.felixcloutier.com/x86/movd:movq) -> 
   xmm1: ModRM:reg -> xmm0
   r32/m32: ModRM:r/m -> ESI
 ## 8 `_GLOBAL_OFFSET_TABLE_` shown in `pwndbg`
@@ -995,7 +999,7 @@ pwndbg> telescope 0x401046+0x2fc2
 01:0008│  0x404010 (data_start) ◂— 0x0
 ... ↓     6 skipped
 ```
-### `rip` register save the next instruction location [pdf p536](../references/intel_64.pdf) ~~updates before `jmp`~~
+### `rip` register save the next instruction location [pdf p536][intel_64] ~~updates before `jmp`~~
 ```bash
 pwndbg> p $rip+0x2fc2
 $3 = (void (*)()) 0x404008 <printf@got[plt]>
@@ -1010,7 +1014,7 @@ $4 = (void (*)()) 0x401046 <printf@plt+6>
 pwndbg> x $rip+0x2fc2
 0x404008 <printf@got.plt>:      0x00401046
 ```
-#### how memory save data [pdf p90](../references/intel_64.pdf)
+#### how memory save data [pdf p90][intel_64]
 ```bash
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
   0x401020        push   qwordptr[rip+0x2fca]          <_GLOBAL_OFFSET_TABLE_+8>
@@ -1206,8 +1210,8 @@ uint32  8
 ; here quadword -> rsp should decrease 8  
 ```
 #### `print` can print func location (most of `dmi libc` / `dmi prog` in `r2`)
-### fs/gs register (other segment register no use in 64-bit mode [pdf p73,74 Canonical Addressing,79](../references/intel_64.pdf) [1 TODO:'CS/DS/ES/SS are only useful for padding to make instructions longer?'](https://stackoverflow.com/questions/50400274/why-is-the-use-of-the-ds-segment-override-illegal-in-64-bit-mode)) mainly based on [this](https://reverseengineering.stackexchange.com/questions/19979/what-does-fs-and-gs-registers-provide-in-linux)
-[pdf p75](../references/intel_64.pdf) register size
+### fs/gs register (other segment register no use in 64-bit mode [pdf p73,74 Canonical Addressing,79][intel_64] [1 TODO:'CS/DS/ES/SS are only useful for padding to make instructions longer?'](https://stackoverflow.com/questions/50400274/why-is-the-use-of-the-ds-segment-override-illegal-in-64-bit-mode)) mainly based on [this](https://reverseengineering.stackexchange.com/questions/19979/what-does-fs-and-gs-registers-provide-in-linux)
+[pdf p75][intel_64] register size
 > TODO more [datailed](https://unix.stackexchange.com/questions/453749/what-sets-fs0x28-stack-canary) with TLS
 > > how fs:0x28 check overflow (try making program overflow and see)
 ```bash
@@ -1279,12 +1283,12 @@ $ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/pro
 0x7f4718698768 0x3e43de9cecf22600   .&....C> rax
 ```
 - `64488b042528`
-  - `64` in [pdf p532](../references/intel_64.pdf) -> [legacy](https://wiki.osdev.org/X86-64_Instruction_Encoding#Legacy_Prefixes) prefix, just to [overload ‘They are still registers, so they can of course be used for various other assembly operations.’ ](https://reverseengineering.stackexchange.com/questions/2006/how-are-the-segment-registers-fs-gs-cs-ss-ds-es-used-in-linux) default segmentation usage
+  - `64` in [pdf p532][intel_64] -> [legacy](https://wiki.osdev.org/X86-64_Instruction_Encoding#Legacy_Prefixes) prefix, just to [overload ‘They are still registers, so they can of course be used for various other assembly operations.’ ](https://reverseengineering.stackexchange.com/questions/2006/how-are-the-segment-registers-fs-gs-cs-ss-ds-es-used-in-linux) default segmentation usage
   - `48` see above `REX.W`
   - rest are MODR/M, same with above
 #### shown in [this](https://www.felixcloutier.com/x86/push.html)
 - instruction prefix [this](http://www.c-jump.com/CIS77/CPU/x86/X77_0240_prefix.htm) <a id="prefix"></a>
-  - [pdf p532](../references/intel_64.pdf) said `66h` prefix usage in SSE (related with AVX [pdf p537](../references/intel_64.pdf))
+  - [pdf p532][intel_64] said `66h` prefix usage in SSE (related with AVX [pdf p537][intel_64])
     - 66h [usage](https://stackoverflow.com/questions/30090566/x64-maskmovdqu-store-selected-bytes-of-double-quadword-and-vex-segment-overrid#comment48338171_30099598) or [table](https://wiki.osdev.org/X86-64_Instruction_Encoding#Operand-size_and_address-size_override_prefix)
   - [multiple](https://stackoverflow.com/questions/2404364/combining-prefixes-in-sse) 66H prefix
 ### [.rela.plt](https://reverseengineering.stackexchange.com/questions/21521/pyelftools-relocation-section-symbols) <a id="rela"></a>
@@ -1474,7 +1478,7 @@ __stack_chk_fail@got.plt in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm
  ►0x7ffff7fe5d82  je     0x7ffff7fe5dff                <0x7ffff7fe5dff>
 ```
 [jump](https://stackoverflow.com/questions/13064809/the-point-of-test-eax-eax) if return 0
-## 10 TODO how `leave` implemented in cpu [pdf p178](../references/intel_64.pdf), [related](https://stackoverflow.com/questions/67449884/mov-rbp-rsp-in-function-prologue) with `push rbp` above
+## 10 TODO how `leave` implemented in cpu [pdf p178][intel_64], [related](https://stackoverflow.com/questions/67449884/mov-rbp-rsp-in-function-prologue) with `push rbp` above
 - ~~TODO~~ why gcc [not](https://stackoverflow.com/questions/29790175/assembly-x86-leave-instruction) use enter
   - [this](https://www.agner.org/optimize/instruction_tables.pdf) p151 (~~TODO execution pipe~~?)
     - po Latency based on multiple instructions runned (dependency chain) and Reciprocal throughput is mostly based on itself (detailed see p2)
@@ -1539,8 +1543,8 @@ Dump of assembler code for function main:
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
  ►0x401196<main>     push   rbp
 ```
-### `r8-r15` [this](https://stackoverflow.com/questions/59660118/assembly-using-rn-registers-r8-r9-have-more-code-size-than-other-registers) [rax,etc relation with r8-15 see pdf p2846](../references/intel_64.pdf)
-- above  `0x4a` -> `0b01001010` -> Figure 2-4 [pdf p533](../references/intel_64.pdf)
+### `r8-r15` [this](https://stackoverflow.com/questions/59660118/assembly-using-rn-registers-r8-r9-have-more-code-size-than-other-registers) [rax,etc.,relation with r8-15 see pdf p2846][intel_64]
+- above  `0x4a` -> `0b01001010` -> Figure 2-4 [pdf p533][intel_64]
 - rasm2 [bug](https://reverseengineering.stackexchange.com/questions/18024/rasm2-giving-different-output-each-time-for-x64) still exists ,`R` -> `reg`
 ```bash
 [0x00000100]> rasm2 -d 418b4104
@@ -1576,9 +1580,9 @@ pwndbg> pdisass 0x7ffff7dc7e26
   0x7ffff7dc7e37<printf+55>   movaps xmmwordptr[rsp+0x80],xmm3
   0x7ffff7dc7e3f<printf+63>   movaps xmmwordptr[rsp+0x90],xmm4
 ```
-- [xmm/ymm](https://wiki.osdev.org/AVX2)/[zmm](https://wiki.osdev.org/CPU_Registers_x86) , ymm [pdf p538](../references/intel_64.pdf) zmm [pdf p603](../references/intel_64.pdf), see 
+- [xmm/ymm](https://wiki.osdev.org/AVX2)/[zmm](https://wiki.osdev.org/CPU_Registers_x86) , ymm [pdf p538][intel_64] zmm [pdf p603][intel_64], see 
 ## fs/gs and SS segment(rsp/rbp)
-[pdf p86](../references/intel_64.pdf), see [this (fs != fs_base)](https://stackoverflow.com/questions/59797987/how-is-effective-address-calculated-with-fs-and-gs-registers)
+[pdf p86][intel_64], see [this (fs != fs_base)](https://stackoverflow.com/questions/59797987/how-is-effective-address-calculated-with-fs-and-gs-registers)
 ```bash
 pwndbg> x/g $fs_base+0x28
 0x7ffff7c8d768: 0x6bdb9d77fe8c7e00
@@ -1738,9 +1742,9 @@ pwndbg> telescope 0x401152+0xede
 00:0000│  0x402030 ◂— 0x4003be76c0000000
 01:0008│  0x402038 (__GNU_EH_FRAME_HDR) ◂— 0x3c3b031b01
 ```
-## how xmm save [pdf p52](../references/intel_64.pdf)
-[pdf p67](../references/intel_64.pdf) -> 8 regs when non-64 mode
-16 regs [pdf p70](../references/intel_64.pdf)
+## how xmm save [pdf p52][intel_64]
+[pdf p67][intel_64] -> 8 regs when non-64 mode
+16 regs [pdf p70][intel_64]
 - related with stack
 ```bash
 # 64/8=8 byte, can test with hexdump
@@ -1896,7 +1900,7 @@ pwndbg> telescope 0x7fffffffe0d8 0xff
 99:04c8│      0x7fffffffe5a0 ◂— 0x524f4c4f4300656c /* 'le' */
 9a:04d0│      0x7fffffffe5a8 ◂— 'FGBG=0;15'
 ```
-[pdf p249](../references/intel_64.pdf) -> `67h` -> addr32 prefix here `e8` -> rel , no mem op(erand)
+[pdf p249][intel_64] -> `67h` -> addr32 prefix here `e8` -> rel , no mem op(erand)
 ```bash
 # here addr32 no use https://stackoverflow.com/questions/72892152/whats-addr32-in-assembly-means
    0x00007ffff7dc7ec7 <+199>:   67 e8 53 7d 0c 00       addr32 call 0x7ffff7e8fc20 <__stack_chk_fail>
@@ -2077,7 +2081,7 @@ $ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep 402000 -A 20
 0000000000402000 <_init>:
 ```
 ## bigger return value unable fit in `rax`
-- fpu [pdf p206 Figure 8-2.](../references/intel_64.pdf)
+- fpu [pdf p206 Figure 8-2.][intel_64]
 ### long double(8 byte) returned by fpu
 - `fld` is similar to `push` although push to another stack `fpu`
 ```bash
@@ -2281,7 +2285,7 @@ find: False
   - [disable](https://stackoverflow.com/questions/4486301/gcc-function-padding-value) alignment manually
   - here `cs` just to align, can be any [segment register](#segment) po.
     - [2e](https://stackoverflow.com/questions/49994919/assembly-instruction-and-an-extra-2e-prefix-before-its-opcode) 'addressing mode'
-  - [data16](https://stackoverflow.com/questions/36706280/what-does-data16-mean-in-objdump-output) 'the sixth is the w in the nopw' (i.e. above `nop WORD PTR`), also see [pdf p1385](../references/intel_64.pdf)
+  - [data16](https://stackoverflow.com/questions/36706280/what-does-data16-mean-in-objdump-output) 'the sixth is the w in the nopw' (i.e. above `nop WORD PTR`), also see [pdf p1385][intel_64]
     - here `WORD` or [DWORD](https://stackoverflow.com/questions/43991155/what-does-nop-dword-ptr-raxrax-x64-assembly-instruction-do?rq=3) ~~is based on `mode` and how assembler reads instruction bytes~~ see [prefix](#prefix) ‘table’ -> '1	N/A	Yes	16-bit'
     - more detailed with 
     [this link](http://john.freml.in/amd64-nopl) from [this](https://stackoverflow.com/questions/4798356/amd64-nopw-assembly-instruction)
@@ -2320,7 +2324,9 @@ find: False
 ## voltron
 - [add byte [eax], al](https://reverseengineering.stackexchange.com/questions/17555/radare-produces-a-bunch-of-add-byte-rax-al-but-why) all zeroes.
 ## pwndbg ([pwnlib/pwntools](https://docs.pwntools.com/en/stable/about.html))
-- setting with [EFLAGS](http://www.c-jump.com/CIS77/ASM/Instructions/I77_0070_eflags_bits.htm) [pdf p80](../references/intel_64.pdf) in [gdb `p $eflags`](https://gist.github.com/mepcotterell/199b86a558b3f944589674f53ff681b0)
+- setting with [EFLAGS][EFLAGS] [pdf p80][intel_64] in [gdb `p $eflags`](https://gist.github.com/mepcotterell/199b86a558b3f944589674f53ff681b0)
+  More [detailed](https://en.wikipedia.org/wiki/FLAGS_register)
+  TODO how "Virtual 8086 Mode flag" is implemented.
 - [readthedoc wiki](https://browserpwndbg.readthedocs.io/en/docs/commands/misc/pwndbg/)
 ```python
 # context.py
@@ -2574,7 +2580,7 @@ $ bear -- make --always-make # work
 - [%](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
   - more [general](https://www.gnu.org/software/make/manual/make.html#Text-Functions) with `subst`
 # csapp -> intel manual
-- zero extended [pdf p77](../references/intel_64.pdf)
+- zero extended [pdf p77][intel_64]
   - tested: above not apply to condition when dest is memory
 - att manual 
   - map with intel[pdf p38](../references/att_x86.pdf)
@@ -2831,7 +2837,7 @@ $ cat seta_setg_custom.s
 ```
 ## simple explanation of some terms
 - dereference: because data is saved in memory or reg, so memory is just reference to data(similar to alias), so `*ptr` is dereferencing.
-- oct word -> ['double quadword operand' pdf p602](../references/intel_64.pdf)
+- oct word -> ['double quadword operand' pdf p602][intel_64]
 - [compiler](https://english.stackexchange.com/questions/212566/etymology-of-compiler-computer-term) just 'compile' things from lib
   - [assembler](https://en.wikipedia.org/wiki/Assembly_language) 'consisting of several sections'
   - compiler may [use](https://www.quora.com/Are-assemblers-compilers) assembler
@@ -3355,7 +3361,7 @@ Pthread_create(&tid, NULL, thread, &connfd);
 ### 12.38
 > notice `make` flag of comparison programs should be same. 
 - how to accelerate step by step
-`tiny_wrong.c` ->(use mutex by `thread_with_mutex`) `tiny_log.c` -> (comment `printf` syscall,etc ) `tiny.c` -> (check buf in `check_thread`, notice here better to read `sbuf.rear` with mutex to ensure consistency ) `tiny_check_in_thread.c` -> (use `sbuf_full` which is unnecessary although more readable) `tiny_cit_sbuf_full.c` -> (forget what scope means, maybe change `thread_with_mutex *tid_set` to global) `tiny_citsf_scope.c`
+`tiny_wrong.c` ->(use mutex by `thread_with_mutex`) `tiny_log.c` -> (comment `printf` syscall,etc.) `tiny.c` -> (check buf in `check_thread`, notice here better to read `sbuf.rear` with mutex to ensure consistency ) `tiny_check_in_thread.c` -> (use `sbuf_full` which is unnecessary although more readable) `tiny_cit_sbuf_full.c` -> (forget what scope means, maybe change `thread_with_mutex *tid_set` to global) `tiny_citsf_scope.c`
 (main reason is to use more threads by decreasing `SBUFSIZE` to make that buf frame full happen more)
 > here, because server not terminate automatically, so `gprof` may not generate output when program terminates by sending the program `SIGKILL`
 ```bash
@@ -3758,7 +3764,7 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 ;intel
     115d:       c5 f2 2a d7             vcvtsi2ss xmm2,xmm1,edi
 ```
-- qnan/snan [pdf p94](../references/intel_64.pdf)
+- qnan/snan [pdf p94][intel_64]
   - why define two types of [nan](https://softwareengineering.stackexchange.com/questions/392179/should-nan-default-to-snan-or-qnan)
   - also see [IEEE_754] and this [overview](https://techdocs.altium.com/display/FPGA/IEEE+754+Standard+-+Overview#Multiplication) of IEEE_754
     - SNaN (Signaling NaN)
@@ -3776,7 +3782,8 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - AVX no parallel multiplication of 64-bit integers, but AVX512 has [similar](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718); can use conversion but [not recommended](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718).
 - [EDO DRAM](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Extended_data_out_DRAM) mainly kept data cache to accelerate.
 > or see Bibliographic Notes [1](https://user.eng.umd.edu/~blj/papers/isca99.pdf)
-  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better encoding method
+  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better encoding method 
+    [not SRAM](https://www.elinfor.com/knowledge/differences-among-dram-sdram-and-sram-p-10976#:~:text=SRAM%20is%20short%20for%20Static%20RAM%2C%20mainly%20used%20to,memory%20configuration%20of%20the%20PC.)
   - [DDR SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#DDR_SDRAM_prefetch_architecture) use a new cache enhancement method.
   - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs
     - TODO [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM
@@ -3966,7 +3973,7 @@ typedef struct
 void (*fun_ptr)(int) = &fun; // here '(*fun_ptr)' is main body; can be seen as '*fun_ptr' -> function 'void foo(int)'
 typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -> char[3]
 ```
-- Exception number [pdf p167](../references/intel_64.pdf)
+- Exception number [pdf p167][intel_64]
 ## TODO
 - redo 3.68 homework after understanding stack better.
 - 3.73 use asm not __asm__ direct.
@@ -4269,7 +4276,7 @@ $ cat .gitignore
 ## [Computer organization and design David A. Patterson](../references/other_resources/dokumen.pub_computer-organization-and-design-mips-edition-the-hardware-software-interface-6nbsped-9780128226742.pdf&) which is generated by [this](https://www.pdf2go.com/result#j=19de2dd4-c818-4a03-93c4-004f44fc35f4) (this one is based on MIPS although it have [RISC-V](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20RISC-V%20edition.pdf) and ARM version)
 > [compared](https://www.quora.com/Why-is-William-stallings-computer-architecture-book-not-as-popular-as-Hennessy-Patterson) with william stallings computer organization and architecture which is referenced in this [zhihu link](https://www.zhihu.com/question/36539741?utm_id=0), see [IPFS](https://www.reddit.com/r/textbookrequest/comments/10aa3b7/computer_organization_and_architecture_eleventh/)
 > RISC-V encoding behavior [reasons](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
-- risc-v [appendix](https://www.elsevier.com/books-and-journals/book-companion/9780128122754/advanced-content-and-appendices#Advanced%20Content)
+- risc-v [appendix][COD_RISC_V_Orig_companion]
 - also see above [COD](#COD)
 - [COD5th](../references/other_resources/COD/CS422-Computer-Architecture-ComputerOrganizationAndDesign5thEdition2014.pdf) rendered more well
 - thought as [bible](https://passlab.github.io/CSE564/resources/#textbook)
@@ -4335,7 +4342,8 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 
 from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4d93-911a-4aaec0feb99b/5dc835ea-b66c-4988-be3f-4d51c0feb99b/Computer_Organization_RiscV_Edition.pdf) (saved at this [location](../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf)) which keeps the same layout as the original book [appendix](https://www.elsevier.com/books-and-journals/book-companion/9780128122754/advanced-content-and-appendices#Advanced%20Content). Before that, I read [this](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20RISC-V%20edition.pdf) which is saved [here](../references/other_resources/COD/COD_RISCV_OCR.pdf)
 #### RISC-V [manual](../references/other_resources/RISC-V/riscv-spec-20191213.pdf), [latest](https://riscv.org/technical/specifications/)
-- TODO SB-format B [meaning](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
+- ~~TODO~~ SB-format B [meaning](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way)
+  - just see [cs61_07] p42 -> B:branch
 - also green/[reference](https://www.cl.cam.ac.uk/teaching/1617/ECAD+Arch/files/docs/RISCVGreenCardv8-20151013.pdf) card
 - p23: rd(destination), rs(source), funct3(3 bits,p126)
 - XLEN [meaning with other infos](https://www.imperialviolet.org/2016/12/31/riscv.html#:~:text=RISC%2DV%20is%20little%2Dendian,are%20the%20native%20register%20size.) and three modes
@@ -4517,7 +4525,7 @@ B[k][j] B[k][j] ...
 - 'FIGURE 4.2' 'FIGURE 4.4'(state element) PC+[4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) although the book says it use 64-bit
 - 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
 - p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
-- [SB-format p7](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf) risc-v format <a id="rformat"></a>
+- [SB-format p7][cs61_07] risc-v format <a id="rformat"></a>
 - 'FIGURE 4.15,17'
 - p543 [latency](http://ece-research.unm.edu/jimp/611/slides/chap3_1.html)
 - p545 here 'single-cycle datapath' has no relation with 'Single-cycle, nonpipelined execution' in 'FIGURE 4.25',
@@ -4547,7 +4555,7 @@ B[k][j] B[k][j] ...
   - [load-use hazard](https://courses.cs.vt.edu/cs2506/Spring2013/Notes/L12.PipelineStalls.pdf) is just RAW in Data hazard 
 - p611 
   - [see](http://utenti.dieei.unict.it/users/gascia/COURSES/sist_emb_14_15/download/SE07_Pipeline_Exception.pdf) precise interrupt is just those can be recovered p10 and why may be imprecise p19 
-- p614 [multiple issue (see figure, issue both int and fp each time.)](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/multiple-issue-processors-i/index.html) , 
+- p614 [multiple issue (see figure, issue both int and fp each time.)](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/multiple-issue-processors-i/index.html) <a id="multiple_issue"></a>
   - detailed see CAAQA p223 & 'Figure 3.19'
     - p226 [reservation station](https://en.wikipedia.org/wiki/Reservation_station) in each 'Functional Units' which may be used to forwarding (i.e. 'rather than waiting for it to be stored in a register and re-read') by 'listens on a Common Data Bus for the operand to become available'
     - issue slot or operation slot related with [ROB](https://en.wikipedia.org/wiki/Re-order_buffer) p215 
@@ -4594,12 +4602,12 @@ B[k][j] B[k][j] ...
     - also see ['register alias table' p38](https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf)
 - (un)conditional branch prediction and (in)direct [relation](https://stackoverflow.com/questions/21787457/branch-target-prediction-in-conjunction-with-branch-prediction) from [this](https://stackoverflow.com/questions/28006386/how-can-unconditional-branches-be-predicted-with-a-2-bit-predictor#comment44493696_28006386)
 - p639
-  - [Indirect predictor](https://developer.arm.com/documentation/ddi0488/c/BABEHAJJ) 'only provides the address' while hybrid predictor 'predictor still predicts the direction' with True or false ...
+  - [Indirect predictor](https://developer.arm.com/documentation/ddi0488/c/BABEHAJJ) 'only provides the address' while [hybrid predictor](https://en.wikipedia.org/wiki/Branch_predictor#Hybrid_predictor) 'predictor still predicts the *direction*' with True or false ...
     - implementation
       - [bit-level](https://people.engr.tamu.edu/djimenez/pdfs/p27-garza.pdf) p4 
         - [hash](http://meseec.ce.rit.edu/eecc722-fall2001/papers/branch-prediction/4/indir_isca24.pdf)
       - with jump [table](https://llvm.org/devmtg/2017-02-04/Efficient-clustering-of-case-statements-for-indirect-branch-prediction.pdf)
-    - related with cpu IBPB & STIBP [1](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2018/03/07/spectre-mitigation) or [kernel](https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst)
+    - related with cpu IBPB (*Indirect Branch* Predictor Barrier) & STIBP (*Single thread* indirect branch predictors) [1](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2018/03/07/spectre-mitigation) or [kernel](https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst)
   - TODO early decode
 - p643
   - [Anti-dependency](https://en.wikipedia.org/wiki/Data_dependency#Anti-dependency) 'the ordering of these instructions cannot be changed'
@@ -4805,7 +4813,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here 'fold' means 'translate' instead of 'transform'. So the control line implementation in 'FIGURE E4.13.7' is just Mealy-style, not [Moore-style](https://en.wikipedia.org/wiki/Moore_machine).
 - p676
   - [single-clock-cycle and multiple-clock-cycle](https://www.geeksforgeeks.org/differences-between-single-cycle-and-multiple-cycle-datapath/) where they mainly differs in *CPI*
-    - see [this](http://ece-research.unm.edu/jimp/611/slides/chap3_6.html) better
+    - see [this](http://ece-research.unm.edu/jimp/611/slides/chap3_6.html) better <a id="pipelined_fp"></a>
+      "FP/integer divide" -> non-pipelined
       - view this stackoverflow [Q&A](https://stackoverflow.com/posts/76450114/timeline?filter=NoVoteDetail)
         - ['structural hazards'](https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Structural_hazards) so ‘divide unit’ is taken account because 1. It isn't pipelined 2. It has only one  divider ALU
         - 'WAW hazards' -> A1, ..., A4, Divide, or M1, ...,M7 for the **same** destination register (here kw is same destination not 'Divide').
@@ -4923,8 +4932,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - cache prediction just to prefetch whic then results in less cache miss. <a id="prefetch"></a>
     - [hardware](https://en.wikipedia.org/wiki/Cache_prefetching#Methods_of_hardware_prefetching) 
       - Stream buffers which is fixed size with *contiguous* locations.
-      - Strided prefetching which is at least not *contiguous* (Regular) and with variable step (Irregular) or targeted to specific subsets (Temporal)
-      - 'synergistically'
+      - Strided prefetching which is at least not *contiguous* (Regular) and with *variable step* (Irregular) or targeted to specific subsets (Temporal)
+        - Also see [arm](https://community.arm.com/arm-research/b/articles/posts/making-temporal-prefetchers-practical--the-misb-prefetcher)
+      - 'synergistically' -> Collaborative prefetching
     - [software](https://en.wikipedia.org/wiki/Cache_prefetching#Methods_of_hardware_prefetching) 
       - here fetching is based on *cache miss penalty* where *only* make the first 'stride' are missed.
       - only applied in ['regular'](https://en.wikipedia.org/wiki/Cache_prefetching#Comparison_of_hardware_and_software_prefetching) access.
@@ -4972,6 +4982,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here only one bit used because [(TODO) state](https://stackoverflow.com/questions/23448528/how-is-an-lru-cache-implemented-in-a-cpu)
     - LRU see p831 [also](#reference_bit)
   - TODO Radix sort
+    - see [COD_RISC_V_Orig] p404
 - p799
   - show why use column order sometimes.
   - $2N^{3}$ is for A and B, $N^2$ for C.
@@ -4985,6 +4996,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - ' The higher costs make large fully associative caches' ['because of the output multiplexer and additional comparators'('Sarah L. Harris, David Harris, in')](https://www.sciencedirect.com/topics/computer-science/set-associative-cache#:~:text=Set%20associative%20caches%20generally%20have,output%20multiplexer%20and%20additional%20comparators.)
 - p805
   - 'Service accomplishment' just means service (e.g. disk in 'MTTF vs. AFR of Disks') work well
+    [AFR](https://en.wikipedia.org/wiki/Annualized_failure_rate)
   - 'Service interruption' is the opposite of above.
   - See this [image](https://www.researchgate.net/figure/A-schematic-diagram-of-MTTF-MTTR-and-MTBF_fig5_334205633)
 - p808
@@ -5071,7 +5083,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here exception should not be interrupting, otherwise will overwrite *SEPC*,etc.
 - p854
   - shadow page table
-    - [p6,8 with MPN,etc](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) more directly [p29 with MPN,etc definition](https://www.doc.ic.ac.uk/~etheresk/etheresk-211-vms.pdf)
+    - [p6,8 with MPN,etc](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) more directly [p29 with MPN,etc.,definition](https://www.doc.ic.ac.uk/~etheresk/etheresk-211-vms.pdf)
       - here SPT is [shadow ~~(beacuse *skip* one media)~~ page table](https://sites.google.com/site/masumzh/articles/hypervisor-based-virtualization/memory-virtualization) <a id="hypervisor"></a>
   - [CR3 -> PDBR](https://en.wikipedia.org/wiki/Control_register#CR3)
   - [indirection 'accessing a variable through the use of a *pointer*'](https://en.wikipedia.org/wiki/Indirection)
@@ -5215,7 +5227,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p918
   - 'merge requests' is similar to SIMD (here data are merged. po). 
 
-##### from here, Not use the [old book][RISC_V_Custom], use the [new book][RISC_V_Orig] page as the index.
+#### from here, Not use the [old book][RISC_V_Custom], use the [new book][COD_RISC_V_Orig] page as the index.
+##### chapter 5
 - p464
   - 'special purpose and systems category'
     - special purpose -> status register 
@@ -5280,7 +5293,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
             - see p73,75 'Table 4.4' and p78
           - TODO `SFENCE.VMA` and `SFENCE.VM` diff. 
         - p100
-          - Privilege Mode: here Hypervisor is VMM (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*.
+          - Privilege Mode: here Hypervisor is VMM (virtual machine monitor) (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*. Also [see](https://www.vmware.com/topics/glossary/content/hypervisor.html#:~:text=A%20hypervisor%2C%20also%20known%20as,such%20as%20memory%20and%20processing.)
             - also see [riscv_privileged] p2 and p3 encoding. Also see why reserve `10` instead of `11` in p22.
         - p24
           - here not 'reinterpreted' memory-management data structure -> no need `SFENCE.VMA` to update page table which is what `SFENCE.VMA` should do '*populate* shadow page tables'.
@@ -5379,6 +5392,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - 'built around' just means doing something before into debuger and after leaving debugger.
         - notice here use different types of NOP as encoding *identifier*. 
         - TODO SVC specified with debugger [1](https://developer.arm.com/documentation/dui0471/i/semihosting/debug-agent-interaction-svcs) [2](https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/svc)
+        - `ebreak` is just used by debugger like `gdb`.
     - [riscv_privileged] p46
       - whether `epc` use 'the following instruction' depends on whether 'retire'.
       - `minstret` used to count retired instructions just as literally interpreted and also by 'should not increment the minstret CSR'.
@@ -5452,7 +5466,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [GFLOPS:gflop/s](https://en.wikipedia.org/wiki/FLOPS)
 - p465
   - p220 subword-parallel instructions -> AVX
-  - p342 instruction-level parallelism: just allow multiple `_mm256_mul_pd`,etc to issue because they rely on different `c[x]`.
+  - p342 instruction-level parallelism: just allow multiple `_mm256_mul_pd`,etc.,to issue because they rely on different `c[x]`.
   - here "40 and 28 instructions respectively" may diff when using different `-O`
     With `-O3`, `dgemm_unrolled_avx256` puts `j...` after the loop which implies always do the loop the first time. And `dgemm_blocked_avx256` at least save variable `si/sj... + BLOCKSIZE` by something like `lea    eax,[r9+0x40]` when using `BLOCKSIZE = 32 * 20 / BLOCK_DENOMINATOR;` and `BLOCK_DENOMINATOR=10` -> `0x40=64`. So the latter use more instructions **before** the original `dgemm_unrolled_avx256` loop.
 
@@ -5495,6 +5509,144 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
        0x0000564374a9e45b <+507>:   cmp    r15d,esi
        0x0000564374a9e45e <+510>:   jb     0x564374a9e2e6 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+134 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87> # this is similar to how above is analysised.
     ```
+  - [turbo -> single core](https://qr.ae/pyObYW)
+- p468
+  - "36 is a word address" ([word address](https://www.geeksforgeeks.org/difference-between-byte-addressable-memory-and-word-addressable-memory/)) -> byte address $36*2=72$, ~~then~~ 
+    - TODO given this [example](https://stackoverflow.com/questions/70325412/how-to-find-tag-bit-in-cache-given-word-address), here "a block size of 4 bytes" -> "a block size of 2 words". Then should be block $(36/2)mod8=2$. (This is similar to the book example)
+      ```bash
+      $ ipython -c "bin(36>>1)[-3:]"
+      Out[1]: '010' # 2
+      ```
+  - [base](https://en.wikipedia.org/wiki/Base_address#:~:text=In%20computing%2C%20a%20base%20address,displacement)%20is%20added%20to%20it.) of the address.
+- p469
+  - Notice: set associativity should > threads used
+  - memory access time may be *overlapped* due to OoO and continue to run when encountering one miss. So p391 "miss penalty in clock cycles for a read" may be *dynamic* due to overlap. 
+  - See [this](#Segmentation), segmentation *split* the memory in some way which may cause some special cases thorny like using large arrays,etc.
+  - see p421("The number of bits in the page offset field")/438("8-bit address space ID (ASID) field")/450("except that the data fields are now 128 bits wide"), here field may just mean one data unit. 
+    disk may have [one specific field with each sector](https://en.wikipedia.org/wiki/Disk_sector#History). [See](https://en.wikipedia.org/wiki/File:CKD_Track_Format.png)
+
+    "specifications" means what datasheet or manuals said not what model the disk uses.
+  - [logical block address from wikipedia][CHS]~~ vs is similar to flat memory~~
+    See this for ["sectors, tracks, and surfaces"](https://tldp.org/LDP/sag/html/hard-disk.html)
+    Notice: in RAID, it also use [LUNs](https://en.wikipedia.org/wiki/Logical_block_addressing#Overview) to encode disk number.
+
+    actual mapping: from [CHS], first it select *head location* by `head = C × HPC + H` (more detailed [see where track is one platter of cylinder](https://en.wikipedia.org/wiki/Cylinder-head-sector#Definitions), each cylinder has `HPC` heads), then each head can select in the corresponding sector, so -> `head × SPT + (S − 1)`
+    from the table in the [CHS], `63` is more nearer than ~~`62`~~ `62/2=31` to `1` because the former just changed the head. So "since the disk knows the *actual mapping*".
+- p470
+  - "protection" ~~just~~ means at least [memory protection](https://en.wikipedia.org/wiki/X86_memory_segmentation). Notice [different](https://en.wikipedia.org/wiki/X86_memory_segmentation#80386_protected_mode) protected mode where 80386 adds "paging unit".
+    "virtualizable" problems with `x86` is that privileges are not totally controlled. 
+    TODO:
+    - what does "Anderson, 2003" refer to?
+    - [VMX p15](https://www.cs.dartmouth.edu/~sergey/cs258/2014/TorreyGuestLecture-Hypervors.pdf)
+    - [Pacifica `VMRUN` p7](https://courses.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
+    - [Xen](https://github.com/Xilinx/xen) which is part of xilinx of AMD.
+      - "uses only the easy-to-virtualize parts"
+    - [APIC](https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/intel-apic-virtualization-technology-intel-apicv/)
+- p471
+  - [Robin and Irvine, 2000](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=Robin+and+Irvine%2C+%222000%22+virtualization&btnG=) -> [this](https://www.usenix.org/legacy/events/sec2000/full_papers/robin/robin_html/) (better view the [pdf][robin]
+    in FIGURE 5.51
+    - the first 6 instructions violate "Requirement 3B" which involves "sensitive instruction".
+      The main problem is registers related with these instructions are *only one* which will be influenced by multiple VMOSs.
+      - `SGDT` store [`GDTR`](https://en.wikibooks.org/wiki/X86_Assembly/Global_Descriptor_Table) which describes GDT used in segmentation. What the GDT [store](https://wiki.osdev.org/GDT_Tutorial#What_to_Put_In_a_GDT) is Segment Descriptor (also [see](https://wiki.osdev.org/GDT#Segment_Descriptor))
+        SGDT -> GDTR -> GDT
+        
+        `SLDT` is similar to `SGDT`, but it [stores][Segment_Selector] "Segment Selector" which select Segment Descriptor in GDT. Also see [this "entry of LDT is save in GDT"](https://stackoverflow.com/questions/34243432/how-are-ldt-and-gdt-used-differently-in-intel-x86) And [this figure](https://wiki.osdev.org/GDT_Tutorial#The_LDT).
+
+        [`Offset`](https://wiki.osdev.org/Interrupt_Descriptor_Table#IDTR) in IDTR just corresponds to `base` in `GDTR`. (Also see [Task Gate](https://wiki.osdev.org/Interrupt_Descriptor_Table#Task_Gate) which is only used in [IA-32 not used](https://en.wikipedia.org/wiki/IA-32) now and the [figure](https://pdos.csail.mit.edu/6.828/2005/readings/i386/s07_04.htm). Notice: in x86-64, it just use [stack](https://stackoverflow.com/a/25787369/21294350) to do the task switch as csapp says but also can use [TSS TODO](https://en.wikipedia.org/wiki/Task_state_segment#TSS_in_x86-64_mode). See [contents](https://wiki.osdev.org/Task_State_Segment) of TSS) <a id="TSS"></a>
+
+        [Relation](https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-74.html#:~:text=Local%20Descriptor%20Table%20Register%20(LDTR,the%20linear%20address%20of%20byte) of three
+      - kw: a problem arises when multiple operating systems try to use the *same* registers; 
+      - [CPL 0](https://www.sciencedirect.com/topics/computer-science/current-privilege-level#:~:text=The%20current%20privilege%20level%20(CPL,for%20Windows%2Dbased%20operating%20systems.) implies *trap* but only to write not read which may "might see the state of a *different VMOS* executing within a VM".
+        kw: its own virtual set
+      - `SMSW`: `CR0` is "32 Bit version of the old *Machine Status Word*".
+        ~~Same as~~ Similar to above 3 instruction, "would *incorrectly* see that the PE bit is set".
+        "SMSW could be *removed*" because it "should not be used by *application* software." and "is a *system* instruction" although "This instruction is only provided for *backwards compatibility* with the Intel 286 processor". And it is substituted by [`mov`](https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-109/index.html).
+        kw: 286
+
+        TODO view table 1 in pdf
+      - `PUSHF`
+        "flags that control the operating mode" -> [EFLAGS] IOPL.
+        "in the *same* way that the SMSW instruction prevents virtualization"
+    - 3.2 are all due to *privilege check*. And VMOS maybe *wrongly* thought of itself at privilege level 0 but it is at 3.
+        - After all, it is still due to only one related segment register,etc.
+      - `LAR`,etc., 4 instructions
+        "The problem with all four ..." -> RPL,CPL,DPL [relation/privilege check](https://en.wikipedia.org/wiki/X86_memory_segmentation#Detailed_segmentation_unit_workflow)
+
+        "are both greater than the descrip-tor privilege level" -> `max(CPL, RPL) ≤ DPL` in the above wikipedia link, only access lower level (i.e. bigger level number)
+
+        *problem* is "*assume* that they are operating at the *highest* privilege" means wrongly access `DPL=0` when `CPL=3` -> wrongly `CPL>DPL` (Also see [`POP` "assumes it is in CPL 0"](#POP))
+        - [`LAR` in felixcloutier](https://www.felixcloutier.com/x86/lar#description) scatters the access rights. Also [see](https://wiki.osdev.org/GDT#System_Segment_Descriptor) where describes "conforming code segment" (just means allowable *minumum* privilege levels) and ~~'valid' in "not valid for instruction" -> Present bit~~.
+          - In the above felixcloutier, type and valid see [the table](https://www.felixcloutier.com/x86/lar#tbl-3-53)
+            - In `LSL`, SegmentDescriptor(G) means [G bit](https://wiki.osdev.org/GDT#System_Segment_Descriptor) just as `SegmentDescriptor(Type)`.
+              Here `OR 00000FFFH` can be ignored.
+      - `POP` <a id="POP"></a>
+        - Same as above, problems are incurred by *privilege check*.
+      - `PUSH` problem similar to above: "*thinks* it is running in CPL 0"
+      - 3.2.4
+        - `CALL`
+          - call gate which is [similar](https://en.wikipedia.org/wiki/Call_gate_(Intel)#Format_of_call_gate_descriptor) to other gates has been replaced by [SYSCALL](https://en.wikipedia.org/wiki/Call_gate_(Intel)#Modern_use)
+            - similar to , when the call gate and task gate are not used, their infos are probably saved in the *kernel stack* just as csapp says. Also [see](#TSS)
+            - when using "the call gate and task gate", the *stack* is still used with each task by "A task uses a different stack for every privilege level" and "saves procedure linking information to the stack".
+        - `JMP`
+          - "both the way that it executes and the reasons it prevents virtualization" -> [this](https://www.felixcloutier.com/x86/jmp#operation)
+        - `INT n`
+          - similar `call` except for ["the EFLAGS register is pushed onto the stack".](https://www.felixcloutier.com/x86/intn:into:int3:int1#description)
+            - `n` is entry of [Interrupt vector table](https://en.wikipedia.org/wiki/Interrupt_vector_table)
+            - "the software interrupt redirection bit map" controls the mode, see [intel_64] p3876
+          - "protection system" -> "Segments have a descriptor privilege level (*DPL*)"
+        - `RET`
+          - kw:"cause the DS, ES, FS, and GS registers to not be cleared when they *should* be".
+          - TODO `IRETD` may just means *context* Operand Size.
+          - "nested task" is just unattached task (implies *interrupt* to synchronize) from ["AttachedToParent option."](https://stackoverflow.com/a/20048563/21294350)
+        - kw:because they involve the CPL, DPL, and RPL
+        - "CPL 3 task" -> from VMM view and "CPL 0 operating system" from VMOS's view.
+      - `STR`
+        - [task register](https://www.scs.stanford.edu/05au-cs240c/lab/i386/s07_03.htm) is 16-bit in 80386 which ["Loading the task register with the *selector* of the incoming task's TSS descriptor".](https://pdos.csail.mit.edu/6.828/2018/readings/i386/s07_05.htm)
+        - "examine its requested privilege level (RPL)" which may be 3, then "will find that it is not running at the privilege level at which it *expects* to run."
+      - [`MOVE`](https://www.felixcloutier.com/x86/mov-1)
+        - load CS can be done in [`call` "the processor *pushes* the current value of both the CS"](https://www.felixcloutier.com/x86/call#description) as [this](https://www.felixcloutier.com/x86/mov#description) says.
+        - TODO "CS and *SS* registers both contain the *CPL* in bits 0 and 1" may use RPL in [selector][Segment_Selector] just as [this](https://en.wikipedia.org/wiki/X86_memory_segmentation#Practices) says "segment selector held in the SS register."
+        - same as before "VMOS is *expecting*-typically 0.".
+- p472
+  - "strategies" -> p446 replacement strategies
+  - "same properties of locality" -> p366 two types
+  - "do something when it is idle" -> maybe [prefetch](#prefetch).
+  - write the full block -> not fetch but just overwrite the memory block.
+  - TODO reread after 6.10
+#### from here use [2nd book][COD_RISC_V_2nd]
+- p xiii
+  - [sext(offset)](https://msyksphinz-self.github.io/riscv-isadoc/html/rv64i.html#lwu) here means zero-extension although [riscv_spec] p36 (SEXT -> Sign-EXTension)
+  - `addwi` -> `addiw` (i->immediate)
+  - `sllw`: `ll` -> left logically. w->[word](https://passlab.github.io/ITSC3181/notes/Chapter02_Instructions_LogicBranch.pdf) and see [riscv_spec] p6.
+  - [Dennard Scaling](https://en.wikipedia.org/wiki/Dennard_scaling) -> power/unit stay constant. "no longer hold," in p xvi.
+  - spectre
+    - "hardware multithreading" related with [spectre][spectre] because p10 "a separate thread was used to *mistrain* the branch predictor" and "*sharing* the branch predictor state"
+    - ["Timing attack"](https://en.wikipedia.org/wiki/Timing_attack) just attacks by analysing "the time taken to execute cryptographic algorithms".
+      see [spectre] p11, the timing just tells the attacker "the state of the cache" so that maybe the attacker can know whether he can get "register R1 contains a *secret* value". 
+  - [“hyperscalers”](https://en.wikipedia.org/wiki/Hyperscale_computing) "*scale* appropriately as increased *demand*"
+  - ["Row hammer" see the figure](https://en.wikipedia.org/wiki/Row_hammer#Overview): hammer -> "leaking their charges, *possibly changing* the contents"
+  - Mitigation:
+    - "SECDED" no use because error number may > 2 ("include *more than two* flipped bits").
+    - "performs *counter*-based identification" and "*proactively* refreshes their neighboring rows" 
+      or "*random* refreshes ... *neighboring* the accessed rows" ...
+    - DRAM: "TRR" "*although* it is not part of the DDR4 memory standard"
+      similar to above, refresh
+      "if the sum of row activations for its two *neighboring* rows reaches the MAC limit within the tMAW time *window*."
+      TODO "not effective in protecting against Rowhammer"
+  - [TPU see 2nd figure](https://cloud.google.com/tpu/docs/intro-to-tpu#how_a_tpu_works) just uses multiple gpu as one *gpu pipeline*.
+  - [TPU v4](https://cloud.google.com/tpu/docs/system-architecture-tpu-vm#tpu_v4) add two MXUs
+    - TODO [this](https://semiengineering.com/googles-tpuv4-architecture-3-major-features/) references [this which says OCS](https://cloud.google.com/blog/topics/systems/tpu-v4-enables-performance-energy-and-co2e-efficiency-gains)
+  - "re-virticalization" -> Cloud
+- p xvi
+  - TODO "updates all the examples and figures"
+- p svii
+  - [resource website](https://inspectioncopy.elsevier.com/book/details/9780128203316)
+  - ["President Hennessy"](https://hennessy.stanford.edu/biography/)
+- p50
+  - notice `numpy` is "highly optimized".
+- p274
+  - better see [this](#spec_instr_format) and [this](#SB_format)
+- See [this](#understanding-program-performance)
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -5538,9 +5690,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 > doc [V1][riscv_spec],[V2][riscv_privileged],[greencard](../references/other_resources/RISC-V/RISCVGreenCardv8-20151013.pdf) 
 [hart: hardware thread](https://stackoverflow.com/questions/42676827/risc-v-spec-references-the-word-hart-what-does-hart-mean)
 - different format, reference [1](https://danielmangum.com/posts/risc-v-bytes-intro-instruction-formats/)
+  also see [riscv_spec] p17 <a id="spec_instr_format"></a>
   - U-Format -> lui to load [32-bit](https://stackoverflow.com/questions/50742420/risc-v-build-32-bit-constants-with-lui-and-addi) constant, see 1 'jal         ra,0x10418 <printf>'
   - SB-Format used ‘for small, local jumps.’ because of 13-bit offset, see 1
-    - [why](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way) this weird encoding, [BL7(berkeley lecture 7) p46](https://inst.eecs.berkeley.edu//~cs61c/resources/su18_lec/Lecture7.pdf) weher inst is ‘instruction’ which is also referenced in the link 'used to store bit 11 of the SB-Format immediate'
+    - [why](https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way) this weird encoding, [BL7(berkeley lecture 7) p46](https://inst.eecs.berkeley.edu//~cs61c/resources/su18_lec/Lecture7.pdf) where inst is ‘instruction’ which is also referenced in the link 'used to store bit 11 of the SB-Format immediate' <a id="SB_format"></a>
       - keyword: 'sign extension hardware' which is also referenced in BL7 and [riscv_spec].
       - TODO: 'wiring the input bits', 'datapath sized wiring', 'two or so (1-bit) wires and one 1-bit mux and a 1-bit control signal'
   - more detailed why format defined as what it is, based on [riscv_spec] and greencard
@@ -5592,7 +5745,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - definition [macro-operation MOP/µOP](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro%2Doperations%20are%20a%20fixed%2Dlength,%2C%20modify%2C%20and%20write%20operation.)
 - [fused](https://easyperf.net/blog/2018/02/04/Micro-ops-fusion) instruction example
   - Macro-operation fusion [vs](https://stackoverflow.com/questions/56413517/what-is-instruction-fusion-in-contemporary-x86-processors#comment99423928_56413517) Micro-operation fusion
-    - here based on angle [doc p109](../references/microarchitecture.pdf), 'multiple' should be 'two' and Micro-op is just 'read/write' action,etc while [Macro-op](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro-operations%20are%20a%20fixed-length,%2C%20modify%2C%20and%20write%20operation) is instruction
+    - here based on angle [doc p109](../references/microarchitecture.pdf), 'multiple' should be 'two' and Micro-op is just 'read/write' action,etc.,while [Macro-op](https://en.wikichip.org/wiki/macro-operation#:~:text=In%20their%20context%2C%20macro-operations%20are%20a%20fixed-length,%2C%20modify%2C%20and%20write%20operation) is instruction
     - [TODO](https://easyperf.net/blog/2018/02/15/MicroFusion-in-Intel-CPUs)
 - Macro-Operation Fusion example [cmpjne](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Instruction_Queue_.26_MOP-Fusion) (notice: this instruction is not available in ISA set)
   - here `50` in 'duplicated over for each thread (i.e. 50 total entries)' is mainly because that Broadwell has 2 threads all
@@ -5611,7 +5764,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
     - lfence is [no use](https://stackoverflow.com/questions/20316124/does-it-make-any-sense-to-use-the-lfence-instruction-on-x86-x86-64-processors) in contemporary cpu and SFENCE is less than MFENCE with `StoreLoad`.
       - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*'. Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
-        - `USWC` -> [Uncacheable by L1 cache](https://stackoverflow.com/questions/75224657/memory-type-wb-vs-uswc-of-memory-mapped-files-on-x86),etc 
+        - `USWC` -> [Uncacheable by L1 cache](https://stackoverflow.com/questions/75224657/memory-type-wb-vs-uswc-of-memory-mapped-files-on-x86),etc.
         - more [detailed](https://sites.utexas.edu/jdm4372/2018/01/01/notes-on-non-temporal-aka-streaming-stores/) which says 'Non-allocating store'
           - 'Non-globally-ordered store': order is only needed in the processor, not always when interprocessor communication. (Same as intel doc says).
       - [store-miss](https://stackoverflow.com/questions/18408189/cpu-cache-performance-store-misses-vs-load-misses) [policies](https://en.wikipedia.org/wiki/Cache_%28computing%29#Writing_policies)
@@ -5663,7 +5816,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'virtually indexed' p744.
   - ' 4 KiB page size,' -> need [$4*2^10(K)=12$](https://stackoverflow.com/questions/33216503/how-many-bits-required-for-page-frame-number-on-32-bit-system-with-220-bytes-ph) bit offset
 #### related with figure, p167~169
-~~- how '1536 PTE' and '128 PTE',etc are indexed TODO.~~
+~~- how '1536 PTE' and '128 PTE',etc.,are indexed TODO.~~
 - $1536/12=2^7$. Also DTLB should use Tag<32> which is same as ITLB.
 - [protection bits p9 at least 3bits TODO 4bit](https://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf)
 - here bank is just associativity
@@ -5899,7 +6052,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
             - paper_1 can also say weaker. Because in paper_1, p4 says 'all processors agree on the order of causally related events' although *not about all events*. p5 says '*disagree* on the order of writes by dif-ferent processors, as long as those writes are to different locations.' implies 'not require writes from all processors...' in wikipedia, However, wikipedia doesn't mean the opposite of the former 'require writes from all processors ...' applies to CC. This is really a *english comprehension* problem. <a id="agree"></a>
         - Q2
           - first here Cache Consistency and coherence(coherency) aren't synonymous as paper_1 says. 
-            - From paper_2 which is referenced by paper_1, it defines 'Memory *Consistency*' related with synchronization. So it means 'when a written value must be *seen*' as [COD_Orig][RISC_V_Orig] p458 says.
+            - From paper_2 which is referenced by paper_1, it defines 'Memory *Consistency*' related with synchronization. So it means 'when a written value must be *seen*' as [COD_Orig][COD_RISC_V_Orig] p458 says.
               - But more specific, here 'when' also implies the write *observation order* as paper_2 'the order in which memory opera-tions occur may be *observed*'. just like wikipedia [says](https://en.wikipedia.org/wiki/Consistency_model#Cache_consistency).
             - From paper_3, it defines coherence as 'all processors observe two writes to the same location in the *same order*' in p11 (notice: only care about *order* of *two* writes but not what are read).
               - From COD_Orig p454 it also says 'what values *can* be returned' but not '*should* be returned.', otherwise no need to define 'cache consistency' because 'should' must implies when to read (at least in a range without influencing the result). <a id="cache_consistency"></a>
@@ -5965,11 +6118,175 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - the behavior is just [what p27 says][stanford_149_09_consistency]
         - Figures 2.3(d) is similar. $P1...P4$ and $b4$ in P4 also not see updated A.
     - 
-#### [Reference Appendices](https://www.elsevier.com/books-and-journals/book-companion/9780128119051) where also has other resources.
+#### [Reference Appendices][CAAQA_companion] where also has other resources.
 #### TODO
 - A *vertical cut* of a thread of SIMD instructions
 ### miscs
 - why use [L3$](https://softwareengineering.stackexchange.com/questions/108340/why-is-the-dollar-sign-used-to-abbreviate-the-description-of-a-cache)
+## Understanding Program Performance
+- p9
+  - "architecture" influences the ISA which may has internal barrier like intel x86-64.
+  - "operating system" at least offer virtual memory and syscall which may influence the performance. p13 defines *ABI*.
+- p33
+  - throughput is related with elapsed time ([inverse proportion](https://stackoverflow.com/questions/49552745/how-throughput-and-response-time-are-related))
+    - bottlenecks
+      - p296 TODO "involving more use of pointers" -> branch pointer.
+        loop unroll and rescheduling by compiler/OoO by hardware "for reducing data dependences". <a id="code_scheduling"></a>
+      - p362 "memory hierarchy" ~~implies miss penalty.~~ can use prefetch ["keeping as much of the data needed in the *near future* as *close* to the processor " p11](https://dspace.mit.edu/bitstream/handle/1721.1/87163/46805825-MIT.pdf?sequence=2)
+      - p479.e5 "spread" to increase throughout.
+      - p514 Chip multiprocessors (CMPs) 
+- p39
+  - TODO how to avoid "uses more divides"
+  - "indirect calls" -> [p62 use table](https://www.eecis.udel.edu/~cavazos/cisc471-672-spring2018/lectures/Lecture-24.pdf) to index variable in class.
+- p147
+  - CPI [lower -> better](https://cs.stackexchange.com/questions/141795/does-higher-cpi-give-better-performance#:~:text=CPI%20%3D%20cycled%20per%20instruction.,So%20it's%20worse.).
+- p295
+  - multiple-issue pipelined see [this](#multiple_issue)
+  - [control hazard](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/handling-control-hazards/index.html) also avoid OoO in some way ("cannot be moved in front of" and "so that the branch controls").
+    - kw: basically two ways;  
+  - "not be fully pipelined" -> [this](#pipelined_fp)
+  - ["Register renaming"](https://en.wikipedia.org/wiki/Register_renaming) -> 
+    1. mapping from "logical registers" to physical registers.
+    2. just using another logical register. (This is compiler-based)
+      In [this](https://en.wikipedia.org/wiki/Register_renaming#Data_hazards), WAR where R use "old value" which may in one register and W writes with "the new value".
+      Just use [more registers](https://www.d.umn.edu/~gshute/arch/register-renaming.html#:~:text=Register%20renaming%20is%20a%20form,in%20the%20instruction%20set%20architecture.) to avoid the data dependency.
+  - "different implementations of the same instruction set" just see amd and intel differences / different implementations of riscv.
+- p362
+  - "aggressive multiple issue" -> use [*other threads*'s FU p2](https://www.ece.mcmaster.ca/faculty/teds/COURSES/4DM4-folder/COURSE_NOTES_folder/L23-4DM4-ADVANCED-PIPELINING-MULTI-THREADING-2013-2pp.pdf)
+  - TODO ["back-to-back operations"](https://en.wikipedia.org/wiki/Control_unit#Translating_control_units) may mean latency between "issues the *micro-operations*".
+- p351
+  - "pipeline latency and issue width" depends on the cpu hardware (The former may depends on fp hardware and the latter may depend on op cache and dispatcher,etc ([this](https://news.ycombinator.com/item?id=25258985) referenced zen2 wikichip which says "8 macro-ops per cycle to the *micro-op queue*") ). 
+- p425
+  - TODO comparison of "Sorting and *so on*"
+  - The "cache miss" caused the "the Radix Sort line diverges" in some way. -> "*ignores* the impact of the memory hierarchy"
+- p151
+  - the left must has the `p+=4` -> `p+=i*4`, this “multiply” is the overhead. <a id="avoid_mul"></a>
+- TODO 151.e16 learn bytecode
+### p151.e
+#### 1
+- "interleaving with another pass." maybe just similar to pipeline.
+#### 2 
+- "The Front End" is just what [bison](#bison) and flex do.
+- "intermediate representation" is just one *simple initiated* machine codes.
+- "virtual registers" may be just *comments* like `tmp87` in the `gcc -S -fverbose-asm`
+#### 3
+- FIGURE e2.15.2 [factor](https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html) can be thought as *constant* used in *calculation*.
+#### 4
+- [this Loop Interchange example](https://www.cita.utoronto.ca/~merz/intel_c10b/main_cls/mergedProjects/optaps_cls/common/optaps_perf_optstrats.htm#:~:text=Loop%20Interchange%20is%20a%20nested,loop%20to%20improve%20cache%20locality.) may be redundant because after Interchange both `c` and `a` lose locality.
+- "blocking loop" is just cache blocks as chapter 5. 
+- ["common subexpression elimination" just avoids duplicate calculation `b * c`](https://en.wikipedia.org/wiki/Common_subexpression_elimination) <a id="optimizations"></a>
+- ["Constant propagation"](https://en.wikipedia.org/wiki/Constant_folding#Constant_propagation) just calculate constants beforehand.
+- ["copy propagation"](https://en.wikipedia.org/wiki/Copy_propagation) just removes "direct assignment" like `x = y` in some way.
+- [Dead Store Elimination](https://cran.r-project.org/web/packages/rco/vignettes/opt-dead-store.html#:~:text=Dead%20Store%20Elimination%20is%20an,read%20by%20any%20subsequent%20instruction.&text=After%20applying%20other%20optimizations%2C%20such,some%20variables%20become%20dead%20stores.&text=And%20thus%2C%20n%20would%20become%20a%20dead%20store.) just remove *seemingly* unused store by *local* data dependency.
+  - free [not resets](https://stackoverflow.com/questions/11239707/why-are-the-contents-pointed-to-by-a-pointer-not-changed-when-memory-is-dealloca) data. So [this "Dead Store Elimination"](https://www.usenix.org/sites/default/files/conference/protected-files/usenixsecurity17_slides_zhaomo_yang.pdf) which removes the `memset` may leak the data.
+  - TODO read [free](https://github1s.com/bminor/glibc/blob/master/malloc/malloc.c#L3346-L3347) source codes.
+- ["strength reduction"](https://en.wikipedia.org/wiki/Strength_reduction#) just use simpler operation (multiplication -> addition and "replacing *exponentiation* within a loop with a multiplication",etc.)
+  - see 5 "shift left."
+#### 5
+- here `0(r103)` stores `x[i]`
+- "dead code" due to [macros, templates](https://stackoverflow.com/questions/48209595/ignore-dead-code-warnings-in-c-c) because it not knows the type of variable (maybe *const*.)
+#### 6
+- "conservative." just as csapp says.
+- "allocate a variable to a register" because of thinking its [*liveness* "cannot be in the same register wherever their *live ranges overlap*"](https://www.cs.cmu.edu/~fp/courses/15411-f13/lectures/03-regalloc.pdf) is long.
+  1. "the absence of side effects by a function call." -> may avoid pushing some variable to stack which won't be changed during the call before the call.
+  2. "the absence of aliasing between two pointers" -> allow above [optimizations](#optimizations), see [this](https://stackoverflow.com/questions/52399590/is-there-a-way-to-tell-the-c-compiler-that-a-pointer-has-no-aliasing-stores) where `read_array(arr);` interferes the optimization where it may increase the reference count of `p` and change its value and the [`restrict`](https://www.geeksforgeeks.org/restrict-keyword-c/) tells the compiler of "the absence of aliasing".
+- "pointer code" may be unoptimized due to not knowing the above *2 absences*.
+- ["Code motion"](https://en.wikipedia.org/wiki/Code_motion#Uses)
+  "Removing unused/useless operations" which exists with *one branch* but not the other "moving instructions to branches in which they are used".
+  "Code Factoring": "*merges* common dependencies" which is just opposite of the first. This is similar to ~~vscode~~ [Refactoring](https://code.visualstudio.com/docs/editor/refactoring#_refactoring-actions)
+  "code scheduling" is just as [COD_RISC_V_2nd] book [says](#code_scheduling) to avoid dependency penalties.
+  `D` is "Loop-invariant"
+- ["Induction-Variable Elimination"](https://www.javatpoint.com/loop-optimization#:~:text=Induction%20variable%20elimination%20is%20used,space%20and%20run%20time%20performance.) is similar to [this](#avoid_mul) just as the [COD_RISC_V_2nd]
+#### 7
+- Local Optimizations
+  - 2,3 "Replace all uses of R106" -> common subexpression elimination.
+  - 4 "*now* have the same input operand" -> e.6"Copy propagation ... such as common subexpression elimination"
+  - 5 is similar to 4.
+  - "two instances of an operand" -> something like `r101` and `r107` for `i`.
+- Global Optimizations
+  - "an IR statement like add Rx, R20, R50." -> IR just use *virtual register* which is different from the last machine codes.
+  - 1. whether values of same register are "identical" which decides whether "*common* subexpression" in different "basic blocks".
+  - 2. "whether its value is used again" by "*common* subexpression elimination and copy *propagation*" decides whether it is ok to eliminate the "dead code".
+  - 3. whether "the load of k is loop invariant".
+#### 8
+- [control flow graph](https://en.wikipedia.org/wiki/Control-flow_graph#:~:text=In%20computer%20science%2C%20a%20control,matrices%20for%20flow%20analysis%20before.)
+- "use-definition information" and "definition-use information" see [def_use llvm doc][def_use] referenced by [this](https://labs.engineering.asu.edu/mps-lab/resources/llvm-resources/llvm-def-use-use-def-chains/)
+  - although [wikipedia](https://en.wikipedia.org/wiki/Use-define_chain#Definition_of_a_Variable) says "consists of a use, U, of a *variable*", the User may be always Instruction as above [def_use] says which may have multiple defs with multiple operands each.
+    Also see [def-use chain example](https://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html#about-use-def-chains) which is just map from one def to multiple uses.
+  - llvm
+    Value -> "such as Constants, Arguments" which is the most higher [parent class](https://llvm.org/doxygen/classllvm_1_1Value.html)
+    [Static Single Assignment (SSA)](http://www.cs.cmu.edu/afs/cs/academic/class/15745-s06/web/handouts/ssa15745.pdf) just means assign [index p3](http://www.cs.cmu.edu/afs/cs/academic/class/15745-s06/web/handouts/ssa15745.pdf) to each variable (i.e. only ["one definition referred to"](https://llvm.org/docs/ProgrammersManual.html#user)) so that ["each variable to be assigned exactly *once*"](https://en.wikipedia.org/wiki/Static_single-assignment_form)
+- here just use "sequential fall-through" to replace `jal x0 loop`
+#### 9
+- Since using SSA, def in `def-use` just means "definitions (changes)".
+- "no definitions (changes) of the operands" because the dest regs are all different.
+  1~6 move out of the loop except for `lw r5, 0(r4)` where `r4` is changed ~~in the loop body~~ with `i` ("Hence, this statement is *not loop invariant*.").
+
+  "induction variable elimination" -> `slli r5, r4, 2` (where `lw r4, i`) to `addi r4, r4, 4` (where `r4` is inited as `save[i]` in the first block in FIGURE e2.15.5)
+- "the variable k and the variable i actually refer to *the same memory location*" is also said in csapp.
+  This is just "aliasing".
+- erratum
+  - "in statement 10 where it is stored" -> 9
+  - `addi r7, r6, 1` -> `addi r7, r2, 1` where `r2` is `i` and later `sw r7, i` to store to `i`.
+#### 10
+- "load-store architectures" is specific to RISC and CISC allows [mem-reg -> reg / mem-mem](https://www.geeksforgeeks.org/computer-organization-risc-and-cisc/). Also [see wikipedia](https://en.wikipedia.org/wiki/Load%E2%80%93store_architecture#See_also) and [this lecture](https://cs.colby.edu/courses/F20/cs232/notes/9.ISA(II).pdf) (load/store is *between* reg and mem just as wikipedia says) <a id="CISC"></a>
+- "The process": 1~2 -> def-use chain (here just use reg like `r4` as src but not dest); 3 use-def chain (here may use something like `add r4,r4,4` to modify original def of `r4`); 4 iteration.
+- TODO [interference graph](https://users.cs.northwestern.edu/~simonec/files/Teaching/CC/slides/Interference_graph.pdf)
+  - p8 ~~what is~~ here probably `r10` is used by before p7, so better not interfere with that -> use other regs like `rcx`.
+  - p12 see reg allocation before call and after call returns.
+- "interference graph" and "graph coloring"
+  - [register_allocation_18] is good.
+    - p22, see p25 and the counterpart p26,p32, then all is obvious with **interference graph** with coloring.
+      p29 just whether use p23 "subscript" and "distinguishes between different live ranges"
+    - p36 what if color number is *too low*.
+      remove then add back. see p37~44
+      p45 may fail if neighbours are too many (here all 4(K+1) has K neighbors).
+
+      Then results in "Graph surgery" p51 -> *spill* to mem.
+    - p50 empty graph caused by *all* "nodes with < K edges"
+    - p55 [activation record](https://pages.cs.wisc.edu/~horwitz/CS701-NOTES/5.REGISTER-ALLOCATION.html) means mem (at least anything that is not reg ).
+    - p57 although [this](#CISC), x86 has [no mem-mem instruction](https://stackoverflow.com/questions/52573554/what-x86-instructions-take-two-or-more-memory-operands).
+      "Must run register allocation *prior to* instruction selection" maybe means ["Instruction selection" p10](https://www.eecis.udel.edu/~cavazos/cisc471-672-spring2018/lectures/Lecture-20.pdf) are also done partly in ["Instruction scheduling" p1](http://www.cs.cmu.edu/~745/lectures/reg_alloc.pdf)
+    - p59 since "RISC" needs reg-reg, so spill may be not allowed.
+      Then p60 "Spare registers"
+      p61 may be not applied to RISC. 
+    - TODO p67~68 should add one v5-5 to overlap with v1~3.
+    - p74,76 spill with *split* just let each loop *independent* and no need to refresh which will occurs if all *sharing* one mem. Also [see](#split)
+    - See p79~91 K-coloring with each nodes >= K edges.
+    - p93 "Coalescing" just copy propagation. <a id="Coalescing"></a>
+    - TODO p35 NP-complete
+  - also see [this](https://courses.cs.washington.edu/courses/cse501/01wi/slides/slides.02-23.pdf) "not reflexive" because of the graph internal property (just view the graph).
+  - not to read [this](https://users.cs.northwestern.edu/~simonec/files/Teaching/CC/slides/Interference_graph.pdf) which split the contents to other pdf like 'Spilling.pdf' in p38
+- Also see [this](https://www.cs.cmu.edu/~fp/courses/15411-f13/lectures/03-regalloc.pdf)
+  TODO 4. [Chordal Graphs](https://en.wikipedia.org/wiki/Chordal_graph) usage.; 6. 
+#### 11
+- "Spilling is equivalent to splitting up a region" just split *partly* to use register as more as possible. <a id="split"></a>
+  - "The location *chosen* to split a region" explains why [register_allocation_18] p69 "*reduces* number of instructions that are needed to load (store)" because the mem reference is *not needed to span all* the `v5` live range.
+- here drop load and store of `i`, so "dropped to only four from six" because `i` is just temp var which is not needed to store to mem too many times. And because "i were *unused* after the loop", " the increment inside the loop could be eliminated" -> drop `addi x12, x12, 1`.
+#### 12
+- "aliasing" may cause soemthing like [Coalescing](#Coalescing) but not obvious like `v3 = v2`. It may be `v1=*arg1,v2=*arg2` but `arg1,arg2` may be same as *input* of the function.
+- ["symbolic values"](https://www.sciencefriday.com/educational-resources/write-your-name-in-binary-code/) -> just map symbol to binary.
+- ["simple architectures"](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/instruction-set-architecture/index.html) like RISC just consists of the *most basic* instructions.
+- [parser](#parser) just match combination of tokens which is just what parser should do.
+  - TODO the inner idea of "tree-based pattern matcher" should be same as parser.
+    similar to FIGURE e2.15.2.
+- TODO different computers [may](https://groups.google.com/g/r-inla-discussion-group/c/qkoV9ZtA1Wo) generate different results. Also see ["using the mathematics of the target machine"](https://en.citizendium.org/wiki/Constant_folding)
+- "localized instruction scheduling" see [COD_RISC_V_2nd] p345 FIGURE 4.71 and the following figure.
+- ["Straight-line code"](https://www.pls-lab.org/en/Straight-line#:~:text=One%20could%20say%20that%20straight,doesn't%20seem%20precise%20either.) which obviously excludes branch.
+- "Stack height reduction" may be similar to "Tree Height Reduction" which increases [ILP](https://en.wikipedia.org/wiki/Instruction-level_parallelism) obviously.
+- shift has a little big [penalty](https://news.ycombinator.com/item?id=2962785) on Arm Cortex-A9 and even more on PS3,etc., especially for variable-shifts and reg-shift.
+- the offset is at least [dependent on processor](https://stackoverflow.com/questions/76287548/why-is-there-a-connection-between-branch-prediction-failure-and-rep-ret-in-the) with `ret` at the odd location.
+  TODO how "Choose the shor test branch"
+- local Optimization example see e5.
+- "so general that they aren’t fast" -> [`loop`](https://www.felixcloutier.com/x86/loop:loopcc) only for `count!=0` which is obvious not for some more common case like `i<NUM;i++`
+  - "an option" may be like `ZF` referenced above. 
+#### 13
+- TODO [interprocedural analysis IPA](https://groups.seas.harvard.edu/courses/cs252/2011sp/slides/Lec05-Interprocedural.pdf)
+  - [CFG Control-flow graph](https://en.wikipedia.org/wiki/Control-flow_graph)
+- TODO [Flow-Insensitive](https://www.cs.cornell.edu/courses/cs711/2005fa/slides/sep13.pdf) -> ["ignores the flow of control in a program"](https://pages.cs.wisc.edu/~fischer/cs701.f14/7.POINTER-ANALYSIS.html)
+- TODO [may-information](https://www.cs.utexas.edu/users/lin/cs380c/handout12.pdf)
+#### 25
+- TODO reread after c++ primer.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -6209,12 +6526,12 @@ Module = "intel_rapl_msr"
     uevent              = <store method only>
 ```
 ### bcc
-- bcc source compilation needs [flex](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc to output infos about input and [bison][aquamentus_flex_bison] (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.)
+- bcc source compilation needs [flex](https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html#:~:text=One%20of%20the%20nicest%20things,handle%20comments%2C%20using%20%2F%2F%20syntax.) which is based on regex,etc.,to output infos about input and [bison][aquamentus_flex_bison] (~~TODO~~ ~~where~~ `g++ snazzle.tab.c lex.yy.c -lfl -o snazzle` will error "/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libfl.so: undefined reference to `yylex'", [see](https://stackoverflow.com/a/57061573/21294350) method 1 is valid.) <a id="bison"></a>
   flex [only support `/**/`](https://www.cs.virginia.edu/~cr4bd/flex-manual/Comments-in-the-Input.html) but not `//` C-style comments at the file **begin location**.
   [skenz][skenz_flex_bison]
   - flex and bison are just based **regex** (they are mostly connected by **tokens**, [see](#token)), see [skenz_flex_bison] first example and this [concrete repo](https://github.com/czg-sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
     - from the above repo, flex also has one *Prologue section* as bison has.
-  - highly recommend this [Q&A](https://stackoverflow.com/questions/34495544/using-flex-and-bison-together) which explains **lex(scanner/lexer) and yacc(parser)** (i.e. flex and bison) relation (also see [this](https://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)). Based on the following, reread the 'bison_flex/skenz' codes. They are more understandable now.
+  - highly recommend this [Q&A](https://stackoverflow.com/questions/34495544/using-flex-and-bison-together) which explains **lex(scanner/lexer) and yacc(parser)** (i.e. flex and bison) relation (also see [this](https://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)). Based on the following, reread the 'bison_flex/skenz' codes. They are more understandable now. <a id="parser"></a>
     > A file such as exercise4.l is the input to flex which defines the **mapping** from lexemes to tokens, and exercise4.y would be the input to bison which defines the **order** of the tokens in a grammar. 
     
     So we use `%option header-file="lex.yy.h"` to generate header to use `yyin` in other *source codes* to let lexer process the file.
@@ -6764,7 +7081,7 @@ $ cat debug/sample_${file}.report
 - `dgemm_basic` load  more from sys mem, because it traverse range is too large. As said [before](#fetch),
 - `prefetch_l2_cmd` can be seen in [17h_01h] p172, **software prefetch** may interfere hardware prefetch and also if it fetches instruction, then it will interfere the data cache. So above it shows **0**.
   - similarly, `ls_sw_pf_dc_fill` all no count. See [ls_sw_pf_dc_fill](#ls_sw_pf_dc_fill)
-- `change_to_x`: only `dgemm_basic` and `dgemm_basic_blocked` shows one small value. (The `dgemm_unrolled_avx256` shows 1, ignore it) Because they not use somewhat parallel method like avx, so ~~cpu may schedule a new thread to help running it with original threads~~ it may change cache state. See [SOG_17h] doc p18, it use "Linear address utag" (i.e. ~~at least virtually indexed. ~~ to accelerate selecting way with **hash** after using VIPT,etc to [select **set**](https://en.wikipedia.org/wiki/CPU_cache#Cache_entry_structure).). So it may conflict.
+- `change_to_x`: only `dgemm_basic` and `dgemm_basic_blocked` shows one small value. (The `dgemm_unrolled_avx256` shows 1, ignore it) Because they not use somewhat parallel method like avx, so ~~cpu may schedule a new thread to help running it with original threads~~ it may change cache state. See [SOG_17h] doc p18, it use "Linear address utag" (i.e. ~~at least virtually indexed. ~~ to accelerate selecting way with **hash** after using VIPT,etc.,to [select **set**](https://en.wikipedia.org/wiki/CPU_cache#Cache_entry_structure).). So it may conflict.
   - Since avx256 is 32 byte (256=32*8), it corresponds to 'L2 to L1 data path is 32 bytes wide.' in [SOG_17h] p19. So perform better (both load and invalidation less). <a id="data_path"></a>
     - it is just  and also not exceed [cacheline size](#cacheline_byte). 
     - Also see [SOG_17h] p17 it conforms to "natural **alignment** boundary". so `__m256d` use `__vector_size__ (32),` in `g++` header.
@@ -6800,14 +7117,14 @@ $ cat debug/sample_${file}.report
   ```
 ### `l2_request_g1.ls_rd_blk_c_s` just similar to `l2_cache_req_stat.ls_rd_blk_cs` 
 - the former including prefetches is higher than the latter except for `dgemm_openmp_256`.
-- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` (same as others how to get this data) may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc doesn't share data except prefetching. see:
+- notice `l2_request_g1.ls_rd_blk_c_s/l2_cache_req_stat.ls_rd_blk_cs` (same as others how to get this data) may be changed largely because sometimes the latter of `dgemm_unrolled_avx256`,etc.,doesn't share data except prefetching. see:
   ```bash
   $ git rev-parse HEAD
   54bd59d29b60647ab676f8d4e82343669a7fd93d
   ```
 ### `l2_request_g1.change_to_x` is similar to `l2_cache_req_stat.ls_rd_blk_x`, see [this](#ls_rd_blk_x)
 ### `l2_request_g1.l2_hw_pf` is just similar to `ls_refills_from_sys.ls_mabresp_lcl_l2` which is also similar to [`ls_hw_pf_dc_fill.ls_mabresp_lcl_l2`](#ls_refills_from_sys)
-- first 3 columns: why openmp and blocked showed `0.673953`,etc is same as [here](#non_modifiable) "split" and "unit size".
+- first 3 columns: why openmp and blocked showed `0.673953`,etc.,is same as [here](#non_modifiable) "split" and "unit size".
 
   2nd 3 columns: still because unit size -> `dgemm_avx256` > `dgemm_unrolled_avx256` > `dgemm_blocked_avx256` (here similar `ls_mabresp_lcl_dram` with less `ls_mabresp_lcl_cache` is better.)
   openmp split -> more share inside *home node*.
@@ -6830,7 +7147,7 @@ func      dgemm_blocked_avx256:   862,  1205,   0.715353;   862,   836,     1.03
 ```
 ### `ls_sw_pf_dc_fill`
 - notice: on 4800h with only **one numa**, `ls_sw_pf_dc_fill.ls_mabresp_rmt_cache` and `ls_sw_pf_dc_fill.ls_mabresp_rmt_dram` show $0$. But `ls_mabresp_lcl_cache` >  `ls_mabresp_lcl_l2` >`ls_mabresp_lcl_dram`. So obviously implicitly using multiple threads.
-  Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
+  Here, why `dgemm_unrolled_avx256`'s `ls_mabresp_lcl_cache`,etc.,are less than `dgemm_avx256` is probably because ~~it use multiple [ymm](#ymm)~~. ~~So the former may use write combining buffer to write together which is not viewed from the assembly code.~~ (Compared with `ls_hw_pf_dc_fill` and `ls_refills_from_sys`, `ls_sw_pf_dc_fill` can be ignored based on **Amdahl's law**.)
   Since most of `l2_request_g1` are not $0$, so it use cacheable write buffer. Then `ls_st_commit_cancel2.st_commit_cancel_wcb_full` is $0$.
 
   Here, `ls_refills_from_sys.ls_mabresp_rmt_cache` and `ls_refills_from_sys.ls_mabresp_rmt_dram` is 0, because only one [numa](#numa) node. <a id="ls_refills_from_sys"></a>
@@ -7259,7 +7576,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
         ```
         - With respect to `dgemm_blocked_avx256`:
         from above, the peak is at `BLOCK_DENOMINATOR=4` where the block is `n/4`.
-        So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc to change `k/r` .
+        So from [opcache_patent] fig3, when `BLOCK_DENOMINATOR=1/2` it may be too large, then the most inner loop can't be stored efficiently in opcache because the hot path has some `mov/add`,etc.,to change `k/r` .
 
         - Notice sometimes **`BLOCK_DENOMINATOR=1/2/4/5`** all may be also large, but `BLOCK_DENOMINATOR=40` quotient must be small because it **only run each nested loop once** and run the whole 4-level loop which must cause the opcache refreshed. So the hot path is 3-level loop instead of 1-level loop (i.e. the most inner loop). See intel [vtune](http://portal.nacad.ufrj.br/online/intel/vtune2017/help/GUID-143D1B76-D97F-454F-9B4B-91F2D791B66D.html) (more elegant [official][vtune_online]) <a id="4-level"></a>
           Then reread the [opcache], based on the above "run each nested loop once" and "caches uops that get decoded along the path of (speculative) execution" in the link, the speculative execution is probably not reused, although they are all not taken, but their tags are different.
@@ -7427,7 +7744,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
           - here `only three` is probably based on one somewhat worst condition from "up to *seven* of them can be associated with a 32-byte chunk": think of the instruction in the branch is at least 5 bytes.
           - Here guess: probably opcache loads one small code block (i.e. 32 byte aligned chunk) at least every time loading by "prohibit *all* the micro-ops of the instructions in the chunk" and "the unconditional branches are too *dense* in each 32Byte-aligned chunk".
           - Conclusion: make sure "hot code block" *fit in* opcache by 1. spliting complex instruction (m1,i.e. method 1 in the doc) or loops (m0.2) 2. aligning by adding nop *outside* (m1.2,m2 "among the branches" but "not executed",m3 " are not part of hot code") or in the loop (m1.3) 3. change ordering (m3.) 4. limit unroll (m0.1) 5. tweak based on 1/2 threads running per core (m0.3).
-          - see p88 for "Local impact",etc with "M impact, M generality" meaning. 
+          - see p88 for "Local impact",etc.,with "M impact, M generality" meaning. 
             - "Avoid putting explicit references to *ESP* in a sequence" may means above *virtual table method* should not use frequently the *stacks* which will increase the overheads because these functions are recommended to be small to *fit in* the opcache.
 ### `l2_cache_hits_from_l2_hwpf` (here is [L2 prefetch from L3](https://github.com/torvalds/linux/blob/06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json#L84C48-L84C52))
 - most of time, it is equal to `l2_pf_miss_l2_hit_l3` means [prefetch][#miss_rate] always right.
@@ -7605,7 +7922,7 @@ lex.yy.c-ECHO; # this is the significant location
 lex.yy.c-// ;
 --
 ```
-- the above `#line` is to [change](https://learn.microsoft.com/en-us/cpp/preprocessor/hash-line-directive-c-cpp?view=msvc-170) `__LINE__` etc macro
+- the above `#line` is to [change](https://learn.microsoft.com/en-us/cpp/preprocessor/hash-line-directive-c-cpp?view=msvc-170) `__LINE__` etc.,macro
 - FILE may be can be known more by reading [`man fcntl`](https://stackoverflow.com/questions/29731672/getting-the-file-mode-from-the-file-struct)
 - how to debug the above codes
   - view the same version glic [codes](https://github1s.com/bminor/glibc/blob/glibc-2.37/libio/libioP.h#L519) as [`ldd -v`](https://iq.opengenus.org/find-glibc-version/#:~:text=Method%201%3A%20Use%20ldd,-Use%20the%20following&text=The%20output%20will%20give%20the,2020%20Free%20Software%20Foundation%2C%20Inc.) used.
@@ -7787,7 +8104,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
   - from wikipedia
     - [Scalable_Shared_Memory_Multiprocessors_libgen]
   - COD (Computer Organization and Design) by David A. Patterson (Author), John L. Hennessy (Author)
-    - [RISC_V_Orig]
+    - [COD_RISC_V_Orig]
     - [RISC_V_Custom]
     - [RISC_V_Custom_OCR]
   - CAAQA (Computer Architecture: A Quantitative Approach 6th edition) by David A Patterson and John L. Hennessy
@@ -7800,11 +8117,11 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
     - [perf_cache_misses]
 
 ---
-
+<!-- wikipedia -->
 [Sequential_consistency]:https://en.wikipedia.org/wiki/Consistency_model#Sequential_consistency
 [Wl_1]:https://en.wikipedia.org/wiki/Causal_consistency#cite_note-10
-[mosberger93memory]:https://www.cse.psu.edu/~buu1/teaching/spring07/598d/_assoc/CCBD250576DD4E41ABC1EC82207C66A0/mosberger93memory.pdf
 [Cache_Consistency_def]:https://en.wikipedia.org/wiki/Cache_coherence#Definition
+[CHS]:https://en.wikipedia.org/wiki/Logical_block_addressing#CHS_conversion
 
 <!-- blog -->
 
@@ -7818,7 +8135,11 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 
 [sequential_consistency]:https://spcl.inf.ethz.ch/Teaching/2017-dphpc/assignments/sequential_consistency_sol.pdf
 [Similarity_TSO_IBM_370]:https://en.wikipedia.org/wiki/Processor_consistency#Similarity_to_SPARC_V8_TSO,_IBM-370,_and_x86-TSO_Memory_Models
+<!-- class lecture -->
 [sc_tso_cis601]:https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf
+[cs61_07]:https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf
+[register_allocation_18]:../references/lecture/w14_01-register-allocation_18.pdf
+
 [PC_orig]:../references/other_resources/COD/references/memory_consistency/TR1006_PC_orig.pdf
 [lec_17]:http://www.cs.cmu.edu/afs/cs/academic/class/15418-s11/public/lectures/lect17.pdf
 [SC_orig]:https://www.microsoft.com/en-us/research/uploads/prod/2016/12/How-to-Make-a-Multiprocessor-Computer-That-Correctly-Executes-Multiprocess-Programs.pdf
@@ -7832,8 +8153,13 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 
 <!-- riscv book -->
 [RISC_V_Custom_OCR]:../references/other_resources/COD/COD_RISCV_OCR.pdf
-[RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
+[COD_RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
+<!-- https://dokumen.pub/computer-organization-and-design-risc-v-edition-the-hardware-software-interface-2nbsped-0128203315-9780128203316.html -->
+[COD_RISC_V_2nd]:../references/other_resources/COD/COD_RISCV_2nd.pdf
+[COD_RISC_V_2nd_companion]:https://www.elsevier.com/books-and-journals/book-companion/9780128203316
 [RISC_V_Custom]:../references/other_resources/COD/COD_RISCV.pdf
+[CAAQA_companion]:https://www.elsevier.com/books-and-journals/book-companion/9780128119051
+[COD_RISC_V_Orig_companion]:https://www.elsevier.com/books-and-journals/book-companion/9780128122754/advanced-content-and-appendices#Advanced%20Content
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
@@ -7891,6 +8217,9 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [shadow_memory]:../references/papers/shadow-memory2007.pdf
 [LSD_DSB_MITE]:../references/papers/opcache_LSD_DSB_MITE_etc_2105.12224.pdf
 [icpp07]:../references/papers/icpp07.pdf
+[mosberger93memory]:https://www.cse.psu.edu/~buu1/teaching/spring07/598d/_assoc/CCBD250576DD4E41ABC1EC82207C66A0/mosberger93memory.pdf
+[robin]:../references/papers/robin.pdf
+[spectre]:../references/papers/spectre.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -7913,3 +8242,13 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 
 <!-- manual -->
 [intel_SOM]:../references/x64_ISA_manual_intel/intel_Software-Optimization-Manual.pdf
+[intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
+
+<!-- c-jump -->
+[EFLAGS]:http://www.c-jump.com/CIS77/ASM/Instructions/I77_0070_eflags_bits.htm
+
+<!-- osdev -->
+[Segment_Selector]:https://wiki.osdev.org/Segment_Selector#Segment_Selector
+
+<!-- llvm -->
+[def_use]:https://llvm.org/docs/ProgrammersManual.html#iterating-over-def-use-use-def-chains
