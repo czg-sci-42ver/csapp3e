@@ -716,7 +716,7 @@ or `att`
 ```
 - `80` -> `AND r/m8, imm8	` [here](https://www.felixcloutier.com/x86/and)
   `25` -> `disp32` in column 4 [pdf p530][intel_64]
-  `7e 82 01 00` -> 4 byte(specified in [pdf p525][intel_64]) little endian of `0x1827e`
+  `7e 82 01 00` -> 4 byte(specified in [pdf p525][intel_64]) little endian of `0x1827e` <a id="little_endian"></a>
   `df` -> `id`
 ## 7 AVX
 - see [VEX field bit intel doc p539 (say `C5H form` meaing) ](https://stackoverflow.com/questions/51773399/vex-prefixes-encoding-and-sse-avx-movupd-s-instructions) (where also say `WIG` meaning)
@@ -1484,7 +1484,7 @@ __stack_chk_fail@got.plt in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm
     - po Latency based on multiple instructions runned (dependency chain) and Reciprocal throughput is mostly based on itself (detailed see p2)
     - p3,36(execution pipe)
       - Execution pipe is [pipelined](https://en.wikipedia.org/wiki/Execution_unit) Execution units
-    - here `MOV r64,r64 1 0 0.25 renaming` -> `0 0.25` and `ENTER a,b 11+3b N/A ~20+b` (multiple nested condition) with `LEAVE N/A 2 N/A 3`
+    - here `MOV r64,r64 1 0 0.25 renaming` -> `0 0.25` and `ENTER a,b 11+3b N/A ~20+b` (multiple nested condition) with `LEAVE N/A 2 N/A 3` (renaming means "register renaming" p170)
     - shuffle [shufps](http://www.songho.ca/misc/sse/sse.html)
 - in pdf above, rbp is mainly used to access parent variable in stack.
 ```bash
@@ -4526,6 +4526,7 @@ B[k][j] B[k][j] ...
 - 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
 - p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
 - [SB-format p7][cs61_07] risc-v format <a id="rformat"></a>
+  - also see [riscv_spec] p16
 - 'FIGURE 4.15,17'
 - p543 [latency](http://ece-research.unm.edu/jimp/611/slides/chap3_1.html)
 - p545 here 'single-cycle datapath' has no relation with 'Single-cycle, nonpipelined execution' in 'FIGURE 4.25',
@@ -4611,7 +4612,7 @@ B[k][j] B[k][j] ...
   - TODO early decode
 - p643
   - [Anti-dependency](https://en.wikipedia.org/wiki/Data_dependency#Anti-dependency) 'the ordering of these instructions cannot be changed'
-  - [retirement p6](https://www.ece.uvic.ca/~amiralib/courses/p6.pdf) (rrf) stage architecture is just commit also [see](https://en.wikipedia.org/wiki/Register_renaming#Architectural_versus_physical_registers)
+  - [retirement p6](https://www.ece.uvic.ca/~amiralib/courses/p6.pdf) (rrf: Retirement Register File) stage architecture is just commit. Also [see](https://en.wikipedia.org/wiki/Register_renaming#Architectural_versus_physical_registers)
   - see CAQQA p286
     - loop stream detection just to directly skip some stages by direct fusion
 - p644 
@@ -4921,7 +4922,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 ###### diff with store buffer
 - CAQQA p230,242,247(relation with reorder buffer)
   - notice the design may be different slightly between amd and intel, also different microarchitecture.
-  - [RAT design](../references/other_resources/COD/references/pipeline/xiao2013_RAT.pdf) with 'global checkpoints' for *recovery* (It may be same as ["RAT (Resource Allocation Table)"](https://easyperf.net/blog/2018/12/29/Understanding-IDQ_UOPS_NOT_DELIVERED) from [this (also says other like IDQ)](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Renaming_.26_Allocation))
+  - [RAT design](../references/other_resources/COD/references/pipeline/xiao2013_RAT.pdf) with 'global checkpoints' for *recovery* (It may be same as ["RAT (Resource Allocation Table)"](https://easyperf.net/blog/2018/12/29/Understanding-IDQ_UOPS_NOT_DELIVERED) from [this (also says other like IDQ: Instruction Decode Queue)](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Renaming_.26_Allocation))
   - TODO 
     - RAT hardware design [1](https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp16/cse502/slides/08-superscalar_ooo.pdf) (this [better](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf))or more [abstract](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf)
     - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/) <a id="CAM"></a>
@@ -5639,7 +5640,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - "re-virticalization" -> Cloud
 - p xvi
   - TODO "updates all the examples and figures"
-- p svii
+- p xvii
   - [resource website](https://inspectioncopy.elsevier.com/book/details/9780128203316)
   - ["President Hennessy"](https://hennessy.stanford.edu/biography/)
 - p50
@@ -5647,6 +5648,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p274
   - better see [this](#spec_instr_format) and [this](#SB_format)
 - See [this](#understanding-program-performance)
+- see [this](#hardwaresoftware-interface)
+- see [this](#fallacies-and-pitfalls)
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -6145,7 +6148,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - [control hazard](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/handling-control-hazards/index.html) also avoid OoO in some way ("cannot be moved in front of" and "so that the branch controls").
     - kw: basically two ways;  
   - "not be fully pipelined" -> [this](#pipelined_fp)
-  - ["Register renaming"](https://en.wikipedia.org/wiki/Register_renaming) -> 
+  - ["Register renaming"](https://en.wikipedia.org/wiki/Register_renaming) -> <a id="Register_renaming"></a>
     1. mapping from "logical registers" to physical registers.
     2. just using another logical register. (This is compiler-based)
       In [this](https://en.wikipedia.org/wiki/Register_renaming#Data_hazards), WAR where R use "old value" which may in one register and W writes with "the new value".
@@ -6272,7 +6275,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     similar to FIGURE e2.15.2.
 - TODO different computers [may](https://groups.google.com/g/r-inla-discussion-group/c/qkoV9ZtA1Wo) generate different results. Also see ["using the mathematics of the target machine"](https://en.citizendium.org/wiki/Constant_folding)
 - "localized instruction scheduling" see [COD_RISC_V_2nd] p345 FIGURE 4.71 and the following figure.
-- ["Straight-line code"](https://www.pls-lab.org/en/Straight-line#:~:text=One%20could%20say%20that%20straight,doesn't%20seem%20precise%20either.) which obviously excludes branch.
+- ["Straight-line code"](https://www.pls-lab.org/en/Straight-line#:~:text=One%20could%20say%20that%20straight,doesn't%20seem%20precise%20either.) which obviously excludes branch. <a id="Straight_line_code"></a>
 - "Stack height reduction" may be similar to "Tree Height Reduction" which increases [ILP](https://en.wikipedia.org/wiki/Instruction-level_parallelism) obviously.
 - shift has a little big [penalty](https://news.ycombinator.com/item?id=2962785) on Arm Cortex-A9 and even more on PS3,etc., especially for variable-shifts and reg-shift.
 - the offset is at least [dependent on processor](https://stackoverflow.com/questions/76287548/why-is-there-a-connection-between-branch-prediction-failure-and-rep-ret-in-the) with `ret` at the odd location.
@@ -6287,6 +6290,73 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - TODO [may-information](https://www.cs.utexas.edu/users/lin/cs380c/handout12.pdf)
 #### 25
 - TODO reread after c++ primer.
+## Hardware/Software Interface
+- p43
+  - "third rail" means that it is better to comform to the "rail" (i.e. how hardware is parallel) (2nd [definition](https://www.collinsdictionary.com/us/dictionary/english/third-rail#:~:text=If%20you%20refer%20to%20something,is%20to%20commit%20political%20suicide.)).
+    - or means it may ["electrocution"](https://en.wikipedia.org/wiki/Third_rail#) (i.e. failure)
+      See [this](https://en.wikipedia.org/wiki/Third_rail_(politics)) "political suicide" and "result in electrocution"
+
+      So "explicitly parallel programming" means "rewrite their programs to be parallel".
+- p76
+  - better see [this](https://en.wikipedia.org/wiki/Endianness) "stores the least-significant byte at the smallest address" and also see this [example](#little_endian)
+  - from [riscv_spec] p6, should be "*8* bytes in a doubleword"
+- p93
+  - "design principle that smaller is faster" -> larger memory is slower than smaller registers.
+- p101
+  - "basic block" is similar to [Straight-line code](#Straight_line_code)
+- 103
+  - "statements for decisions" -> `if`,etc.
+- 110
+  - [auto](https://www.geeksforgeeks.org/storage-classes-in-c/) is default -> just [random values](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment115456392_15326621) which may result from [stack](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment21642064_15326611).
+  - view "/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static" `static.c` is same as `no-static.`
+    ```bash
+    $ id2c \      
+    "objdump_base -d /mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static/static.o" \
+    "objdump_base -d /mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static/no-static.o" 
+    ```
+- p121
+  - "enhanced language of the *assembler*" help "break large constants into pieces" and "memory addresses".
+- p124
+  - use "unconditional branch" to change *far* branch to near.
+- p151.e24 TODO reread after learning JAVA.
+  Maybe just jave virtual machine helps "error checking and code reuse" (reuse error checking codes) by "testing for null object references and index out-of-bounds error".
+  "Load method table" (which is chained load with "Get method address") is similar to virtual method table in cpp.
+- p206
+  - [Divide Overflow](http://www.c-jump.com/CIS77/MLabs/M11arithmetic/M11_0130_divide_overflow.htm) is checked by the magnitude [relation](https://www.geeksforgeeks.org/division-algorithm-in-signed-magnitude-representation/) of divisor and dividend ("what if the divisor is *greater than or equal to* the dividend". Here "equal to" not overflows)
+- p225
+  - "all sized operands in registers into a single internal format." just combines data like avx(512) to [manipulate str](https://lemire.me/blog/2022/09/14/escaping-strings-faster-with-avx-512/).
+- p273
+  - "R Format: Arithmetic" and "I format" are for MIPS.
+  - "FIGURE 4.17" also see [this](#rformat)
+    Here just *shift left* with S in "Cond. Branch",so overlap is less.
+- p339
+  - "hardware failure" like "segmentation fault". (vs [page fault](https://stackoverflow.com/questions/6950549/segmentation-fault-vs-page-fault) "illegal condition" and "perfectly normal")
+    similar to csapp says.
+- p350
+  - "pipeline hazard" just disallow OoO.
+  - ["true data dependence"](https://www.ida.liu.se/~TDTS08/labs/vliw/dependencies.html) -> RAW; it can be solved by [this](#Register_renaming)
+  - "output dependencies": here only 1,2,4 instruction is write which are related with *output dependencies* and their dests aren't same -> no output dependencies.
+    - "the first and second iterations." -> csapp critical path.
+  - "name or data dependence": name -> reg while data -> variable where the former changed more frequently.
+- p352
+  - 1. implicit dependences due to "aliasing" cause stall -> failure of "*sustaining* that issue rate".
+    But "greater regularity of array accesses" implies "no dependences exist".
+  - 2. "branches" 3. "widely separated" ILP 
+    4. "losses in the memory hierarchy" 4.1. "limited amounts of ILP" 
+- 438
+  - [EC2](https://en.wikipedia.org/wiki/Amazon_Elastic_Compute_Cloud)
+- 449
+  - only track the first access but not the count. [See](#reference_bit)
+## Fallacies and Pitfalls
+- p170
+  - "repeat the subsequent instruction" -> [`F3`](https://en.wikipedia.org/wiki/X86_instruction_listings#cite_note-25) or [intel_64] p1776
+  - ~~TODO~~ "new releases of operating systems" at least C++ standard may [change](https://en.wikipedia.org/wiki/Linux_kernel_version_history#cite_note-32)
+    "recent computers": at least segmentation used before has been unused now and "more instruction set architectures." 
+    TODO [unnamed namespace](https://stackoverflow.com/questions/25724787/static-functions-outside-classes)
+    static just "external linkage" (i.e. access by other files).
+    "better declared in a header"
+    [Translation unit](https://en.wikipedia.org/wiki/Translation_unit_(programming)) in [this](https://stackoverflow.com/questions/572547/what-does-static-mean-in-c#comment45074783_572547) -> "a source file" which "has been processed by the C preprocessor".
+    - "declared outside all procedures are considered *static*" -> so needs `extern` to share between files.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
