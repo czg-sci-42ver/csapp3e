@@ -5650,6 +5650,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - See [this](#understanding-program-performance)
 - see [this](#hardwaresoftware-interface)
 - see [this](#fallacies-and-pitfalls)
+- see [this](#the-big-picture)
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -6219,7 +6220,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - llvm
     Value -> "such as Constants, Arguments" which is the most higher [parent class](https://llvm.org/doxygen/classllvm_1_1Value.html)
     [Static Single Assignment (SSA)](http://www.cs.cmu.edu/afs/cs/academic/class/15745-s06/web/handouts/ssa15745.pdf) just means assign [index p3](http://www.cs.cmu.edu/afs/cs/academic/class/15745-s06/web/handouts/ssa15745.pdf) to each variable (i.e. only ["one definition referred to"](https://llvm.org/docs/ProgrammersManual.html#user)) so that ["each variable to be assigned exactly *once*"](https://en.wikipedia.org/wiki/Static_single-assignment_form)
-- here just use "sequential fall-through" to replace `jal x0 loop`
+- here just use "sequential fall-through" to replace `jal x0 loop` <a id="fall_through"></a>
 #### 9
 - Since using SSA, def in `def-use` just means "definitions (changes)".
 - "no definitions (changes) of the operands" because the dest regs are all different.
@@ -6357,6 +6358,28 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     "better declared in a header"
     [Translation unit](https://en.wikipedia.org/wiki/Translation_unit_(programming)) in [this](https://stackoverflow.com/questions/572547/what-does-static-mean-in-c#comment45074783_572547) -> "a source file" which "has been processed by the C preprocessor".
     - "declared outside all procedures are considered *static*" -> so needs `extern` to share between files.
+## The BIG Picture
+- 17
+  - interface -> something like syscall.
+- 22
+  - "identical software" -> same source codes.
+- 94
+  - Is there computers that aren't "stored-program".
+- 119 [CMYK](https://cmyktool.com/cmyk/100-100-100-00000000/)
+- 351
+  - "pipeline and issue mechanisms": the former -> forwarding, etc., and the latter -> stall,etc.
+  - ["Speculation, performed by the compiler"](https://www.cs.umd.edu/users/meesh/cmsc411/website/proj01/ppc/spec.html):
+    TODO 1,4...
+    2 is just same as [this](#fall_through).
+    3 is ["allows such exceptions to be ignored until it is clear"](http://thebeardsage.com/speculation-hardware-vs-software/#:~:text=Speculation%20is%20an%20approach%20whereby,compiler%20or%20by%20the%20hardware.) (i.e. not speculative).
+- 391
+  - "cannot be present in level i unless they are also present in level i + 1." not applies to [Exclusive Policy](https://en.wikipedia.org/wiki/Cache_inclusion_policy#Exclusive_Policy)
+- 400
+  - may prefetch data from *multiple paths* to decrease the prediction penalty.
+- 468
+  - "virtual memory" is also based on *blocks* and has different "Replacement Policies".
+- 470
+  - "increase access time" both due to *search time*.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
