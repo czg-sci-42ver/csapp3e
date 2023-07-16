@@ -4300,7 +4300,10 @@ $ cat .gitignore
       - p327 [induction variable elimination](http://www.nullstone.com/htmls/category/ive.htm)
       - TODO related with compiler p329 [p11](https://people.iith.ac.in/ramakrishna/fc5264/global-reg-allocation.pdf), [also](https://www.cs.cornell.edu/courses/cs6120/2019fa/blog/ive/)
     - p351, 'FIGURE E2.15.12' ([leaf procedure](https://courses.cs.vt.edu/~cs2505/summer2011/Notes/pdf/T27.RecursionInMIPS.pdf) -> not need to push registers, maybe only caused in RISC because of using `$ra` (like [`LR` in ARM](https://developer.arm.com/documentation/dui0801/l/Overview-of-AArch64-state/Link-registers)) instead of stack to save return address) after reading `c++ primer`
-  - mips risc-v [diff](https://stackoverflow.com/questions/67464262/mips-and-risc-v-differences) similar to p362
+  - mips risc-v [diff](https://stackoverflow.com/questions/67464262/mips-and-risc-v-differences) similar to p362 <a id="mips_riscv_diff"></a>
+    mips: "depending on whether the comparison is true ... then follow that *comparison instruction*" (just use two instructions to implement `beq` in riscv).
+    TODO "switch order of operands ... tested by the branch"; 
+    "the full MIPS is *a much larger* instruction set than RISC-V"
   - p365 more detailed of csapp p203 
     - ~ p368 more compact description of x86(-64)
   - p380 register [hints](https://www.geeksforgeeks.org/understanding-register-keyword/).
@@ -4521,7 +4524,8 @@ B[k][j] B[k][j] ...
   - design *hardware* intentionally based on instruction *frequency*.
   - `fmul.d` is double (risc-v p450)instead of [single](https://msyksphinz-self.github.io/riscv-isadoc/html/rvfd.html#fmul-d)
 #### chapter 4
-[differences](https://www.tutorialspoint.com/differences-between-data-paths#:~:text=In%20single%20cycle%2C%20one%20instruction,be%20executed%20at%20a%20time.) among single-cycle,Multiple Cycle, Pipeline. Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bojnordi/classes/3810/f20/slides/18-cpu.pdf).
+[differences][single_Multiple_Cycle] among single-cycle,Multiple Cycle, Pipeline. 
+Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bojnordi/classes/3810/f20/slides/18-cpu.pdf). But more strictly, it is not. See [COD_RISC_V_2nd] p282.e1.
 - 'FIGURE 4.2' 'FIGURE 4.4'(state element) PC+[4](https://stackoverflow.com/questions/63904609/why-program-counter-in-risc-v-should-be-added-by-4-instead-of-adding-0-or-2) although the book says it use 64-bit
 - 'FIGURE 4.7' [slash](https://electronics.stackexchange.com/questions/329358/what-does-a-slash-over-a-line-in-a-circuit-diagram-mean) num meaning
 - p493 [immediate generation unit](https://www.reddit.com/r/VHDL/comments/ap00mj/need_help_with_the_immediate_generator_part_of/), which may be used to generate branch target (see 'FIGURE 4.9')
@@ -4534,7 +4538,7 @@ B[k][j] B[k][j] ...
   - ‘FIGURE 4.36’ although here must use 'address' to read memory, but maybe to be distinct with 'FIGURE 4.38' write, so just split.
 - p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
   - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
-  - how related [hardware p12 (based on truth table)](https://cseweb.ucsd.edu/classes/su06/cse141/slides/s06-1cyc_control-1up.pdf) implemented <a id="hardware"></a>
+  - how related [hardware p12 (based on truth table)][truth_table] implemented <a id="hardware"></a>
     - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
     - TODO how Function code in p6 above defined
     - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALU0p"></a>
@@ -4814,7 +4818,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here 'fold' means 'translate' instead of 'transform'. So the control line implementation in 'FIGURE E4.13.7' is just Mealy-style, not [Moore-style](https://en.wikipedia.org/wiki/Moore_machine).
 - p676
   - [single-clock-cycle and multiple-clock-cycle](https://www.geeksforgeeks.org/differences-between-single-cycle-and-multiple-cycle-datapath/) where they mainly differs in *CPI*
-    - see [this](http://ece-research.unm.edu/jimp/611/slides/chap3_6.html) better <a id="pipelined_fp"></a>
+    - see [this][fp_multi_cycle] better <a id="pipelined_fp"></a>
       "FP/integer divide" -> non-pipelined
       - view this stackoverflow [Q&A](https://stackoverflow.com/posts/76450114/timeline?filter=NoVoteDetail)
         - ['structural hazards'](https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Structural_hazards) so ‘divide unit’ is taken account because 1. It isn't pipelined 2. It has only one  divider ALU
@@ -4864,7 +4868,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p684
   - risc-v [instruction encoding](https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture12.pdf) p14. also see risc-v doc p18 'The right shift type is encoded in bit 30'.
   - ~~TODO~~ 'control values' see p509 'FIGURE 4.18' (here the 'Figures e' just is 'Figures')
-    - The `EX` use `ALU...`. Others see figure. [hardware](#hardware)
+    - The `EX` use `ALU...`. Others see figure. [hardware][truth_table]
       - `M` use `Mem...,branch`
 - p686
   - notice `branch` control value
@@ -5651,6 +5655,12 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - see [this](#hardwaresoftware-interface)
 - see [this](#fallacies-and-pitfalls)
 - see [this](#the-big-picture)
+- see [this](#check-yourself)
+##### TODO
+- read 2.17,18
+  2.21 is just in 1st edition 3.8.
+
+  read 282.e14 to 282.e19 which is extension of C.3 .
 #### appendix
 ##### A
 - p1187 why only `Binvert` used in overflow detection.
@@ -6306,7 +6316,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p101
   - "basic block" is similar to [Straight-line code](#Straight_line_code)
 - 103
-  - "statements for decisions" -> `if`,etc.
+  - "statements for decisions" -> `if`,etc. <a id="decisions_and_loops"></a>
 - 110
   - [auto](https://www.geeksforgeeks.org/storage-classes-in-c/) is default -> just [random values](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment115456392_15326621) which may result from [stack](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment21642064_15326611).
   - view "/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static" `static.c` is same as `no-static.`
@@ -6377,9 +6387,142 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - 400
   - may prefetch data from *multiple paths* to decrease the prediction penalty.
 - 468
-  - "virtual memory" is also based on *blocks* and has different "Replacement Policies".
+  - "virtual memory" is also based on *blocks* and has different ["Replacement Policies"](http://denninginstitute.com/modules/vm/yellow/repol.html#:~:text=The%20part%20of%20the%20virtual,again%20for%20the%20longest%20time.).
 - 470
   - "increase access time" both due to *search time*.
+## Check Yourself
+### chapter 1
+- [x] 10
+  - [post-PC](https://en.wikipedia.org/wiki/Post-PC_era)
+  - 2
+    1. just when optimizing the loops.
+    2. python is slower than C. clang may be better than gcc.
+    3. kernel version
+    4. whether has AVX512.
+    5. memory bandwidth.
+- [x] 24
+  |       | volatility | access time | relative cost (just opposite of "access time") |
+  | ----- | ---------- | ----------- | ---------------------------------------------- |
+  | DRAM  | Yes        | fast        |                                                |
+  | flash | No         | slower      |                                                |
+  | disk  | No         | slowest     |                                                |
+- [ ] (wrong) 28: 2,3([mask](https://en.wikipedia.org/wiki/Photomask#:~:text=Photomasks%20are%20commonly%20used%20in,known%20as%20a%20mask%20set.)),4,5(wafer and die [relation](https://www.quora.com/What-is-the-difference-between-a-wafer-and-a-die) and here volume may mean IC count per die by [high production volumes](https://en.wikipedia.org/wiki/Economies_of_scale) in [this](https://en.wikipedia.org/wiki/Integrated_circuit).)
+- [x] 33
+  - 1 a. both b. response time c.none
+  - 2 7s
+- [x] 40 b
+- [x] 53
+  - $10^6$ -> million
+  - a. A
+  - b. just count cycles -> B
+### 2
+- [x] 72: 3>2>1
+- [x] 79: 2
+- [x] 86: 2 and 4
+- [x] 95: 3 (here funct7 should be `64`);0x28
+- [ ] 98: 1
+- [ ] 103
+  I. see [this](#decisions_and_loops) 1,2,3,
+  II 2
+  po 1 "Logical operations" should be ["bitwise"](https://stackoverflow.com/questions/49617159/difference-between-and-in-c) (above link "lower precedence" means [higher priority](https://en.cppreference.com/w/c/language/operator_precedence))
+  conditional branches -> means bool (is right).
+- [x] 114 1,2
+- [ ] 119 TODO learn JAVA
+  I 2,3,4
+  II 3
+- [ ] 128
+  [I](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#beq) 3; [II](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jal) 3
+  
+  $\sum_{i=0\sim11}2^i=2^12-1$ -> 4K
+- [ ] 131 1)
+  processes may be switched then needs *Synchronisation* (["it will be switched out in a *pre-emptive arena*"](https://stackoverflow.com/questions/24030680/why-is-synchronization-in-a-uniprocessor-system-necessary)).
+- [ ] 140 2~4
+  See [this "not need to compile every part of the program"](https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Interpreted_Programs#:~:text=The%20main%20advantage%20of%20an,processes%20the%20source%20code%20directly.)
+  [2, and "memory efficient"](https://www.softwaretestinghelp.com/compiler-vs-interpreter/#Advantages_Interpreter_over_Compiler) are also advantages but not the main. (~~Maybe no "object code"~~ "An intermediate code is also known as the Object code ... eliminating the need for compiling the source program *each time*")
+### 3
+- [x] 193 2)
+- [ ] 232 3) min should be subnormal -> $\pm2^{1-15}*2^{-10}$. See [this](https://en.wikipedia.org/wiki/Bfloat16_floating-point_format#bfloat16_floating-point_format)
+  Also see [COD_RISC_V_2nd] p233.
+### 4
+- [ ] 4
+  just compare to the *whole* pipeline.
+- [ ] 261 False
+  Based on verilog syntax, this is obvious.
+- [ ] 268
+  I a.
+  II b.
+- [ ] 282 See this for [truth table][truth_table]
+  sw: `MemRead` is 0, and see p278 why `MemtoReg` is 0.
+  282.e6 [MDR "contains a *copy* of the value in the memory location" and "act *independently* without being affected"](https://en.wikipedia.org/wiki/Memory_buffer_register)
+  "the other signal" (i.e. ALUOp1) first inverse and "flip the order" just mux from `1 0` to `0 1`.
+## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
+### 282.e1
+- "two adders" are used to calculate `PC+4` and branch PC
+### 2
+- "timing race" just means both write and read occur on something like "Registers".
+### 3
+- ~~TODO~~ PC MUX
+  Memory data MUX (See FIGURE e4.5.3).
+- B -> "Write data": what sw does.
+- "ALUOut" with "PC" is just to discriminate from "ALU" with `PC+4` (this is the more normal case) based on the opcode although they are just same (Also see "only if the two designated registers are *equal*" with `beq`).
+### 4
+- `ALUOp` see [truth_table].
+- kw: the clock cycle cannot accommodate the time required for *both*;
+### 5
+- `PCSource` first select PC value, then `PCWriteCond`,etc. check whether to write PC.
+  See e8 1,3 how `PCSource` is updated after 1 when `PCWriteCond` and `Zero` is valid at 3. "actually write the PC *twice*" ("(during the Instruction decode/register fetch)" should be "Instruction *fetch* step").
+- "Elaboration": just use "a shared bus" instead of *two* multiplexors.
+  But we should [avoid bus](https://electronics.stackexchange.com/questions/323495/shared-bus-vhdl) because 1. it is just [similar to MUX](https://electronics.stackexchange.com/questions/323495/shared-bus-vhdl#comment755425_323495) (maybe just [same](https://inst.eecs.berkeley.edu/~cs150/fa05/CLD_Supplement/chapter11/chapter11.doc2.html#681)) 2. it [isn't "SYNTHESIZABLE"](https://electronics.stackexchange.com/questions/323495/shared-bus-vhdl#comment755570_323600).
+
+  TODO [try](https://www.reddit.com/r/factorio/comments/bku4z2/data_mux_for_sharing_one_network_between_multiple/) in the game !
+### 6
+- has "Effect when deasserted" when it is used in one multiplexor just as the book says.
+- `PCSource` should be controlled by `PCWriteCond`.
+- "The funct field" see [truth_table] p6
+  also e9 "the opcode".
+- "(IR[25:0] shifted left 2 bits" doesn't applies to riscv because riscv has 16-bit instruction (2 bytes), so [riscv_spec] p16 "multiples of 2 in the B format".
+### 7
+- both "operate in series" and "operate in parallel" occur in "single-cycle" and "multicycle".
+- "takes an additional clock cycle" -> `<=` ([nonblocking](https://stackoverflow.com/questions/35435420/what-is-the-difference-between-and-in-verilog), i.e. parallel running, also see [verilog_md] "$<=$") in verilog (`wire` -> "is part of a clock cycle").
+  Also see e8 "can occur in parallel".
+  "and *then* all assignments" also implies above behaviors.
+  Also implies using "stored into ALUOut" in e8.
+- "access overhead" -> search overhead.
+- " from three to five " -> ["variable CPIs"][single_Multiple_Cycle]
+### 8
+- "this action is benign" ? [See](https://www.reddit.com/r/FPGA/comments/t8morx/comment/hzr1zlc/?utm_source=share&utm_medium=web2x&context=3)
+- `ALUOut <= PC + immediate` in 2/3(Memory reference) (also see e10 "in step 2 and once in step 3") is to calculate the memory data address which will be fetched ~~in 3~~ and written to MDR in 4 and into regs if `load` in 5. 
+### 10
+- "RegDst" see p273 to select the dest bit field and this [comparison](#mips_riscv_diff)
+  Also view e15,e16 for more specific information.
+### 12
+- "fewer separate components in the datapath" -> *variable* component number each cycle.
+### 14
+- notice differences between "multiplexor control" and control "signals".
+### 15
+- FIGURE e4.5.9,etc. have shared components just as pipeline has.
+### 16
+- `ld` access both memory and register file, so it needs 2 more instructions compared with `sw` which only needs 1.
+  Also R-format ~~not needs to calculate *offset*~~ to *access* register file (So ~~no need state 2~~ need 1 more state after ALU).
+### 17
+- "use only the Zero output" to keep "The branch target" in "ALUOut" not changed (Maybe still stored in the `ALUOut`, but must occur in the next cycle).
+  comparison with FIGURE e4.5.8, "(It will also be stored into ALUOut, but never used from there" (i.e. it may use `wire` in verilog to directly use `PC + 4`).
+- `Zero` is inverse of "the result of the subtraction".
+- "In Section B.3" should be C.3 .
+- "consider another way to represent control." may means with *input*, see e19 "depend only on the current state, *not on the inputs*".
+### 19
+- "single-cycle CPI" -> average CPI.
+- "Floating-point" see [fp_multi_cycle].
+### comparison with single cycle
+- e2:
+  1. here use "temporary register" to save the states, "for use on a later cycle".
+  It is similar to ~~stage register~~ pipeline registers in pipeline.
+- e7:
+  reuse the functional unit "*at most one* ALU operation, or one register file access". Also see "1. Instruction fetch step",etc.
+  Performing these “optimistic” (i.e. "since it *isn’t harmful* to read them") actions early
+### comparison with pipeline
+- e2:
+  1. "hold the instruction until the end of execution" while pipeline updates the instruction each cycle *mostly*. 
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -6497,7 +6640,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
       - not totally same as [shadow memory](https://electronics.stackexchange.com/questions/240248/cache-memory-vs-shadow-ram) beacuse it adds some infos like 'state' and 'allocation property'.
       - also see this [slide](https://my.eng.utah.edu/~cs7810/pres/14-7810-12.pdf) 
         - p20 'partial tags' is same as patent says 'at least a portion of an address'.
-        - p4 die layout.
+        - p~~4~~7 die layout.
       - ~~TODO~~ no relation with [Shadow memory](https://en.wikipedia.org/wiki/Shadow_memory) better see valgrind [paper][shadow_memory].
 ## perf doc use [epyc 7713](https://en.wikichip.org/wiki/amd/cores/milan) which should share the same model `0x01` in one location of [19h](https://en.wikichip.org/wiki/amd/cpuid#Family_25_.2819h.29) just as [renoir](https://en.wikichip.org/wiki/amd/cores/renoir) including 4800h does in [17h](https://en.wikichip.org/wiki/amd/cpuid#Family_23_.2817h.29) 
 - TODO [QoS Monitoring and Enforcement](https://www.amd.com/system/files/TechDocs/56375_1.03_PUB.pdf) in [L3 cache][zen_2]
@@ -8232,6 +8375,8 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [sc_tso_cis601]:https://www.cis.upenn.edu/~devietti/classes/cis601-spring2016/sc_tso.pdf
 [cs61_07]:https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf
 [register_allocation_18]:../references/lecture/w14_01-register-allocation_18.pdf
+[truth_table]:https://cseweb.ucsd.edu/classes/su06/cse141/slides/s06-1cyc_control-1up.pdf
+[fp_multi_cycle]:http://ece-research.unm.edu/jimp/611/slides/chap3_6.html
 
 [PC_orig]:../references/other_resources/COD/references/memory_consistency/TR1006_PC_orig.pdf
 [lec_17]:http://www.cs.cmu.edu/afs/cs/academic/class/15418-s11/public/lectures/lect17.pdf
@@ -8345,3 +8490,9 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 
 <!-- llvm -->
 [def_use]:https://llvm.org/docs/ProgrammersManual.html#iterating-over-def-use-use-def-chains
+
+<!-- tutorialspoint -->
+[single_Multiple_Cycle]:https://www.tutorialspoint.com/differences-between-data-paths
+
+<!-- markdown doc -->
+[verilog_md]:../COD/verilog/README.md
