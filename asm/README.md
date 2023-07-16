@@ -6455,6 +6455,39 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   sw: `MemRead` is 0, and see p278 why `MemtoReg` is 0.
   282.e6 [MDR "contains a *copy* of the value in the memory location" and "act *independently* without being affected"](https://en.wikipedia.org/wiki/Memory_buffer_register)
   "the other signal" (i.e. ALUOp1) first inverse and "flip the order" just mux from `1 0` to `0 1`.
+- [ ] 282.e20
+  False
+- [ ] 295
+  1: stall; 2: forwarding; 3: "without stalling or forwarding"
+- [x] 309 (just see pipeline veilog source codes)
+  (half of 1 is right ("Allowing branches and *ALU* instructions to take *fewer* stages") ) 2,4
+  3 is wrong, see above
+- [x] 332
+  1: "predict not taken"; 2: predict taken; 3: dynamic predictor.
+- [x] 339
+  1
+- [ ] 353
+  1. both
+  2. hardware wrong TODO how software
+  3. hardware wrong See [this](https://en.wikipedia.org/wiki/Very_long_instruction_word#Overview)
+  4. hardware
+  5. hardware
+  6. hardware
+  7. both
+  8. hardware
+  9. both 
+- [ ] 365
+  1,2,4
+  1: not directly, but translate them to "micro-operations".
+  - 358 "microarchitecture" like zen2 is just one specific implementation of "architecture" ~~like x86~~ like [Harvard architecture](https://en.wikipedia.org/wiki/Harvard_architecture). See [this](https://www.pcmag.com/encyclopedia/term/microarchitecture#:~:text=Microarchitecture%20vs.,See%20pipeline%20and%20cache.) and "ignores details of the implementation".
+    Also see ["*conceptual* structure and functional *behavior*"](https://sci-hub.live/10.1147/rd.82.0087)
+
+    Better see [this](https://cs.stackexchange.com/a/29464/161388) for details "typically encompasses".
+
+    "antidependences" and "incorrect speculation" is solved by "register renaming".
+  2: p354 "dual-issue".
+  3: "architectural registers" is less than "physical registers". (p358)
+  TODO read p354 after using processors based on ARM like stm32.
 ## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
 ### 282.e1
 - "two adders" are used to calculate `PC+4` and branch PC
