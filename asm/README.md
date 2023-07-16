@@ -5458,9 +5458,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - mask see [this](#mask) -> disable interrupt. So 'delegator privilege level' means M-mode.
 - p465
   - cache  blocking is just unparalleled version of [reduction](#reduction) with one copy.
-- p390
+- p390 <a id="Check_5_2"></a>
   - 4 is obviously right by 'the bandwidth of main memory is *increased* to transfer cache blocks more efficiently'.
-  - ~~2~~ 1 is right by p384: Assume that init time is low, if 'cache block' is large, then the low init time won't contribute much to decreasing the total transfer time. See 'Amdahl’s Law' in p49.
+  - ~~2~~ 1 is right by p384: Assume that *init time* is low, if 'cache block' is large, then the low init time won't contribute much to decreasing the total transfer time. See 'Amdahl’s Law' in p49.
+    Also see answer "amortize".
 - p376
   - 'omit the index bits' means omit in assigned as the tag (not use one of index bits as one tag bit).
 - p401
@@ -6488,6 +6489,15 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   2: p354 "dual-issue".
   3: "architectural registers" is less than "physical registers". (p358)
   TODO read p354 after using processors based on ARM like stm32.
+### 5
+- [x] 391
+  1. true
+  2. false
+  3. false
+  4. true
+- [ ] see [this](#Check_5_2)
+- [ ] 430: 1
+- [ ] 470: 1,3
 ## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
 ### 282.e1
 - "two adders" are used to calculate `PC+4` and branch PC
