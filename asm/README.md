@@ -4561,6 +4561,7 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
 - p611 
   - [see](http://utenti.dieei.unict.it/users/gascia/COURSES/sist_emb_14_15/download/SE07_Pipeline_Exception.pdf) precise interrupt is just those can be recovered p10 and why may be imprecise p19 
 - p614 [multiple issue (see figure, issue both int and fp each time.)](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/multiple-issue-processors-i/index.html) <a id="multiple_issue"></a>
+  [COD_RISC_V_2nd] p343 load and ALU can be multiple issued, just by the architecture [figure](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Individual_Core) where it has 4 ALUs and 3 AGUs.
   - detailed see CAAQA p223 & 'Figure 3.19'
     - p226 [reservation station](https://en.wikipedia.org/wiki/Reservation_station) in each 'Functional Units' which may be used to forwarding (i.e. 'rather than waiting for it to be stored in a register and re-read') by 'listens on a Common Data Bus for the operand to become available'
     - issue slot or operation slot related with [ROB](https://en.wikipedia.org/wiki/Re-order_buffer) p215 
@@ -6574,7 +6575,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - e2:
   1. "hold the instruction until the end of execution" while pipeline updates the instruction each cycle *mostly*.
 ## Self-Study
-### 1
+### 1 connected with the real world.
 - [ ] 1
   - pipeline 
   - Dependability
@@ -6600,7 +6601,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   2. maybe "processing steps" improved in FIGURE 1.12 ; Moore theorem (wrong)
   "factor-of-ten increase in volume" -> *capacity* can also improve the price.
   3. Yes. (wrong)
-### 2
+### 2 based on codes.
 - [ ]
   1. 0x14b2823
   2. 21702691
@@ -6645,7 +6646,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 
   B[g] = A[f]+A[f+1]
   ```
-### 3
+### 3 connected with chapter 2 and related with the Latest AI research.
 - [x] see [miscs_py_script] `COD riscv 2nd 3.12 1`
   here should be "/($2^{23}$)" from [binary32] "which yields ... "
   - decimal64, very highly recommend to see the example in the [book][muller2010] which is referenced in wikipedia ([The wikipedia][dec_64] and [IEEE standard][IEEE_754] not gives the example (["ISO/IEC/IEEE 60559:2011"](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2) mostly needs purchasing and no doi offered) )
@@ -6713,6 +6714,17 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - [x] cast is more available. "the same behavior for underflows and overflows," -> similar if take subnormal in account.
 - [ ] 1,2,3(if full -> single).
   "software programmer" because more smaller.
+### 4 mainly based on "infer other things from one fact" 举一反三
+- [x] 1,2; 3; 4,5
+  See FIGURE 4.29 for time (where mem access and ALU take longer).
+- [ ] $\frac{1}{\frac{300*3}{300*3-100}}$ (wrong this is based on the *whole pipeline* time.)
+- [x] 2 Yes.
+- [x] Yes, stall.
+- [ ] Yes, forwarding or prediction.
+  see [COD_RISC_V_2nd] p327 "moving the conditional branch execution to the ID stage" and So only the instruction fetched is the penalty when the branch goes into `ID`. See FIGURE 4.70 vs FIGURE 4.35 where in the former the imm sum adder is moved into `ID`.
+- [ ] lower because at least use ALU which increase *100ps*.
+  ~~TODO~~ although CPI lower, but the total time is CPI*cycle_time which may increase as above says.
+  [CPI aka clock cycles per instruction, *clocks* per instruction](https://en.wikipedia.org/wiki/Cycles_per_instruction)
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
