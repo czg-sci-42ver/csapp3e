@@ -6646,7 +6646,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   B[g] = A[f]+A[f+1]
   ```
 ### 3
-- [ ] 
+- [ ] see [miscs_py_script] `COD riscv 2nd 3.12 1`
+  here should be "/($2^{23}$)" from [binary32] "which yields ... "
   - decimal64, very highly recommend to see the example in the [book][muller2010] which is referenced in wikipedia ([The wikipedia][dec_64] and [IEEE standard][IEEE_754] not gives the example (["ISO/IEC/IEEE 60559:2011"](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2) mostly needs purchasing and no doi offered) )
 
     - [muller2010] p86 *DPD* Encoding
@@ -6657,7 +6658,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         Notice: here 1. Binary integer significand field: 10-bit binary $2^{10}=1024$ which can obsolutely contains 3-digit 10-radix number. But notice it is not has precise split as Densely... (See [here](#Binary_split)). 2. [Densely packed decimal significand field](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_ref-Cowlishaw_2000_4-0): obviously 10-bit -> 3-digit
         So 50-bit -> *15*-digit
 
-        Comparing with [binary32](https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32), here significand obviously *doesn't have fraction* format. <a id="no_fraction"></a>
+        Comparing with [binary32][binary32], here significand obviously *doesn't have fraction* format. <a id="no_fraction"></a>
         ```bash
         $ ipython -c "strnum = '10'+'1'*8;print(int(strnum,2)/2);print((int(strnum,2)-1)/2+15)"
         383.5 # here /2 is similar to Binary32, see below `127.0`
@@ -8515,6 +8516,7 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [CHS]:https://en.wikipedia.org/wiki/Logical_block_addressing#CHS_conversion
 [dec_64]:https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2
 [dec_32]:https://en.wikipedia.org/wiki/Decimal32_floating-point_format#Representation_of_decimal32_values
+[binary32]:https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32
 
 <!-- blog -->
 
@@ -8544,7 +8546,10 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [TSO_PC_PSO]:http://15418.courses.cs.cmu.edu/spring2013/article/41#:~:text=Partial%20Store%20Ordering%20(PSO)%20is,be%20in%20order%20at%20all.
 [stanford_149_09_consistency]:https://gfxcourses.stanford.edu/cs149/winter19content/lectures/09_consistency/09_consistency_slides.pdf
 [isca90_GLL_90]:../references/other_resources/COD/references/gharachorloo.isca90.pdf
+
+<!-- wikipedia referenced books -->
 [Scalable_Shared_Memory_Multiprocessors_libgen]:../references/other_resources/COD/references/Scalable_Shared_Memory_Multiprocessors_libgen.pdf
+[muller2010]:../references/other_resources/COD/references/books/muller2010.pdf
 
 <!-- riscv book -->
 [RISC_V_Custom_OCR]:../references/other_resources/COD/COD_RISCV_OCR.pdf

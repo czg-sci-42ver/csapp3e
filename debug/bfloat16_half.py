@@ -38,6 +38,10 @@ my_double("float->double in gcc", 0x4040000000000000, 64, 11)
 my_double("half-precision", 0xbe76, 16, 5)
 my_double("bfloat16", 0xbe76, 16, 8)
 """
+COD riscv 2nd 3.12 1
+"""
+my_double("binary32", 0b00000001010010110010100000100011, 32, 8)
+"""
 test imul instruction
 see https://peps.python.org/pep-3101/ & https://peps.python.org/pep-0498/#format-specifiers
 """
