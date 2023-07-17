@@ -5657,6 +5657,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - see [this](#fallacies-and-pitfalls)
 - see [this](#the-big-picture)
 - see [this](#check-yourself)
+- see [this](#Self-Study)
+- p25
+  - "Vacuum tube" used in [triode. See the 2nd figure](https://en.wikipedia.org/wiki/Valve_amplifier#Origins)
+  - TODO read 1.13 Historical Perspective and Further Reading
+- p27
+  - why use dies: "cope with *imperfection* is to place many independent components" and "these components, called *dies*".
+  - "the lower yield" because the denominator is larger when the numerator is almost unchanged.
 ##### TODO
 - read 2.17,18
   2.21 is just in 1st edition 3.8.
@@ -6493,7 +6500,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - [x] 391
   1. true
   2. false
-  3. false
+  3. false (see [this](https://www.tutorialspoint.com/what-is-memory-hierarchy#:~:text=In%20Memory%20Hierarchy%20the%20cost,form%20register%20to%20Tertiary%20memory.&text=The%20registers%20are%20present%20inside,they%20have%20least%20access%20time.), this statement applies to the unit cost, but not the total cost).
   4. true
 - [ ] see [this](#Check_5_2)
 - [ ] 430: 1
@@ -6565,7 +6572,112 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   Performing these “optimistic” (i.e. "since it *isn’t harmful* to read them") actions early
 ### comparison with pipeline
 - e2:
-  1. "hold the instruction until the end of execution" while pipeline updates the instruction each cycle *mostly*. 
+  1. "hold the instruction until the end of execution" while pipeline updates the instruction each cycle *mostly*.
+## Self-Study
+### 1
+- [ ] 1
+  - pipeline 
+  - Dependability
+  - prediction
+  - Common Case Fast
+  - Hierarchy
+  - Parallelism
+  - Common Case Fast -> wrong
+    "simpler model" -> option
+- [ ] 
+  - P3 4Ghz
+  - P2, P3
+    ```bash
+    $ ipython -c "print(2.2*0.25);1.5*0.33"
+    0.55
+    Out[1]: 0.495
+    ```
+  - total time is only. (not accurate)
+- [ ]
+  - 11
+- [ ] 
+  1. 2010~20 slowdown.
+  2. maybe "processing steps" improved in FIGURE 1.12 ; Moore theorem (wrong)
+  "factor-of-ten increase in volume" -> *capacity* can also improve the price.
+  3. Yes. (wrong)
+### 2
+- [ ]
+  1. 0x14b2823
+  2. 21702691
+  3. No
+  4. `sw r20,16(r22)`
+  ```bash
+  $ ipython -c "num='0b00000001010010110010100000100011';\
+  str_num=num[2:]
+  print(str_num[-7:])
+  print(str_num[-7-5:-7])
+  print(str_num[-7-5-3:-7-5])
+  print(int(str_num[-7-5-3-5:-7-5-3],2))
+  print(int(str_num[-7-5-3-5-5:-7-5-3-5],2))
+  print(str_num[-7-5-3-5-5:-7-5-3-5])                        
+  print(int(str_num[-7-5-3-5-5-7:-7-5-3-5-5]+str_num[-7-5:-7],2))
+  print(str_num[-7-5-3-5-5-7:-7-5-3-5-5])
+  "
+  0100011
+  10000
+  010
+  22
+  20
+  10100
+  16
+  0000000
+  ```
+- [ ] just change the stack ( stack overflow to the parent stack).
+  view stack model. Then all is obvious.
+- [x]
+  ```asm
+  init: addi ...
+  // 3 lines
+  beq ... init
+  // remove addi and beq; then fall-through into Exit.
+  ```
+- [ ] See MIPS [registers](http://homepage.divms.uiowa.edu/~ghosh/1-28-10.pdf) (notice this may differ from the book `$s0` index) and [instruction cheatsheet](https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
+  ```c
+  x7 = &A[f+1]
+  x5 = A[f+1]
+  x5 = A[f]+A[f+1]
+  B[g] = x5
+
+  B[g] = A[f]+A[f+1]
+  ```
+### 3
+- [ ] 
+  - decimal64, very highly recommend to see the example in the [book][muller2010] which is referenced in wikipedia ([The wikipedia][dec_64] and [IEEE standard][IEEE_754] not gives the example (["ISO/IEC/IEEE 60559:2011"](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2) mostly needs purchasing and no doi offered) )
+
+    - [muller2010] p86 *DPD* Encoding
+      - first [BID](https://en.wikipedia.org/wiki/Binary_integer_decimal) needs `(−1)s×10q×c`, so transform the original number to $3141592653589793 × 10^{−15}$
+
+      - here why use bias `398`: because the biggest exponent of non-NAN and non-infinite is `1011111111` from [dec_64] "3 × $2^8$ = 768 possible decimal exponent values."
+      
+        Notice: here 1. Binary integer significand field: 10-bit binary $2^{10}=1024$ which can obsolutely contains 3-digit 10-radix number. But notice it is not has precise split as Densely... (See [here](#Binary_split)). 2. [Densely packed decimal significand field](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_ref-Cowlishaw_2000_4-0): obviously 10-bit -> 3-digit
+        So 50-bit -> *15*-digit
+
+        Comparing with [binary32](https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32), here significand obviously *doesn't have fraction* format. <a id="no_fraction"></a>
+        ```bash
+        $ ipython -c "strnum = '10'+'1'*8;print(int(strnum,2)/2);print((int(strnum,2)-1)/2+15)"
+        383.5 # here /2 is similar to Binary32, see below `127.0`
+        398.0 # here `+15` to make significand has radix point after the first digit.
+        $ ipython -c "0b11111110/2"
+        Out[1]: 127.0
+        ```
+        So has 
+        $$(−1)^{sign} × 10^{exponent−398} × significand = \\
+        (−1)^{sign} × 10^{exponent−383-15} × significand = \\
+        (−1)^{sign} × 10^{exponent−383} x significand^{-15} $$
+      - "combination field" also see [dec_32] "DPD Encoding of the Combination Field" where has MSB and LSB of different fields.
+        for example, here `0101111111` is split by "*MSB*" of "Significand" `3=011`.
+      - "declet" just see [dec_32] "Densely packed decimal encoding rules" where "large digit" -> 8–9.
+        for example, $592$ -> 3rd row, so $101$+$01$+$1$+$101$+$0$ (here `+` means concatenation).
+    - [muller2010] p90 "BID Encoding" is similar to the above.
+      but here "Combination Field" is *not split*, also see [dec_32] "BID Encoding of the Combination Field". <a id="Binary_split"></a>
+      Notice: here the MSB `3` is `101` and only the *first 2 bits* are in the Combination field.
+    - p91 See [this](#no_fraction)
+    - Example 6 is similar.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -8401,6 +8513,8 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 [Wl_1]:https://en.wikipedia.org/wiki/Causal_consistency#cite_note-10
 [Cache_Consistency_def]:https://en.wikipedia.org/wiki/Cache_coherence#Definition
 [CHS]:https://en.wikipedia.org/wiki/Logical_block_addressing#CHS_conversion
+[dec_64]:https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2
+[dec_32]:https://en.wikipedia.org/wiki/Decimal32_floating-point_format#Representation_of_decimal32_values
 
 <!-- blog -->
 
