@@ -6646,7 +6646,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   B[g] = A[f]+A[f+1]
   ```
 ### 3
-- [ ] see [miscs_py_script] `COD riscv 2nd 3.12 1`
+- [x] see [miscs_py_script] `COD riscv 2nd 3.12 1`
   here should be "/($2^{23}$)" from [binary32] "which yields ... "
   - decimal64, very highly recommend to see the example in the [book][muller2010] which is referenced in wikipedia ([The wikipedia][dec_64] and [IEEE standard][IEEE_754] not gives the example (["ISO/IEC/IEEE 60559:2011"](https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2) mostly needs purchasing and no doi offered) )
 
@@ -6679,6 +6679,40 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       Notice: here the MSB `3` is `101` and only the *first 2 bits* are in the Combination field.
     - p91 See [this](#no_fraction)
     - Example 6 is similar.
+- [x] This seems to be similar to one exercise in csapp.
+  1. `2**31-1=2147483647`
+  2. No
+  3. `2**31` since `2**(-30) > 2**(-23)-2**(-30) -> Out[5]: False` in `ipython`
+  4. Can be precisely described in the [double precision](https://en.wikipedia.org/wiki/Double-precision_floating-point_format#IEEE_754_double-precision_binary_floating-point_format:_binary64) because $1023>31$ and minimum precision is smaller than $2^{-30}$.
+    `2**15*(2-2**(-10)) = 65504.0`
+- [x] 
+  ["Brain Division"](https://www.extremetech.com/science/google-merges-brain-division-and-deepmind) is one research division called Brain
+
+  based on subnormals/denorms
+  1. `2**(-int('1'*7+'0',2)/2+1)*2**(-7) = 9.183549615799121e-41`
+  2. bigger than smallest of fp32.
+  3. `2**(-int('1'*7+'0',2)/2+1)*2**(-7)/(2**(-10-(2**5-2)/2)) = 3.0814879110195774e-33`
+
+  not based on subnormals/denorms
+  1. $2^{-\frac{2^{8}-1-1}{2}}=5.87747175411144 \cdot 10^{-39}$
+  2. same
+  3. $2^{-127-(-15)}=2^{-112}$
+- [ ] 
+  - FIGURE 3.7
+    based on FIGURE 3.4 and [this Q&A](https://electronics.stackexchange.com/q/56488/341985) 
+    Here the rightest and highest adder generates 34-bit number and the *left* of it is *36-bit*. Here `Mplier1` should be `10/00` and `Mplier2` is `1<<2/0<<2`, etc. "last (fifth) tier, you're adding together a 48-bit" in the answer above may be wrong.
+    And "The *second number* is x if bit #30 of y is 1" in [this](https://cs.stackexchange.com/questions/95733/difficulty-understanding-the-faster-multiplication-hardware) is also wrong because the first Q&A has offered the formula where *sum* of `Mplier0*Mcand` and `Mplier1*Mcand` decides the *second number*.
+    Better to see the *verilog* codes.
+
+    The figure righest 1 bit is the LSB of `Mplier0 • Mcand` and `Product1` is *sum* of `Mplier0*Mcand` and `Mplier1*Mcand` as above says. Then the rightest of `32 bits` of 2nd tier outputs 2 bits (i.e. bit2,3 of result if bit0 is LSB).
+
+    - Here "carry save adders" (i.e. fast carry) is to *accelerate adders*. Comparing FIGURE A.5.7 and FIGURE A.6.1, obviously here just use *precalculated carry formula* to avoid delay. And FIGURE A.6.2&3 is just use *4-step*.
+      See A-28 for the formula in A-38
+  - exponent can be just *added*, so not take it in account.
+    TODO why "the square of size".
+- [x] cast is more available. "the same behavior for underflows and overflows," -> similar if take subnormal in account.
+- [ ] 1,2,3(if full -> single).
+  "software programmer" because more smaller.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
