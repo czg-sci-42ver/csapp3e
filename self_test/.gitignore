@@ -3,9 +3,9 @@
 !**/
 .cache/
 !Makefile
-*.o
 # *.gdb
 *.out
 ![A-Z]*
+*.o
 _build/
 # !**
