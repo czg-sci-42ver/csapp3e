@@ -4568,6 +4568,7 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
   [COD_RISC_V_2nd] p343 load and ALU can be multiple issued, just by the architecture [figure](https://en.wikichip.org/wiki/amd/microarchitectures/zen_2#Individual_Core) where it has 4 ALUs and 3 AGUs.
   - detailed see CAAQA p223 & 'Figure 3.19'
     - p226 [reservation station](https://en.wikipedia.org/wiki/Reservation_station) in each 'Functional Units' which may be used to forwarding (i.e. 'rather than waiting for it to be stored in a register and re-read') by 'listens on a Common Data Bus for the operand to become available'
+      related with "register renaming".
     - issue slot or operation slot related with [ROB](https://en.wikipedia.org/wiki/Re-order_buffer) p215 
 - p619 here 'an ALU and a data transfer' still take 'usual hazard detection's in account, see p622 example.
 - p623 loop unrolling to decrease nop at least.
@@ -6811,6 +6812,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 
   It may be also one problem of the compiler "*Without compiler* support, these features have *atrophied*".
   ```bash
+  $ gdb ./Guard_digit_changed.o
    0x000055555555516b  main+34 fld    TBYTE PTR [rip+0xecf]        # 0x555555556040
    0x0000555555555171  main+40 fsubp  st(1),st # stop here
   >>> info registers float 
@@ -6826,7 +6828,19 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   >>> info registers float 
   st0            0.300000000000000000011 (raw 0x3ffd999999999999999a)
   st1            0.300000000000000000011 (raw 0x3ffd999999999999999a)
+  $ readelf -a Guard_digit_changed.o
+    [16] .rodata           PROGBITS         0000000000402000  00002000 # show "Section Headers" ; this is where [rip+0xe89] resides in. https://www.cyberciti.biz/faq/linux-find-size-of-text-data-segment-bss-uninitialized-data/
+       0000000000000080  0000000000000000   A       0     0     16
   ```
+  - Above Q&A_2 [answer_1](https://stackoverflow.com/a/76712236/21294350)
+    - ~~what `.0625` means?~~ 
+      ~~why highlight "greater than or equal to *.0625* cannot have any non-zero bits below 2−56"~~
+
+      a is $2^{−56}$ or greater -> implies why outputs `i=57`.
+
+      here $2^{−56}$ is exponent $-4$ and fraction ranges to 52bit ("a *significand*").
+  - commments
+    - _Decimal is still [C2x](https://patchwork.ozlabs.org/project/gcc/patch/alpine.DEB.2.21.1910111732490.26290@digraph.polyomino.org.uk/) which is [in draft](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1312.pdf)
 - TODO 242.e5 is probably dependent on the hardware implementation.
   "about one-third of the bits that normal multiplier arrays generate have been *left out* of his multipliers"
 - "combine a flat register file with a stack": just manipulate the fpu registers *like the stack*.
@@ -6835,6 +6849,17 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - "commutative." is not the always case in 242.e9.
 - TODO read papers referenced in the para of Further Reading.
   ARITH [paper](http://www.acsel-lab.com/arithmetic/) or official [1](https://arith2022.arithsymposium.org/program.html),[2](https://ieeexplore.ieee.org/xpl/conhome/9973813/proceeding)
+### 4
+- superscalar (i.e. multiple issue) [vs](https://stackoverflow.com/questions/1656608/what-is-difference-between-superscaling-and-pipelining) pipeline
+- "Out-of-Order" is same as  “Dynamic scheduling” See [p19 (where it says what is in-order),20](https://www.cs.cmu.edu/afs/cs/academic/class/15740-f18/www/lectures/15-ooo.pdf)
+  "Out-of-order instruction commit" should be replaced by In-order instruction commit from above p19.
+- ["high-level architecture"](https://encyclopedia.pub/entry/28258#:~:text=The%20high%2Dlevel%20architecture%20(HLA,regardless%20of%20the%20computing%20platforms.) -> "distributed computer simulation systems"
+- [VLIW](https://www.geeksforgeeks.org/very-long-instruction-word-vliw-architecture/) implies *multiple issue*.
+  - VLIW -> "Complex *compilers* are required."
+- [bit-slice](https://en.wikipedia.org/wiki/Bit_slicing) is similar to coprocessor.
+  [circuit](https://www.circuitlab.com/circuit/kk5c4n/bit-slice-adder/)
+- ["Explicitly Parallel Instruction Computing (EPIC)"](https://link.springer.com/referenceworkentry/10.1007/978-0-387-09766-4_6#:~:text=Definition,keeping%20hardware%20complexity%20relatively%20low.) where "Explicitly" implies compiler.
+  Notice [EPIC](https://en.wikipedia.org/wiki/Explicitly_parallel_instruction_computing) implies *VLIW*, so "Itanium 9700-series processors, the *last EPIC* chips" and [difficult](https://softwareengineering.stackexchange.com/questions/279334/why-was-the-itanium-processor-difficult-to-write-a-compiler-for) to use it.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)

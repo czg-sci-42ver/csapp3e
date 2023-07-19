@@ -41,6 +41,76 @@ my_double("bfloat16", 0xbe76, 16, 8)
 COD riscv 2nd 3.12 1
 """
 my_double("binary32", 0b00000001010010110010100000100011, 32, 8)
+
+"""
+COD 3.11 guard digit
+Also see /mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/Guard_digit scripts.
+https://stackoverflow.com/questions/76709959/is-there-one-way-to-alleviate-roundoff-errors/76712236#comment135245352_76712236
+https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format
+
+set precision
+https://stackoverflow.com/questions/40808511/doing-accurate-floating-point-division-in-python-3
+https://www.digitalocean.com/community/tutorials/python-decimal-division-round-precision
+
+[/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/Guard_digit]$ nopie_gcc Guard_digit_changed.c -std=c99 -mfpmath=sse -o Guard_digit_changed.o -pedantic -O0 -g
+$ gdb ./Guard_digit_changed.o -ex "start" -ex "br *main+127" -ex "c" -ex "x/12g 0x402030"
+!0x00000000004011b5  main+127 fld    TBYTE PTR [rip+0xea5]        # 0x402060
+ 0x00000000004011bb  main+133 fstp   TBYTE PTR [rbp-0x10]
+ 0x00000000004011be  main+136 fld    TBYTE PTR [rbp-0x10]
+ 0x00000000004011c1  main+139 fld    TBYTE PTR [rip+0xea9]        # 0x402070
+...
+0x402030:       0xccccccccccccd000      0x3ffc
+0x402040:       0xccccccccccccd000      0x3ffb
+0x402050:       0x9999999999999800      0x3ffd
+0x402060:       0xcccccccccccccccd      0x3ffc
+0x402070:       0xcccccccccccccccd      0x3ffb
+0x402080:       0x999999999999999a      0x3ffd
+"""
+bits = 80
+import decimal 
+decimal.getcontext().prec = 100
+def parse_long_double(annotate_str, hex_num, bits, exp_size):
+    print('------------------',annotate_str,'----------------')
+    my_bin = f'{hex_num:0>{bits}b}'
+    print("long double ",hex(hex_num)," to ",my_bin)
+    sign = int(my_bin[0])
+    print("sign: ",sign)
+    exp = my_bin[1:exp_size+1]
+    if exp == '1'*15 or exp == '0'*15:
+        exit("maybe need to change the calculation process")
+    print("exp len: ",len(exp))
+    exp_int = int(exp,2)
+    exp_bias = exp_int-16383
+    print("exponent: ",exp," int: ",exp_int," after minus 16383: ",exp_bias)
+    integer = int(my_bin[exp_size+1])
+    print("integer part: ",integer)
+    frac = decimal.Decimal(int(my_bin[exp_size+1+1:bits], 2)) / decimal.Decimal(2**63)
+    # print("frac: ",float(frac))
+    
+    # frac_str = '{0:30f}'.format(int(my_bin[exp_size+1+1:bits], 2) / (2**63))
+    # print("frac_str ", frac_str)
+    # frac = float(frac_str)
+    
+    m = integer+frac
+    print("frac: ",my_bin[exp_size+1+1:])
+    print("m: ",m)
+    result = m*decimal.Decimal(2**(exp_bias)*(-1)**(sign))
+    # print("num: {0:.80f}".format(m*decimal.Decimal(2**(exp_bias)*(-1)**(sign))))
+    print("num: ",result)
+    print('------------------','end of ',annotate_str,'----------------')
+    return result
+def parse_long_hex(str_1,str_2) -> tuple[int,str]:
+    num_str = str_1+str_2.replace('0x', '')
+    return int(num_str,0),num_str
+hex_num,num_str=parse_long_hex('0x3ffc','0xcccccccccccccccd')
+result_1 =parse_long_double(num_str,hex_num,bits,15)
+hex_num,num_str=parse_long_hex('0x3ffb','0xcccccccccccccccd')
+result_2 =parse_long_double(num_str,hex_num,bits,15)
+hex_num,num_str=parse_long_hex('0x3ffd','0x999999999999999a')
+result_3 =parse_long_double(num_str,hex_num,bits,15)
+if (result_1+result_2!=result_3):
+    print("the answer not equals, so equation in C is approximation","\n"+"-"*70)
+
 """
 test imul instruction
 see https://peps.python.org/pep-3101/ & https://peps.python.org/pep-0498/#format-specifiers
