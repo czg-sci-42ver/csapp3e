@@ -2318,7 +2318,7 @@ find: False
 - while loop
   - always [->](https://stackoverflow.com/questions/47783926/why-are-loops-always-compiled-into-do-while-style-tail-jump) do while, called [inversion](https://en.wikipedia.org/wiki/Loop_optimization) which may do one less `jmp` in every loop
     - above in short, reasons are that 1. Fewer instructions，see ‘cmp     edi, esi’
-    - [SW](https://en.wikipedia.org/wiki/Software_pipelining#Example) pipelining where uses the independence like `A(i)` and `A(i+1)` to OoO by software. 
+    - [SW](https://en.wikipedia.org/wiki/Software_pipelining#Example) pipelining where uses the independence like `A(i)` and `A(i+1)` to OoO by software.  <a id="Software_pipelining"></a>
     - Loop inversion can at least remove the misprediction penalty mostly of the last execution before exiting because just [dropping out](https://en.wikipedia.org/wiki/Loop_inversion#Example_in_three-address_code) (no 'goto L2' in the latter code) the loop whether take jmp or not.
       - 'inversion' may refer to ' could change for(i) for(j) a[j][i]++;' from original contents
     - TODO: 1. 'hiding loop-carried FP latency in a reduction loop' 2. more detailed info to read after 'Benefits with very low iteration count:' 3. 'SPECint2006' meaning 4. different execution ports 5. try [`fprofile`](https://stackoverflow.com/questions/4365980/how-to-use-profile-guided-optimizations-in-g) 6. better reread after more knowledge. 7. instruction 'free' and ‘front-end’ meaning
@@ -4904,9 +4904,29 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - p12 *CPI* is related with hardware if stall is executed by hardware.
   - 'reducing clock cycles per instruction' is based on average time calculation, not every instruction speedup.
 - p705
-  - ['Scheduling'](https://en.wikipedia.org/wiki/Instruction_scheduling)
+  - pipeline scheduling ['Scheduling'][pipeline_scheduling]
+    The compiler Schedules (i.e. reorders) instructions by avoiding [hazards](https://en.wikipedia.org/wiki/Instruction_scheduling#Data_hazards), 
+
+    ["list scheduling"](https://en.wikipedia.org/wiki/List_scheduling) just schedule "job"s to different threads (i.e. "machines" in the link context) if using one multi-core cpu.
+    kw: critical path; associated latency; a resource(mem / port); many new sources?;
+
+    pass [flags](https://en.wikipedia.org/wiki/Instruction_scheduling#Compiler_examples) to the compiler ("which *"port"* each use". This implies *pipeline* scheduling).
+
+    TODO read more the first link.
     - [illegal](https://www.intel.com/content/www/us/en/docs/programmable/683836/current/illegal-instruction.html) operation
-    - by searching 'cpu instruction ambiguous operation', semantically [ambiguous](https://en.wikipedia.org/wiki/Memory_disambiguation) operations which is one data hazard.
+    - ~~by searching 'cpu instruction ambiguous operation', semantically [ambiguous]~~ [Memory_disambiguation](https://en.wikipedia.org/wiki/Memory_disambiguation) ~~operations which is one data hazard.~~
+      Here use hardware 
+      a. like store queue which 1. ["to the memory system"](https://en.wikipedia.org/wiki/Memory_disambiguation#Avoiding_WAR_and_WAW_dependencies) 2. to [`load`](https://en.wikipedia.org/wiki/Memory_disambiguation#Store_to_load_forwarding)
+
+      b. load queue is similar, just to OoO. So ["the load is marked as *"violated"* in the *retirement* buffer"](https://en.wikipedia.org/wiki/Memory_disambiguation#Load_queue_CAM_search) when **RAW** is reordered so that load "must have *executed before* the store and thus read an incorrect, old value". Then "*restarts* execution from the load". "all *previous* stores have committed ... any *dependent* instructions"
+      not "create resource conflicts with other loads" because it is in "the *load queue*".
+
+      "Disambiguation at retirement" just add one "*compared* to the value obtained when the load first executed"  to avoid unnecessary flush and violation generalization (See "will not flag a RAW dependence...") based on the above.
+      - Notice [`RAW`](https://en.wikipedia.org/wiki/Memory_disambiguation#Avoiding_RAW_dependence_violations) reordering (i.e. Storeload) is [allowed][Weak_vs_Strong_Memory_Models] in x86.
+        "the address generation operations ... can execute out-of-order" (p.s. However, the load,store time is mostly on memory access, so this reordering may ~~not~~ improve the performance because it avoid `load` to load *twice* from cache/mem).
+
+        Memory dependence prediction using [Store Sets](https://safari.ethz.ch/digitaltechnik/spring2020/lib/exe/fetch.php?media=chrysos_isca1998.pdf) which is probably precalculated.
+    - by searching 'compiler semantically ambiguous operation', "semantically ambiguous" may means "two parse trees" or more in CFG("context-free grammar"). Just see this [example](https://en.wikipedia.org/wiki/Ambiguous_grammar#Addition_and_subtraction). Here ["leftmost derivation"](https://en.wikipedia.org/wiki/Context-free_grammar#Derivations_and_syntax_trees) just means from left to right like [C Operator Precedence](https://en.cppreference.com/w/c/language/operator_precedence)
   - Software mainly refers to compiler. 
     - speculation can at least done by removing like somthing `if(AlwaysKnown){...}`.
 - p706
@@ -6199,7 +6219,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - "virtual registers" may be just *comments* like `tmp87` in the `gcc -S -fverbose-asm`
 #### 3
 - FIGURE e2.15.2 [factor](https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html) can be thought as *constant* used in *calculation*.
-#### 4
+#### 4 <a id="Local_Global_Optimizations"></a>
 - [this Loop Interchange example](https://www.cita.utoronto.ca/~merz/intel_c10b/main_cls/mergedProjects/optaps_cls/common/optaps_perf_optstrats.htm#:~:text=Loop%20Interchange%20is%20a%20nested,loop%20to%20improve%20cache%20locality.) may be redundant because after Interchange both `c` and `a` lose locality.
 - "blocking loop" is just cache blocks as chapter 5. 
 - ["common subexpression elimination" just avoids duplicate calculation `b * c`](https://en.wikipedia.org/wiki/Common_subexpression_elimination) <a id="optimizations"></a>
@@ -6860,6 +6880,15 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   [circuit](https://www.circuitlab.com/circuit/kk5c4n/bit-slice-adder/)
 - ["Explicitly Parallel Instruction Computing (EPIC)"](https://link.springer.com/referenceworkentry/10.1007/978-0-387-09766-4_6#:~:text=Definition,keeping%20hardware%20complexity%20relatively%20low.) where "Explicitly" implies compiler.
   Notice [EPIC](https://en.wikipedia.org/wiki/Explicitly_parallel_instruction_computing) implies *VLIW*, so "Itanium 9700-series processors, the *last EPIC* chips" and [difficult](https://softwareengineering.stackexchange.com/questions/279334/why-was-the-itanium-processor-difficult-to-write-a-compiler-for) to use it.
+- [software pipelining](#Software_pipelining)
+- [Trace scheduling](https://en.wikipedia.org/wiki/Trace_scheduling) is referenced in [pipeline_scheduling] just gives "trace with the *highest frequency*" the higher priority.
+  "including branches" implies "control flow path" in [pipeline_scheduling]
+  It is probably related with [trace cache](https://en.wikipedia.org/wiki/Trace_cache#Necessity) which stores "A,B,D" here.
+  - Different [types](https://en.wikipedia.org/wiki/Instruction_scheduling#Types)
+    Here Local and Global is just as [this](#Local_Global_Optimizations) says.
+    Modulo scheduling just [this](#Software_pipelining)
+    Superblock scheduling "not attempt to merge control flow" but uses probability (See [the last figure](https://embeddedbhavesh.wordpress.com/2015/11/10/basic-block-trace-scheduling-superblock-scheduling/) or [p10](https://core.ac.uk/download/pdf/158319639.pdf))
+### 
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -7207,6 +7236,7 @@ Module = "intel_rapl_msr"
     - also see the official manuals referenced in the link. From [this](https://flex.sourceforge.net/), [this](https://westes.github.io/flex/manual/) is the official flex manual. (same as `info`).
       So bison can use `-v` to get `*.output` debug infos.
     - `nonterminal` just means matching maybe *nonterminal*, also see [manual "syntactically equivalent *groupings*" ](https://www.gnu.org/software/bison/manual/html_node/Symbols.html)
+      Also [see the figure](https://en.wikipedia.org/wiki/Context-free_grammar) 
       ```bash
       [/mnt/ubuntu/home/czg/csapp3e/bison_flex/bison]$ flex -d snazzle.l;bison -d snazzle.y;g++ -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main;./main
       ...
@@ -8726,6 +8756,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [dec_64]:https://en.wikipedia.org/wiki/Decimal64_floating-point_format#cite_note-ISO-60559_2011-2
 [dec_32]:https://en.wikipedia.org/wiki/Decimal32_floating-point_format#Representation_of_decimal32_values
 [binary32]:https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32
+[pipeline_scheduling]:https://en.wikipedia.org/wiki/Instruction_scheduling
 
 <!-- blog -->
 
