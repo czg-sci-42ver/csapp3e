@@ -5031,7 +5031,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Service interruption' is the opposite of above.
   - See this [image](https://www.researchgate.net/figure/A-schematic-diagram-of-MTTF-MTTR-and-MTBF_fig5_334205633)
 - p808
-  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/), also see [mem_appendix] 
+  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/), also see [mem_appendix] <a id="hamming"></a>
+    "covers all bit positions which have the least significant bit" (based on *bit* to error detection).
   - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
     - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
     - or book 'should always be even'.
@@ -5324,7 +5325,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
             - see p73,75 'Table 4.4' and p78
           - TODO `SFENCE.VMA` and `SFENCE.VM` diff. 
         - p100
-          - Privilege Mode: here Hypervisor is VMM (virtual machine monitor) (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*. Also [see](https://www.vmware.com/topics/glossary/content/hypervisor.html#:~:text=A%20hypervisor%2C%20also%20known%20as,such%20as%20memory%20and%20processing.)
+          - Privilege Mode: here Hypervisor is VMM (virtual machine monitor) (' hyper- used as a stronger variant of super-') (also [see](#hypervisor)) while supervisor is *kernel*. Also [see](https://www.vmware.com/topics/glossary/content/hypervisor.html#:~:text=A%20hypervisor%2C%20also%20known%20as,such%20as%20memory%20and%20processing.) <a id="VMM"></a>
             - also see [riscv_privileged] p2 and p3 encoding. Also see why reserve `10` instead of `11` in p22.
         - p24
           - here not 'reinterpreted' memory-management data structure -> no need `SFENCE.VMA` to update page table which is what `SFENCE.VMA` should do '*populate* shadow page tables'.
@@ -6888,7 +6889,37 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     Here Local and Global is just as [this](#Local_Global_Optimizations) says.
     Modulo scheduling just [this](#Software_pipelining)
     Superblock scheduling "not attempt to merge control flow" but uses probability (See [the last figure](https://embeddedbhavesh.wordpress.com/2015/11/10/basic-block-trace-scheduling-superblock-scheduling/) or [p10](https://core.ac.uk/download/pdf/158319639.pdf))
-### 
+### 5
+- "the founder of *Digital*" -> Digital Equipment Corporation (DEC)
+- ["HP Precision architecture"](https://en.wikipedia.org/wiki/PA-RISC#:~:text=Precision%20Architecture%20RISC%20(PA%2DRISC,the%201980s%20until%20the%202000s.) is RISC.
+  IA-64 [vs](https://superuser.com/questions/383711/whats-the-difference-between-intel-64-and-amd64#comment431860_383711) amd64
+- TODO [tunnel diode](https://en.wikipedia.org/wiki/Tunnel_diode#Reverse_bias_operation) memory
+- *disk* is "magnetic storage" which is same as old [core memory](https://en.wikipedia.org/wiki/Magnetic-core_memory).
+- `Cobol`: see 2.24 in [MIPS_COD]
+- TODO 
+  IBM IMS vs Integrated Data Store
+  Relational model
+- ["nonprocedural language"](https://www.geeksforgeeks.org/difference-between-procedural-and-non-procedural-language/) -> "leave it up to computers to process it".
+  [System R](https://en.wikipedia.org/wiki/IBM_System_R) and [Ingre](https://en.wikipedia.org/wiki/Ingres_(database)) are both SQL.
+  *DB2* of IBM is "relational databases" while IMS isn't.
+- ["transaction processing"](https://en.wikipedia.org/wiki/Transaction_processing) just "divided into individual, *indivisible* operations called transactions" and "data-oriented resources are *not permanently updated* unless *all* operations within the transactional unit complete successfully"
+- See [COD_RISC_V_2nd] 479.e6 for "RAID 5" which has [rotating parity](https://infohub.delltechnologies.com/l/dell-powermax-reliability-availability-and-serviceability/data-protection-schemes)
+- seven check disks may be *redundant* based on [this](#hamming)
+  ```bash
+  $ ipython -c "print(2**6>=32+7+1);print(2**5>=32+7+1)"
+  True
+  False
+  ```
+- RAID has two abbr meanings in the book just as [wikipedia](https://en.wikipedia.org/wiki/RAID) says.
+- [CMS](https://www.ibm.com/docs/en/zvm/7.2?topic=product-conversational-monitor-system-cms) ~~is just~~
+  [CP-67](https://en.wikipedia.org/wiki/CP-67#:~:text=CP%2D67%20is%20the%20control,customized%20S%2F360%2D40.) is the [VMM](#VMM).
+  TODO See [development process](https://en.wikipedia.org/wiki/VM_(operating_system)) of VM in IBM including VM/370 and z/VM.
+- Batch processing is just based on processing *one batch* each time ("run the next until the batch was complete").
+  In [multitasking](https://en.wikipedia.org/wiki/Computer_multitasking) used by [Time-sharing](https://en.wikipedia.org/wiki/Time-sharing#Time-sharing) "New tasks can *interrupt* already started ones before they finish" while Batch processing can't ([Multiprogramming](https://en.wikipedia.org/wiki/Computer_multitasking#Multiprogramming) is similar, "the context of this program was stored away"). This implies "interactive".
+
+- TODO 
+  read "The Mythical Man Month"
+  process model implementation.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
