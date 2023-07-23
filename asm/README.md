@@ -234,7 +234,9 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
 ### cpu specific
 - my cpu 4800h doesn‘t [support](https://gist.github.com/kohnakagawa/fb77904fcc44fc5652ef6d338c35a718) 'CET'， so `ENDBR64` does [nothing](https://vstinner.readthedocs.io/assembly_x86.html), see [pdf p413 INDIRECT BRANCH TRACKING][intel_64]
   - from [this](https://stackoverflow.com/questions/56905811/what-does-the-endbr64-instruction-actually-do), some keywords are ‘control flow violations’， ‘WAIT_FOR_ENDBRANCH’， ‘state machine’
-  > from [this](https://en.wikipedia.org/wiki/Return-oriented_programming) , [above](#rop) maybe related with return address overwriting， so related with instructions like `jmp` -> related with `ENDBR64`.
+  > from [this](https://en.wikipedia.org/wiki/Return-oriented_programming) , [above](#rop) maybe related with return address overwriting, so related with instructions like `jmp` -> related with `ENDBR64`.
+  > "manipulates the call stack" -> stack smashing
+  > "overwrite the return address"
   - TODO see kernel code related with above gist.
 - [cache,memory,register](https://www.geeksforgeeks.org/difference-between-cache-memory-and-register/)
   - why no [two](https://www.quora.com/Why-can%E2%80%99t-two-operands-both-be-memory-operands-in-assembly-language) memory operand (related with cache) [also](https://stackoverflow.com/questions/14510280/why-cant-mov-have-both-operands-as-memory-locations)
@@ -597,7 +599,7 @@ printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
 ```
 # computer basics
 ## miscs
-- SMP and [AMP](https://en.wikipedia.org/wiki/Asymmetric_multiprocessing), also [see](https://github.com/rr-debugger/rr/issues/3531)
+- [SMP](https://en.wikipedia.org/wiki/Symmetric_multiprocessing) and [AMP](https://en.wikipedia.org/wiki/Asymmetric_multiprocessing), also [see](https://github.com/rr-debugger/rr/issues/3531) <a id="SMP"></a>
 ## memory
 - currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3` where "segmented memory model" is mostly used by old cpus.
   Notice: In [COD_RISC_V_Orig] p469, the total size of "16 bits of segment to the existing 16-bit" is same as "unsegmented 32-bit address space", but their physical implementation is different, at least the former memory only needs to search 16-bit range while the latter needs to 32-bit. See [this](https://en.wikipedia.org/wiki/Flat_memory_model#x86_segmented_memory_model) and Segmentation with *paging* just means using [page table](https://en.wikipedia.org/wiki/Memory_segmentation#Segmentation_with_paging) <a id="Segmentation"></a>
@@ -4945,6 +4947,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - so cycle 1,2 `Rk=Yes`, cycle 3 `Rk=No` because has been read; cycle 6 `Rj=No` because not ready for.
 - Dynamic instruction scheduling [overlook](../references/other_resources/COD/references/HY425_L8_ReorderBuffer.pdf) https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf
   - also known as [Superscalar](http://thebeardsage.com/multiple-issue-processors/) [1](https://en.wikipedia.org/wiki/Superscalar_processor) <a id="scheduling"></a>
+    Superscalar is just ~~pipeline~~ [multiple isuue](https://en.wikipedia.org/wiki/Superscalar_processor) "by using multiple execution units" which is independent of pipeline ("different performance enhancement techniques"). <a id="Superscalar"></a>
   - see p5,14
 - ROB [structure p25](https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf)
   - also see [1](https://decodezp.github.io/2019/04/06/quickwords24-skylake-pipeline-8/) [2](https://github.com/drharris/cs6290-notes/blob/master/reorder-buffer.md) [video in 2](https://www.youtube.com/watch?v=0w6lXz71eJ8)
@@ -4953,6 +4956,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - CAQQA p230,242,247(relation with reorder buffer)
   - notice the design may be different slightly between amd and intel, also different microarchitecture.
   - [RAT design](../references/other_resources/COD/references/pipeline/xiao2013_RAT.pdf) with 'global checkpoints' for *recovery* (It may be same as ["RAT (Resource Allocation Table)"](https://easyperf.net/blog/2018/12/29/Understanding-IDQ_UOPS_NOT_DELIVERED) from [this (also says other like IDQ: Instruction Decode Queue)](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)#Renaming_.26_Allocation))
+    RAT also means ["register allocation table"][move_elimination]
   - TODO 
     - RAT hardware design [1](https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp16/cse502/slides/08-superscalar_ooo.pdf) (this [better](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf))or more [abstract](https://www.eecg.utoronto.ca/~veneris/10tvlsi.pdf)
     - [CAM](https://en.wikipedia.org/wiki/Content-addressable_memory) is faster than RAM with `SL`, [also](https://www.geeksforgeeks.org/difference-between-random-access-memory-ram-and-content-addressable-memory-cam/) <a id="CAM"></a>
@@ -5035,6 +5039,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     "covers all bit positions which have the least significant bit" (based on *bit* to error detection).
   - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
     - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
+      Also see [this](https://www.geeksforgeeks.org/hamming-code-in-computer-network/) for the detailed example.
+      And [this](https://en.wikipedia.org/wiki/Hamming_code#Description): "Hamming distance" defines the *minimum distance* between elements in one set. <a id="hamming_distance"></a>
     - or book 'should always be even'.
   - [wikipedia](https://en.wikipedia.org/wiki/Hamming_code#)
     - TODO 
@@ -5071,12 +5077,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - maybe see this [whitepaper p8](https://dl.dell.com/content/manual9740166-poweredge-yx4x-server-memory-ras-whitepaper.pdf?language=en-us) which may be referenced by [this](https://community.intel.com/t5/Processors/Intel-Xeon-Gold-ADDDC-Memory-RAS-Feature-Clarification/td-p/1210819)
         - Adaptive because 'failing DRAM bank is *dynamically* mapped out'
       - TODO [virtual lockstep](http://support-it.huawei.com/docs/zh-cn/typical-scenarios-1/server-knowledgebase/zh-cn_topic_0000001108467806.html)
-        - here lockstep which use ['redundancy (duplication)'](https://en.wikipedia.org/wiki/Lockstep_(computing)) originates from [army](https://en.wikipedia.org/wiki/Lockstep#:~:text=Originally%20it%20was%20used%20in,prisons%20of%20the%2019th%20century.) (lock the *step*s of soldiers) usage (i.e. *synchronize*)
+        - here lockstep which use ['redundancy (duplication)'](https://en.wikipedia.org/wiki/Lockstep_(computing)) originates from [army](https://en.wikipedia.org/wiki/Lockstep#:~:text=Originally%20it%20was%20used%20in,prisons%20of%20the%2019th%20century.) (lock the *step*s of soldiers) usage (i.e. *synchronize* which implies "in parallel")
     - po here book should be 'DDDC' instead of 'SDDC'
   - [burst error](https://en.wikipedia.org/wiki/Burst_error-correcting_code) which 'may be due to physical damage such as scratch on a disc' so that 'occur in many *consecutive* bits'
     - TODO 'cyclic'
   - TODO [Non-cyclic Codes](https://math.stackexchange.com/questions/3141351/non-cyclic-codes)
   - [Modulo 2 Arithmetic](https://www.csus.edu/indiv/p/pangj/166/f/d8/5_Modulo%202%20Arithmetic.pdf) ('coefficients of a polynomial' p1)which is used as division in CRC, which can be seen [here p2](https://cs.newpaltz.edu/~easwarac/CN/Module7/CRC2.pdf)
+
   - TODO opposite of Galois fields
   - [Reed-Solomon code](https://www.cs.cmu.edu/~guyb/realworld/reedsolomon/reed_solomon_codes.html#:~:text=Reed%2DSolomon%20codes%20are%20block,%2C%20DVD%2C%20barcodes%2C%20etc))
     - [Linear Block Code](https://electronicsdesk.com/linear-block-code.html)
@@ -5249,7 +5256,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p912
   - 'makes the individual steps atomic.': just *illusion* seen by other processors.
 - p914
-  - [Round-robin](https://developer.arm.com/documentation/den0013/d/Caches/Cache-policies/Replacement-policy) or cyclic replacement 
+  - [Round-robin (i.e. cyclic "cycles *back* to 0")](https://developer.arm.com/documentation/den0013/d/Caches/Cache-policies/Replacement-policy) or cyclic replacement 
+    Also see [this][hardware_thread_scheduler] "barrel-scheduler (also known as a round-robin scheduler)"
     - TODO see Random Replacement [math](https://inria.hal.science/hal-01054982/document)
   - [Variable page size](https://stackoverflow.com/questions/35720775/variable-page-size-in-linux)
     - THP: ~~TODO view code why~~ 'some kind of *defragmentation*' because the size isn't totally variable in all range although [*automatic* promotion and demotion implies 'Transparent'](https://www.kernel.org/doc/html/next/admin-guide/mm/transhuge.html) 
@@ -5462,7 +5470,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
               - here *retry* (TODO this is said in one stackoverflow Q&A) is because something inherent in compare-and-swap or others.
               - 'not guaranteed to provide any stronger' means riscv is similar to x86 not strict StoreLoad ordering by default (But maybe x86 can be tuned by software while riscv can't.).
             - p52 AMO -> atomic memory operation.
-            - p53 [parallel reductions](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5810002.19.5.4) in memory use 'private copy' 'using the *combiner* associated with' (maybe same as acc0/1 in 'Figure 5.21' TODO see assembly) and also see [this](https://dournac.org/info/gpu_sum_reduction) which uses local memory (i.e. private copy) to parallel calculate global memory (this is similar to nvidia [slide](https://www.olcf.ornl.gov/wp-content/uploads/2019/12/05_Atomics_Reductions_Warp_Shuffle.pdf) p14). It seems to have no relation with [this](https://en.wikipedia.org/wiki/Reduction_of_summands#:~:text=Reduction%20of%20summands%20is%20an,reduction%20of%20summands%2C%20and%20summation.) where has no copy and parallel and it use carry and original bit summand separately. <a id="reduction"></a>
+            - p53 [parallel reductions](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5810002.19.5.4) in memory use 'private copy' 'using the *combiner* associated with' (maybe same as acc0/1 in 'Figure 5.21' TODO see assembly) (See [COD_RISC_V_2nd] which corresponds to above link "Table 2.11") and 
+              also see [this](https://dournac.org/info/gpu_sum_reduction) which uses local memory (i.e. private copy) to parallel calculate global memory 
+              (this is similar to nvidia [slide](https://www.olcf.ornl.gov/wp-content/uploads/2019/12/05_Atomics_Reductions_Warp_Shuffle.pdf) p14). <a id="reduction_nvidia"></a>
+              It seems to have no relation with [this](https://en.wikipedia.org/wiki/Reduction_of_summands#:~:text=Reduction%20of%20summands%20is%20an,reduction%20of%20summands%2C%20and%20summation.) where has no copy and parallel and it use carry and original bit summand separately. <a id="reduction"></a>
               - above nvida offer some pdf in p25 [reduction_1](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) and [reduction_2](https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/)
                 - reduction_1: 
                   - two addressing: 1. p8 Interleaved Addressing which may use *same bank* in p12 because not adjacent memory addr. 2. same as above slide 3. TODO the other #... in reduction_1.
@@ -5688,9 +5699,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p25
   - "Vacuum tube" used in [triode. See the 2nd figure](https://en.wikipedia.org/wiki/Valve_amplifier#Origins)
   - TODO read 1.13 Historical Perspective and Further Reading
+  - *patterns* of chemicals are placed on each wafer (here "patterns" is just "smallest feature size" -> `nm` in  `7nm` meaning) <a id="cpu_die"></a>
 - p27
   - why use dies: "cope with *imperfection* is to place many independent components" and "these components, called *dies*".
   - "the lower yield" because the denominator is larger when the numerator is almost unchanged.
+- chapter 6 see [this](#chapter-6-in-cod-riscv-2nd)
 ##### TODO
 - read 2.17,18
   2.21 is just in 1st edition 3.8.
@@ -5832,7 +5845,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - 'is already in the cache' means the *location* is cached, So 'store-miss' is just  the location not exists in cache.
       - ['CLFLUSH'](https://stackoverflow.com/questions/54434006/does-clflush-instruction-flush-block-only-from-level-1-cache) is to synchronize cache 'of all cores'.
         - intel [doc](https://www.felixcloutier.com/x86/clflush) :'that data is written back to memory.','speculative reads','speculatively loaded into a cache line'
-      - [LLC](https://en.wikichip.org/wiki/last_level_cache)
+      - [LLC](https://en.wikichip.org/wiki/last_level_cache) probably ["shared L3 cache"](https://cvw.cac.cornell.edu/ClusterArch/LastLevelCache) which is prior to fetching from *memory*.
       - 'it's only a hint, so it *doesn't force* the'
 ### Agner‘s doc
 #### microarchitecture
@@ -5960,7 +5973,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'each multithreaded SIMD Processor is assigned 512 elements' -> one thread block.
     - GPU with Processors -> grid with blocks
       - 'Scheduler' control the 'transparent scalability' to enlarge GPU when developing the hardware.
-  - ['strip-mined vector loop'](http://physics.ujep.cz/~zmoravec/prga/main_for/mergedProjects/optaps_for/common/optaps_vec_mine.htm) same as csapp ~~unloop~~ loop unrolling.
+  - ['strip-mined vector loop'](http://physics.ujep.cz/~zmoravec/prga/main_for/mergedProjects/optaps_for/common/optaps_vec_mine.htm) same as csapp ~~unloop~~ loop unrolling. <a id="strip-mined"></a>
   - ~~'a SIMD *instruction* executes 32 elements at a time' -> p348 ~~
 - p348
   - 'Thread Scheduler ...' So whether threads in one block are ~~*not parallel*~~ parallel depends on GPU .
@@ -6195,8 +6208,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - kw: basically two ways;  
   - "not be fully pipelined" -> [this](#pipelined_fp)
   - ["Register renaming"](https://en.wikipedia.org/wiki/Register_renaming) -> <a id="Register_renaming"></a>
-    1. mapping from "logical registers" to physical registers.
-    2. just using another logical register. (This is compiler-based)
+    1. mapping from "logical registers" to *physical* registers.
+    2. just using *another logical* register. (This is compiler-based)
       In [this](https://en.wikipedia.org/wiki/Register_renaming#Data_hazards), WAR where R use "old value" which may in one register and W writes with "the new value".
       Just use [more registers](https://www.d.umn.edu/~gshute/arch/register-renaming.html#:~:text=Register%20renaming%20is%20a%20form,in%20the%20instruction%20set%20architecture.) to avoid the data dependency.
   - "different implementations of the same instruction set" just see amd and intel differences / different implementations of riscv.
@@ -6404,6 +6417,147 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     "better declared in a header"
     [Translation unit](https://en.wikipedia.org/wiki/Translation_unit_(programming)) in [this](https://stackoverflow.com/questions/572547/what-does-static-mean-in-c#comment45074783_572547) -> "a source file" which "has been processed by the C preprocessor".
     - "declared outside all procedures are considered *static*" -> so needs `extern` to share between files.
+### chapter 6
+- 1
+  - "*linear* speed-up with 1000 processors" breaks the "Amdahl’s Law" limit that can't 100% improvement.
+  - [Amdahl_1967]
+    - [Data Housekeeping](https://www.hometowntech.com/post/data-housekeeping#:~:text=Data%20Housekeeping%20is%20the%20process,it%20to%20run%20more%20efficiently.). This is just "sequential processing rates" in the book.
+    - "Amdahl’s Law obviously applies to parallel processors" but the influence may be offseted by "the rest was fully parallel".
+      So it should "to run larger problems" which can imply using *multiple processors*.
+      - one [category](https://en.wikipedia.org/wiki/Parallel_computing#Massively_parallel_computing) of parallel processor is "single computer with many networked processors" which is just what category TPUv3 is in.
+- 3
+  - "a single lock" which is software inhibits "an OS kernel that allows *multiple threads*"
+    "the lock still serializes all the jobs" because "program" read the page table although it shouldn't cause one expensive lock since it doesn't write.
+- the last
+  See original paper [hill2020] 
+  - "microarchitectural “bread-crumbs” of a supposedly hidden secret" means "*cache contents*) can survive nominal state reversion" in [spectre_origin_arXiv]
+    Also see p7 "leave measurable side effects"
+    - [FLUSH_RELOAD]
+      - [""content-aware" sharing"](https://www.gartner.com/en/information-technology/glossary/content-awareness#:~:text=The%20ability%20to%20determine%20what,in%20use%20or%20in%20transit.) just means knowing *infos related* with file, etc.
+      - ["De-duplication"](https://www.druva.com/glossary/what-is-deduplication-definition-and-related-faqs#:~:text=Deduplication%20refers%20to%20a%20method,to%20identify%20duplicate%20byte%20patterns.) just literal meanings.
+        - "copy-on-write" page sharing is just as csapp says.
+        - ["OS fingerprinting"](https://www.firewalls.com/blog/security-terms/os-fingerprinting/) -> analyzing data packets
+        - [`=/+`](https://gcc.gnu.org/onlinedocs/gcc/Modifiers.html)in `asm`
+          - `"a"` means [`eax`](https://www.felixcloutier.com/documents/gcc-asm.html#examples) but not [addr](https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html#index-other-register-constraints).
+            Also see [x86 "The a register."](https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html)
+          - [`%0`](https://www.felixcloutier.com/documents/gcc-asm.html#constraints) is probably the *output* because of its *order*.
+        - [`CLFLUSH`](https://www.felixcloutier.com/x86/clflush) only flush one *specific addr*.
+      - The main idea of attack is
+        See p7 "For example, be-tween time slots 3,917 and 3,919 the victim was calcu-lating a square" -> based on cache hit/miss time, attacker gets *what code block* is runned. 
+        Then p8 it gets the *running sequence* 
+        and then "Sequences of Square-Reduce-Multiply-Reduce indicate a set bit" -> get bit ~~patterns~~ se-quence.
+      - notice: "Figure 6" implies flush-probe sequence and "Figure 4" is only *probe* which flush the data at the *input addr* at the end (line 14)
+      - Mitigation solutions <a id="FLUSH_RELOAD_Mitigation"></a>
+        - [ ] means not recommended
+        - [x] means recommended
+        - hardware 
+          - [ ] change `clflush` instruction 
+        - software 
+          - [ ] preventing sharing
+            - [x] better only to "sensitive code"
+          - [x] "disabling page de-duplication"
+          - [ ] Re-ducing the resolution of the clock
+    - " in user pro-cesses from accessing *kernel* memory, the attack will stillwork"
+      See [this](https://cyber.wtf/2017/07/28/negative-result-reading-kernel-memory-from-user-mode/): mainly also based on "last two instructions are executed *speculatively*" Then cache stores the data "differs depending on the value *loaded from somekerneladdress*".
+    - ["orthogonal" techopedia](https://www.techopedia.com/definition/16420/orthogonal#:~:text=Orthogonal%2C%20in%20a%20computing%20context,are%20perpendicular%20to%20each%20other.) just means independent ("without considering its after-effects", "two things vary from each other independently").
+      This is same as [wikipedia definition](https://en.wikipedia.org/wiki/Orthogonality_(programming))
+      - "C++ is considered non-orthogonal" because it doesn't "nothing but that instruction happens" but may generate [exceptions](https://stackoverflow.com/a/19929214/21294350).
+        - from [c2](http://wiki.c2.com/?ConcurrencyIssuesAreOrthogonalToObjects)
+          "on the lines of "not related"" *but not* "mutually independent" or "well separated".
+          - TODO 
+            Your last comment is certainly orthogonal to this discussion ?
+            they can be used together, as well as separately.
+
+          - "referring to a **programming language**": *consistency* in its syntax (i.e. whether to use *any* syntaxes). Just see [examples](https://www.mindprod.com/jgloss/orthogonal.html).
+            "changes in one thing don’t effect another" -> Orthogonal (just similar to *projection* in math). -> this also explains "compatible with earlier versions of itself" (i.e. not influence others by *projecting* to them) in techopedia.
+            This is similar to ISA ("each register has *special* properties" -> non-orthogonal). This implies [wikipedia definition "use all addressing modes" -> orthogonal](https://en.wikipedia.org/wiki/Orthogonal_instruction_set)
+            Also see "exceptions" and "complicate the compilers.".
+
+          - also means somewhat *abstraction* "look at the transactional aspects, ... ".
+    - notice p5 "array1_size and array2 are not present in the pro-cessor’s cache" otherwise p6 it won't "During this wait" and then use "the branch predictor", but it use the *cache* to calculate the true condition.
+    - code p15
+      `x = training_x ^ (x & (malicious_x ^ training_x));`: 
+      x=-1 -> malicious_x (because `training_x ^(malicious_x ^ training_x) = malicious_x`)
+      x=0 -> training_x which always in the `array1_size` range by `tries % array1_size;`.
+      ~~TODO~~ ~~why ~~`mix_i = ((i * 167) + 13) & 255;` just traverse the `array2` to try accidentally get the **cacheline** related with `malicious_x`.
+
+      Here just try to get out-of-bounds data through `array2`.
+      - Since `malicious_x++` and reuse it in `for (j = 29; ...` and `for (tries = 999; ...` 
+        And in `j` loop `training_x` and `malicious_x` don't change, so won't use too much cache space.
+        so p6 `array1[x]` when `x=malicious_x` will probably hit.
+
+        And use `_mm_clflush(&array1_size);` to avoid `array1_size` in cache.
+    - notice: although "rewinds its register state." ~~before~~ when "read from array2 is pending", "the speculative read from array2 affects the cache state" *still occurs*. So "the next read to array2[n*256] will be fast for *n=k*"
+      "secret byte using the *out-of-bounds* x" (`k`)
+    - "flush+probe" in p6 ~~just use explicit load instead of ~~ is just from [FLUSH_RELOAD] p5.
+    - ["soft page fault"](https://techcommunity.microsoft.com/t5/ask-the-performance-team/the-basics-of-page-faults/ba-p/373120#:~:text=On%20the%20other%20hand%2C%20a,working%20set%20of%20another%20process.) implies DLL.
+    - p9 gadget
+      - "gadget" is just some mem-reference program .
+      - "onto smaller regions" by controlling `edi` and fixed data in `[ebx+edx+13BE13BDh]` when `ebx` is controlled fixed.
+      - "un-evict the return" maybe by [`RET imm16`](https://www.felixcloutier.com/x86/ret) where store ret address elsewhere beforehand.
+    - p10 
+      - "false but mispredicts as true" -> [False positives](https://en.wikipedia.org/wiki/False_positives_and_false_negatives)
+      - Variations
+        - "Evict+Time" is similar to "FLUSH+RELOAD"
+        - "Instruction Timing" just similar but expose register related infos.
+        - expose "*checkpoints* for speculative execution"
+        - "mistrain the branch predictor" to make "interrupt" return to the target.
+    - Mitigation
+      same terminology as [`FLUSH_RELOAD`](#FLUSH_RELOAD_Mitigation) 
+      - [ ] se-rializing instructions because of "are discarded" but not "speculative execution *will not occur* or leak information"
+      - [ ] `cpuid` [serializing](https://www.felixcloutier.com/x86/cpuid#description) just function same as fence.
+        - [ ] `mfence` and `lfence`
+          from [intel_64] 1194, it has added "blocks speculative execution" as paper footnote in p11 says.
+          [`WB`](https://danluu.com/clwb-pcommit/#:~:text=The%20four%20memory%20types%20they,whenever%20it's%20forced%20to%20be.), etc., memory type
+
+          But it will "severely degrade performance" and "needs to be recompile".
+      - [ ] "very long" delay
+      - Indirect branch poisoning
+        - [ ] "disable hyperthreading" -> not appear to be any architecturally-defined method
+        - [ ] something "currently unknown and likely to vary among *processors*"
+      - [ ] "microcode" fix by "dis-able speculative execution"
+      - [ ] "*Buffering* speculatively-initiated memory trans-actions *separately* from the cache"
+        Then "*timing* of speculative execution can also reveal"
+      - [ ] "*other ways* that speculative execution can leak information"
+        So Maybe difficult to develop one *general* solution.
+    - "Spectre  speculatively  executes  instructions  whose  ISA  changes it knows will be rolled back" this means "Spectre  speculatively  executes  instructions and spectre knows that ISA changes will be rolled back"
+      ISA changes just means something like register states.
+
+      Also see p11 "vary among processors."
+
+    - "compromised" just reverse calculate the time of *memory reference*.
+  - 2 
+    explains why ~~we not~~ "its status need not be restored on misspeculation"  related with *cache*.
+    "place, and later find" -> [spectre_origin_arXiv] `temp &= array2[array1[x] * 512];` to place in the *cache* and `results[mix_i]++`
+  - 3
+    See [spectre_origin_arXiv] "5.1 Discussion" "code executing in *one hyper-thread* of Intel x86 processors can mistrain ... in a different hyper-thread"
+    "subtle timing changes" -> "run in close proximity". This is same as [spectre_origin_arXiv] p10 "set their CPU *affinity* to share a core" So the time won't be influenced by communication time between cores which may be too longer.
+#### [arxiv_Meltdown]
+- ["end-to-end"](https://www.investopedia.com/terms/e/end-to-end.asp) -> complete solution.
+- [Zero Idiom](https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU#zero-idiom) just view *must-zero* instructions as `nop`.
+  And [Move elimination](https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU#zero-idiom) just point to ["the same physical register"][move_elimination]
+- "Unified Reservation Sta-tion" are just "Scheduler" in Figure 1
+- [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+- "3 A Toy Example" just tells how "out-of-order" exploit functions.
+  So [spectre_origin_arXiv] 1.4 tells differences between meltdown and spectre.
+  1. "causes a trap" in 1.4 just corresponds to [arxiv_Meltdown] `raise_exception();` in 3
+    Notice [spectre_origin_arXiv] "Variations on Speculative Execution" still use `branch` due to `ret` from interrupt. 
+  2. 
+    ["prime-and-probe"](https://security.stackexchange.com/a/213236) -> "estimate what cache lines were *loaded*"
+
+  ~~TODO~~ [spectre_origin_arXiv] "specific to Intel processors" ~~may be wrong~~, because [arxiv_Meltdown] only use intel TSX to give one example of "Exception Suppression" by using "an atomic opera-tion" ( then avoid exception handler overhead by "continues without disruption.") to *redirect* the control flow after executing the *transient instruction sequence* in 4.1.
+  - See [arxiv_Meltdown] 6.4 for the failure on "ARM and AMD". Then all processor can "exploits a privilege escalation vulner-ability" theoretically but maybe some processors "towards against the data leakage" due to "a more shal-low out-of-order execution pipeline".
+- notice p5 "microarchitectural side effects" still stay but not "architectural effect".
+- 4.1 explains how to " targets a secret at a *user-inaccessible* address"
+  1. using "child process" to run "transient instruction sequence" and then parent recover the secret "through a side-channel" by Exception handling
+  2. "Exception suppression" is mainly talking about how to suppress but not how to expose secret.
+    See 5.2 "Exception Suppression using Intel TSX" -> "microarchitectural effects are still visible"
+    So just do similar as 1. but not through one exception handler.
+- See p6 "covert channel".
+- Countermeasures
+  - 7.1 2 solutions and the 1st is not practical.
+    2 and the KAISER are all targeted at manipulation of *kernel*.
+  - [KAISER](https://en.wikipedia.org/wiki/Kernel_page-table_isolation) from its name "Kernel Address Isolation", just think of it as "not have the kernel mapped in the user space." although "several privileged memory loca-tions are required to be mapped".
 ## The BIG Picture
 - 17
   - interface -> something like syscall.
@@ -6920,6 +7074,322 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - TODO 
   read "The Mythical Man Month"
   process model implementation.
+## chapter 6 in COD RISCV 2nd
+- p520
+  - multiprocessor is [not](https://www.javatpoint.com/multiprocessor-and-multicore-system-in-operating-system#:~:text=A%20multicore%20contains%20multiple%20cores,capable%20of%20running%20many%20programs.) multicore.
+  - job is similar to program where the latter [contains](https://superuser.com/questions/1661789/whats-the-difference-between-a-program-process-job-service-daemon-script) process and the former [contains](https://www.geeksforgeeks.org/difference-between-job-task-and-process/) tasks. And the book "task-level parallelism or process-level parallelism " implies their equivalence.
+    Also see [this](https://superuser.com/a/1661791/1658455) "A job is just a scheduled program".
+  - Shared Memory Processors -> [this](#SMP).
+- concurrent program [vs](https://slikts.github.io/concurrency-glossary/?id=concurrent-order-independent-vs-sequential#:~:text=Concurrency%20is%20about%20independent%20computations,step%20to%20produce%20correct%20results.) sequential program (whether *order* counts)
+- "spend too much time communicating with each other" -> just as csapp says about overhead of semaphore.
+  See p51 for bottleneck when target time is too demanded.
+- Amdahl’s Law calculation See [csapp_global] p58 which is also referenced in wikipedia.
+- p524 "55%" is just $\frac{5.5}{10}$.
+  "harder than getting good speed-up by *increasing the size*" because $10t$ is unavoidable.
+  $M/P$ just means the working set on each processor isn't high enough (i.e. the utilization proportion of *per* processor is *not kept constant* when increase problem size).
+- Challenge (corresponding to 3 examples from p523 to 525):
+  1. not to drop small proportion of to-improve program.
+  2. maybe better using "Weak scaling".
+  3. "Balancing Load" which is similar to the *Barrel Effect*.
+- "multiprocessing" [vs](https://towardsdatascience.com/multithreading-and-multiprocessing-in-10-minutes-20d9b3c6a867) multithreading: the former is based on "run multiple *process*ors in parallel".
+- SIMD just make multiple data to *one vector*. See [these 2 figures](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data#Software)
+  [SSE](https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions) just use xmm registers.
+- [array processor](https://www.geeksforgeeks.org/types-of-array-processor/) is similar to SIMD
+- MMX (64 bits) [differences](https://stackoverflow.com/a/31493072/21294350) from AVX,SSE(128 bits).
+- [vector architecture](https://www.lkouniv.ac.in/site/writereaddata/siteContent/202004291236420982rohit_vector_architecture.pdf) add "pipeline" based on array processor. 
+  p529 -> "vector register".
+
+  "pipeline" is mainly due to no need to stall multiple times by "only stall for the first element" p530.
+- "the prefix “V”" is still in [draft](https://github.com/riscv/riscv-v-spec). TODO
+  See the [pdf][riscv_V_ext] or [adoc](https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#vector-length-register-vl)
+- [DAXPY](https://netlib.org/utk/papers/latbw/node10.html)
+- [vector lane Figure 1.4](https://developer.arm.com/documentation/den0018/a/Introduction/Fundamentals-of-NEON-technology/Registers--vectors--lanes-and-elements?lang=en#CFFFHHBE) just parallel. But "cannot be a carry or overflow from one lane to another." to keep *independent*.
+  Also see p532 comparison with "lanes on highways" (where "vector lane" also includes "a *portion* of the vector register file" -> "*element N* from other vector registers").
+- "bookkeeping code" in p530 may just record the manipulation counts.
+- ["strip mining"](http://physics.ujep.cz/~zmoravec/prga/main_for/mergedProjects/optaps_for/common/optaps_vec_mine.htm) and "handle the leftovers" (i.e. Cleanup) is just same as csapp says. Also see [this](#strip-mined)
+- "Vector versus Scalar" p531
+  2,4 reduced check of independence between data.
+  5 "interleaved memory bank" / "adjacent" implies only one fetch (spacial locality).
+  7 conclusion.
+- "permit this *sharing*, the processor must *duplicate* the independent state" just as csapp says.
+- "instruction-level parallelism" is used in SMT but not Coarse MT (Coarse-grained multithreading) and Fine MT.
+- i7 6700 [vs](https://cpu.userbenchmark.com/Compare/Intel-Core-i7-960-vs-Intel-Core-i7-6700/m778vs3515) i7 960
+- p539 reduction same to  [this](#Reduction_verilog) and [this](#reduction)
+  "half" ... "a quarter" are just same as [reduction_nvidia](#reduction_nvidia)
+- in `linux`, `cc` (UNIX C compiler) and `gcc` are same although their inodes are different.
+  ```bash
+  $ diff /usr/bin/cc /usr/bin/gcc
+  $ ls -ai /usr/bin/gcc /usr/bin/cc
+  3658826 /usr/bin/cc  3658828 /usr/bin/gcc
+  ```
+- p544 
+  - "MIMD" and "SIMD" relation.
+  - "Address coalescing unit" -> combining *multiple* memory accesses into a single transaction (i.e. sequential (so stride in "Code Example" isn't coalesced)and aligned) <a id="mem_coalescing"></a>
+- 545
+  - how "hardware thread scheduler" [implemented][hardware_thread_scheduler].
+    ""scheduled” onto *hardware* by first letting one execute, *interrupting* it, *saving its state* ..." (Also see p546 "hold the state of the many threads")
+    "the scheduling is done by BOTH: the OS decides ... what ... the hardware chooses *how* to execute them"
+  - "64 vector registers" implies one lane has 4 registers and "32 elements" -> "threads are 32 wide".
+  - "a vertical cut" -> " one element ". (CUDA thread not equals to SIMD lane & POSIX thread)
+  - "2048 registers" contains multiple threads' registers.
+    ```bash
+    $ ipython -c "print(32*32*64==32768);print(16*2048==32768)"
+    False
+    True
+    ```
+  - po CUDA thread (i.e. *one element* executed by one *SIMD lane*) is smaller than SIMD lane (i.e. a thread of SIMD instructions)
+  - TODO "SIMD thread" diff with "SIMD lane".
+- 547
+  - ["demand paging"](https://en.wikipedia.org/wiki/Demand_paging) which is said in csapp just not "Anticipatory".
+  - FIGURE 6.11
+    | Feature                                              | GPU       |
+    | ---------------------------------------------------- | --------- |
+    | SIMD processors                                      | 15 to 128 |
+    | SIMD **lanes**/processor                             | 8 to 16   |
+    | Multithreading hardware support for SIMD **threads** | 16 to 32  |
+  - GPU solves page fault by *sharing* mem space. See [this p12,13](https://on-demand.gputechconf.com/gtc/2018/presentation/s8430-everything-you-need-to-know-about-unified-memory.pdf) referenced in [this forum topic](https://forums.developer.nvidia.com/t/unified-memory-page-fault-handling/63197).
+  - "MIMD core" -> one SIMD *processor*.
+- 548
+  - "CUDA Thread" -> "One iteration" Then "A vertical cut" is just *temporal* cut.
+    So "A Thread of SIMD Instructions" is ~~just from *hardware* perspective~~ and "CUDA Thread" is from the **program runtime**'s perspective. (From what **Warp** means shown below, here `Thread` is just one quantifier like `one,two,three` but not one hardware element).
+    "Thread block" -> "made up of *one or more threads of SIMD instructions*" (i.e. SIMD thread **IF** "thread of SIMD instruction" just means "SIMD thread"). ~~Then from FIGURE 6.10, Thread block is made up of ~~
+
+    From FIGURE 6.9, "SIMD threads" run on "SIMD Lanes" (From FIGURE 6.12, SIMD Lane is *processing hardware*).
+    From FIGURE 6.4, SIMD Lane contains multiple primitive instruction like `add` / `mul`.
+  - [PTX](https://en.wikipedia.org/wiki/Parallel_Thread_Execution) just functions as "assembly language".
+  - [Warp](https://nyu-cds.github.io/python-gpu/02-cuda/) can be seen as combination of ~~instructions~~ threads to issue.
+    ![](https://nyu-cds.github.io/python-gpu/fig/02-sm.png)
+  - From [this](https://en.wikipedia.org/wiki/CUDA#Ontology), cuda core is just cuda thread because "GPU L0 cache".
+  - From this [fermi doc p8](https://www.nvidia.com/content/pdf/fermi_white_papers/nvidia_fermi_compute_architecture_whitepaper.pdf), Register File is shared by cores -> "a full thread block".
+  - "Machine Objects" contains things related with instructions and hardwares which are not used in *Processing*.
+  - [warp scheduler p7](https://courses.engr.illinois.edu/cs433/fa2018/slides/chapter4-part2-full-1.pdf) which is similar to scoreboard and Tomasulo
+- 549
+  1. here "dedicated memories" means "**software**-controlled scratchpad memory."
+    - scratchpad ["**manually**" managed](https://qr.ae/pyirsh) in [SRAM](https://stackoverflow.com/questions/30563123/cache-and-scratchpad-memories) (i.e. write something on and **keep** with you and "software-controlled")
+- 551
+  - [Systolic Array](https://www.telesens.co/2018/07/30/systolic-architectures/#Matrix_Multiplication_on_a_Weight_Stationary_2D_Systolic_Array_MXU_on_a_Google_TPU) is just *pass* data through the array. <a id="Systolic_Array"></a>
+  - ["*activations* (to the Unified Buffer)"](https://medium.com/@antonpaquin/whats-inside-a-tpu-c013eb51973e)
+- 553
+  - TODO "message-passing" network diff "local area" network
+  - whether caring 
+    1. poorer communication performance
+    2. dependability
+    3. Also see p555 *three* major distinctions
+       1. enough *independent* data sets
+       2. Operational Costs over "longer lifetime"
+       3. "economy of scale" due to "volume discounts" and related fault tolerance 
+    decides whether to use clusters.  
+  - [`MapReduce` p13 source codes][MapReduce] referenced [here](https://en.wikipedia.org/wiki/MapReduce#cite_note-17): 1. `Map` just *filter* target. 2. `Reduce` just do what to process on the target.
+    "intermediate result of key-value pairs" just see [MapReduce] p2.
+    [lisp map](http://clhs.lisp.se/Body/f_map.htm) just use one specific function.
+    Also see p557
+- 557
+  - Reread 6.9 after the computer network.
+  - ring vs bus, the latter needs ["sent through the devices from sender to receiver"](https://www.geeksforgeeks.org/difference-between-ring-topology-and-bus-topology-in-computer-networks/) which results in the [latency](https://www.wevolver.com/article/understanding-ring-topology-a-detailed-exploration) (both bus and ring are simultaneous transfer, but the latter implies transfer order). <a id="ring_bus"></a>
+- 558
+  - [bisection bandwidth][bisection_wikipedia]
+    Since all data are passed through *only one bus*, so it is one "link bandwidth for the bus" ("*a single link* is as fast as the bus").
+    ["the bandwidth between two partitions is minimum"][bisection_wikipedia] -> "worst-case metric" bacause it only calculates bandwidth between *2 nodes*.
+    "bisection bandwidth is $(P/2)^2$" just take 4 nodes for example, after cutting it to halves, $P/2$ processors connect to $P/2$ **each** -> $(P/2)^2$.
+- 559
+  - ["multistage networks"](https://en.wikipedia.org/wiki/Multistage_interconnection_networks#Omega_network) just similar to neutral network.
+    - [Crossbar](https://en.wikipedia.org/wiki/Multistage_interconnection_networks#Crossbar_Switch_Connections) is ~~similar to~~ fully connected.
+    - `Omega` use **switch** to connect all nodes.
+    TODO Topology.
+      $2n\log_{2}{n}$ calculate *duplicate* lines for the middle boxes. See [this wikipedia](https://en.wikipedia.org/wiki/Multistage_interconnection_networks#Omega_network) 
+      - wikipedia 
+        $\log_2 n$ stages because each stage take one *box* input and output to two boxes.
+        $\frac{n}{2}$ "switching elements in each stage" just because above "output to two boxes".
+        $8!$ just mappings of 8 to 8.
+        - TODO view Omega-network [example](https://github.com/vijendra/Omega-network) from [wikipedia](https://en.wikipedia.org/wiki/Omega_network).
+          $2^12$: ~~why not $n*2^{\log_2 n}$ permutations.~~ 
+          - A1: 
+            ~~$2^{\log_2 n}$~~
+            ~~Then all switching -> $2^{\log_2 n}^{\frac{n}{2}}$~~
+          - ["blocking" tutorialspoint](https://www.tutorialspoint.com/what-is-blocking-networks-and-non-blocking-networks-in-computer-architecture) because each switch is *fixed* at runtime, so in the example, `100` and `101` can't be both connected to the *upper* port.
+            So $2^{12}$ less than $8!$ 
+            -> blocking and book "the Omega network cannot.". and "cannot send a message from P0 to P6 *at the same time* that it sends a message from P1 to P4"
+          - From the book "FIGURE 6.16" the switch operations are sequential (i.e. in c., if A switched to C, then it can't continue to switch to D.) Better see tutorialspoint figure.
+- 560 
+  - "mapped onto chips" See [Fig. 2.2](https://www.semanticscholar.org/paper/COMPARISON-OF-SPHERICAL-CUBE-MAP-PROJECTIONS-USED-Dimitrijevic-Lambers/8cf18f4813589713b5b61af9a646141eb9a75156/figure/2)
+  - TODO [Grid network](https://en.wikipedia.org/wiki/Grid_network) / grid topology
+- 563
+  - [Compute kernel](https://en.wikipedia.org/wiki/Compute_kernel) can be seen as just ~~one~~ SIMD threads ("no implied sequential operation").
+  - [SPLASH 3](https://github.com/SakalisC/Splash-3) is mainly [OpenGL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language#:~:text=OpenGL%20Shading%20Language%20(GLSL)%20is,on%20the%20C%20programming%20language.)
+  - TODO [unstructured parallelism](https://sci-hub.se/10.1145/2486159.2486175) may just mean data-parallel (independent).
+  - ["Cassandra"](https://en.wikipedia.org/wiki/Apache_Cassandra)
+  - "because of, say, the algorithm" -> algorithm is unchanged So it *may prefer* some architectures.
+- 564
+  - [3Cs](https://courses.cs.washington.edu/courses/cse410/99au/lectures/Lecture-10-18/tsld035.htm)
+- "FIGURE 6.19 Roofline Model": obviously at first Arithmetic Intensity $\propto$ memory performance, then due to "hardware limit", it becomes the "horizontal line".
+  See the formula in 566
+  - ["dual socket system"](#cpu_socket)
+  - here "limited by memory bandwidth" mainly `FLOPs/Byte * Byte_count` doesn't generate enough FLOPS to fill execution units -> `Byte_count` is small -> 'memory bandwidth' is not high. 
+- 567
+  - "four times" because 2 times cores and 2 times floating-point units.
+  - "fit in the caches": then it won't be limited by the memory bandwidth.
+- 568
+  - "fused multiply-add" just use the pipeline more optimizedly.
+    Similar to 2 of "following two optimizations can help almost any kernel"
+  - many stackoverflow Q&As has said that not "software prefetch" because modern processor hardware prefetch is always *better* than software prefetch.
+  - TODO 
+    - try [this](https://github.com/RRZE-HPC/likwid/wiki/Tutorial%3A-Empirical-Roofline-Model) to graph the *roofline*.
+    - try Stream benchmark
+  - "computational" roofline (i.e. computational ceilings) diff "memory" roofline
+- 570
+  - "Without ILP or SIMD" implies no overlap of floating-point operations. -> GFLOPS is constant.
+  - TODO reread [more detailed](https://www.osti.gov/servlets/purl/963540).
+  - Since "Arithmetic Intensity" is "FLOPs/Byte", it should be dependent on how to calculate but not how access.
+    So p569 "optimizations that improve cache performance also improve arithmetic intensity." only improve "FIGURE 6.21" graph but not *arithmetic intensity* alone.
+- 569
+  - memory hierarchy optimization:
+    1. unroll 
+      this is similar to "memory affinity" -> TODO So why "moving the arithmetic intensity pole to the *right*" ?  
+    2. "not first fill" -> delay fill. 
+- 571
+  - memory "bandwidth" check by STREAM or [others](https://unix.stackexchange.com/questions/32517/how-can-i-observe-memory-bandwidth)
+    [physical info](https://www.cyberciti.biz/faq/check-ram-speed-linux/):
+    ```bash
+    $ sudo dmidecode --type 17 | grep -E -i "speed|type"                 
+      Handle 0x0023, DMI type 17, 84 bytes
+              Type: DDR4
+              Type Detail: Synchronous Unbuffered (Unregistered)
+              Speed: 3200 MT/s # just means mb/s; https://www.reddit.com/r/buildapc/comments/utmo78/is_mhz_and_mts_is_same/
+              Configured Memory Speed: 3200 MT/s
+        ...
+      # https://v0dro.in/blog/2020/02/27/interpreting-stream-benchmarks/
+    
+    $ gcc -O3 -fopenmp -DSTREAM_ARRAY_SIZE=4194304 stream.c -o stream.o
+    [czg /mnt/ubuntu/home/czg/csapp3e/self_test/benchmark]$ export OMP_NUM_THREADS=1                                                                           
+    [czg /mnt/ubuntu/home/czg/csapp3e/self_test/benchmark]$ ./stream.o
+    Function    Best Rate MB/s  Avg time     Min time     Max time
+    Copy:           26886.5     0.002572     0.002496     0.002890
+    Scale:          18345.5     0.003793     0.003658     0.004389
+    Add:            20682.5     0.004904     0.004867     0.004944
+    Triad:          20789.4     0.004903     0.004842     0.005059 # 20GB/s ?
+    ```
+- 580
+  - using all threads may not as fast as expected (See Elaboration).
+### 6.12 is just based on [TPU_3] 572~...
+- [Permutation matrix](https://en.wikipedia.org/wiki/Permutation_matrix#Definition)
+- **Better** see ["A Domain-Specific Supercomputer for Training Deep Neural Networks"][TPU_3] just TPU paper
+- "convolution" just doing one function based on **steps**, just like how it is in signal processing.
+- TODO reread after learning AI.
+- [Ring-Reduce And All-Reduce](https://roman-kazinnik.medium.com/machine-learning-distributed-ring-reduce-vs-all-reduce-cb8e97ade42e) just similar to [ring](#ring_bus) while the former is consecutive (i.e. dependent) and the latter "independently".
+- $64$ is $32*2$ in bisection which is obvious from the [TPU_3] figure 1.
+- "TPUv3 supercomputer" has at least one link *each chip* while clusters is one link each *host*. So probably the former is faster.
+  - "DSA supercomputer" just one computer with **enormous chips**.
+  - "*four* custom Inter-Core Interconnect (ICI) links" just see [TPU_3] Figure 1
+- liquid cooling is mainly based on the water block [3:15](https://www.youtube.com/watch?v=6knc_2vV1wE).
+- ["loss scaling"](https://keras.io/api/mixed_precision/loss_scale_optimizer/#:~:text=Loss%20scaling%20is%20a%20technique,the%20loss%20scale%20as%20well.) just has its literally meaning.
+- [tiered networking](https://www.leviton.com/en/solutions/industries/data-centers/architectures/threetier-network-architecture) similar to OSI
+- inside 128x128 arrays -> [Systolic Array](#Systolic_Array)
+- `15 nm` meaning [See](#cpu_die)
+- 577
+  - "latency-tolerant" because each core has many *threads*.
+  - [coalescing hardware](https://www.intel.com/content/www/us/en/docs/programmable/683349/22-1/memory-access-coalescing-and-load-store.html). Also [see](#mem_coalescing)
+  - [TCO](https://en.wikipedia.org/wiki/Total_cost_of_ownership)
+- ["embedding"](https://developers.google.com/machine-learning/crash-course/embeddings/video-lecture) just remove redundancy.
+  TODO reread p579 Embeddings.
+  - [MLP](https://arxiv.org/pdf/2105.01601.pdf) 
+### 6.10
+- ["Ethernet"](https://www.techtarget.com/searchnetworking/feature/Whats-the-difference-between-internet-and-Ethernet) is mainly based on LAN. Just compare it with wifi.
+- TODO 
+  - [PHY and MAC](https://electronics.stackexchange.com/a/75597/341985) chip. [wikipedia](https://en.wikipedia.org/wiki/OSI_model#Layer_architecture)
+  - reread FIGURE e6.10.3 
+    "receive steps": 1,2 is same to "transmit" and 3~5 are a bit different.
+    - why " the last three steps are time-critical" "since the first two ..." decides whether it is able to *begin receiving*.
+  - "kernel network software stack" [1](https://www.thomas-krenn.com/en/wiki/Linux_Storage_Stack_Diagram) [2](https://the-linux-channel.the-toffee-project.org/index.php?page=3-links-linux-kernel-network-stack-and-architecture&lang=en)
+  - "FIGURE e6.10.4" paragraph.
+  - reread "561.e8"
+- 561.e3 explains why to use DMA. " from or to a high-speed ko could be intolerable"
+- See 334, `vectored interrupts` just uses one *Vector Table Base Register* to control the cause (similar to the virtual method table).
+  `SCAUSE` just see [riscv_privileged] p70
+- It shouldn't happen that "user programs could perform I/O *directly*." so "OS provides abstractions"
+- "zero-copy" just skip the "intermediary buffers".
+- From [this](https://en.wikipedia.org/wiki/Cyclic_redundancy_check#Standards_and_common_use)
+  Also see [this](#hamming_distance)
+  - TODO 
+    - [CRC weights](http://users.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf)
+    - how to calculate [hamming_distance](https://stackoverflow.com/a/27865713/21294350) in CRC
+- ["Preamble"](https://erg.abdn.ac.uk/users/gorry/course/lan-pages/mac.html) and others.
+- "PCIe round-trip" just means transmit time by ["before write() and after read()"](https://forum.peak-system.com/viewtopic.php?t=5574#p12918) and "waits for the reply" in the book.
+- check PCIE [version](https://superuser.com/questions/693964/can-i-find-out-if-pci-e-slot-is-1-0-2-0-or-3-0-in-linux-terminal) and [lane](https://unix.stackexchange.com/questions/393/how-to-check-how-many-lanes-are-used-by-the-pcie-card)
+  ```bash
+  $ sudo lspci -vv | grep -E 'PCI bridge|LnkCap'
+                  LnkCap2: Supported Link Speeds: 2.5-16GT/s, Crosslink- Retimer+ 2Retimers+ DRS-
+                LnkCap: Port #0, Speed 16GT/s, Width x16, ASPM L0s L1, Exit Latency L0s <64ns, L1 <1us
+                ...
+  ```
+- [Internet Protocol](https://en.wikipedia.org/wiki/Internet_Protocol) deals with "IP network"s. Also [see](https://csrc.nist.gov/glossary/term/transmission_control_protocol#:~:text=Whereas%20the%20IP%20protocol%20deals,in%20which%20they%20were%20sent.)
+- ["*double*-checking the contents with the TCP CRC"](https://softwareengineering.stackexchange.com/questions/378724/has-crc-check-on-top-of-tcp-any-meaning)
+- IP header [checksum](https://en.wikipedia.org/wiki/Internet_checksum#Examples) "ones' complement" implies `ffff`.
+  TODO how `carry` bit transfered.
+- ["elegance of TCP/IP"](https://www.nakov.com/inetjava/lectures/part-1-sockets/InetJava-1.1-Networking-Basics.html) "broken into multiple packets"
+- ["DMA controller knows nothing of virtual memory" -> a *contiguous* block of physical memory.](https://www.science.unitn.it/~fiorella/guidelinux/tlk/node87.html)
+- e9 "remapping"s are all skipping some hardwares.
+### openmp
+- See [IBM reference](https://www.ibm.com/docs/en/zos/2.4.0?topic=descriptions-pragma-directives-parallel-processing) or [omp_greeencard_3_0] from [this Q&A](https://stackoverflow.com/a/1500435/21294350) ([latest][openmp_ref])
+
+- Better see [example_doc][openmp_example]
+  - reduction
+    - p433 `inscan`
+      [Prefix sum](https://en.wikipedia.org/wiki/Prefix_sum)
+      also [see](https://passlab.github.io/OpenMPProgrammingBook/MultiCoreMultiCPU/2_UsingOpenMP_parallel.html#reduction-clause).
+      - ["inclusive or exclusive scan"](https://en.wikipedia.org/wiki/Prefix_sum#Inclusive_and_exclusive_scans)
+      - The first example codes implies "inclusive" by "indicates that value a[k] (a(k) in Fortran) is included"
+    - Notice ["2.19.5 .4" of `reduction`](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5890002.19.5.4) "a *private copy* is created in *each implicit task or SIMD lane*" and "*After the end* of the region, the original list item is updated with the values of the private copies using the *combiner* associated with the reduction-identifier." just corresponds to the [COD_RISC_V_2nd] p539 and p540 codes
+    - Task Reduction in [openmp_example] p399 just corresponds to conditions where some other *prerequisites* are needed before the reduction task (i.e. nested task where reduction is nested in a bigger one).
+    - Notice ["Initializer"](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5810002.19.5.1) implied by "reduction-identifiers"
+    - "the original list item ... the update of the *original list item* ... as a *result* of the reduction computation." implies `list` stores the result.
+- why use `omp parallel for`
+  - See [introduction p20](https://www.openmp.org/wp-content/uploads/Intro_To_OpenMP_Mattson.pdf) which is in [omp_Tutorial]
+  - Better to read [old specification](https://www.openmp.org/wp-content/uploads/cspec20.pdf) and old[omp_greeencard_3_0] for detailed infos like `parallel for`
+- `(NUMA)` stills has "single address space" where "some memory accesses are much *faster* than others" due to "main memory is divided".
+### CUDA
+- p543
+  - some [restrictions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#restrictions)
+  - OPENCL can be seen as [open-source version](https://saturncloud.io/blog/what-is-the-relationship-between-nvidia-gpus-cuda-cores-and-opencl-computing-units/#how-do-cuda-cores-and-opencl-computing-units-relate-to-each-other) of CUDA.
+  - "multithreading, MIMD, SIMD, and instruction-level parallelism" are all based on "CUDA Thread"s.
+- [tutorial](https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial01/) based on `C`.
+  archlinux cuda [installation](https://wiki.archlinux.org/title/GPGPU#CUDA)
+### 531
+- "dozens of operations" because *64 elements* of 64-bit double data.
+- "register" stores element number. So no need to add too many "SSE, SSE2",etc.
+  So "better *matches to compiler* technology"
+- "strided accesses" and "indexed accesses" (one enhanced) See [riscv_V_ext] 7.5/6 .
+  Better see [this p20](https://riscv.org/wp-content/uploads/2017/12/Wed-1330-RISCVRogerEspasaVEXT-v4.pdf)
+  Or TODO see [arm doc](https://developer.arm.com/documentation/ddi0602/2023-06/SME-Instructions/LDNT1D--scalar-plus-scalar--strided-registers---Contiguous-load-non-temporal-of-doublewords-to-multiple-strided-vectors--scalar-index--#execute) 
+  - ["gather-scatter"](https://en.wikipedia.org/wiki/Gather/scatter_(vector_addressing)#Gather) implies index.
+### 534
+- ["operating system state."](https://byjus.com/gate/process-state-in-operating-system-notes/) because it is the operating system to *control* the processes.
+- fine-grained vs *Coarse*-grained
+  1. whether "overcome throughput losses"
+  2. "Coarse-grained multithreading need pipeline be empty" because it needs *much more slots* than "Fine-grained multithreading" in the pipeline to do many instructions itself. Also see [this](https://stackoverflow.com/questions/76726857/why-do-pipeline-constraints-of-coarse-grained-multithreading-and-fine-grained-mu/76734313?noredirect=1#comment135281908_76734313).
+    Also due to updating the "FP rounding mode" "by draining the pipeline on change" (i.e. changing state like the thread context). Note: this can also be done with "register *renaming*".
+### check-yourself
+- [x] 522 No
+- [x] 527 false
+- [x] 533 True
+  TODO try [`_mm256_i32gather_pd`](https://johnnysswlab.com/when-vectorization-hits-the-memory-wall-investigating-the-avx2-memory-gather-instruction/) Also [see](https://stackoverflow.com/questions/24756534/in-what-situation-would-the-avx2-gather-instructions-be-faster-than-individually)
+  More detailed [see](https://www.felixcloutier.com/x86/vgatherdpd:vgatherqpd#operation) which mainly use "vector register specifies an index" in [intel_64] p544.
+  [scatter](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/intrinsics-for-int-gather-and-scatter-ops.html) operation like [`VPSCATTERDD`](https://www.felixcloutier.com/x86/vpscatterdd:vpscatterdq:vpscatterqd:vpscatterqq) also use VSIB.
+- [x] 537 
+  1. True
+  2. True
+- [x] 541 False
+- [x] 549 False
+- [x] 552 False
+- [ ] 557
+  1. False. Because independence is implied.
+    Ans: should be "explicit"
+  2. False. no casual relation.
+    "separate memories" implies no share -> "many copies of the operating system".
+- [x] 560 True
+- [ ] 561.e9 **no ans**
+  1. polling, DMA
+  2. interrupts, DMA
+- [x] 571 True
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -6937,7 +7407,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - [double free or corruption](https://stackoverflow.com/questions/12548868/why-am-i-getting-this-memory-access-error-double-free-or-corruption) (!prev)
 - [corrupted top size](https://www.reddit.com/r/cs50/comments/y7gppx/pset_5_malloc_corrupted_top_size_please_help/) meaing 'invalid write'
 # verilog simple introduction
-- basics different from C, [constant](https://en.wikipedia.org/wiki/Verilog#Definition_of_constants) (underscore [ignored](https://cseweb.ucsd.edu/classes/sp11/cse141L/pdf/01/SV_Part_1.pdf)),[Reduction operator 'convert vectors to scalars'](https://nandland.com/reduction-operators/),[Initial and always 'a common misconception'](https://en.wikipedia.org/wiki/Verilog#Initial_and_always)
+- basics different from C, [constant](https://en.wikipedia.org/wiki/Verilog#Definition_of_constants) (underscore [ignored](https://cseweb.ucsd.edu/classes/sp11/cse141L/pdf/01/SV_Part_1.pdf)),[Reduction operator 'convert vectors to scalars'](https://nandland.com/reduction-operators/),[Initial and always 'a common misconception'](https://en.wikipedia.org/wiki/Verilog#Initial_and_always) 
+  <a id="Reduction_verilog"></a>
 - [Logical equality](https://stackoverflow.com/questions/5927615/what-is-the-difference-between-and-in-verilog) based on [four-states, see list](https://www.verilogpro.com/verilog-reg-verilog-wire-systemverilog-logic/)
 - synthesis -> ['logic synthesis'](https://en.wikipedia.org/wiki/Logic_synthesis)
 - ~~TODO~~ [diff wire and reg](https://inst.eecs.berkeley.edu/~cs150/Documents/Nets.pdf)
@@ -6967,7 +7438,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 - why `EXMEMALOUT >> 2` not `EXMEMALOUT >> 1` to just put `64=32<<1` bit data.
 # cache miss debug
 - I use ryzen 7 4800h with [256KiB L1D cache](https://en.wikichip.org/wiki/amd/ryzen_7/4800h#Cache) and each core has [32KiB](https://www.techpowerup.com/cpu-specs/ryzen-7-4800h.c2280)
-  [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket )
+  [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket ) <a id="cpu_socket"></a>
   from the following, L2 is 64 byte (cacheline size per way) <a id="cacheline_byte"></a>:
   ```bash
   $ lscpu --cache
@@ -8788,6 +9259,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [dec_32]:https://en.wikipedia.org/wiki/Decimal32_floating-point_format#Representation_of_decimal32_values
 [binary32]:https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32
 [pipeline_scheduling]:https://en.wikipedia.org/wiki/Instruction_scheduling
+[bisection_wikipedia]:https://en.wikipedia.org/wiki/Bisection_bandwidth#:~:text=Bisection%20bandwidth%20gives%20the%20true,better%20than%20any%20other%20metric.
 
 <!-- blog -->
 
@@ -8834,6 +9306,15 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [MIPS_COD]:../references/other_resources/COD/MIPS/dokumen.pub_computer-organization-and-design-mips-edition-the-hardware-software-interface-6nbsped-9780128226742.pdf
 [chap_1_13]:../references/other_resources/COD/online_resources/Ch01_e1.pdf
 [chap_2_24]:../references/other_resources/COD/online_resources/Ch02_e2.pdf
+[openmp_ref]:../references/other_resources/COD/references/openmp/OpenMPRefCard-5-2-web.pdf
+[openmp_example]:../references/other_resources/COD/references/openmp/openmp-examples-5.2.1.pdf
+[omp_greeencard_3_0]:https://www.openmp.org/wp-content/uploads/OpenMP3.0-SummarySpec.pdf
+[omp_Tutorial]:https://www.openmp.org/resources/tutorials-articles/
+[MapReduce]:../references/other_resources/COD/references/miscs/MapReduce.pdf
+[TPU_3]:../references/other_resources/COD/references/papers/jouppi2020_TPUv3.pdf
+[Amdahl_1967]:../references/other_resources/COD/references/papers/Amdahl-1967.pdf
+[hill2020]:../references/other_resources/COD/references/papers/hill2020_spectre.pdf
+[FLUSH_RELOAD]:../references/other_resources/COD/references/papers/FLUSH_RELOAD.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
@@ -8845,8 +9326,12 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [Weak_Memory_Consistency]:https://es.cs.rptu.de/publications/datarsg/Senf13.pdf
 [Weak_Consistency]:Weak_Consistency.pdf
 [Linearizability_atomic]:https://en.wikipedia.org/wiki/Linearizability
+
+<!-- riscv -->
 [riscv_spec]:../references/other_resources/RISC-V/riscv-spec-20191213.pdf
 [riscv_privileged]:../references/other_resources/RISC-V/riscv-privileged-20211203.pdf
+[riscv_V_ext]:../references/other_resources/RISC-V/riscv-v-spec-1.0-rc2.pdf
+
 [chromit]:https://chromite.readthedocs.io/en/using-csrbox/mmu.html
 [acq_rel_cpp]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants
 [csapp_global]:../references/csapp/csapp_global.pdf
@@ -8894,17 +9379,19 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [mosberger93memory]:https://www.cse.psu.edu/~buu1/teaching/spring07/598d/_assoc/CCBD250576DD4E41ABC1EC82207C66A0/mosberger93memory.pdf
 [robin]:../references/papers/robin.pdf
 [spectre]:../references/papers/spectre.pdf
+[spectre_origin_arXiv]:../references/other_resources/COD/references/papers/spectre_origin_arXiv.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
 [perf_post_py_script]:../debug/perf_report_post.py
 
-<!-- Q&A -->
+<!-- stackoverflow Q&A -->
 [perf_cache_misses]:https://stackoverflow.com/q/76593928/21294350
 [miss_event_blame]:https://stackoverflow.com/questions/65906312
 [perf_delay]:https://stackoverflow.com/a/65907314/21294350
 [opcache]:https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged
 [miss_rate]:https://stackoverflow.com/a/50035058/21294350
+[move_elimination]:https://stackoverflow.com/a/75204602/21294350
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
@@ -8935,3 +9422,6 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- book recommendation -->
 [learn_self]:https://teachyourselfcs.com/
+
+<!-- quora -->
+[hardware_thread_scheduler]:https://www.quora.com/Is-thread-scheduling-done-by-the-CPU-kernel-or-both
