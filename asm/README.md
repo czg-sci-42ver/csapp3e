@@ -6962,8 +6962,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - ~~TODO~~ [`r5.2xlarge` meaning](https://instances.vantage.sh/aws/ec2/r5.2xlarge)
 - [sequence genomes][Genome_Sequencing_508c] is similar to `uniq` command (from [this](https://www.cdc.gov/pulsenet/pathogens/wgs.html#:~:text=If%20you%20know%20the%20sequence,an%20organism%20in%20one%20process.)).
 - [x] 1,2
-- [ ] 
-## Historical Perspective and Further Reading
+- [ ] 3
+## Historical Perspective and Further Reading 
+Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have corresponding toc related with them.
 ### [1][chap_1_13]
 - TODO " mercury acoustic delay lines " in [EDVAC](https://en.wikipedia.org/wiki/EDVAC#Technical_description).
   - [EDSAC](https://en.wikipedia.org/wiki/EDSAC#Physical_components) is similar
@@ -7467,6 +7468,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   1. polling, DMA
   2. interrupts, DMA
 - [x] 571 True
+## appendix
+### A from here read [this][COD_RISCV_2nd_A_appendix] with ~~indexed~~ bookmarked appendix.
+- 
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -9377,6 +9381,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [COD_RISC_V_Orig]:../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf
 <!-- https://dokumen.pub/computer-organization-and-design-risc-v-edition-the-hardware-software-interface-2nbsped-0128203315-9780128203316.html -->
 [COD_RISC_V_2nd]:../references/other_resources/COD/COD_RISCV_2nd.pdf
+[COD_RISCV_2nd_A_appendix]:../references/other_resources/COD/COD_RISCV_2nd_A_appendix.pdf
 [COD_RISC_V_2nd_companion]:https://www.elsevier.com/books-and-journals/book-companion/9780128203316
 [RISC_V_Custom]:../references/other_resources/COD/COD_RISCV.pdf
 [CAAQA_companion]:https://www.elsevier.com/books-and-journals/book-companion/9780128119051
