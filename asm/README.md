@@ -12,6 +12,11 @@
 - [bash pitfalls](https://mywiki.wooledge.org/BashPitfalls) from [this](https://stackoverflow.com/a/52901093/21294350)
 - I used r7 4800h cpu which is 16 threads 8 cores. The following `perf` is based on that.
 - "etc." used in the [middle](https://www.englishtipz.com/2020/09/etc-etc-or-etc-how-to-use-etc-in-middle.html) of a sentence. -> "etc.," (notice: need to [turn on case](https://github.com/microsoft/vscode/issues/66357#issuecomment-515265641) using regex in vscode `"(etc\.)([^\n) ^log$])" -> "$1,$2"`)
+- not use `ps` although it has many [pros](https://www.adobe.com/creativecloud/file-types/image/vector/ps-file.html) [compared](https://stackoverflow.com/a/4619312/21294350) with `pdf`
+  ```bash
+      # conversion https://wiki.archlinux.org/title/PDF,_PS_and_DjVu#ps2pdf
+  $ ps2pdf -sPAPERSIZE=a4 -dOptimize=true -dEmbedAllFonts=true ~/Downloads/via-analysis.ps
+  ```
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -7074,6 +7079,37 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - TODO 
   read "The Mythical Man Month"
   process model implementation.
+### 6
+- "The cost of a general multiprocessor ... " See the original [paper][bouknight1972]
+- "single-bit-wide processor": just min data size is [1-bit ("The logic unit")](http://www.righto.com/2021/02/a-one-bit-processor-explained-reverse.html).
+- "Thinking Machines and then by MasPar" are 2 companys ([MasPar](https://en.wikipedia.org/wiki/MasPar)).
+- "After being resurrected in the 1980s":
+  1. unable to scale down. (Similar to the above "FIGURE 6.33" samll size doesn't show one good improvement when using multiple threads)
+  2. "built custom processors" but not rely on the outside "microprocessor technology".
+- ["diminishing returns"](https://en.wikipedia.org/wiki/Diminishing_returns)
+- ["data stream"](https://en.wikipedia.org/wiki/Data_stream) one "transmission" -> just means how data are split ("a series of *packets*").
+  Also see [this][SIMD_category] where it means minimum data unit.
+- Distributed memory -> ["each processor has its memory"](https://www.sciencedirect.com/topics/earth-and-planetary-sciences/distributed-memory#:~:text=Distributed%20memory%20refers%20to%20a,remote%20processors%20to%20transfer%20data.)
+  - [centralized p4,5](https://www.dauniv.ac.in/public/frontassets/coursematerial/computer-architecture/CompArchCh12L06centralisedmemory.pdf) memory -> shared mem
+- "off-the-shelf interconnect" -> off-chip, similar to [off-the-shelf memory chips](https://people.ece.ubc.ca/stevew/standalone.html).
+- "parallel vector multiprocessors" See [this](#vector_processor) and also [these figures](https://www.geeksforgeeks.org/introduction-of-multiprocessor-and-multicomputer/)
+  Also see the [original paper](https://sci-hub.live/10.1126/science.228.4698.462)
+  Just take riscv for concrete example which can have many cores (multiprocessors) with vector extension (vector) which support pipeline in the ALU (parallel)
+- [mesh-connected](https://www.researchgate.net/figure/4-2-4-wraparound-mesh-connected-multiprocessor-Illiac-IV-type_fig3_3316462) multiprocessors
+  [hypercube-connected](https://www.geeksforgeeks.org/hypercube-interconnection/) multiprocessor
+  [Caltech Cosmic Cube](https://en.wikipedia.org/wiki/Caltech_Cosmic_Cube) -> 6-dimensional hypercube network
+  [iPSC](https://en.wikipedia.org/wiki/Intel_iPSC) Four-dimensional hypercube topology with the figure
+- [Tandem](https://www.pcmag.com/encyclopedia/term/tandem#:~:text=In%201997%2C%20Compaq%20Computer%20acquired,See%20ServerNet%20and%20HP%20Enterprise.) is one company.
+  [MPP](https://en.wikipedia.org/wiki/Massively_parallel) where "Massively" -> a large number
+- VI interface standard -> [Virtual Lane][via_analysis_VI_interface]
+- 587.e7
+  - took over -> [lost ground](https://en.wikipedia.org/wiki/AltaVista)
+- "Blue Gene" use ["torus interconnect"](https://en.wikipedia.org/wiki/IBM_Blue_Gene#Major_features)
+  Also see [Hierarchy](https://en.wikipedia.org/wiki/IBM_Blue_Gene#History)
+- [Asanovic] in 587.e8
+  - programming model just how to [program "Binary search. ..."](https://algs4.cs.princeton.edu/11model/)
+    mainly based on [abstraction "where Java is the *base* language"](https://en.wikipedia.org/wiki/Programming_model#:~:text=A%20programming%20model%20is%20an,model%20of%20the%20programming%20model.)
+    Also see p5
 ## chapter 6 in COD RISCV 2nd
 - p520
   - multiprocessor is [not](https://www.javatpoint.com/multiprocessor-and-multicore-system-in-operating-system#:~:text=A%20multicore%20contains%20multiple%20cores,capable%20of%20running%20many%20programs.) multicore.
@@ -7095,9 +7131,30 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - SIMD just make multiple data to *one vector*. See [these 2 figures](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data#Software)
   [SSE](https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions) just use xmm registers.
 - [array processor](https://www.geeksforgeeks.org/types-of-array-processor/) is similar to SIMD
+  See this for [differences][SIMD_category]
+  kw: own *separate and distinct* memory and register file; "predicated" (masked) SIMD.
 - MMX (64 bits) [differences](https://stackoverflow.com/a/31493072/21294350) from AVX,SSE(128 bits).
-- [vector architecture](https://www.lkouniv.ac.in/site/writereaddata/siteContent/202004291236420982rohit_vector_architecture.pdf) add "pipeline" based on array processor. 
-  p529 -> "vector register".
+- [vector architecture](https://www.lkouniv.ac.in/site/writereaddata/siteContent/202004291236420982rohit_vector_architecture.pdf) add (a1) "pipeline" based on array processor. <a id="vector_processor"></a>
+  Here ~~`a1`,etc. refers to differences between vector and *array* processor, and~~ `a1/b1` refers to differences between vector and array processor (also its [parent][SIMD_category] *SIMD* processor -> b)
+  p529 -> ~~(a2)~~ ["vector register" and "had eight vector registers ... sixty-four 64-bit words" in wikipedia](https://en.wikipedia.org/wiki/Vector_processor#Supercomputers). (from [SIMD_category], Array processor also has above components).
+  - wikipedia: 
+    
+    kw: rather than multiple ALUs; pipelined into each of the ALU subunits; *coupling* several scalar processors to act as a vector processor; 
+    (a1/b1) ["vector chaining"](https://en.wikipedia.org/wiki/Chaining_(vector_processing)) is similar to [Systolic array](#Systolic_array) and "can be more resource-efficient by using *slower* hardware and saving power ... "
+    - (b2) difference between SIMD and vector: SIMD is fixed-length, and Vectors are *variable*.
+    - TODO watch [RISC-V RVV](https://en.wikipedia.org/wiki/RISC-V#Vector_set)
+    - [Duncan's taxonomy](https://en.wikipedia.org/wiki/Duncan%27s_taxonomy#Pipelined_vector_processors)
+      - "a filled *pipeline* are processing *different elements* of the vector"
+      - kw: from special vector registers are termed register-to-register; examples of memory-to-memory vector
+      - is similar to Systolic array, but the former mainly based on the pipeline while the latter based on "a regular, local interconnection network" (Just [see](#Systolic_array)).
+      - So "Pure Vectors" differs from "Pure (fixed) SIMD",etc., mainly due to their *pipelined vector processing unit*.
+    - "variable-length since their inception." -> just what RISC-V RVV Vector set does by using one separate register to control the length, etc. ("`vsetvl` instruction in RISCV RVV").
+      - "allows locally controlled (*predicated*) activation of units to provide the appearance of *variable length*" -> "Predicated SIMD" "*almost* qualifies as a vector processor".
+    - comparison with [example](https://en.wikipedia.org/wiki/Vector_processor#Difference_between_SIMD_and_vector_processors)
+      - "4-wide simultaneous ... very costly" -> "1-wide 64-bit LOAD, 1-wide 64-bit STORE ..."
+        "multi-issue is not possible, then the operations take *even longer*"
+        "only when all four LOADs have completed *may* the SIMD operations start" (notice here is "may" because cpu may start related `add` with completed `load` which is just function similar to "vector chaining"). 
+      - vector processor: "resource utilization, due to vector chaining,"
 
   "pipeline" is mainly due to no need to stall multiple times by "only stall for the first element" p530.
 - "the prefix “V”" is still in [draft](https://github.com/riscv/riscv-v-spec). TODO
@@ -7124,6 +7181,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   ```
 - p544 
   - "MIMD" and "SIMD" relation.
+    - better see [this](https://en.wikipedia.org/wiki/Flynn%27s_taxonomy#Diagram_comparing_classifications)
   - "Address coalescing unit" -> combining *multiple* memory accesses into a single transaction (i.e. sequential (so stride in "Code Example" isn't coalesced)and aligned) <a id="mem_coalescing"></a>
 - 545
   - how "hardware thread scheduler" [implemented][hardware_thread_scheduler].
@@ -7367,6 +7425,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   1. whether "overcome throughput losses"
   2. "Coarse-grained multithreading need pipeline be empty" because it needs *much more slots* than "Fine-grained multithreading" in the pipeline to do many instructions itself. Also see [this](https://stackoverflow.com/questions/76726857/why-do-pipeline-constraints-of-coarse-grained-multithreading-and-fine-grained-mu/76734313?noredirect=1#comment135281908_76734313).
     Also due to updating the "FP rounding mode" "by draining the pipeline on change" (i.e. changing state like the thread context). Note: this can also be done with "register *renaming*".
+### Concluding Remarks
+- "Warehouse-Scale Computers" -> WSC in 554
+- [sublinear](https://en.wikipedia.org/wiki/Time_complexity#Sub-linear_time) performance
 ### check-yourself
 - [x] 522 No
 - [x] 527 false
@@ -9260,6 +9321,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [binary32]:https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32
 [pipeline_scheduling]:https://en.wikipedia.org/wiki/Instruction_scheduling
 [bisection_wikipedia]:https://en.wikipedia.org/wiki/Bisection_bandwidth#:~:text=Bisection%20bandwidth%20gives%20the%20true,better%20than%20any%20other%20metric.
+[SIMD_category]:https://en.wikipedia.org/wiki/Flynn%27s_taxonomy#Single_instruction_stream,_multiple_data_streams_(SIMD)
 
 <!-- blog -->
 
@@ -9315,6 +9377,10 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [Amdahl_1967]:../references/other_resources/COD/references/papers/Amdahl-1967.pdf
 [hill2020]:../references/other_resources/COD/references/papers/hill2020_spectre.pdf
 [FLUSH_RELOAD]:../references/other_resources/COD/references/papers/FLUSH_RELOAD.pdf
+[bouknight1972]:../references/other_resources/COD/references/papers/bouknight1972.pdf
+[via_analysis_VI_interface]:../references/other_resources/COD/references/papers/via-analysis_VI_interface.pdf
+[Asanovic]:../references/other_resources/COD/references/papers/EECS-2006-183.pdf
+[arxiv_Meltdown]:../references/other_resources/COD/references/papers/arxiv_Meltdown.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
