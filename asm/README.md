@@ -6958,6 +6958,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   Also different L1 cache (different refrigerators of different families) of L3 cache (the grocery) didn't have cache *coherence*.
 - [ ]
   because they share the hardwares.
+### 6 specific to real-world *genome sequence*
+- ~~TODO~~ [`r5.2xlarge` meaning](https://instances.vantage.sh/aws/ec2/r5.2xlarge)
+- [sequence genomes][Genome_Sequencing_508c] is similar to `uniq` command (from [this](https://www.cdc.gov/pulsenet/pathogens/wgs.html#:~:text=If%20you%20know%20the%20sequence,an%20organism%20in%20one%20process.)).
+- [x] 1,2
+- [ ] 
 ## Historical Perspective and Further Reading
 ### [1][chap_1_13]
 - TODO " mercury acoustic delay lines " in [EDVAC](https://en.wikipedia.org/wiki/EDVAC#Technical_description).
@@ -9394,6 +9399,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [arxiv_Meltdown]:../references/other_resources/COD/references/papers/arxiv_Meltdown.pdf
 [chen2016]:../references/other_resources/COD/references/papers/chen2016.pdf
 [Putnam_2016]:../references/other_resources/COD/references/papers/putnam2014.pdf
+[Genome_Sequencing_508c]:../references/other_resources/COD/references/papers/Genome-Sequencing-508c.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
