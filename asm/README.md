@@ -7110,6 +7110,17 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - programming model just how to [program "Binary search. ..."](https://algs4.cs.princeton.edu/11model/)
     mainly based on [abstraction "where Java is the *base* language"](https://en.wikipedia.org/wiki/Programming_model#:~:text=A%20programming%20model%20is%20an,model%20of%20the%20programming%20model.)
     Also see p5
+  - TODO 
+    reread p7
+
+    other challenges see p16,24,32,35,36,38,43,47
+- ["16-bit by 8-bit multipliers"](https://www.techiedelight.com/multiply-16-bit-integers-using-8-bit-multiplier/) just as [COD_RISC_V_2nd] book says about multiplication in chapter 3.
+- TODO [diannao](https://users.cs.duke.edu/~lkw34/papers/diannao-asplos2014.pdf) from this [Syllabus](http://people.cs.uchicago.edu/~aachien/lssg/people/andrew-chien/chien-teaching/CA-ML-s19/CA-ML-Syllabus5-23-2019.pdf);
+  [also this referenced by COD][chen2016] which includes *family* of four DNN architecture
+  - "minimizes memory accesses ... efficient architectural support for the memory-access patterns" -> [loop tiling](https://en.wikipedia.org/wiki/Loop_nest_optimization) which is same as COD loop blocking.
+  - ["synapse"](https://www.freecodecamp.org/news/deep-learning-neural-networks-explained-in-plain-english#what-is-a-neuron-in-deep-learning) same as [this](https://deepai.org/machine-learning-glossary-and-terms/synapse)
+  - ["cycle-accurate"](https://news.ycombinator.com/item?id=13052487#13053150)
+- [Putnam_2016]one specific [reconfigurable fabric](http://www.cs.cmu.edu/~phoenix/reconfigurable.html) (结构) is FPGA.
 ## chapter 6 in COD RISCV 2nd
 - p520
   - multiprocessor is [not](https://www.javatpoint.com/multiprocessor-and-multicore-system-in-operating-system#:~:text=A%20multicore%20contains%20multiple%20cores,capable%20of%20running%20many%20programs.) multicore.
@@ -9381,6 +9392,8 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [via_analysis_VI_interface]:../references/other_resources/COD/references/papers/via-analysis_VI_interface.pdf
 [Asanovic]:../references/other_resources/COD/references/papers/EECS-2006-183.pdf
 [arxiv_Meltdown]:../references/other_resources/COD/references/papers/arxiv_Meltdown.pdf
+[chen2016]:../references/other_resources/COD/references/papers/chen2016.pdf
+[Putnam_2016]:../references/other_resources/COD/references/papers/putnam2014.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
