@@ -3,7 +3,7 @@
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800) 
 # miscs
 - hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
-- stackoverflow image [size](https://meta.stackoverflow.com/questions/253403/how-to-reduce-image-size-on-stack-overflow) based on imgur.
+- stackoverflow image [size](https://meta.stackoverflow.com/a/253405/21294350) based on imgur (use "l" is enough:https://i.stack.imgur.com/Cneu8l.png).
 - the following `''` is assumed as *quote* of link contents.
 - vscode sign in with [kwallet](https://github.com/microsoft/vscode/issues/104319) fails
 - vscode `awk IDE` can't format and keep bracket highlight with comment, 
@@ -17,6 +17,7 @@
       # conversion https://wiki.archlinux.org/title/PDF,_PS_and_DjVu#ps2pdf
   $ ps2pdf -sPAPERSIZE=a4 -dOptimize=true -dEmbedAllFonts=true ~/Downloads/via-analysis.ps
   ```
+- Basic [Logic Gate symbols](https://learnabout-electronics.org/Digital/dig21.php#basicgates)
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -2830,7 +2831,8 @@ New value = 0xb417fffffadc0b60
   - what is [overflow](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0010_overflow), just unable to represent result correctly.
   - ~~TODO , so how to use in this condition~~ useful [example](https://stackoverflow.com/questions/15245762/carries-in-and-out-of-most-significant-bits-in-binary-addition)
     - so
-      - [1](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0080_overfow_output): 0100b+1100b has carry in `1` (because 100+100=1000, carry out from third column to fourth [carry in to fourth]) and result is 10000b -> carry out `1` to fifth column
+      - [1](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0080_overfow_output): 0100b+1100b has carry in `1` (because 100+100=1000, carry out from third column to fourth [carry in to fourth]) and result is 10000b -> carry out `1` to fifth column <a id="check_overflow"></a>
+        More [specific table](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0120_signed_overflow_cont)
         - the fouth column is `0+1=1`, so with carry in to fourth, must have carry out to fifth.
         - the rest is similar
       - [this](http://c-jump.com/CIS77/CPU/Overflow/lecture.html#O01_0120_signed_overflow_cont) -> must have carry in and carry out **counterbalanced**
@@ -4291,6 +4293,7 @@ $ cat .gitignore
 - [COD5th](../references/other_resources/COD/CS422-Computer-Architecture-ComputerOrganizationAndDesign5thEdition2014.pdf) rendered more well
 - thought as [bible](https://passlab.github.io/CSE564/resources/#textbook)
 - exercise [solution](https://www.studocu.com/ko/document/konkuk-university/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B5%AC%EC%A1%B0/computerorganizaion-design-5th-solution/9639022)
+  - [appendix A][appendix_A_exercise_ans] <a id="appendix_A_exercise_ans"></a>
 - more detailed see [CAAQA](../references/other_resources/CAAQA/Computer_Architecture_A_Quantitative_App.pdf)
 - TODO all ' Self-Study' in better pdf rendering
 - MIPS [register](https://en.wikibooks.org/wiki/MIPS_Assembly/Register_File)
@@ -4552,7 +4555,9 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
   - how related [hardware p12 (based on truth table)][truth_table] implemented <a id="hardware"></a>
     - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
     - TODO how Function code in p6 above defined
-    - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALU0p"></a>
+    - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALUop"></a>
+      "FIGURE A.5.12" implies "FIGURE A.5.13"
+      
 - 'FIGURE 4.49','FIGURE 4.52 '
 - p596 2-bit is still unperfect, although it may deal with the problem listed [here](https://www.youtube.com/watch?v=malQIOtaAuU)
   - why [two (see 'first and last loop iterations')](https://www.cs.umd.edu/~meesh/411/CA-online/chapter/dynamic-branch-prediction/index.html) wrong
@@ -5715,16 +5720,31 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 
   read 282.e14 to 282.e19 which is extension of C.3 .
 #### appendix
-##### A
+##### A <a id="fast_carry"></a>
 - p1187 why only `Binvert` used in overflow detection.
 - p1178 here dot means $\&$, $+$ means $|$,see FIGURE A.5.5
-- p1195 here `ALU0p <=12;` should be `ALUCtl <=12;` [see](#ALU0p)
+- p1195 here `ALUop <=12;` should be `ALUCtl <=12;` [see](#ALUop)
   - `ALUOp` not related with `opn`
   - `input [ 5:0J FuncCode;` should refer to opcode, which can decide aluop, so should be `input [6:0] FuncCode;`
 - p1198 $c4$ ~~explains~~ corresponds to $P0+G0$ in p1201 (which is similar to forwarding that skip some action to directly work), see 'FIGURE A.6.3'
   - p1205 lookahead is just *non-blocking* while ripple carry is blocking which is just same as [this 'takes a time delay',' without the wait for the preceding additions.','at the same time as soon as the input signal'](https://www.electricaltechnology.org/2018/04/ripple-carry-and-carry-look-ahead-adder.html)
-  - p1208 C4 -(2 gate dalays)> Pi and Gi ...(2) pi ...(1), so 2+2+1
-  - p1209 [barrel shifter 'cycle the order of the bits ABCD as DABC'](https://en.wikipedia.org/wiki/Barrel_shifter#:~:text=A%20barrel%20shifter%20is%20a,inherently%20provides%20a%20binary%20operation.)
+    Also see [COD_RISCV_2nd_A_appendix] A-29
+  - p1208 C4 -(2 gate dalays)> Pi and Gi ...(2) pi ...(1), so 2+2+1 <a id="level_abstraction"></a>
+  - p1209 and [COD_RISCV_2nd_A_appendix]  [barrel shifter 'cycle the order of the bits ABCD as DABC'](https://en.wikipedia.org/wiki/Barrel_shifter#:~:text=A%20barrel%20shifter%20is%20a,inherently%20provides%20a%20binary%20operation.)
+    
+    Here "full crossbar" use $n^2$ gates -> the [figure](https://en.wikipedia.org/wiki/File:Crossbar_barrel_shifter.svg) symbol just means one switch. (implies *rotate n-bits*)
+    TODO Also see [COD_RISCV_2nd_A_appendix] p? which has circuit where order is related.
+
+    Because of the cost due to size, "crossbar shifters require however n2 gates" is used "instead" -> "growing only with n x log n".
+
+    "a sequence of multiplexers" -> [this p3 circuit (it can be tweaked to be *cyclic* in p4)][shifter] and more [simplified](https://www.d.umn.edu/~gshute/logic/barrel-shifter.html). Also see [verilog](https://community.element14.com/technologies/fpga-group/b/blog/posts/systemverilog-study-notes-barrel-shifter-rtl-combinational-circuit)
+    - [COD_RISCV_2nd_A_appendix] "FIGURE A.3.2" show logics of the *multiplexor* which has 2 gate delays.
+    - [COD_RISCV_2nd_A_appendix] A-46 "no more time than it takes to add two 32-bit numbers" 
+      (
+      the latter is 5 gate latencies and 
+      the former is either one multipler which is [$\log_2 n$](https://www.electronics-tutorials.ws/combination/comb_2.html) gate latencies (here just 5 same as the latter)
+      or "cascade" then $4*cascade_level$ at least in [shifter] p4 (TODO this line; then *not* "no more time")
+      )
 - p1218
   - here [D flip-flop](https://www.electronicsforu.com/technology-trends/learn-electronics/flip-flop-rs-jk-t-d) just replace the `S,R` in Flip-Flop to `D,~D`.
   - p1219 very *direct* design of D flip-flop...
@@ -6693,6 +6713,20 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - [ ] see [this](#Check_5_2)
 - [ ] 430: 1
 - [ ] 470: 1,3
+### appendix A
+- [x] A-8 No. Because the second omits $A ⋅ C ⋅ \overline{B}$
+- [x] A-20 
+  Address $0$ -> 0
+  Address $1$ -> 1 
+  Then choose C
+- [ ] A-22: 2,3,4 -> 15*16
+  1. Z can be checked in "/mnt/ubuntu/home/czg/csapp3e/self_test/verilog/A_22.v"
+- [x] A-26 0,1
+- [ ] A-37 1
+  > 1. No change. You can calculate NAND quickly using the current ALU since $\overline{(a ⋅ b)} = \overline{a} + \overline{b}$ and we already have NOT a, NOT b, and OR.
+- [ ] A-46
+  "a ripple carry 8-bit add" -> $8*2=16$
+  "carry-lookahead": same two level -> $5$
 ## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
 ### 282.e1
 - "two adders" are used to calculate `PC+4` and branch PC
@@ -6783,6 +6817,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - total time is only. (not accurate)
 - [ ]
   - 11
+  - See [this](https://www.reddit.com/r/computerarchitecture/comments/1513ih1/comment/jsa5z53/?utm_source=share&utm_medium=web2x&context=3)
+    So think original savings is $1$
+    Then "90% of the startup’s increase" -> "90% of the startup’s increase **due to self invest**" -> "90% of 11x" where $11x$ is from the 1st question.
+    "11%∗1" just take the original savings in account. (just same as 1st question "a *return* (i.e., investment multiple) on your overall wealth" which includes principal (本金))
 - [ ] 
   1. 2010~20 slowdown.
   2. maybe "processing steps" improved in FIGURE 1.12 ; Moore theorem (wrong)
@@ -7260,7 +7298,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     Also see p557
 - 557
   - Reread 6.9 after the computer network.
-  - ring vs bus, the latter needs ["sent through the devices from sender to receiver"](https://www.geeksforgeeks.org/difference-between-ring-topology-and-bus-topology-in-computer-networks/) which results in the [latency](https://www.wevolver.com/article/understanding-ring-topology-a-detailed-exploration) (both bus and ring are simultaneous transfer, but the latter implies transfer order). <a id="ring_bus"></a>
+  - ring vs bus, the ~~latter~~ former needs ["sent through the devices from sender to receiver"](https://www.geeksforgeeks.org/difference-between-ring-topology-and-bus-topology-in-computer-networks/) which results in the [latency](https://www.wevolver.com/article/understanding-ring-topology-a-detailed-exploration) (both bus and ring are simultaneous transfer, but the ~~latter~~ former implies transfer order). <a id="ring_bus"></a>
 - 558
   - [bisection bandwidth][bisection_wikipedia]
     Since all data are passed through *only one bus*, so it is one "link bandwidth for the bus" ("*a single link* is as fast as the bus").
@@ -7470,7 +7508,131 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - [x] 571 True
 ## appendix
 ### A from here read [this][COD_RISCV_2nd_A_appendix] with ~~indexed~~ bookmarked appendix.
-- 
+- 4
+  - difference between "combinational" and sequential logic. Same as what [verilog_md] says. 
+    So "truth table" only applies to "combinational".
+  - ~~TODO "only the truth table entries for the nonzero outputs."~~ -> "Chapter 4" uses `X` to simplify the truth table.
+    This corresponds to A-17 "Don’t Cares"
+- 7
+  - A.2 exercise
+    [De Morgan's laws](https://en.wikipedia.org/wiki/De_Morgan%27s_laws) ${\displaystyle {\begin{aligned}{\overline {A\cup B}}&={\overline {A}}\cap {\overline {B}},\\{\overline {A\cap B}}&={\overline {A}}\cup {\overline {B}},\end{aligned}}}$
+    $\overline{A\cdot B\cdot C} = \overline{A} + \overline{B} +  \overline{C}$ Then combine with the former -> 
+    $A \cdot B \cdot \overline{A}$ is obviously $0$ and same to $A \cdot B \cdot \overline{B}$
+    Then only left $A \cdot B \cdot \overline{C}$
+
+    Above is same as [this](#appendix_A_exercise_ans) says
+  - $B \verb!^! C$ -> $B \cdot \overline{C} + C \cdot \overline{B}$ [See latex caret](https://tex.stackexchange.com/questions/77646/how-to-typeset-the-symbol-caret-circumflex-hat)
+- TODO learn the boolean algebra.
+  why AND,OR,inversion are enough to build the logic and one of "NOR and NAND" is enough -> See [this](https://en.wikipedia.org/wiki/NAND_logic#Making_other_gates_by_using_NAND_gates)
+- "synthesize combinational logic" just means "combinational logic" can be ["converting ... into an optimized *gate-level* representation ..."](http://www.doe.carleton.ca/~shams/ELEC4708/Lab2SimulationsTut2014.pdf)
+  [example](https://www.doe.carleton.ca/~shams/ELEC4708/Lab2SynthesisTut14.pdf)
+- "any logic function can be implemented with *only AND, OR, and NOT* functions" maybe can be thought as one [axiom](https://qr.ae/pyac5h).
+- 11
+  - "the truth table" only care about `true` entry. 
+    This is just what "digital circuit" book says.
+  - explains how PLA generated.
+- PROM is only "written only once" (i.e. "programmed just once") and ["irreversible"](https://www.geeksforgeeks.org/difference-between-prom-and-eprom/)
+  EPROM is opposite "may be reprogrammed".
+- TODO why Flash memory is faster than EEPROM since they are [both flash](https://electronics.stackexchange.com/a/219704/341985) after all.
+  - flash [naming "be done at high speed,"](https://en.wikipedia.org/wiki/Read-only_memory#Solid-state_ROM)
+  - See ROM [categories](https://www.electrical4u.com/read-only-memory/)
+  - TODO ROM [logic](https://www.javatpoint.com/rom)
+- A-15
+  - here ROM just map the whole table instead of reusing *gate* logics. -> "fully decoded".
+    "contain more entries" -> at least all $0$ outputs.
+    - 8 entries -> 8 rows in A-14.
+    - 3 bits wide -> 3 outputs.
+  - "examples in Appendix C" in A-16 -> "C-12".
+  - FPGA is similar to PLA by ["have PLA-Structure"][PLD_FPGA] which is one of [PLD][PLD_FPGA] where "field-programmable" means ["programmed by the *customer*".][PLD_FPGA]
+- [Karnaugh map](https://en.wikipedia.org/wiki/Karnaugh_map#Solution) just use color to "cover" all *ones* by "grouping" 1s (here grouping just means "cover").
+  it can also solve by [grouping 0s](https://en.wikipedia.org/wiki/Karnaugh_map#Inverse) or more aggressive when [`X`](https://en.wikipedia.org/wiki/Karnaugh_map#Don't_cares) exists
+  Maxterm -> ["maximum area of 1s"](https://www.allaboutcircuits.com/textbook/digital/chpt-8/minterm-maxterm-solution/)
+  - Race hazards just because changing from one *product* to another in [SOP][SOP] which cause one "potential glitch".
+    Just use one new "additional term of $A\overline{D}$" to make *the states together*.
+  - more ~~easy~~ [basic](https://en.wikipedia.org/wiki/Karnaugh_map#2-variable_map_examples) examples
+  - Notice: here ["Elimination"](https://en.wikipedia.org/wiki/Karnaugh_map#Elimination) is based on *torus* so `0010` is adjacent with `0000` (the `ABCD` order).
+- “multiple sources and uses” 
+  sources -> multiple bits
+  uses -> just as inputs of multiple multiplexors
+- TODO continue reading [Ada](https://www.electronicdesign.com/technologies/communications/iot/article/21801203/comparing-ada-and-c)
+  kw: "a focus on support for *embedded real-time*"; "through features that include *checks* either statically or at run time."; "strongly *typed extensible* language ... definition of constrained *subranges* of scalar values"
+- [Full adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Full_adder) adds carry based on half-adder.
+  - explains how the adder in A-26 is implemented.
+  - This also explain how full adder implemented by *2 half adder*.
+    "carry outputs from the two half-adders are connected to an OR gate" because $A+B=0b10$ which will eliminate the $C_{in}$ influence. So need `OR` to recover.
+    "2 gates (AND and OR) in carry-block" just see [COD_RISCV_2nd_A_appendix] "FIGURE A.4.1".
+
+    Notice: "one XOR gate in adder and through 2 gates (AND and OR)" can be declined to 2-level with the help of the *truth table* by dropping the `ADD` to get the first `S` ("output S as one of the inputs to the second half adder").
+- A-27 notice here `+` is the OR operator.
+- A-28 "Sum" can be just directly same architecture as CarryOut with [sum of product][SOP]
+- "FIGURE A.5.8" explains how "CarryIn" architecture constructs the *2's complement*.
+  "helps explain why two’s complement representation has become the *universal standard*"
+
+  And 1's complement sum is $\sim 0$, so not convenient although the hardware is simpler.
+- Notice: A-31 need *all bits* of $b$ to do negation (just as what 2's complement needs to do) to do subtraction.
+  See A-32 "both CarryIn and Binvert to 1"
+- "the difference is negative, then a < b" -> so track the *sign* bit which is what "FIGURE A.5.11" does.
+- A-31 overflow check see [this](#check_overflow) where check *sign* of inputs and outputs.
+  
+  Also see A.24 by "Exercise A.24" in A-33 ([appendix_A_exercise_ans] p12)
+  But it doesn't show how to check overflow but implies that overflow will *change the sign*.
+- "output from the most significant ALU bit ... for the slt operation is *not* the output of the adder" may be wrong because $a<b$ will cause the sign (i.e. the *most significant*) to be $1$, then just corresponds to `set`.
+- A-35 [See](#ALUop)
+- A-38 Fast Carry simplification is based on "two levels of logic." -> $\cdot$ and $+$.
+- A-45 "taking the shortcut" similar to forwarding in the pipeline.
+- A-46 TODO "ALU using CMOS transistors" by using "switches" instead of "multiplexors" based on gates.
+  
+  $g_{4\ldots 1}$ -> $G_0$ in A-40
+#### A.6.
+- "propagate" means propagate a *carry* -> $( a_i + b_i ) ⋅ c_i$ -> has "FIGURE A.6.1" "*plumbing* analogy" ~~-> A-39 $c_4$ expression with no ~~ (i.e. "valve" controls whether to "propagate")
+  Also see A-39 for naming of it and "generate"
+
+  Here "abstraction" just use some symbol for some reusable expression. 
+- Since one level of Abstraction (i.e. $p_i,g_i$) "*considerable* logic even for a 16-bit adder." -> Second Level of Abstraction
+##### Also see [this](#fast_carry)
+- it says A-40 $P_i,G_i$ relation with $c_{4i}$
+  Also by "carry out of the *most significant* bit of the 4-bit group."
+
+  Notice: the function of "propagate" by "all the intermediate propagates" which is similar to ML network propagation
+  Better see "FIGURE A.6.2" for the intuitive understanding.
+
+- "FIGURE A.6.3"
+  Here use one cycle (i.e. one level of abstraction) to calculate all $p_i,g_i$ because they *only depend on* $a_i,b_i$ and then combines to $P_i,G_i$ from the FIGURE A.6.3 (Also can use one more cycle if the hardware overheads of direct $P_i,G_i$ are too high) in **ALU**.
+
+  Then one more cycle to $C_i$ from FIGURE A.6.3 in **"Carry-lookahead unit"** by "come from the carry-lookahead unit".
+
+  Notice: from A-45 EXAMPLE, here $p_i,g_i$ *won't be expanded* in $P_i,G_i$ so take more delay.
+
+- A-40 Notice "very similar" between two levels of abstraction.
+#### exercises related
+- A-42
+  - A.28 not included in [appendix_A_exercise_ans]
+    - [ ] no official answer ?
+      1. obviously ripple adders $2T*(4-1)=6T$ because of blocking
+        wrong See A-45 EXAMPLE -> should be $2T*4=8T$
+      2. carry lookahead -> $2T$
+
+      From A-45 EXAMPLE two-level -> 
+      1st level: 2T
+      2st: 2T
+  - A.31 
+    From "FIGURE A.14.1", it similar to propagation. "a single normal adder" -> the last row of "lower right of Figure A.14.1".
+    
+    comparing with "ripple carry" it decreases the length of the longest dependency chain (i.e. $s_5$)
+    This is same as what [appendix_A_exercise_ans] A.34 says: 
+    > many such paths, all with a time delay of 7 × 2T = 14T.
+    Here 7 -> $a0,e0,e1,...,e3,f3,s4$
+#### verilog, also [see][verilog_md]
+- set bit [length](https://stackoverflow.com/a/40124569/21294350). Notice the *intermediate* data length.
+- "high-impedance" because ["no current." from wikipedia reference](https://web.archive.org/web/20170429052914/http://www.cs.umd.edu/class/sum2003/cmsc311/Notes/CompOrg/tristate.html) -> ["tri-stated"](https://en.wikipedia.org/wiki/High_impedance)
+  Also see differences in verilog [1](https://stackoverflow.com/a/49987958/21294350) and [2](https://www.edaboard.com/threads/diff-b-w-unknown-value-x-and-high-impedance-value-z.71160/#post-313472).
+  ["if not all FPGAs *do not have internal tristate* routing networks"](https://electronics.stackexchange.com/a/219778/341985) -> "we will not discuss in this appendix"
+##### synthesize
+- 24
+  - `always` -> "reg does not synthesize into a register".
+    Then use "inputs appear in the sensitivity list"
+  - "assigns a value to the exact *same* set of bits" just make the output can be *truly multiplexed*.
+  - "all combinational logic in a *continuous* assignment or an always block." just make it not sequential where continuous means `assign`.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -9342,6 +9504,8 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [pipeline_scheduling]:https://en.wikipedia.org/wiki/Instruction_scheduling
 [bisection_wikipedia]:https://en.wikipedia.org/wiki/Bisection_bandwidth#:~:text=Bisection%20bandwidth%20gives%20the%20true,better%20than%20any%20other%20metric.
 [SIMD_category]:https://en.wikipedia.org/wiki/Flynn%27s_taxonomy#Single_instruction_stream,_multiple_data_streams_(SIMD)
+[PLD_FPGA]:https://en.wikipedia.org/wiki/Programmable_logic_device#FPGAs
+[SOP]:https://en.wikipedia.org/wiki/Canonical_normal_form
 
 <!-- blog -->
 
@@ -9405,6 +9569,9 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [chen2016]:../references/other_resources/COD/references/papers/chen2016.pdf
 [Putnam_2016]:../references/other_resources/COD/references/papers/putnam2014.pdf
 [Genome_Sequencing_508c]:../references/other_resources/COD/references/papers/Genome-Sequencing-508c.pdf
+<!-- https://www.studocu.com/row/document/jamaa%D8%A9-almnsor%D8%A9/computer-organization-and-design/appendix-a-computer-organization-and-design/46431812 -->
+[appendix_A_exercise_ans]:../references/other_resources/COD/exercise_ans/appendix-a-computer-organization-and-design.pdf
+[shifter]:https://www.princeton.edu/~rblee/ELE572Papers/Fall04Readings/Shifter_Schulte.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html

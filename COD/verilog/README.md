@@ -1,3 +1,4 @@
+- Also see [asm_md]
 #### TODO
 - use [qverilog](https://tenthousandfailures.com/blog/2014/6/8/display-monitor-and-strobe-in-systemverilog#:~:text=The%20Difference%20Between%20Strobe%20and%20Display&text=The%20operand%20%24display%20works%20just,executes%20once%20per%20time%20unit.) in questasim, maybe [this](https://wiki.archlinux.org/title/Intel_Quartus_Prime)
 - ~~learn systemverilog with `always_ff`,etc~~
@@ -18,6 +19,8 @@
 - [verilogguide](https://verilogguide.readthedocs.io/en/latest/verilog/package.html)
 ### SV
 - [verificationguide](https://verificationguide.com/systemverilog/systemverilog-struct/)
+### tutorial
+- [1 "Verilog Review"](https://www.doe.carleton.ca/~shams/ELEC4708/)
 ## verilog
 - [generate](https://www.chipverify.com/verilog/verilog-generate-block) ~~used to init *hardware* based on parameter po. (no influence to vvp program running)~~ usde to initiate multiple *modules*
 - display [based on change](https://stackoverflow.com/a/33653849/21294350), similar to monitor.
@@ -54,7 +57,8 @@
 - [(Un)Packed array](https://verificationguide.com/systemverilog/systemverilog-packed-and-unpacked-array/) and [struct similarly](https://www.chipverify.com/systemverilog/systemverilog-structure)
 - `always_ff` see SV doc p208
   - latched logic is ['Gated D Latch'](https://www.geeksforgeeks.org/latches-in-digital-logic/)
-  - `ff` is ~~always based on clk, so is sequential. While `comb` is based on nothing~~ flip flops, it use register to save old state, so is sequential. See [this p2~4](https://courses.csail.mit.edu/6.111/f2007/handouts/L06.pdf) (the p4 circuit implies the non-blocking ($<=$).)
+  - `ff` is ~~always based on clk, so is sequential. While `comb` is based on nothing~~ flip flops, it use register to save *old state*, so is sequential. See [this p2~4](https://courses.csail.mit.edu/6.111/f2007/handouts/L06.pdf) (the p4 circuit implies the non-blocking ($<=$).)
+    Also see [COD_RISCV_2nd_A_appendix] A-24 where it **compares** with C language.
     - and `comb` has no history state, see above link p5.
     - `comb` run when ['changes within the contents of a function'](https://www.verilogpro.com/systemverilog-always_comb-always_ff/) also see SV doc p208
       - [event control](https://www.javatpoint.com/verilog-timing-control#:~:text=time%20are%20executed.-,Event%20Control,and%20is%20an%20implicit%20event.)`@`(SV p354) [also](https://verificationguide.com/systemverilog/systemverilog-events/)
@@ -114,3 +118,6 @@ E5_12_5_8.sv:56:      : Expression is: '{'d0, 'd0}
 ## COD code
 ### 12_5_8
 - idle -(assume cpu_req.valid=1)> compare_tag -> allocate -(ass mem_data.ready=1)> compare_tag
+
+[asm_md]:../../asm/README.md
+[COD_RISCV_2nd_A_appendix]:../../references/other_resources/COD/COD_RISCV_2nd_A_appendix.pdf
