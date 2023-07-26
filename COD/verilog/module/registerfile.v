@@ -21,8 +21,8 @@ module registerfile (
 
   assign Data1 = RF[Read1];
   assign Data2 = RF[Read2];
-  always begin
-    // write the register wit h new value if Regwrite is high
-    @(posedge clock) if (RegWrite) RF[WriteReg] <= WriteData;
+  // write the register wit h new value if Regwrite is high
+  always @(posedge clock) begin 
+    if (RegWrite) RF[WriteReg] <= WriteData;
   end
 endmodule

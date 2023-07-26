@@ -3795,8 +3795,11 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - [EDO DRAM](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Extended_data_out_DRAM) mainly kept data cache to accelerate.
 > or see Bibliographic Notes [1](https://user.eng.umd.edu/~blj/papers/isca99.pdf)
   - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better encoding method 
+    
     [not SRAM](https://www.elinfor.com/knowledge/differences-among-dram-sdram-and-sram-p-10976#:~:text=SRAM%20is%20short%20for%20Static%20RAM%2C%20mainly%20used%20to,memory%20configuration%20of%20the%20PC.)
+    This also explains the differences between SRAM and DRAM "resulting in *capacitance destruction* leakage and slow discharge"
   - [DDR SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#DDR_SDRAM_prefetch_architecture) use a new cache enhancement method.
+    "on consecutive *rising and falling* edges of the clock cycle" <a id="DDR"></a>
   - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs
     - TODO [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM
     - this will be [worn out 'Degradation or wear of the oxides'](https://en.wikipedia.org/wiki/Flash_memory#Charge_trap_flash).
@@ -3992,10 +3995,86 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - relearn digital circuits and relearn chapter 4 and try designing circuits.
 - [prime](https://stackoverflow.com/questions/67623801/is-it-always-necessary-to-make-hash-table-number-of-buckets-a-prime-number-for-p) hash bucket number
 - [AMDuProf](https://community.amd.com/t5/server-gurus-discussions/intel-vtune-on-amd-processors/m-p/529122/highlight/true) & [callgrind](https://stackoverflow.com/questions/6663614/use-valgrind-to-know-timein-seconds-spent-in-each-function)
-- SRAM DRAM [design](https://www.egr.msu.edu/classes/ece410/mason/files/Ch13.pdf), more [concise  ](https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf)
+- SRAM DRAM [design](https://www.egr.msu.edu/classes/ece410/mason/files/Ch13.pdf), more [concise][SRAM_DRAM]
   - TODO 
-    - how DRAM [implemented](http://blackandwhitecomputer.blogspot.com/2012/03/reading-writing-operation-of-dram.html)
-    - [precharge](https://electronics.stackexchange.com/questions/246835/what-is-the-need-for-precharging-in-sram-dram-memory-cell/246846#246846)
+    ~~- how DRAM [implemented](http://blackandwhitecomputer.blogspot.com/2012/03/reading-writing-operation-of-dram.html)~~
+  - [precharge](https://electronics.stackexchange.com/questions/246835/what-is-the-need-for-precharging-in-sram-dram-memory-cell/246846#246846) See my [ans](https://electronics.stackexchange.com/a/675299/341985)
+  - [NMOS](https://www.oreilly.com/library/view/introduction-to-digital/9780470900550/chap5-sec004.html) and PMOS
+    so NMOS with `1` input it will be "turned on" as one switch (Also see ["Construction and Physical Operation"](https://anysilicon.com/introduction-to-nmos-and-pmos-transistors/)).
+
+    Notice N -> [negative](https://en.wikipedia.org/wiki/Extrinsic_semiconductor#N-type_semiconductors)
+    - Better review **high school physics**.  
+      here ["valence band"](https://energyeducation.ca/encyclopedia/Valence_band) is "the band of *electron* orbitals that electrons can *jump out of* ... " and See ["What Is the Conduction Band?"](https://byjus.com/jee/conduction-band/) -> "can *bounce up* into from the valence band when energised"
+      So in [this](https://energyeducation.ca/encyclopedia/Electron_hole#:~:text=Both%20electrons%20and%20holes%20are,a%20forward%20or%20reverse%20bias.)
+      - "Holes are formed when electrons in *atoms* move out of the valence band"
+      - "An electron hole is one of the two types of charge carriers that are responsible for *creating electric current*" -> [wikipedia "flow electrons from the valence to the conduction band."](https://en.wikipedia.org/wiki/Valence_and_conduction_bands#Electrical_conductivity)
+      - Also see influence with "thermal or other excitations" in ["Silicon Energy Bands"](http://hyperphysics.phy-astr.gsu.edu/hbase/Solids/band.html)
+    - TODO 
+      - see [layout and process of fabrication](https://en.wikipedia.org/wiki/CMOS#Example:_NAND_gate_in_physical_layout)
+    - ["body bias"](https://semiengineering.com/body-bias-what-it-is-and-why-you-should-care/)
+      just to make body and source hardwired then *no voltage between* them will influence "the *threshold* voltage". Also because use [$V_{GS}$](https://en.wikipedia.org/wiki/MOSFET#Cutoff,_subthreshold,_and_weak-inversion_mode) to show whether circuit turned on.
+    - $N+,N-$ [meaning](https://qr.ae/pye575)
+    - hole conduct the *electricity* the [opposite](https://www.allaboutcircuits.com/textbook/semiconductors/chpt-2/electrons-and-holes/#:~:text=The%20free%20electron%20and%20hole,will%20conduct%20in%20opposite%20directions.) direction with electron
+    - NMOS PMOS [comparison where "n+" in NMOS cause it called NMOS](https://en.wikipedia.org/wiki/MOSFET#cite_ref-memory_7-0)
+    - [symbol explanation](https://en.wikipedia.org/wiki/MOSFET#Circuit_symbols)
+      - TODO [JFET](https://www.power-and-beyond.com/jfet-meaning-types-and-working-principles-explained-a-bd1d589211e6ebaab70e53e5b22507b9/#:~:text=JFET%20is%20a%20field%20effect,operations%2C%20advantages%2C%20and%20applications.) ["pinched-off"](https://www.electronics-tutorials.ws/transistor/tran_5.html)
+        Also see this for ["pinch-off"](https://en.wikipedia.org/wiki/MOSFET#Modes_of_operation)
+      - "Arrows always point from P to N" (current direction)
+        whether "If the bulk is connected to the source" (see above "body bias") or "they are generally common bulk" 
+
+        Notice: in NMOS, when "no bulk" and "alternatively an arrow ...", P bulk is implied in `G`, just like [BJT](https://en.wikipedia.org/wiki/Bipolar_junction_transistor) 
+        So the direction is opposite of ones with bulk.
+      - "Depletion MOSFET" just has inversion channel [beforehand](https://www.electrical4u.com/mosfet-working-principle-of-p-channel-n-channel-mosfet/#N-%E2%80%93-Channel-Depletion-MOSFET) from this [video](https://www.youtube.com/watch?v=AoXhq5nAGVs) -> "a solid line for depletion mode" to represent one channel (Also [see](https://eepower.com/technical-articles/what-are-depletion-mode-mosfets/#))
+    - "threshold voltage" -> "the gate voltage at which the volume density of *electrons* in the inversion layer is the same as the volume density of *holes* in the body is called the threshold voltage" (i.e. achieve one balance)
+      "above the depletion region" where depletion region has less electrons than the inversion layer.
+  - how SRAM [work](https://en.wikipedia.org/wiki/Static_random-access_memory#SRAM_operation)
+    "Standby" is obvious because $M_5,M_6$ are closed
+    $\overline{BL}$
+    
+    ~~TODO why is inverter discharge ~~ 
+    "Reading" -> "causes one bit line BL voltage to slightly drop" because ["inverter holding 0 partly *discharges* its bit line" p9][SRAM_DRAM] -> "*sense amplifier* will sense ... "
+    Here think of one condition($\overline{BL}=\overline{Q}=1,Q=0,BL=1$): because $\overline{Q}=1$ will turn $M_3$ on and set $Q=0$ internally, (also implies "cross-coupled inverters *magnify* the writing process.")
+    So both 
+    $\overline{BL},\overline{Q}$ will probably race over $BL$ -> "inverter ... discharges"
+    - reading based on the Sense Amplifier [See p12,33](https://inst.eecs.berkeley.edu/~eecs151/sp19/files/lec16-ram.pdf)
+      one simple implementation just [use MOS as switch](https://en.wikipedia.org/wiki/Differential_amplifier#Differential_output) to hardware to different voltages.
+      TODO DRAM p5 symbol meaning.
+    - Writing based on [weak transistor](https://electronics.stackexchange.com/a/240504/341985) -> relative low current by lower [Transconductance](https://en.wikipedia.org/wiki/Transconductance#:~:text=Transconductance%20(for%20transfer%20conductance)%2C,is%20the%20reciprocal%20of%20resistance.)
+      it can be replaced by "resistors".
+      TODO "a threshold implant"
+
+      So it can be overrided.
+
+      TODO "PMOS transistors are much weaker than NMOS" [1](https://www.quora.com/Why-is-PMOS-good-to-pass-logic-1-and-NMOS-is-good-to-pass-logic-0) [2](http://ece-research.unm.edu/jimp/vlsiII/slides/cmos_inverter1.pdf) ; "This means that the M1 and M2 transistors can be easier overridden, and so on"
+    - "Writing" is similar to reading but it doesn't has race of both $\overline{BL},BL$ are `1`. It just has complement inputs. 
+    - "page mode" just skips refreshing inputs by "sequentially read by *stepping* through".
+  - how DRAM works
+    - [read](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Operations_to_read_a_data_bit_from_a_DRAM_storage_cell)
+      - TODO
+        - "Since the capacitance of the bit-line is *typically much higher* than the capacitance of the storage cell" (this implies "voltage on the bit-line increases very *slightly*")
+      - here ["dynamic logic"](https://en.wikipedia.org/wiki/Dynamic_logic_(digital_electronics)) because [stray capacitance](https://en.wikipedia.org/wiki/Capacitance#Stray_capacitance) (formula [see](https://www.ourpcb.com/stray-capacitance.html) -> so long line cause `C` bigger -> the capacitance between two *adjacent lines* is bigger)
+      - ["cross-connected inverters"](https://qr.ae/pyekl3) just similar to SR latch
+        TODO how this related with the wikipedia [image "sense amplifier"](https://en.wikipedia.org/wiki/File:DRAM_cell_field_(details).png)
+      - "*All* storage cells in the open row are sensed simultaneously" may be a little redundant (i.e. all "sense amplifier outputs latched").
+        But it increases the *refresh frequency* which is better.
+      - "Reads of different columns in the same row" from the figure, it only accounts for half a whole row.
+      - "While reading of columns in an open row is occurring, current is *flowing back up* the bit-lines from the output of the sense amplifiers and *recharging* the storage cells"
+        Notice: "long propagation delay ... thus *overlaps* with one or more column reads"
+      - "the row is "open"" should be start at 4. "The desired row's word-line is then driven high" instead of 5.
+      - TODO "the bit-lines are precharged again"
+      - Also see [SRAM_DRAM] p13 where 
+        1. drop 1 in the above wikipedia.
+        2. doesn't refer to 3. about capacitance between "bit-lines"
+        3. 3,4 -> wikipedia 4
+        4. 5~7 -> wikipedia 5~7
+        5. drop wikipedia 8 which is cleanup. 
+
+    - write
+      - "Due to the sense amplifier's *positive feedback* configuration"
+      - "so although *only a single* column's storage-cell capacitor charge is changed, the entire row is *refreshed*" -> why it called *dynamic* ram.
+        po here the former current should be upward from "data in latch" while the others is downward from mem cell (just see the `x` symbol in one `0` channel of `MUX4P2T` in the [figure](https://en.wikipedia.org/wiki/File:Square_array_of_mosfet_cells_write.png)).
+      - Or see [SRAM_DRAM] p12 where *doesn't refer to refresh* in the write.
+  - TODO ["p-type semiconductor"](https://en.wikipedia.org/wiki/MOSFET#Metal%E2%80%93oxide%E2%80%93semiconductor_structure) meaning to MOSFET
 - problem 6.34 -> 'typedef' related book referenced in csapp 
 - reread p735 'aside' after chapter 9
 - time travel [debug](https://pspdfkit.com/blog/2021/time-travel-debugging-for-c/) which also temporarily disabled avx to solve 'Process record does not support instruction 0xc4 at address ...'
@@ -5750,9 +5829,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - p1219 very *direct* design of D flip-flop...
   - TODO ~~why hold time since data has been in first D latch.~~
     - here hold time is to ensure min_time [with setup time](https://www.realworldtech.com/overclocking-realities/2/) .
-    - notice here not gate [location](https://electronics.stackexchange.com/questions/543323/analysis-of-two-d-flip-flop-designs-based-on-d-latches/544027?newreg=9ec75f45a4204faa95478a108b3916ba) which influences 'the inverter delay' is important.
+    - notice here `not gate` [location](https://electronics.stackexchange.com/questions/543323/analysis-of-two-d-flip-flop-designs-based-on-d-latches/544027?newreg=9ec75f45a4204faa95478a108b3916ba) which influences 'the inverter delay' is important.
     - the book says 'sampled on the clock edge' similar to ['the data propagates to the output'](https://vlsiuniverse.blogspot.com/2016/10/latch-principle.html)
-      - [Transmission gate 'Transmission Gate Truth Table'](https://www.electronics-tutorials.ws/combination/transmission-gate.html)
+      - [Transmission gate 'Transmission Gate Truth Table'][Transmission_gate] which shows the truth table is better than [this wikipedia](https://en.wikipedia.org/wiki/Transmission_gate)
   - 
 ### TODO
 #### when browsing web
@@ -6724,9 +6803,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - [x] A-26 0,1
 - [ ] A-37 1
   > 1. No change. You can calculate NAND quickly using the current ALU since $\overline{(a ⋅ b)} = \overline{a} + \overline{b}$ and we already have NOT a, NOT b, and OR.
-- [ ] A-46
+- [x] A-46 1
   "a ripple carry 8-bit add" -> $8*2=16$
   "carry-lookahead": same two level -> $5$
+- [x] A-57 c
 ## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
 ### 282.e1
 - "two adders" are used to calculate `PC+4` and branch PC
@@ -7583,6 +7663,81 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - A-46 TODO "ALU using CMOS transistors" by using "switches" instead of "multiplexors" based on gates.
   
   $g_{4\ldots 1}$ -> $G_0$ in A-40
+- TODO A-47 "may not be the best choice" -> [DDR](#DDR) mem is "edge-triggered" but obviously its ancestor isn't
+- ~~TODO~~ A-48 what timing methodology can't "both an input and output"
+  [level triggering](https://www.geeksforgeeks.org/edge-triggering-and-level-triggering/) may update too frequently, So it can't apply the above principle.
+- TODO maybe "change on the opposite clock edge" just to avoid race.
+  And "one-half clock cycle" is enough, maybe no need to use "the more usual full clock cycle"
+  Also to ~~decrease latency~~ "reduce the pipelining overhead." because update frequency is lower.
+  Chapter 4  just use hardwire with `read` and `posedge` with `write` by `@(posedge clock) if (RegWrite) RF[WriteReg] <= WriteData;`.
+#### A.8
+- "flip-flops and latches" [diff][latch_flip_flops_diff]
+  - "reserve the term flip-flop exclusively for *edge*-triggered storage elements and latches for level-triggered ones"
+    
+    Here [edge-triggering](https://sites.ualberta.ca/~gingrich/courses/phys395/notes/node143.html#:~:text=Edge%20triggering%20is%20when%20the,the%20high%20or%20low%20state.) is realized by *delay* with inverter. So their basic ideas are same except that [flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#D_flip-flop) has one *clock* to synchronize.
+    Also see "FIGURE A.8.4" where just use one latch function as one delay and "contain additional gates used to store signal values" in A-50
+
+- "recycled by inverting it to obtain Q" -> when $S=0,R=0$
+- [positive-edge-triggered D flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop) from [ti](https://www.ti.com/lit/ds/symlink/sn74s74.pdf)
+  Notice "Dual D-Type Positive-Edge -Triggered Flip-Flops" has many implementations like [1 p5](https://www.ti.com/lit/ds/symlink/sn74s74.pdf) and [2 p2](https://assets.nexperia.com/documents/data-sheet/HEF4013B_Q100.pdf)
+  
+  ~~Pass transistor~~ Transmission gate See [this][Transmission_gate]
+  <img src="https://www.electronics-tutorials.ws/wp-content/uploads/2018/03/comb69.gif" alt="drawing" width=" 350"/>
+  - how [this figure][Classical_D_flip_flop] referenced in [this](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#cite_note-27) function same as half of [this](https://en.wikipedia.org/wiki/File:D-Type_Flip-flop_Diagram.svg) (i.e. ["D-type Flip-Flop Circuit"](https://www.electronics-tutorials.ws/sequential/seq_4.html) and [Gated D latch][Gated_D_latch])
+    
+    - why "if D = 1, the upper output becomes low".
+      just take `Q` of the bottom-left latch `RS_1` as `A` and  the top-left latch (`RS_2`) `Q` as `B`
+      Then inputs of `RS_1` is $R_1=\overline{B}\&CLK, D$ and inputs of `RS_2s` is $R_2=\overline{A}, CLK$
+      
+      So in the right `RS_3`
+      $\overline{B}$ reset $A$ 
+      $\overline{B}=\overline{A}=R_3$ (-> "to two input combinations (01 and 10) for the output $\overline{SR}$ latch")
+  - "the clock signal *continues* staying high, the outputs *keep* their states" -> why edge-triggered <a id="level_keep"></a>
+    just "as the *input logical zero* (of the *output stage*) remains active while the clock is high" <a id="input_logical_zero"></a>
+    (compare it with "$\overline{SR}$ NAND latch" where input $\overline{S}=0$ will always keep the output $Q$ as `1`
+    
+    and [Gated D latch][Gated_D_latch] where no output set control with the input to output something. (i.e. "while in the positive-edge-triggered D flip-flop $\overline{SR}$ NAND latches")
+    )
+
+    For example, 
+    1. when `CLK` keeps `1` and `D` changed from `0` to `1`, 
+      then the old $A$ keeps $0$ (corresponds to [this](#input_logical_zero)) 
+      so the 
+      $\overline{A}$ still is $1$. -> implicitly ""lock" the active output producing low voltage (a *logical zero*)".
+      So $D$ won't propagate its influence.
+    2. when `CLK` keeps `1` and `D` changed from `1` to `0`, then 
+      $\overline{A}$ will change from $0$ to $1$,
+      But 
+      $\overline{B}$ is still stays old $\overline{A}=0$, (corresponds to [this](#input_logical_zero))
+      so $A$ (left 3rd from top to bottom) and $B$ (left 1st from top to bottom) keeps $1$ -> implicitly ""lock" the active output producing low voltage (a *logical zero*)".
+      So $D$ still won't propagate its influence.
+    - other cases
+      1. ~~falling~~ negative edge and low level, just "If the clock is low, both the output signals of the input stage are high regardless of the data input" because of `NAND` logic outputs `0` when one input is `0`.
+      2. positive-edge works because the old $A=1,\overline{B}=1$
+        So the left 3rd and 4th logic gate from top to bottom are all *only* dependent on $D$ ( just function as [Gated_D_latch])
+    - So "store the data only while the clock is low." may should be "also when keeping high level" TODO
+  - [history](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#History)
+    - JK flip-flop just one notation like `ABC` by "Nelson assigned letters to flip-flop inputs as follows".
+    - po "flip-flop" -> "flip" -> "edge-triggered"
+    - latch -> "a gated D latch with latched input gates" See [this](#level_keep) just means high/low level will keep the states. 
+  - TODO
+    ~~- why "regardless of the data input" since $D=0$ must reset $A$~~
+      ~~Then how does this result -> "to store the data only while the clock is *low*."~~
+- T Flip Flop formed from [others](https://www.javatpoint.com/t-flip-flop-in-digital-electronics) where D and RS can be verified by setting $Q=0/1$ then all obvious.
+  [J-K](https://www.electronics-tutorials.ws/sequential/seq_2.html) just by its [definition](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#JK_flip-flop).
+- "all the *latches* and flip-flops we will use from this point on are *clocked*" -> this ~~is~~ seems to be a little different from what [wikipedia][latch_flip_flops_diff] defines where latches think of clock *defaultly asserted*.
+  From "FIGURE A.8.2" and [Gated_D_latch], they are just same where `E` of latter is `C` of the former.
+- "transparent latch" means it functions like one wire which is *transparent*.
+  Also see "Flip-flops are not transparent ..."
+- A-52 "Setup time" is just to make the *master* latch able to store the data (take one extreme condition, D positive edge is same as C negative edge, then obviously master doesn't store the data because *no C high level* now)
+  "Hold time" is similar, to make the *slave* latch able to store
+- A-55 [decoder](https://www.tutorialspoint.com/digital_circuits/digital_circuits_decoders.htm) just same to use truth table.
+  - TODO how "attached implicitly." -> `@(posedge clock)` and "hooked up ... implicitly" -> `if (RegWrite)` (i.e. try )
+    - [yosys](https://www.edaplayground.com/x/hv6B) is not efficient (zoom the svg to view the big image).
+    - vtr seems also [not valid](https://electronics.stackexchange.com/a/61595/341985) 
+    - also see [1](https://electronics.stackexchange.com/questions/26570/generic-free-verilog-synthesis-tools) and [2](https://electronics.stackexchange.com/questions/612948/fpga-verilog-synthesis-and-simulation-open-source-appoach)
+  - "extensive use" ~~doesn't~~ include "additional logic in the register file or *outside* of it is needed" maybe by `assign` to hardwire connect.
+- "continuous assignment" -> `assign` almost without delay see A-23
 #### A.6.
 - "propagate" means propagate a *carry* -> $( a_i + b_i ) ⋅ c_i$ -> has "FIGURE A.6.1" "*plumbing* analogy" ~~-> A-39 $c_4$ expression with no ~~ (i.e. "valve" controls whether to "propagate")
   Also see A-39 for naming of it and "generate"
@@ -8339,6 +8494,9 @@ func          dgemm_openmp_256:  1461,  1318,     1.1085;  1698,  1366,    1.243
 ### `ic_cache_inval.l2_invalidating_probe`
 - the main idea 
 - notice it is not included in my cpu PPR [PPR_17h_60h] but it exists in [17h_18h].
+  From [this topic](https://community.amd.com/t5/processors/does-ppr-list-all-available-events/m-p/617681#M55000)
+  better "prioritize the information provided in the PPR documentation".
+  But "the Linux source code can also provide valuable insights ... expose *additional* events or utilize *specific* names for events"
   - here [SMC](https://web.inf.ufpr.br/mazalves/wp-content/uploads/sites/13/2020/03/jcvht2020.pdf) and [CMC](https://cr.openjdk.org/~jrose/jvm/hotspot-cmc.html) are just as they literally mean.
   - From [Intel doc](https://stackoverflow.com/questions/10989403/how-is-x86-instruction-cache-synchronized), it should only invalidate icache when *code segment*/[text segment](https://en.wikipedia.org/wiki/Data_segment#Code) changed.
     And may also invalidate when "different linear address" (i.e. different addressing mode.)
@@ -9506,6 +9664,9 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [SIMD_category]:https://en.wikipedia.org/wiki/Flynn%27s_taxonomy#Single_instruction_stream,_multiple_data_streams_(SIMD)
 [PLD_FPGA]:https://en.wikipedia.org/wiki/Programmable_logic_device#FPGAs
 [SOP]:https://en.wikipedia.org/wiki/Canonical_normal_form
+[Classical_D_flip_flop]:https://en.wikipedia.org/wiki/File:Edge_triggered_D_flip_flop.svg
+[latch_flip_flops_diff]:https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Implementation
+[Gated_D_latch]:https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Gated_D_latch
 
 <!-- blog -->
 
@@ -9572,6 +9733,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 <!-- https://www.studocu.com/row/document/jamaa%D8%A9-almnsor%D8%A9/computer-organization-and-design/appendix-a-computer-organization-and-design/46431812 -->
 [appendix_A_exercise_ans]:../references/other_resources/COD/exercise_ans/appendix-a-computer-organization-and-design.pdf
 [shifter]:https://www.princeton.edu/~rblee/ELE572Papers/Fall04Readings/Shifter_Schulte.pdf
+[SRAM_DRAM]:https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
@@ -9682,3 +9844,6 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- quora -->
 [hardware_thread_scheduler]:https://www.quora.com/Is-thread-scheduling-done-by-the-CPU-kernel-or-both
+
+<!-- electronics -->
+[Transmission_gate]:https://www.electronics-tutorials.ws/combination/transmission-gate.html
