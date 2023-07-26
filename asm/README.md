@@ -3794,10 +3794,10 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - AVX no parallel multiplication of 64-bit integers, but AVX512 has [similar](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718); can use conversion but [not recommended](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718).
 - [EDO DRAM](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Extended_data_out_DRAM) mainly kept data cache to accelerate.
 > or see Bibliographic Notes [1](https://user.eng.umd.edu/~blj/papers/isca99.pdf)
-  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better encoding method 
+  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better (how Better ? TODO )encoding method 
     
     [not SRAM](https://www.elinfor.com/knowledge/differences-among-dram-sdram-and-sram-p-10976#:~:text=SRAM%20is%20short%20for%20Static%20RAM%2C%20mainly%20used%20to,memory%20configuration%20of%20the%20PC.)
-    This also explains the differences between SRAM and DRAM "resulting in *capacitance destruction* leakage and slow discharge"
+    This also explains the differences between SRAM and DRAM "resulting in *capacitance destruction* leakage and slow *discharge*"
   - [DDR SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#DDR_SDRAM_prefetch_architecture) use a new cache enhancement method.
     "on consecutive *rising and falling* edges of the clock cycle" <a id="DDR"></a>
   - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs
@@ -4027,7 +4027,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
       - "Depletion MOSFET" just has inversion channel [beforehand](https://www.electrical4u.com/mosfet-working-principle-of-p-channel-n-channel-mosfet/#N-%E2%80%93-Channel-Depletion-MOSFET) from this [video](https://www.youtube.com/watch?v=AoXhq5nAGVs) -> "a solid line for depletion mode" to represent one channel (Also [see](https://eepower.com/technical-articles/what-are-depletion-mode-mosfets/#))
     - "threshold voltage" -> "the gate voltage at which the volume density of *electrons* in the inversion layer is the same as the volume density of *holes* in the body is called the threshold voltage" (i.e. achieve one balance)
       "above the depletion region" where depletion region has less electrons than the inversion layer.
-  - how SRAM [work](https://en.wikipedia.org/wiki/Static_random-access_memory#SRAM_operation)
+  - how SRAM [work](https://en.wikipedia.org/wiki/Static_random-access_memory#SRAM_operation) <a id="SRAM"></a>
     "Standby" is obvious because $M_5,M_6$ are closed
     $\overline{BL}$
     
@@ -4048,7 +4048,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
       TODO "PMOS transistors are much weaker than NMOS" [1](https://www.quora.com/Why-is-PMOS-good-to-pass-logic-1-and-NMOS-is-good-to-pass-logic-0) [2](http://ece-research.unm.edu/jimp/vlsiII/slides/cmos_inverter1.pdf) ; "This means that the M1 and M2 transistors can be easier overridden, and so on"
     - "Writing" is similar to reading but it doesn't has race of both $\overline{BL},BL$ are `1`. It just has complement inputs. 
     - "page mode" just skips refreshing inputs by "sequentially read by *stepping* through".
-  - how DRAM works
+  - how DRAM works <a id="DRAM"></a>
     - [read](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Operations_to_read_a_data_bit_from_a_DRAM_storage_cell)
       - TODO
         - "Since the capacitance of the bit-line is *typically much higher* than the capacitance of the storage cell" (this implies "voltage on the bit-line increases very *slightly*")
@@ -4067,13 +4067,52 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
         2. doesn't refer to 3. about capacitance between "bit-lines"
         3. 3,4 -> wikipedia 4
         4. 5~7 -> wikipedia 5~7
-        5. drop wikipedia 8 which is cleanup. 
+        5. drop wikipedia 8 which is cleanup.
+      - notice: "*Positive feedback* then occurs from the cross-connected inverters" this is the main method to refresh data then keep read *not to destroy the data* when reading.
 
     - write
       - "Due to the sense amplifier's *positive feedback* configuration"
-      - "so although *only a single* column's storage-cell capacitor charge is changed, the entire row is *refreshed*" -> why it called *dynamic* ram.
+      - "so although *only a single* column's storage-cell capacitor charge is changed, the entire row is *refreshed*" -> why it called *dynamic* ram. and the [COD_RISCV_2nd_A_appendix] "somewhat simpler" in A-57.
         po here the former current should be upward from "data in latch" while the others is downward from mem cell (just see the `x` symbol in one `0` channel of `MUX4P2T` in the [figure](https://en.wikipedia.org/wiki/File:Square_array_of_mosfet_cells_write.png)).
       - Or see [SRAM_DRAM] p12 where *doesn't refer to refresh* in the write.
+    - refresh
+      - TODO "Refreshing the data consumes power and a variety of techniques are used to *manage the overall power* consumption."
+      - [rate](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Refresh_rate)
+        1. "each row must be refreshed every 64 ms"
+        2. "involving all rows every 64 ms." or "*staggered* throughout the 64 ms interval"
+        3. "determined by an *external timer* function"
+        4. "the row that will be refreshed next is maintained by external logic or a *counter within the DRAM*"
+          "*relinquishes control over which row* is refreshed and only provides the refresh command." -> DRAM priority is higher.
+        5. TODO "Some modern DRAMs are capable of self-refresh" maybe just integrate "external logic" inside,
+        - "can be recovered even if the DRAM has not been refreshed for several minutes"
+          - [this](https://sci-hub.ru/10.1109/HST.2016.7495561) -> [reference 4](https://www.cs.auckland.ac.nz/~pgut001/pubs/secure_del.html) -> [this](https://www.usenix.org/legacy/events/sec01/full_papers/gutmann/gutmann.pdf)
+            - Wear leveling -> ["erasures and re-writes are distributed *evenly*"](https://en.wikipedia.org/wiki/Wear_leveling)
+            - ["hot-carrier effects"](https://www.iue.tuwien.ac.at/phd/entner/node21.html) just electron goes into the gate which is "dielectric".
+            - ["Electromigration" just generates holes and electrons](https://en.wikipedia.org/wiki/Electromigration) -> "superior conductivity"
+            - "Because of this type of operation it’s not possible to *cycle fresh cells* to reduce remanence effects *without bypassing the filesystem*" ("cycle fresh cells" means use fresh more frequently by cycle (i.e. Wear leveling)) because filesystem determines "which determines which memory segments to clean, when to clean them, and *where to write* changed data"
+            - "(*controlled*) wearing"
+            - why "ever-shrinking device dimensions" -> "more and more difficult to recover data". See below "shorter window ..."
+            - "multilevel storage" helps "making it more and more *difficult to recover* data" because decryption is harder.
+          - [referenced](https://www.usenix.org/legacy/event/sec08/tech/full_papers/halderman/halderman_html/) by wikipedia
+            - "The first is to *cool* the memory chips"
+            - "memory with higher densities have a *shorter window* where data is recoverable"
+            - "decay rates were low enough" cause *recoverable* behavior and "may be recoverable for hours or days with *sufficient cooling*."
+              Also see [figures](https://www.usenix.org/legacy/event/sec08/tech/full_papers/halderman/halderman_html/#htoc6)
+              See [wikipedia](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Data_remanence)
+      - TODO "Refreshing of cells remains necessary, but unlike with 1T1C DRAM"
+      - "can leak between nearby cells" -> "row hammer" in [COD_RISCV_2nd_A_appendix] 493
+      - RAS Only Refresh
+        - "$\overline{CAS}$ must remain high." to select the whole row.
+        - "Refreshes were interleaved with common instructions like memory reads." -> same as the book "Refresh is performed by simply reading ... " in A-64
+        - "refresh was often handled by the *video circuitry*"
+      - "CAS before RAS refresh" just says the refresh *condition*.
+        - here use "uses an internal counter to select the row" instead of $\overline{RAS}$
+      - "Hidden refresh" is "CAS before RAS refresh" by "performs a CBR refresh cycle".
+        "holding $\overline{CAS}$ low" ->  If the $\overline{CAS}$ line is driven low
+        "If $\overline{RAS}$ is then asserted again" -> before $\overline{RAS}$
+        "while the DRAM outputs remain valid" -> "the DRAM ignores the address inputs" (i.e. $\overline{RAS}$)
+      - "pseudo-static operation, this mode is often equivalent to a *standby* mode" -> "*without losing* data stored in DRAM"
+  - From the above, SRAM use *$V_{DD}$* and GND to keep the state and DRAM use capacitor and refresh to keep.
   - TODO ["p-type semiconductor"](https://en.wikipedia.org/wiki/MOSFET#Metal%E2%80%93oxide%E2%80%93semiconductor_structure) meaning to MOSFET
 - problem 6.34 -> 'typedef' related book referenced in csapp 
 - reread p735 'aside' after chapter 9
@@ -7670,6 +7709,33 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   And "one-half clock cycle" is enough, maybe no need to use "the more usual full clock cycle"
   Also to ~~decrease latency~~ "reduce the pipelining overhead." because update frequency is lower.
   Chapter 4  just use hardwire with `read` and `posedge` with `write` by `@(posedge clock) if (RegWrite) RF[WriteReg] <= WriteData;`.
+- A-57
+  - SRAMs and DRAMs cell implementation. See [this](#SRAM)
+  - access time [influenced](https://en.wikipedia.org/wiki/Static_random-access_memory#SRAM_operation) by
+    1. accept all address bits at a time
+    2. Asynchronous?
+  - "4M entries" -> word lines
+  - "8-bit data output line" -> why [this](#DRAM) has "All storage cells in the open *row* are sensed simultaneously"
+- the [enable signal](https://www.instructables.com/DIY-SRAM-The-RAM-in-your-Microcontroller/#step2) just connect to the *gate* of MOSFET. (similar to [this](https://www.researchgate.net/figure/Typical-bit-write-enable-desig_fig2_224370313)) 
+- ~~->~~ "but a pulse with a *minimum width* requirement" is same to why latch needs pulse (i.e. "the setup times, the hold times").
+- "stand-by" power mainly related with ["Machine state is held in *RAM*"](https://en.wikipedia.org/wiki/Sleep_mode#Sleep).
+- A-58
+  - "setup-time and hold-time" applies to all sequential logic with *states*.
+  - "tristate buffer" may be similar to (but output opposite by "tristate buffer is equal to the data input signal") ["tri-state inverter"][iolts_2009] which is used in "standby mode" and "trengthen the charge"
+    where Tri-State Inverter is [4 MOSFETs](https://faculty-web.msoe.edu/johnsontimoj/Common/FILES/tristate_inverter.pdf)
+
+    - in [iolts_2009] 
+      - p3: when $\overline{WL}=0$ the leftmost input of the "tri-state inverter" constructs one loop connected by **two NMOSs**.
+
+      "high impedance" because it is like [switch "Tri-state Buffer Switch Equivalent"](https://www.electronics-tutorials.ws/logic/logic_9.html). See [this](#high_impedance)
+      - "use *capacitors* in SRAM cells to absorb the excessive charge" -> "floating body" in ["15" reference](https://sci-hub.live/10.1109/TDMR.2005.853451).
+  - "each cell that corresponds to a *particular output* can share the same output line" -> multiple word lines share bit lines
+  - "FIGURE A.9.3" -> one address corresponds to 2 bits -> here word is 2 bits.
+- "two-step decoding" similar to Multilevel Paging
+  TODO why FIGURE A.9.4 "select 1 bit from *each* 1024-bit-wide array"
+- "a burst of data" -> [Subsequent words of the burst will be produced in time for *subsequent* rising clock edges](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Construction_and_operation)
+  notice: "wrapping back to the start of the block" like `5-6-7-4`.
+- A-63 [$\overline{RAS}, \overline{CAS}$](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Principles_of_operation_2)
 #### A.8
 - "flip-flops and latches" [diff][latch_flip_flops_diff]
   - "reserve the term flip-flop exclusively for *edge*-triggered storage elements and latches for level-triggered ones"
@@ -7681,8 +7747,9 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - [positive-edge-triggered D flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop) from [ti](https://www.ti.com/lit/ds/symlink/sn74s74.pdf)
   Notice "Dual D-Type Positive-Edge -Triggered Flip-Flops" has many implementations like [1 p5](https://www.ti.com/lit/ds/symlink/sn74s74.pdf) and [2 p2](https://assets.nexperia.com/documents/data-sheet/HEF4013B_Q100.pdf)
   
-  ~~Pass transistor~~ Transmission gate See [this][Transmission_gate]
+  ~~Pass transistor~~ Transmission gate See [this "CMOS Transmission Gate"][Transmission_gate] which is just [COD_RISCV_2nd_A_appendix] "tristate buffer".
   <img src="https://www.electronics-tutorials.ws/wp-content/uploads/2018/03/comb69.gif" alt="drawing" width=" 350"/>
+  Pass transistor from [COD_RISCV_2nd_A_appendix] A-62 -> NMOS/PMOS as one switch.
   - how [this figure][Classical_D_flip_flop] referenced in [this](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#cite_note-27) function same as half of [this](https://en.wikipedia.org/wiki/File:D-Type_Flip-flop_Diagram.svg) (i.e. ["D-type Flip-Flop Circuit"](https://www.electronics-tutorials.ws/sequential/seq_4.html) and [Gated D latch][Gated_D_latch])
     
     - why "if D = 1, the upper output becomes low".
@@ -7779,9 +7846,11 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     Here 7 -> $a0,e0,e1,...,e3,f3,s4$
 #### verilog, also [see][verilog_md]
 - set bit [length](https://stackoverflow.com/a/40124569/21294350). Notice the *intermediate* data length.
-- "high-impedance" because ["no current." from wikipedia reference](https://web.archive.org/web/20170429052914/http://www.cs.umd.edu/class/sum2003/cmsc311/Notes/CompOrg/tristate.html) -> ["tri-stated"](https://en.wikipedia.org/wiki/High_impedance)
+- "high-impedance" because ["no current." from wikipedia reference](https://web.archive.org/web/20170429052914/http://www.cs.umd.edu/class/sum2003/cmsc311/Notes/CompOrg/tristate.html) -> ["tri-stated"](https://en.wikipedia.org/wiki/High_impedance) <a id="high_impedance"></a>
   Also see differences in verilog [1](https://stackoverflow.com/a/49987958/21294350) and [2](https://www.edaboard.com/threads/diff-b-w-unknown-value-x-and-high-impedance-value-z.71160/#post-313472).
   ["if not all FPGAs *do not have internal tristate* routing networks"](https://electronics.stackexchange.com/a/219778/341985) -> "we will not discuss in this appendix"
+
+  Also see [COD_RISCV_2nd_A_appendix] A-59 "allows a three-state buffer whose Output enable is asserted to *drive* the shared output line" (i.e. it has no influence to the circuit).
 ##### synthesize
 - 24
   - `always` -> "reg does not synthesize into a register".
@@ -9734,6 +9803,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [appendix_A_exercise_ans]:../references/other_resources/COD/exercise_ans/appendix-a-computer-organization-and-design.pdf
 [shifter]:https://www.princeton.edu/~rblee/ELE572Papers/Fall04Readings/Shifter_Schulte.pdf
 [SRAM_DRAM]:https://web.cs.umass.edu/~weems/homepage/335-Notes/ewExternalFiles/Lecture%209.pdf
+[iolts_2009]:../references/other_resources/COD/references/papers/iolts-2009.pdf
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
