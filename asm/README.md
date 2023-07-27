@@ -25,6 +25,8 @@
   - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
 - what is the differences between fallacy and pitfalls in [COD_RISC_V_Orig].
 - try [hyperdbg](https://hyperdbg.github.io/commands-map/) which not supports amd now and support [hypervisor](https://docs.hyperdbg.org/getting-started/faq).
+## regex
+- positive lookahead ["?="](https://stackoverflow.com/a/2973495/21294350)
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -7749,6 +7751,16 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     just means each column contains 4bits which is the *minimum* unit.
 - A-66
   - 3 bit distance can't correct "2-bit errors" because it defaultly assumes that "a single error is a much higher probability.", So it will probably correct by *adding one error* which has *the minimum changes* (obviously this is wrong).
+  - "truth table" of one combinational logic -> "finite-state machine" of one sequential logic.
+    take SRAM as the example
+    - when writing data, "the output function" (i.e. data) may be dependent on "the next-state function" (i.e. current write data) by [this](#additional_logic_register_file_write)
+  - TODO $2n$ states should be $2^n$.
+  - 365.e14 
+    "e4.14.4" is the final pipeline implementation which "incorporates the basic logic for *branches* and control hazards" as 365.e8 says. (notice these has no states for "finite-state machine")
+    "e4.14.6" and "e4.14.7" corresponds to detailed verison of "e4.14.5" (these are "finite-state machine"s)
+
+    take "e4.14.7" for the example:
+    "the output function is often restricted to depend on just the current state" because output like `ALUOp` to `Datapath` take something like `(state === 1)` and *internal vars* like `MemoryOp` to output constants like `2'b01`.
 #### A.8
 - "flip-flops and latches" [diff][latch_flip_flops_diff]
   - "reserve the term flip-flop exclusively for *edge*-triggered storage elements and latches for level-triggered ones"
@@ -7816,7 +7828,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     - [yosys](https://www.edaplayground.com/x/hv6B) is not efficient (zoom the svg to view the big image).
     - vtr seems also [not valid](https://electronics.stackexchange.com/a/61595/341985) 
     - also see [1](https://electronics.stackexchange.com/questions/26570/generic-free-verilog-synthesis-tools) and [2](https://electronics.stackexchange.com/questions/612948/fpga-verilog-synthesis-and-simulation-open-source-appoach)
-  - "extensive use" ~~doesn't~~ include "additional logic in the register file or *outside* of it is needed" maybe by `assign` to hardwire connect.
+  - "extensive use" ~~doesn't~~ include "additional logic in the register file or *outside* of it is needed" maybe by `assign` to hardwire connect. <a id="additional_logic_register_file_write"></a>
 - "continuous assignment" -> `assign` almost without delay see A-23
 #### A.6.
 - "propagate" means propagate a *carry* -> $( a_i + b_i ) ⋅ c_i$ -> has "FIGURE A.6.1" "*plumbing* analogy" ~~-> A-39 $c_4$ expression with no ~~ (i.e. "valve" controls whether to "propagate")
