@@ -27,6 +27,12 @@
 - try [hyperdbg](https://hyperdbg.github.io/commands-map/) which not supports amd now and support [hypervisor](https://docs.hyperdbg.org/getting-started/faq).
 ## regex
 - positive lookahead ["?="](https://stackoverflow.com/a/2973495/21294350)
+  but `sed` [doesn't support](https://stackoverflow.com/a/12176094/21294350) it.
+  Also [examples](https://regex101.com/r/fB7iO8/8) from [this](https://stackoverflow.com/a/25069602/21294350)
+- Also see [perl doc](https://stackoverflow.com/questions/2086450/pcre-regex-to-sed-regex#comment2023327_2086504)
+### sed
+- use [loop](https://unix.stackexchange.com/a/26290/568529) with label like `:a`
+- also with [*not* operator `!`](https://stackoverflow.com/a/57720342/21294350)  
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -5165,11 +5171,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - 'Service interruption' is the opposite of above.
   - See this [image](https://www.researchgate.net/figure/A-schematic-diagram-of-MTTF-MTTR-and-MTBF_fig5_334205633)
 - p808
-  - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/), also see [mem_appendix] <a id="hamming"></a>
+  - how hamming code [encoded][geeksforgeeks_hamming], also see [mem_appendix] <a id="hamming"></a>
     "covers all bit positions which have the least significant bit" (based on *bit* to error detection).
   - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see][hamming_tutorialspoint]
     - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
-      Also see [this](https://www.geeksforgeeks.org/hamming-code-in-computer-network/) for the detailed example.
+      Also see [this][geeksforgeeks_hamming] for the detailed example.
       And [this](https://en.wikipedia.org/wiki/Hamming_code#Description): "Hamming distance" defines the *minimum distance* between elements in one set. Also see [COD_RISCV_2nd_A_appendix] A-65 the distance "between legal *combinations* of parity and data." <a id="hamming_distance"></a>
       Also see [this "there exists *at most one* codeword c (from C) such that the Hamming distance between w and c is *at most k*"](https://en.wikipedia.org/wiki/Hamming_distance#Error_detection_and_error_correction) -> "and only if, the minimum Hamming distance between any two of its codewords is *at least 2k+1*", So the correction mapping is *unique* and can be corrected.
 
@@ -9946,3 +9952,6 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- electronics -->
 [Transmission_gate]:https://www.electronics-tutorials.ws/combination/transmission-gate.html
+
+<!-- geeksforgeeks -->
+[geeksforgeeks_hamming]:https://www.geeksforgeeks.org/hamming-code-in-computer-network/
