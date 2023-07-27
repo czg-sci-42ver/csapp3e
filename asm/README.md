@@ -18,6 +18,9 @@
   $ ps2pdf -sPAPERSIZE=a4 -dOptimize=true -dEmbedAllFonts=true ~/Downloads/via-analysis.ps
   ```
 - Basic [Logic Gate symbols](https://learnabout-electronics.org/Digital/dig21.php#basicgates)
+- reddit seems to unable to support the [whole math symbols](https://www.reddit.com/r/mathriddles/comments/34fxve/writing_math_on_reddit/)
+  maybe [`[; ... ;]`](https://www.reddit.com/r/math/comments/12h42y/comment/c6v6lx2/?utm_source=share&utm_medium=web2x&context=3) only usable in r/math
+  or use [this](https://editor.codecogs.com/)
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -5882,7 +5885,22 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - here [D flip-flop](https://www.electronicsforu.com/technology-trends/learn-electronics/flip-flop-rs-jk-t-d) just replace the `S,R` in Flip-Flop to `D,~D`.
   - p1219 very *direct* design of D flip-flop...
   - TODO ~~why hold time since data has been in first D latch.~~
-    - here hold time is to ensure min_time [with setup time](https://www.realworldtech.com/overclocking-realities/2/) .
+    - here hold time is to ensure min_time [with setup time](https://www.realworldtech.com/overclocking-realities/2/). <a id="setup_time"></a>
+      just as it says "acts like a camera that “*takes a picture*” of the value on the “D” input" -> So if no setup time, then maybe *capture one wrong state* (i.e. "If the D input *changes* state within this sampling window, then the Q output of the flip-flop is *undefined*").
+
+      "sampled at the razor’s edge of decision between a “0” or “1” ... *metastability*" -> means input is changing between 0 and 1. See this [general](https://en.wikipedia.org/wiki/Metastability#:~:text=In%20chemistry%20and%20physics%2C%20metastability,a%20simple%20example%20of%20metastability.) or specific to [electronics "*unable to settle* into a stable '0' or '1' logic level *within* the time required for proper circuit operation"](https://en.wikipedia.org/wiki/Metastability_%28electronics%29)
+      See [COD_RISCV_2nd_A_appendix] A-75 This also explains why "required setup and hold times"
+      - [Example](https://en.wikipedia.org/wiki/Metastability_%28electronics%29#Example) is similar to race by "The final state will depend on which of R or S *returns to zero first*, if both transition at about the same time, the resulting metastability" -> "metastability" just means neither 0 or 1 which is similar to high-impedance but it will go to 0/1 while high-impedance not.
+      - [Arbiters](https://en.wikipedia.org/wiki/Arbiter_(electronics)#Asynchronous_arbiters_and_metastability) decides the output of metastability by "Classical arbiters ... to *decay* from a meta-stability as rapidly as possible" (i.e. default outputs `0`) or others. -> [COD_RISCV_2nd_A_appendix] A-76 "where some logic blocks reading the output of the flip-flop see a 0 *while others* see a 1."
+      - solution: "wait long enough" in [COD_RISCV_2nd_A_appendix] A-76 (i.e. [this "simply *delaying* the input signal (data0)"](https://en.wikipedia.org/wiki/Metastability_%28electronics%29#Synchronous_circuits))
+        "decreases exponentially," -> probability theory.
+        "clock rate is longer than the potential metastability period ... *two* D flip-flops" -> period between "two" edges is enough to cover "metastability period".
+        Compare "FIGURE A.11.6" with "FIGURE A.8.4" ~~where the former has almost no delay to ~~: better see this [figure](https://en.wikipedia.org/wiki/File:Metastability_D-Flipflops.svg) where metastable *can't drive* the output which cause the read has *more delays* which needs two cycles instead of one cycle (here default reset is `0`).
+
+        "*not be seen by any other logic* element until the second clock" -> "need only be provided when transferring data between *different clock domains*", So just think the two D flip-flops as *one whole element*.
+
+      "Other than this *short sampling window*, ... will continue to *drive the last captured value* out on the Q output" because *edge*-triggered.
+      "insensitive regions are shown in Figure 2 as *gray bars*"
     - notice here `not gate` [location](https://electronics.stackexchange.com/questions/543323/analysis-of-two-d-flip-flop-designs-based-on-d-latches/544027?newreg=9ec75f45a4204faa95478a108b3916ba) which influences 'the inverter delay' is important.
     - the book says 'sampled on the clock edge' similar to ['the data propagates to the output'](https://vlsiuniverse.blogspot.com/2016/10/latch-principle.html)
       - [Transmission gate 'Transmission Gate Truth Table'][Transmission_gate] which shows the truth table is better than [this wikipedia](https://en.wikipedia.org/wiki/Transmission_gate)
@@ -6861,6 +6879,25 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   "a ripple carry 8-bit add" -> $8*2=16$
   "carry-lookahead": same two level -> $5$
 - [x] A-57 c
+- [ ] A-71 b
+  a. is weird because only one state -> not need anything to next-state function.
+  b. just see [this](#internal_opcode) -> here `opcode` can be external input instead of output of the internal `Datapath`.
+- [ ] A-76 a
+  clock skew introduced by [gates](https://www.vlsi-expert.com/2016/03/types-of-clock-skew.html) which may be intentional from 2nd link hold violation (i.e. unstable) or [path length](https://www.vlsi-expert.com/2016/03/types-of-clock-skew.html) which is external skews from 1st link
+  - Better see [this](https://www.vlsi-expert.com/2011/05/example-of-setup-and-hold-time-static.html) instead of [this](https://vlsiuniverse.blogspot.com/2017/02/setup-and-hold-violations.html) or [this](https://qr.ae/pyZ7yU)
+    - also says about [setup time](https://www.vlsi-expert.com/2011/04/static-timing-analysis-sta-basic-part3a.html)
+      where $T_{pd} DIN$ and $T_{pd} CLK$ decides which of `D` and `C` of the flip-flop *first updates*.
+    - setup or hold analysis
+      since setup is to *propagate* data, so "Setup is checked at next clock edge."
+      and hold is to keep the current state *unchanged* which can be sensed by outside things like logics. So "Hold is checked at same clock edge.".
+    - hold / setup violation
+      just to check whether *min/max* of related CLK and D meet the setup or hold requirements.
+
+      1. add "hold time of FF2" because from [this](#setup_time) data should last *longer* than CLK by hold time.
+      2. "= (Clock period) + ... - (Setup time of FF2)" just see above "since setup ..."
+
+      So [clock skew](https://www.intel.com/content/www/us/en/programmable/quartushelp/17.0/reference/glossary/def_clockskew.htm#:~:text=The%20difference%20in%20the%20arrival,using%20gated%20or%20rippled%20clocks.) will influence "hold violation" (from the above formula, it also influence "setup violation").
+    - TODO [methods](https://www.vlsi-expert.com/2014/01/10-ways-to-fix-setup-and-hold-violation.html#:~:text=Hold%20violation%20happen%20when%20data,increases%20in%20the%20data%20path.) to solve above violations
 ## 4.5 A Multicycle Implementation (only implementing 4 types of instructions)
 ### 282.e1
 - "two adders" are used to calculate `PC+4` and branch PC
@@ -7762,16 +7799,54 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     - when writing data, "the output function" (i.e. data) may be dependent on "the next-state function" (i.e. current write data) by [this](#additional_logic_register_file_write)
   - TODO $2n$ states should be $2^n$.
   - 365.e14 
+    Notice in 1st riscv version, it is "e4.13.4"
     "e4.14.4" is the final pipeline implementation which "incorporates the basic logic for *branches* and control hazards" as 365.e8 says. (notice these has no states for "finite-state machine")
     "e4.14.6" and "e4.14.7" corresponds to detailed verison of "e4.14.5" (these are "finite-state machine"s)
 
     take "e4.14.7" for the example:
-    "the output function is often restricted to depend on just the current state" because output like `ALUOp` to `Datapath` take something like `(state === 1)` and *internal vars* like `MemoryOp` to output constants like `2'b01`.
+    "the output function is often restricted to depend on just the current state" because output like `ALUOp` to `Datapath` take something like `(state === 1)` and *internal vars* like `MemoryOp` to output constants like `2'b01` or others like `opcode`. <a id="internal_opcode"></a>
+  - from "FIGURE 5.38" where *controller* states are dependent on the input (i.e. whether the *memory* is ready).
+    Compared with "e4.14.7" where cpu *integrated* the `Datapath` module *inside* which includes `opcode`. So the states are not dependent on the inputs.
+
+    "show a Verilog version of finite-state control using a Mealy machine" -> From "FIGURE e5.12.8" it is also dependent on one input `rst` by `if (rst) rstate <= idle;`.
+- A-68
+  - notice `EW/NScar` shows whether it needs to *conform to the time cycle* since letting cars on one directional road wait for one *empty* sequence on the other directional road is nonsense.
+#### A.11
+- why use "edge-triggered"
+  1. "correctly without *races*"
+- "from one flip-flop through the combinational logic to another flip-flop" to make the states able to *propagate*.
+- A-73
+  - ~~here $\Delta$ should be $<0$, if $>0$, then the slave just wait longer for the rising edge (if rising-edge triggered).~~
+    here $\Delta>0$ make the 2nd flip-flop fails to propagate the *old state* before the 1st flip-flop has changed the *old state* -> "race forward".
+
+    Then add $t_{skew}$ to both 1st and 2nd flip-flop, then 1st will *delay* its change to the old state. 
+  - with $t_{skew}<0$ -> second flip-flop sees the clock *earlier*.
+    rising-edge may overlap with $t_{setup}$ and even earlier signal, so it will read one *old state*.
+    This is why cycle should *add* 
+    $t_{skew}$ to *offset* the recession. -> "can also arrive in the *opposite* order ... arriving $t_{skew}$ earlier"
+  - kw: "carefully *routing* the clock signal"
+  - po "clock skew can also *affect the hold-time* requirements" -> better $t_{skew} < t_{hold}$. So it can be hidden.
+  - "requires more logic" [See](#edge_triggering)
+- "FIGURE A.11.4"
+  - assume the ~~low~~high-level Timing by "respective clocks must be *asserted*".
+    Then at the beginning the high $\varPhi_{2}$ latch the ~~1st output~~ 
+    2nd $D$ to $Q$ and the input $Q_1$ unchanged because of low $\varPhi_{1}$.
+
+    Then $\varPhi_{2}$ -> low and 
+    $\varPhi_{1}$ -> high to pass the $Q_2$ -> $D_3$.
+
+    TODO why "minimum delay of any logic block".
+  - since "alternate the use of latches", if $\varPhi_{2}$ and 
+    $\varPhi_{1}$ both high, then all $Q,D$ will keep changing and *unstable*.
+
+    "*latched* by a φ2 clock, which is open only during φ2 when the input latch is closed and hence has a valid output" here latch means the latch is *open and propogate* data.
+- "synchronous with the input clock." because the clock *controls when* to write data -> implies synchronous.
+  "held asserted until it is acknowledged" maybe means *cpu will tell I/O* device it has *received* the data.
 #### A.8
 - "flip-flops and latches" [diff][latch_flip_flops_diff]
   - "reserve the term flip-flop exclusively for *edge*-triggered storage elements and latches for level-triggered ones"
     
-    Here [edge-triggering](https://sites.ualberta.ca/~gingrich/courses/phys395/notes/node143.html#:~:text=Edge%20triggering%20is%20when%20the,the%20high%20or%20low%20state.) is realized by *delay* with inverter. So their basic ideas are same except that [flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#D_flip-flop) has one *clock* to synchronize.
+    Here [edge-triggering](https://sites.ualberta.ca/~gingrich/courses/phys395/notes/node143.html#:~:text=Edge%20triggering%20is%20when%20the,the%20high%20or%20low%20state.) is realized by *delay* with inverter. So their basic ideas are same except that [flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#D_flip-flop) has one *clock* to synchronize. <a id="edge_triggering"></a>
     Also see "FIGURE A.8.4" where just use one latch function as one delay and "contain additional gates used to store signal values" in A-50
 
 - "recycled by inverting it to obtain Q" -> when $S=0,R=0$
@@ -7828,7 +7903,12 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - "transparent latch" means it functions like one wire which is *transparent*.
   Also see "Flip-flops are not transparent ..."
 - A-52 "Setup time" is just to make the *master* latch able to store the data (take one extreme condition, D positive edge is same as C negative edge, then obviously master doesn't store the data because *no C high level* now)
+  Also see [this realworldtech](#setup_time) which explains better.
   "Hold time" is similar, to make the *slave* latch able to store
+
+  "Hold times are usually either 0 or very small" because the state has been *latched* in the master and it won't be changed quickly *after the falling-edge* (better see above realworldtech figure, where falling/rising-edge is *one process*.)
+
+  Here "Setup time" actually includes Setup time in realworldtech and $t_{prop}$ "FIGURE A.11.1". So it is longer.
 - A-55 [decoder](https://www.tutorialspoint.com/digital_circuits/digital_circuits_decoders.htm) just same to use truth table.
   - TODO how "attached implicitly." -> `@(posedge clock)` and "hooked up ... implicitly" -> `if (RegWrite)` (i.e. try )
     - [yosys](https://www.edaplayground.com/x/hv6B) is not efficient (zoom the svg to view the big image).

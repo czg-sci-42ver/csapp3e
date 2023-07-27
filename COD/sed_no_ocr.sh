@@ -22,11 +22,12 @@ sed -i -r -e '/\/\/.*/ {N; s/\n([^pIw\/a\(i0deMR])/\1/g ;s/\n(in |insert|affects
 # https://superuser.com/a/1249834/1658455
 echo -e "sed -r -e '/\/\/.*/ {N; s/\\\n([^pIw\/a\(i0deMR])/\1/g ;s/\\\n(reg)/ \1/p};p' $file"
 ##############
-# here 3 lines:
+# 1. here 3 lines:
 # (IDEXrs2 == MEMWBrd)))); // ALU use
 # // Signal for a taken branch: instruction is BEQ and registers are
 # equal
 # will become 2 lines first if with '/\/\/.*/'; then str "equal" can't be related with original 2nd line.
+# 2. TODO try using `awk` to manipulate multiple lines. https://stackoverflow.com/a/14350923/21294350
 ##############
 sed -i -r -e '/\/\/ Signal.*/ {N; s/\n(equal)/ \1/};p' $file
 ##############
