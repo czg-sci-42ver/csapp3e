@@ -3794,7 +3794,7 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - AVX no parallel multiplication of 64-bit integers, but AVX512 has [similar](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718); can use conversion but [not recommended](https://stackoverflow.com/questions/41403718/can-i-use-the-avx-fma-units-to-do-bit-exact-52-bit-integer-multiplications#comment70023106_41403718).
 - [EDO DRAM](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Extended_data_out_DRAM) mainly kept data cache to accelerate.
 > or see Bibliographic Notes [1](https://user.eng.umd.edu/~blj/papers/isca99.pdf)
-  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better (how Better ? TODO )encoding method 
+  - [SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Commands) use one better (how Better ? TODO )encoding method
     
     [not SRAM](https://www.elinfor.com/knowledge/differences-among-dram-sdram-and-sram-p-10976#:~:text=SRAM%20is%20short%20for%20Static%20RAM%2C%20mainly%20used%20to,memory%20configuration%20of%20the%20PC.)
     This also explains the differences between SRAM and DRAM "resulting in *capacitance destruction* leakage and slow *discharge*"
@@ -4471,7 +4471,7 @@ if wback && registers<n> == '1' then UNPREDICTABLE;
 ##### more friendly [paper](../references/other_resources/ARMv7/Porting%20to%20ARM%2064-bit%20v4(2).pdf) from [this](https://community.arm.com/support-forums/f/architectures-and-processors-forum/3357/differences-between-armv7-to-armv8/165675#165675) highly recommended
 - show why use `The Zero Register` in arm and not use `PC` in armv8
 #### ARM [registers relation with x86](https://azeria-labs.com/arm-data-types-and-registers-part-2/)
-### below temporarily changed to RISC-V just as [18-447 TODO reason for switching to RISC-V](https://users.ece.cmu.edu/~jhoe/course/ece447/S22handouts/L02.pdf)
+### below temporarily changed to [RISC-V][RISC_V_Custom_OCR] just as [18-447 TODO reason for switching to RISC-V](https://users.ece.cmu.edu/~jhoe/course/ece447/S22handouts/L02.pdf)
 > [ARM-v8 version](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20ARM%20edition.pdf): author use v8 instead of v7 in p17 for more similarity with MIPS.
 
 from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4d93-911a-4aaec0feb99b/5dc835ea-b66c-4988-be3f-4d51c0feb99b/Computer_Organization_RiscV_Edition.pdf) (saved at this [location](../references/other_resources/COD/Computer_Organization_RiscV_Edition.pdf)) which keeps the same layout as the original book [appendix](https://www.elsevier.com/books-and-journals/book-companion/9780128122754/advanced-content-and-appendices#Advanced%20Content). Before that, I read [this](http://home.ustc.edu.cn/~louwenqi/reference_books_tools/Computer%20Organization%20and%20Design%20RISC-V%20edition.pdf) which is saved [here](../references/other_resources/COD/COD_RISCV_OCR.pdf)
@@ -5165,11 +5165,18 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p808
   - how hamming code [encoded](https://www.geeksforgeeks.org/hamming-code-in-computer-network/), also see [mem_appendix] <a id="hamming"></a>
     "covers all bit positions which have the least significant bit" (based on *bit* to error detection).
-  - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see](https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection)
+  - ~~TODO is it coincidence that $0110=6$ which is wrong bit.~~ also [see][hamming_tutorialspoint]
     - see [this](https://en.wikipedia.org/wiki/Parity_bit#Error_detection), why hamming code can detect one error bit *location*.
       Also see [this](https://www.geeksforgeeks.org/hamming-code-in-computer-network/) for the detailed example.
-      And [this](https://en.wikipedia.org/wiki/Hamming_code#Description): "Hamming distance" defines the *minimum distance* between elements in one set. <a id="hamming_distance"></a>
+      And [this](https://en.wikipedia.org/wiki/Hamming_code#Description): "Hamming distance" defines the *minimum distance* between elements in one set. Also see [COD_RISCV_2nd_A_appendix] A-65 the distance "between legal *combinations* of parity and data." <a id="hamming_distance"></a>
+      Also see [this "there exists *at most one* codeword c (from C) such that the Hamming distance between w and c is *at most k*"](https://en.wikipedia.org/wiki/Hamming_distance#Error_detection_and_error_correction) -> "and only if, the minimum Hamming distance between any two of its codewords is *at least 2k+1*", So the correction mapping is *unique* and can be corrected.
+
     - or book 'should always be even'.
+  - hamming code short description
+    - from [this][hamming_tutorialspoint] and this [Q&A](https://stackoverflow.com/questions/76480970/why-hamming-code-say-at-least-n-p-1-states)
+      here state is just detect the *one-error location* where "one additional state indicates *no error*" (i.e. all zeros of parity means no error).
+    - why distance 3 is based on the minimum change -> bit 3 changes (since $3=2^0+2^1$, so it changes 3 bits while something like $31=\sum_{i=0\ldots 4}2^i$ will change $5+1=6$ bits)
+      Better see [this][hamming_table]
   - [wikipedia](https://en.wikipedia.org/wiki/Hamming_code#)
     - TODO 
       - 'perfect codes','Parity-check matrix ... shortened Hadamard code','Hamming distance of four','double-error detecting'
@@ -5178,12 +5185,12 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - 'grew increasingly frustrated with having to restart his programs from scratch','Damn it, if the machine can detect an error, why can't it locate the position of the error and correct it?' :)
     - [Two-out-of-five code](https://en.wikipedia.org/wiki/Hamming_code#Two-out-of-five_code)
       - ten because $C_{2}^{5}=10$, this is high school knowledge...
-      - like parity bit, 'can detect ... all odd numbered bit-errors', also [unidirectional error](https://en.wikipedia.org/wiki/Two-out-of-five_code#)
+      - like parity bit, 'can detect ... all odd numbered bit-errors', also [unidirectional error ("all the individual bit errors are of *a single type* (all 0→1 or all 1→0).")](https://en.wikipedia.org/wiki/Two-out-of-five_code#)
     - ['code rate'](https://en.wikipedia.org/wiki/Code_rate) is same as rate in [this](https://en.wikipedia.org/wiki/Hamming_code#)
     - kw: 'flipping two or more bits','a distance of','In general','two problems at once','parity bits *overlap*','the index of the *corrupted* bit',
     - how `[8,4]` check [2-bit error (see 'The (8,4) Extended Hamming Code')](https://www.ece.unb.ca/tervo/ece4253/hamming.shtml#:~:text=The%20(8%2C4)%20Extended%20Hamming%20Code&text=Having%20distance%20(d%3D4),parity%20check%20(P)%20passes.)
     - block code in `[7,4] Hamming code` is just the [mapping](https://en.wikipedia.org/wiki/Block_code#The_block_code_and_its_parameters) from set 4 to set *7*.
-    - the [generator](https://en.wikipedia.org/wiki/Hamming_code#Encoding) may be better viewed with the ['This general rule'](https://en.wikipedia.org/wiki/Hamming_code#General_algorithm)
+    - the [generator](https://en.wikipedia.org/wiki/Hamming_code#Encoding) may be better viewed with the ['This general rule'][hamming_table]
     - TODO view more detailedly after 'Hamming codes with additional parity (SECDED)'
       - [codeword](http://www.ee.unb.ca/cgi-bin/tervo/hamming.pl?X=+Generate+&L=7&D=4&T=0000000)
     - here $-A^{{\text{T}}}$ in ${\mathbf  {G}}:={\begin{pmatrix}{\begin{array}{c|c}I_{k}&-A^{{\text{T}}}\\\end{array}}\end{pmatrix}}$ do not means negation because ['underlying field is 2' (here need knows basic understanding of *block matrix*), so $P+P=2P=\vec{0}$](https://en.wikipedia.org/wiki/Parity-check_matrix)
@@ -5192,7 +5199,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - notice: the *minimum* distance is better to be bigger to differentiate between different original code.
     - '(3,1) repetition' can 'correct one-bit errors' mainly based on *redundancy* and 
     - TODO 'a code with distance k can detect but not correct *k − 1* errors' doesn't apply to hamming code because it doesn't detect *double bit* errors (see [this](https://en.wikipedia.org/wiki/Hamming_code#[7,4]_Hamming_code), if $d_3,d_4$ changed, then p1 flipped once [changed] and p2,p3 flipped twice [so unchanged], then mapped to p1 self... ).
-  - the parity code is manually chosen as [odd or even](https://en.wikipedia.org/wiki/Parity_bit#Error_detection).
+  - the parity code is manually chosen as [odd or even](https://en.wikipedia.org/wiki/Parity_bit#Error_detection) where "Even parity" means even 1 number.
 - p812
   - [chipkill](https://en.wikipedia.org/wiki/Chipkill) 
     - 1. 'across multiple memory *chips*', 'another, *spare*, memory chip'
@@ -6481,7 +6488,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - ["Straight-line code"](https://www.pls-lab.org/en/Straight-line#:~:text=One%20could%20say%20that%20straight,doesn't%20seem%20precise%20either.) which obviously excludes branch. <a id="Straight_line_code"></a>
 - "Stack height reduction" may be similar to "Tree Height Reduction" which increases [ILP](https://en.wikipedia.org/wiki/Instruction-level_parallelism) obviously.
 - shift has a little big [penalty](https://news.ycombinator.com/item?id=2962785) on Arm Cortex-A9 and even more on PS3,etc., especially for variable-shifts and reg-shift.
-- the offset is at least [dependent on processor](https://stackoverflow.com/questions/76287548/why-is-there-a-connection-between-branch-prediction-failure-and-rep-ret-in-the) with `ret` at the odd location.
+- the offset is at least [dependent on processor](https://stackoverflow.com/questions/76287548/why-is-there-a-connection-between-branch-prediction-failure-and-rep-ret-in-the) where `ret` should be checked whether it is at the odd location and "follows another branch , they will *share a branch selector*".
   TODO how "Choose the shor test branch"
 - local Optimization example see e5.
 - "so general that they aren’t fast" -> [`loop`](https://www.felixcloutier.com/x86/loop:loopcc) only for `count!=0` which is obvious not for some more common case like `i<NUM;i++`
@@ -7736,6 +7743,12 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - "a burst of data" -> [Subsequent words of the burst will be produced in time for *subsequent* rising clock edges](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#Construction_and_operation)
   notice: "wrapping back to the start of the block" like `5-6-7-4`.
 - A-63 [$\overline{RAS}, \overline{CAS}$](https://en.wikipedia.org/wiki/Dynamic_random-access_memory#Principles_of_operation_2)
+- A-64
+  - "access times much longer (by a factor of 5–10)" mainly due to ~~the size~~ [the "refresh"](https://www.enterprisestorageforum.com/hardware/sram-vs-dram/#:~:text=DRAM%20requires%20little%20bursts%20of,can%20be%20around%20ten%20nanoseconds.) but not the two-level circuitry because SRAM also has this.
+  - “64M × *4* DRAM actually accesses 8K bits on every row access” and "throws away all but *four* of those during a column access"
+    just means each column contains 4bits which is the *minimum* unit.
+- A-66
+  - 3 bit distance can't correct "2-bit errors" because it defaultly assumes that "a single error is a much higher probability.", So it will probably correct by *adding one error* which has *the minimum changes* (obviously this is wrong).
 #### A.8
 - "flip-flops and latches" [diff][latch_flip_flops_diff]
   - "reserve the term flip-flop exclusively for *edge*-triggered storage elements and latches for level-triggered ones"
@@ -9736,6 +9749,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [Classical_D_flip_flop]:https://en.wikipedia.org/wiki/File:Edge_triggered_D_flip_flop.svg
 [latch_flip_flops_diff]:https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Implementation
 [Gated_D_latch]:https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Gated_D_latch
+[hamming_table]:https://en.wikipedia.org/wiki/Hamming_code#General_algorithm
 
 <!-- blog -->
 
@@ -9744,6 +9758,9 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [Memory_Barriers]:https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/
 [Weak_vs_Strong_Memory_Models]:https://preshing.com/20120930/weak-vs-strong-memory-models/
 [ac_rel]:https://preshing.com/20120913/acquire-and-release-semantics/
+
+<!-- tutorialspoint -->
+[hamming_tutorialspoint]:https://www.tutorialspoint.com/hamming-code-for-single-error-correction-double-error-detection
 
 ---
 
