@@ -3827,6 +3827,10 @@ vcvtsi2ss %edi, %xmm1, %xmm2
     so that "the channel *does not conduct* at the $V_{I}$")
     - ~~TODO~~ [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM 
       Just see the above, but notice Flash is just one special EEPROM and it only has structural similarity with DRAM because of `WL` and `BL` but how they store bit is totally different where the latter uses capacitor and the former uses "*Floating-gate* MOSFET".
+
+      Notice: floating gate "solving the traditional *endurance* roblem" because of "utilizing an *oxide* less than 2001 thick *between* a floating poly gate and an $N^+$ region" (more detailedly, it is *surrounded* by oxide) (This is also said somewhere in wikipedia which is temporarily forgotten the location)
+
+      [open](https://en.wikipedia.org/wiki/Open_collector) in MOSFET just means high-Z (po this is used more often) or GND.
     - how EPROM works
       See [utmel_EPROM] "After the EPROM chip writes the data, the *window must be sealed* with an opaque sticker or tape to prevent the data from being damaged by the surrounding *ultraviolet rays*" (i.e. ["although in practice many EPROMs are *encapsulated in plastic that is opaque* to UV light"](https://en.wikipedia.org/wiki/EEPROM#Comparison_with_EPROM_and_EEPROM/flash))
     - this will be [worn out 'Degradation or wear of the oxides'](https://en.wikipedia.org/wiki/Flash_memory#Charge_trap_flash).
@@ -10056,6 +10060,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- geeksforgeeks -->
 [geeksforgeeks_hamming]:https://www.geeksforgeeks.org/hamming-code-in-computer-network/
+[geeksforgeeks_latches]:https://www.geeksforgeeks.org/latches-in-digital-logic/
 
 <!-- naver -->
 [naver_EPROM]:https://blog.naver.com/beahey/220375952430
