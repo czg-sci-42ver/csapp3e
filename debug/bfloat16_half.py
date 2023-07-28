@@ -12,7 +12,7 @@ use '0' fill and '>' align https://docs.python.org/3/library/string.html#grammar
 """
 
 
-
+import math
 
 import copy
 import sys
@@ -418,14 +418,14 @@ perf list
 `0x20043048F` in 'PPR_Family_19h_Model_01h_Rev_B1_Vol1.pdf' meaning
 """
 # https://stackoverflow.com/questions/3252528/converting-a-number-to-binary-with-a-fixed-length
-str = ('{0:036b}'.format(0x20043078F))
-str_reverse = str[::-1]
+perf_event_reg_str = ('{0:036b}'.format(0x20043078F))
+str_reverse = perf_event_reg_str[::-1]
 # https://stackoverflow.com/questions/509211/how-slicing-in-python-works
-split_hex = [str[i:i+4] for i in range(0, len(str), 4)]
-print("origin hex: ", str)
+split_hex = [perf_event_reg_str[i:i+4] for i in range(0, len(perf_event_reg_str), 4)]
+print("origin hex: ", perf_event_reg_str)
 print("each hex (rightest is LSB): ", split_hex)
-print("CntMask: ", str[::-1][24:(31+1)][::-1])
-print("16~23bit (rightest is 16bit): ", str[::-1][16:(23+1)][::-1])
+print("CntMask: ", perf_event_reg_str[::-1][24:(31+1)][::-1])
+print("16~23bit (rightest is 16bit): ", perf_event_reg_str[::-1][16:(23+1)][::-1])
 """
 perf `l2_request_g2.group1` meaning
 
@@ -542,3 +542,69 @@ base_compare = {key: round(value[compare_index]/dgemm_ls_hw_pf_dc_fill_dict["dge
                                       [compare_index], 2) for key, value in dgemm_ls_hw_pf_dc_fill_dict.items()}
 print("compare base", compare_event_strs[compare_index])
 print_key_value(base_compare)
+
+"""
+level-index arithmetic in https://stackoverflow.com/questions/29157639/what-are-the-benefits-of-symmetric-level-index-arithmetic-alternative-to-floati and B-4
+
+level_index better use wikipedia $\varphi$ version
+"""
+def level_index(l:int,f:float,rX:int):
+    x=l+f
+    if x >= 0 and x<1:
+        return x
+    if l==1:
+        return math.exp(f)*rX
+        # return decimal.Decimal(math.exp(f)*rX)
+    elif l<0:
+        exit("l error")
+    else:
+        return math.exp(level_index(l-1,f,rX=rX))
+        # return decimal.Decimal(math.exp(level_index(l-1,f,rX=rX)))
+def sX(X):
+    return X>0
+def rX(X):
+    if X!=0:
+        return (abs(X)-abs(1/X))>0
+    else:
+        """
+        0^0 = 1, so should return 1
+        """
+        return 1
+target_X = 10**100
+print(level_index(4,0.5268756157751,rX=rX(target_X))*sX(target_X))
+decimal.getcontext().prec = 500
+def psi(X:float):
+    if 0<=X and 1>X:
+        return X
+    else:
+        """
+        still has error after using high precision...
+        """
+        return 1+decimal.Decimal(psi(decimal.Decimal(math.log(X,math.e))))
+def max_X_X_reciprocal(X:float):
+    # reciprocal = 1/X
+    # if X>reciprocal:
+    #     return X
+    # else:
+    #     return reciprocal
+    return abs(X)**rX(X)
+print(psi(max_X_X_reciprocal(target_X)))
+
+def test_level_index_print(X:float):
+    target_x = psi(max_X_X_reciprocal(X))
+    target_l = math.floor(target_x)
+    target_f = target_x - target_l
+    # print(str(X)+": "+str(target_x)+"; X="+str(level_index(target_l,target_f,1)))
+    level_index_num = level_index(target_l,target_f,1)
+    print(str(X)+": "+str(target_x)+"; X="+str(level_index_num)+"; error: ",X-level_index_num)
+# zero_x = psi(max_X_X_reciprocal(0))
+# print(0,": x=",zero_x,"; X= ",level_index(math.floor(zero_x),zero_x-math.floor(zero_x),1))
+# one_x = psi(max_X_X_reciprocal(1))
+# one_l = math.floor(zero_x)
+# print(1,": x=",one_x,"; X= ",level_index(one_l,one_x-one_l,1))
+print(str(0))
+test_level_index_print(0)
+test_level_index_print(1)
+test_level_index_print(10**100)
+
+# print(level_index(231,0.25850929940458))

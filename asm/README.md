@@ -8012,6 +8012,33 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     Then use "inputs appear in the sensitivity list"
   - "assigns a value to the exact *same* set of bits" just make the output can be *truly multiplexed*.
   - "all combinational logic in a *continuous* assignment or an always block." just make it not sequential where continuous means `assign`.
+### B
+- [PC](https://streamersplaybook.com/pc-vs-desktop-whats-the-difference/) -> Windows-based computers which is subset of *desktop*.
+- [graphics vs images](https://www.quora.com/What-are-the-differences-between-graphics-and-images) and [vector](https://guides.lib.umich.edu/c.php?g=282942&p=1885352) is mainly based on formulas,etc.
+- [1st GPU in 1999](https://en.wikipedia.org/wiki/GeForce_256)
+  ["display generator" -> Video-*signal* generator](https://en.wikipedia.org/wiki/Video-signal_generator)
+  VGA [hardware](https://digilent.com/reference/learn/programmable-logic/tutorials/vga-display-congroller/start) or [VHDL](https://www.instructables.com/Design-of-a-Simple-VGA-Controller-in-VHDL/)
+- [VGA diff GPU](https://www.quora.com/What-is-the-difference-between-GPU-and-VGA/answer/Kolya-Galston)
+- GPU core is similar to CPU core, see [appendix_A_exercise_ans] p547.
+- index arithmetic [See](https://stackoverflow.com/questions/29157639/what-are-the-benefits-of-symmetric-level-index-arithmetic-alternative-to-floati) and [codes][miscs_py_script]
+  TODO [more detailed](https://math.oxford.emory.edu/site/math125/indexArithmetic/)
+
+  code is based on [wikipedia](https://en.wikipedia.org/wiki/Symmetric_level-index_arithmetic) which is based on the [original paper p3](https://homepages.gac.edu/~holte/level-index)
+  - "allow negative exponents, if the magnitude of X is less than 1." -> $r_X$
+  - "A sign bit may also be used to allow negative numbers" -> $s_X$
+  - generalized logarithm function map $X$ to $x=l+f$
+    $$
+    {\displaystyle x= \psi (X)={\begin{cases}X&{\text{if }}0\leq X<1\\1+\psi (\ln X)&{\text{if }}X\geq 1\end{cases}}}
+    $$
+    here $1+\psi (\ln X)$ to calculate the level $l$
+  - generalized exponential function which is more obvious is opposite of the above.
+  - here to *increase the precision* because 
+    $[1,+\inf)$ is obvious larger than $[0,1]$, 
+    use $\max(|X|,|X|^{-1})$
+    $$
+    x=\psi (\max(|X|,|X|^{-1}))=\psi (|X|^{r_{X}})
+    $$
+  - $X=0$ -> $l=f=x=0$
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
