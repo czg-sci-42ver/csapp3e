@@ -3811,8 +3811,24 @@ vcvtsi2ss %edi, %xmm1, %xmm2
     This also explains the differences between SRAM and DRAM "resulting in *capacitance destruction* leakage and slow *discharge*"
   - [DDR SDRAM](https://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#DDR_SDRAM_prefetch_architecture) use a new cache enhancement method.
     "on consecutive *rising and falling* edges of the clock cycle" <a id="DDR"></a>
-  - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs
-    - TODO [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM
+  - flash [diff](https://www.tutorialspoint.com/difference-between-eeprom-and-flash#:~:text=EEPROM%20is%20a%20type%20of,to%20and%20erased%20in%20blocks.) with EEPROMs which is said in this [Q&A](https://electronics.stackexchange.com/questions/675566/does-field-electron-emission-used-in-eeprom-work-better-than-hot-carrier-inje) <a id="EEPROM"></a>
+    Better see [1][electronic_stackexchange_EPROM_EEPROM] and [2](https://electronics.stackexchange.com/a/65507/341985)
+
+    here 2 "FLASH is *block*-based for erase/write operations." is same as what [naver blog][naver_EPROM] which is referenced in 1 says "it is not bit erasable. When you erase you have to do a *global* erase because of this problem.If you *do not have the select* transistor you cannot do a bit erase, you have to do a global erase.".
+    Also see [wikipedia "however, *generally* can be performed *one byte or word at a time*."](https://en.wikipedia.org/wiki/Flash_memory#Erasing)
+    The more detailed [mos view](https://www.jameco.com/Jameco/workshop/Howitworks/eeproms-an-upgrade-from-eproms.html) of EEPROM logic circuit in the [naver_EPROM] 
+
+      - [this "*Some* are cleared using ultra violet radiation"](https://electronics.stackexchange.com/a/237404/341985) may answer above 1 
+      - See [this](https://www.electroniclinic.com/programmable-read-only-memory-or-prom-in-digital-electronics/) where PROM can be just PLA which is totally different from EPROM which answers the [old 1st question in this Q&A](https://electronics.stackexchange.com/posts/675556/timeline#history_872bce9c-b1dc-40b4-8424-fc8aede2ba4f) although "mainstream product adopts a *double-layer gate* ...".
+    - [NOR flash](https://en.wikipedia.org/wiki/Flash_memory#NOR_flash) just means *either* word line (implies `OR`) will "pull the output bit line low" (implies `N(OT)`) because of the current conduction.
+      - NAND is similar to the above except that "first the *desired group* is selected (in the same way that a single transistor is selected from a NOR array). Next, *most* of the word lines are pulled up above $V_{T2}$, 
+      while *one* of them is pulled up to $V_I$"
+    - Here reading MOSFET is by ["Electric-field screening" -> "*damping* of electric fields caused by the presence of *mobile charge carriers*"](https://www.chemeurope.com/en/encyclopedia/Electric_field_screening.html#:~:text=Screening%20is%20the%20damping%20of,and%20conduction%20electrons%20in%20metals.) (here the $FG=V_{T2}$ will damp the electric field 
+    so that "the channel *does not conduct* at the $V_{I}$")
+    - ~~TODO~~ [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM 
+      Just see the above, but notice Flash is just one special EEPROM and it only has structural similarity with DRAM because of `WL` and `BL` but how they store bit is totally different where the latter uses capacitor and the former uses "*Floating-gate* MOSFET".
+    - how EPROM works
+      See [utmel_EPROM] "After the EPROM chip writes the data, the *window must be sealed* with an opaque sticker or tape to prevent the data from being damaged by the surrounding *ultraviolet rays*" (i.e. ["although in practice many EPROMs are *encapsulated in plastic that is opaque* to UV light"](https://en.wikipedia.org/wiki/EEPROM#Comparison_with_EPROM_and_EEPROM/flash))
     - this will be [worn out 'Degradation or wear of the oxides'](https://en.wikipedia.org/wiki/Flash_memory#Charge_trap_flash).
 - [Recording density](https://www.anandtech.com/show/11925/western-digital-stuns-storage-industry-with-mamr-breakthrough-for-nextgen-hdds/2)
 - [Transfer Time](https://www.javatpoint.com/seek-time-vs-transfer-time-in-disk-scheduling)
@@ -7713,6 +7729,10 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     "contain more entries" -> at least all $0$ outputs.
     - 8 entries -> 8 rows in A-14.
     - 3 bits wide -> 3 outputs.
+    - Also see [this](https://madpcb.com/glossary/logic-device/) where 
+      "PAL" -> "fixed-OR, programmable-AND".
+      CPLD -> "contain the equivalent of *several PALs* linked by programmable interconnections"
+      GAL -> "has the same logical properties as the PAL but can be *erased and reprogrammed*". [See](#EEPROM) 
   - "examples in Appendix C" in A-16 -> "C-12".
   - FPGA is similar to PLA by ["have PLA-Structure"][PLD_FPGA] which is one of [PLD][PLD_FPGA] where "field-programmable" means ["programmed by the *customer*".][PLD_FPGA]
 - [Karnaugh map](https://en.wikipedia.org/wiki/Karnaugh_map#Solution) just use color to "cover" all *ones* by "grouping" 1s (here grouping just means "cover").
@@ -9852,6 +9872,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 <!-- blog -->
 
 [aquamentus_flex_bison]:https://aquamentus.com/flex_bison.html
+[utmel_EPROM]:https://www.utmel.com/blog/categories/memory%20chip/introduction-to-eprom-and-eeprom
 
 [Memory_Barriers]:https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/
 [Weak_vs_Strong_Memory_Models]:https://preshing.com/20120930/weak-vs-strong-memory-models/
@@ -10035,3 +10056,9 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- geeksforgeeks -->
 [geeksforgeeks_hamming]:https://www.geeksforgeeks.org/hamming-code-in-computer-network/
+
+<!-- naver -->
+[naver_EPROM]:https://blog.naver.com/beahey/220375952430
+
+<!-- electronic stackexchange -->
+[electronic_stackexchange_EPROM_EEPROM]:https://electronics.stackexchange.com/questions/675556
