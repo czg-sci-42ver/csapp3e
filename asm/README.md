@@ -3820,6 +3820,14 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 
       - [this "*Some* are cleared using ultra violet radiation"](https://electronics.stackexchange.com/a/237404/341985) may answer above 1 
       - See [this](https://www.electroniclinic.com/programmable-read-only-memory-or-prom-in-digital-electronics/) where PROM can be just PLA which is totally different from EPROM which answers the [old 1st question in this Q&A](https://electronics.stackexchange.com/posts/675556/timeline#history_872bce9c-b1dc-40b4-8424-fc8aede2ba4f) although "mainstream product adopts a *double-layer gate* ...".
+      Notice it is also similar to [interconnects in the FPGA architecture](https://dennishnf.com/posts/projects/2013-11_cmos-design-of-fpgas-programmable-interconnect-points/page.html)
+
+      Better see [COD_RISCV_2nd_A_appendix] A-77 "by configuring the *connections*, a user *determines what  logic functions* are implemented"
+      - Notice above 1st link use fuse which is opposite of the book ["antifuse"](https://en.wikipedia.org/wiki/Antifuse) (just literal meaning).
+        TODO detailed chemistry and physics explanation: antifuse is also realized by MOS but it use ["Amorphous silicon"](https://en.wikipedia.org/wiki/Antifuse#Amorphous_silicon_antifuses) instead of ["the controlled oxidation of silicon"](https://en.wikipedia.org/wiki/MOSFET#Circuit_symbols) which then "*melts* a thin insulating layer ... *permanent* resistive silicon link." (also [see](https://www.pcmag.com/encyclopedia/term/antifuse#:~:text=A%20programmable%20chip%20technology%20that,%22growing%22%20a%20conductive%20via.))
+        Also see other types of antifuses with figures [p3,4](http://www.engr.siu.edu/haibo/ece428/notes/ece428_program.pdf)
+
+        "active transistors for switches" means they are [on "Transistors that are fully “ON” are said to be in their *Saturation* region."](https://www.electronics-tutorials.ws/transistor/tran_4.html#:~:text=Transistor%20as%20a%20Switch%20Summary&text=Transistors%20that%20are%20fully%20%E2%80%9CON,much%20larger%20Collector%20load%20current.)
     - [NOR flash](https://en.wikipedia.org/wiki/Flash_memory#NOR_flash) just means *either* word line (implies `OR`) will "pull the output bit line low" (implies `N(OT)`) because of the current conduction.
       - NAND is similar to the above except that "first the *desired group* is selected (in the same way that a single transistor is selected from a NOR array). Next, *most* of the word lines are pulled up above $V_{T2}$, 
       while *one* of them is pulled up to $V_I$"
@@ -7734,11 +7742,15 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     - 8 entries -> 8 rows in A-14.
     - 3 bits wide -> 3 outputs.
     - Also see [this](https://madpcb.com/glossary/logic-device/) where 
-      "PAL" -> "fixed-OR, programmable-AND".
+      "PLA" -> "programmable AND gate array, which links to a *programmable OR* gate array"
+      "PAL" -> "*fixed*-OR, programmable-AND". This is one type of "SPLD"
       CPLD -> "contain the equivalent of *several PALs* linked by programmable interconnections"
       GAL -> "has the same logical properties as the PAL but can be *erased and reprogrammed*". [See](#EEPROM) 
   - "examples in Appendix C" in A-16 -> "C-12".
   - FPGA is similar to PLA by ["have PLA-Structure"][PLD_FPGA] which is one of [PLD][PLD_FPGA] where "field-programmable" means ["programmed by the *customer*".][PLD_FPGA]
+    Better see [COD_RISCV_2nd_A_appendix] A-77 "field programmable gate arrays (FPGAs), which provide both combinational logic and *flip-flops*" (i.e. "possibly memory devices")
+
+    Also see [PLC vs PLD "PLD is a *variable* logic device" "PLC is generally used for the *weak* point to *drive strong* electricity"](https://www.fpgakey.com/technology/details/on-the-difference-between-plc-and-pld#:~:text=PLD%20is%20the%20abbreviation%20of,can%20sometimes%20ignore%20the%20two.)
 - [Karnaugh map](https://en.wikipedia.org/wiki/Karnaugh_map#Solution) just use color to "cover" all *ones* by "grouping" 1s (here grouping just means "cover").
   it can also solve by [grouping 0s](https://en.wikipedia.org/wiki/Karnaugh_map#Inverse) or more aggressive when [`X`](https://en.wikipedia.org/wiki/Karnaugh_map#Don't_cares) exists
   Maxterm -> ["maximum area of 1s"](https://www.allaboutcircuits.com/textbook/digital/chpt-8/minterm-maxterm-solution/)
@@ -7835,6 +7847,14 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     "show a Verilog version of finite-state control using a Mealy machine" -> From "FIGURE e5.12.8" it is also dependent on one input `rst` by `if (rst) rstate <= idle;`.
 - A-68
   - notice `EW/NScar` shows whether it needs to *conform to the time cycle* since letting cars on one directional road wait for one *empty* sequence on the other directional road is nonsense.
+- A-78
+  - FPGA: "a combination of gates and flip-flops" is similar to the structure of the [SRAM](#SRAM) where it typically uses 4 MOSs / 2 resistors and 2 MOSs to *hold* the state.
+    Also implied by "basically small, programmable RAMs".
+
+    Notice: "Newer FPGAs contain more sophisticated building blocks such as pieces of *adders* ... contain 64-bit RISC-V cores"
+
+    TODO "In addition to programming each cell to perform a specific function, the *interconnections* between cells are also *programmable*"
+    See [p8 overview of FPGA mesh architecture,p7 Fig. 2.4 "Configurable Logic Block" (here minimum CLB logic is based on multiple base and gates,etc.) and p9 Fig. 2.6 "connection box"](https://cse.usf.edu/~haozheng/teach/cda4253/doc/fpga-arch-overview.pdf)
 #### A.11
 - why use "edge-triggered"
   1. "correctly without *races*"
