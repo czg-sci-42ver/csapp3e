@@ -6603,7 +6603,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - "the first and second iterations." -> csapp critical path.
   - "name or data dependence": name -> reg while data -> variable where the former changed more frequently.
 - p352
-  - 1. implicit dependences due to "aliasing" cause stall -> failure of "*sustaining* that issue rate".
+  - 1. implicit dependences due to "aliasing" cause stall -> failure of "*sustaining* that issue rate". <a id="compiler_anti_aliasing"></a>
     But "greater regularity of array accesses" implies "no dependences exist".
   - 2. "branches" 3. "widely separated" ILP 
     4. "losses in the memory hierarchy" 4.1. "limited amounts of ILP" 
@@ -7462,6 +7462,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   - GPU solves page fault by *sharing* mem space. See [this p12,13](https://on-demand.gputechconf.com/gtc/2018/presentation/s8430-everything-you-need-to-know-about-unified-memory.pdf) referenced in [this forum topic](https://forums.developer.nvidia.com/t/unified-memory-page-fault-handling/63197).
   - "MIMD core" -> one SIMD *processor*.
 - 548
+  Better See FIGURE B.2.5
   - "CUDA Thread" -> "One iteration" Then "A vertical cut" is just *temporal* cut.
     So "A Thread of SIMD Instructions" is ~~just from *hardware* perspective~~ and "CUDA Thread" is from the **program runtime**'s perspective. (From what **Warp** means shown below, here `Thread` is just one quantifier like `one,two,three` but not one hardware element).
     "Thread block" -> "made up of *one or more threads of SIMD instructions*" (i.e. SIMD thread **IF** "thread of SIMD instruction" just means "SIMD thread"). ~~Then from FIGURE 6.10, Thread block is made up of ~~
@@ -7663,7 +7664,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   - some [restrictions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#restrictions)
   - OPENCL can be seen as [open-source version](https://saturncloud.io/blog/what-is-the-relationship-between-nvidia-gpus-cuda-cores-and-opencl-computing-units/#how-do-cuda-cores-and-opencl-computing-units-relate-to-each-other) of CUDA.
   - "multithreading, MIMD, SIMD, and instruction-level parallelism" are all based on "CUDA Thread"s.
-- [tutorial](https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial01/) based on `C`.
+- [tutorial](https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial01/) based on `C`. (notice this is not compatible with `cuda_12.2.r12.2/compiler.32965470_0`)
   archlinux cuda [installation](https://wiki.archlinux.org/title/GPGPU#CUDA)
 ### 531
 - "dozens of operations" because *64 elements* of 64-bit double data.
@@ -8013,12 +8014,15 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   - "assigns a value to the exact *same* set of bits" just make the output can be *truly multiplexed*.
   - "all combinational logic in a *continuous* assignment or an always block." just make it not sequential where continuous means `assign`.
 ### B
+Notice:
+1. CUDA doc [online](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions) or [pdf][CUDA_doc]
 - [PC](https://streamersplaybook.com/pc-vs-desktop-whats-the-difference/) -> Windows-based computers which is subset of *desktop*.
-- [graphics vs images](https://www.quora.com/What-are-the-differences-between-graphics-and-images) and [vector](https://guides.lib.umich.edu/c.php?g=282942&p=1885352) is mainly based on formulas,etc.
+- [graphics (i.e. vector) vs images (i.e. raster)](https://www.quora.com/What-are-the-differences-between-graphics-and-images) and [vector](https://guides.lib.umich.edu/c.php?g=282942&p=1885352) is mainly based on formulas,etc. <a id="graphic_image"></a>
 - [1st GPU in 1999](https://en.wikipedia.org/wiki/GeForce_256)
   ["display generator" -> Video-*signal* generator](https://en.wikipedia.org/wiki/Video-signal_generator)
   VGA [hardware](https://digilent.com/reference/learn/programmable-logic/tutorials/vga-display-congroller/start) or [VHDL](https://www.instructables.com/Design-of-a-Simple-VGA-Controller-in-VHDL/)
 - [VGA diff GPU](https://www.quora.com/What-is-the-difference-between-GPU-and-VGA/answer/Kolya-Galston)
+  Also see [COD_RISCV_2nd_A_appendix] B-5 "*hardwired*, limited capability VGA controllers"
 - GPU core is similar to CPU core, see [appendix_A_exercise_ans] p547.
 - index arithmetic [See](https://stackoverflow.com/questions/29157639/what-are-the-benefits-of-symmetric-level-index-arithmetic-alternative-to-floati) and [codes][miscs_py_script]
   TODO [more detailed](https://math.oxford.emory.edu/site/math125/indexArithmetic/)
@@ -8039,6 +8043,99 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     x=\psi (\max(|X|,|X|^{-1}))=\psi (|X|^{r_{X}})
     $$
   - $X=0$ -> $l=f=x=0$
+- "effective hardware acceleration" because GPU may just be developed based on these API.
+  "why new GPUs are being *developed every 12 to 18 months* that double the performance" because standards like OpenGL and [DirectX](https://en.wikipedia.org/wiki/DirectX#Versions) are keeping changing.
+  Also see B-5 "changing the *logical (API-based)* graphics pipeline to incorporate programmable elements"
+
+  TODO [comparison like "OpenGL is a purebred graphics API"](https://www.makeuseof.com/opengl-vs-directx-game-development-best/) of OpenGL and DirectX
+
+  - Not be confused with CUDA vs [OPENCL](https://www.incredibuild.com/blog/cuda-vs-opencl-which-to-use-for-gpu-programming#why-opencl?) Also [see](https://stackoverflow.com/a/7907609/21294350)
+    And "GPU computing" includes CUDA and OPENCL.
+- [visual computing](https://www.researchgate.net/figure/Overview-of-Visual-Computing_fig1_327802249) relation with others
+- ["scalable execution"](https://saturncloud.io/blog/scaling-performance-across-multiple-gpus-a-guide-for-data-scientists-and-software-engineers/#what-is-multi-gpu-scaling) can be thought as *independent* parallel by "*distributing* the computational workload". See "FIGURE 6.9"
+  It is different from [this](https://sci-hub.ru/10.1145/3415958.3433082) which is based on "software container technologies and message-oriented middleware" (the latter is used in ROS).
+
+  See different [types](https://saturncloud.io/blog/scaling-performance-across-multiple-gpus-a-guide-for-data-scientists-and-software-engineers/#model-parallelism) of Parallelism
+- data parallel in SPMD is done by *software* program while it is handled in the instruction with hardwares in SIMD.
+  ~~Also "lockstep" with SIMD means SPMD *not totally parallel*.~~
+  SPMD better see [book][COD_RISCV_2nd_A_appendix] definition "*writes a program for one thread* that is instanced and executed by many threads in parallel" by something like `<<<grid_size,block_size>>>` in `CUDA`
+  kw: "at *independent* points"; "*vector* processors"
+  Also see B-12 "*myriad* thread instances in parallel"
+  - [lockstep](https://www.acecloudhosting.com/blog/what-is-simd-and-how-gpus-employ-it/#:~:text=SIMD%20and%20SIMT,-Single%20Instruction%20stream&text=Like%20SIMD%2C%20all%20the%20instructions,concurrently%20manage%20multiple%20data%20streams.) in SIMD/SIMT where "each core waits for other cores to finish processing their data before all the cores *simultaneously proceed to the next* data batch." (i.e. one `AVX` instruction must be finished to start next logically, but OoO may change it).
+    Also "Consecutive *threads proceeding in lock-step* are grouped as warps, which are then grouped as thread blocks" -> means [parallel](https://stackoverflow.com/questions/76791769/does-lockstep-in-simd-simt-imply-the-ecc-tolerance). Also by ["are analogous to SIMD *lanes*"](https://en.wikipedia.org/wiki/Single_instruction,_multiple_threads)
+- [chipset](https://en.wikipedia.org/wiki/Chipset#Computers) is just one *interface* between cpu and I/O,etc.
+- compare [ISA](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) and [PCI](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) based on the right card.
+- [framebuffer](https://en.wikipedia.org/wiki/Linux_framebuffer#) is one software abstraction. [See the kernel doc "doesn't need to know anything about the low-level (hardware *register*) stuff."](https://docs.kernel.org/fb/framebuffer.html#introduction) 
+  - kw: "containing a *current* video frame ... *only the Linux kernel*'s own basic facilities" which is separate from the *user space*.
+  - TODO 
+    - how [applied](https://en.wikipedia.org/wiki/Linux_framebuffer#Applications)
+    - [read](https://www.kernel.org/doc/html/v6.5-rc3/fb/)
+  - above kernel doc: 
+    1. "Application software that uses the frame buffer device (e.g. the *X server*)"
+    2. "a frame buffer device is a *memory* device like /dev/mem ... is *not the whole* memory, but the frame buffer of some video hardware."
+- [PCIE x16](https://en.wikipedia.org/wiki/PCI_Express) -> lane number.
+  PCIE [derivative](https://en.wikipedia.org/wiki/PCI_Express#Derivative_forms) includes Thunderbolt
+- [daisy-chained](https://ivanky.com/blogs/news/what-is-daisy-chaining-displayport-mst-explained) is similar to [`extend` in windows](https://support.microsoft.com/en-us/windows/how-to-use-multiple-monitors-in-windows-329c6962-5a4d-b481-7baa-bec9671f728a#ID0EDDBBDBF)
+- [SLI](https://docs.nvidia.com/gameworks/content/technologies/desktop/sli.htm)
+  - kw: SLI-*certified* motherboard; *multiple* PCI-Express x16 slots and are *specifically* engineered for SLI configurations; *external* SLI bridge connectors; the *driver* is properly installed for all the GPUs, SLI rendering must be enabled in the NVIDIA *control panel*; treat both GPUs as *one logical* device, and divide rendering workload *automatically depending on the selected mode*.
+- [coherent or noncoherent PCI-Express](https://www.quora.com/What-is-coherent-and-non-coherent-traffic-related-to-PCIe-transactions) both keep cache-coherence while the latter just skip the cache when transaction ("marked *non-cacheable* ... no need to snoop any of the caches").
+- ["Aperture"](https://en.wikipedia.org/wiki/Aperture_(computer_memory)) is related with "a particular *peripheral* device or a memory unit".
+  In newer GPU, PCIE [replaced](https://tech-fairy.com/history-of-graphics-card-motherboard-slots-pci-vs-agp-vs-pci-express-vs-integrated-graphics/) AGP which may be used in [2006](https://forums.tomshardware.com/threads/what-is-graphics-aperture-size.850830/).
+- [shader](https://en.wikipedia.org/wiki/Shader#:~:text=Vertex%20shaders%20describe%20the%20attributes,one%20(updated)%20vertex%20out.) just add attributes.
+- ["Rasterizer"](https://en.wikipedia.org/wiki/Rasterisation) is related with [this](#graphic_image)
+- B-10
+  This based on this [paper][Tesla_ARCHITECTURE]
+  - ["texture filtering"](https://en.wikipedia.org/wiki/Anisotropic_filtering)
+    - ["raster operations" p3](https://web.pdx.edu/~jduh/courses/geog475f09/Students/W5_Raster%20presentation%2010-27-09.pdf) is similar to [convolution](https://pro.arcgis.com/en/pro-app/3.0/help/analysis/spatial-analyst/performing-analysis/cell-size-and-resampling-in-analysis.htm) while the latter may change the shape size.
+    - [anti-aliasing](https://en.wikipedia.org/wiki/Anti-aliasing) avoid [Aliasing](https://en.wikipedia.org/wiki/Aliasing) (i.e. frequency *overlap* See signal processing). This is similar to [aliasing](#compiler_anti_aliasing) in the compiler.
+      So it can [drop high-frequency signals "Filters"](https://www.selecthub.com/resources/what-is-anti-aliasing/#:~:text=Anti%2Daliasing%20is%20a%20technique,to%20make%20visuals%20look%20natural.)
+- B-11
+  - "64-bit-wide DRAM" -> cacheline [block size](https://electronics.stackexchange.com/a/152086/341985).
+  - [constant cache](https://forums.developer.nvidia.com/t/do-7-x-devices-have-a-readonly-constant-cache/220844/5) designed for "accessed *uniform*ly"
+  - [`FMAD`](https://forums.developer.nvidia.com/t/why-ffma-instructions-are-still-there-even-if-fmad-false-is-set/179934/2)
+  - SFU is [simplified](https://forums.developer.nvidia.com/t/fermi-and-kepler-gpu-special-function-units/28345/2) version of some functions `cos()`
+    1. *single* precision numbers only.
+    2. have *limited* precision
+    3. [Transcendental function "not satisfy a *polynomial* equation"](https://en.wikipedia.org/wiki/Transcendental_function) related with taylor series
+      These are implemented by hardware in ["Transcendentals (SFU)"](https://www.informit.com/articles/article.aspx?p=2103809&seqNum=3)
+    4. In newer CUDA doc, "Table 7" -> "Table 9"
+    5. TODO "perform several FMAD instructions"
+  - [TPC](https://www.geeks3d.com/20100318/tips-what-is-a-texture-processor-cluster-or-tpc/) include [SMC: SM controller][Tesla_ARCHITECTURE]
+  - other abbr see [this](https://people.cs.pitt.edu/~melhem/courses/3580p/gpu.pdf) or [Tesla_ARCHITECTURE]
+  - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM.
+- [Cg and HLSL](https://en.wikipedia.org/wiki/Cg_(programming_language)) are same thing.
+#### Directx 10 (2023 newest is 11)
+better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18)
+- FIGURE B.3.1
+  - Input-Assembler
+    - "to read *primitive data* (points, lines and/or triangles) from user-filled buffers" -> input
+      "*assemble* vertices into several different *primitive* types (such as line lists, triangle strips"
+      - [triangle strips](https://learn.microsoft.com/en-us/windows/win32/direct3d9/triangle-strips) Also see [directx_9]
+        - "degenerate triangle" is realized by *same* vertexes.
+  - Vertex Buffer
+    - TODO how ["texture coordinate"](https://learn.microsoft.com/en-us/windows/win32/direct3d9/texture-coordinates) mapped in [3D](https://learn.microsoft.com/en-us/windows/win32/direct3d9/cubic-environment-mapping).
+  - vertex shader
+    - ["skinning"](https://cseweb.ucsd.edu/classes/sp16/cse169-a/readings/3-Skin.html) -> relative rotate
+    - ["Morph"](https://en.wikipedia.org/wiki/Morph_target_animation) change the base *shape*.
+    - ["screen-space *derivatives*"](https://gamedev.stackexchange.com/questions/130888/what-are-screen-space-derivatives-and-when-would-i-use-them)
+  - Texture
+    - ~~TODO~~ how [mipmap](https://en.wikipedia.org/wiki/Mipmap) implemented to "reduce aliasing artifacts".
+      See [paper](https://en.wikipedia.org/wiki/Mipmap#Origin)
+      Better see [this](https://www.3dgep.com/learning-directx-12-4/#Mipmapping)
+  - TODO detailed infos about Sampler more than ["addressing and filtering"](https://vfxdoc.readthedocs.io/en/latest/textures/sampling/#:~:text=Texture%20sampling%20is%20the%20process,these%20textures%20using%20different%20algorithms.)
+  - Geometry Shader See [directx_11] for "output topologies" and " inputs are the vertices for a full primitive"
+    - pointlist see [directx_9]
+      - materials vs Textures: ["Textures can be *one* of those things that can be contained in a material"](https://artisticrender.com/what-is-the-difference-between-materials-shaders-and-textures-in-blender/)
+        TODO how used in the software.
+  - "Stencil" see [directx_9] 
+  - depth buffer See [directx_9], more [detailed](http://archive.gamedev.net/archive/reference/programming/features/occlusionculling/)
+  - ["Render Target"](https://en.wikipedia.org/wiki/Render_Target) is "intermediate memory buffer".
+- B-14
+  - "fragments are *potential* contributions to pixels" -> ["produce *multiple* fragments from the same triangle per-pixel"](https://stackoverflow.com/questions/31173002/what-is-the-difference-between-a-sample-a-pixel-and-a-fragment)
+  - ~~"sampled and filtered" may mean same by above "addressing and filtering".~~ 
+    here "filtered lookups" may mean "An *offset* can be applied to the position before lookup" which is similar to how buffer accessed in [directx_11] "Vertex Buffer".
+    ~~better see [directx_11] "1D Textures",etc.~~
+  - [`w`](https://stackoverflow.com/questions/2422750/in-opengl-vertex-shaders-what-is-w-and-why-do-i-divide-by-it) in `x, y, z, w`
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -9812,6 +9909,10 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 # C++
 - not to read c++ primer plus both [1](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list) and [2](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list), [3](https://qr.ae/pyWjiD)
 
+# computer graphic
+## tutorial
+- [1](https://www.3dgep.com/category/math/)
+
 ---
 
 # Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
@@ -10056,6 +10157,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [robin]:../references/papers/robin.pdf
 [spectre]:../references/papers/spectre.pdf
 [spectre_origin_arXiv]:../references/other_resources/COD/references/papers/spectre_origin_arXiv.pdf
+[Tesla_ARCHITECTURE]:../CUDA/doc/papers/lindholm08_tesla.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -10114,3 +10216,8 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 <!-- electronic stackexchange -->
 [electronic_stackexchange_EPROM_EEPROM]:https://electronics.stackexchange.com/questions/675556
+
+[CUDA_doc]:../CUDA/doc/CUDA_C_Programming_Guide.pdf
+<!-- directx -->
+<!-- [directx_9]:../CUDA/doc/directx/windows-win32-direct3d9.pdf too big -->
+[directx_11]:../CUDA/doc/directx/windows-win32-direct3d11.pdf
