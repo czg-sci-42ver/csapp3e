@@ -8135,7 +8135,19 @@ better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18
   - ~~"sampled and filtered" may mean same by above "addressing and filtering".~~ 
     here "filtered lookups" may mean "An *offset* can be applied to the position before lookup" which is similar to how buffer accessed in [directx_11] "Vertex Buffer".
     ~~better see [directx_11] "1D Textures",etc.~~
-  - [`w`](https://stackoverflow.com/questions/2422750/in-opengl-vertex-shaders-what-is-w-and-why-do-i-divide-by-it) in `x, y, z, w`
+  - [`w`](https://stackoverflow.com/questions/2422750/in-opengl-vertex-shaders-what-is-w-and-why-do-i-divide-by-it) in `x, y, z, w` is used to calculate "`(x, y, z)` screen position"
+  - ["high dynamic range"](https://developer.nvidia.com/high-dynamic-range-display-development) compared with normal ...
+#### Cg
+better view [nvidia_doc](https://developer.download.nvidia.com/cg/Cg_language.html) or [pdf][nvidia_Cg], [wikibook](https://en.wikibooks.org/wiki/Cg_Programming/Vector_and_Matrix_Operations)
+- B-15
+  - [environment mapping](https://en.wikipedia.org/wiki/Reflection_mapping)
+  - `float2` see wikibook
+  - `out` and `uniform` is used to instruct the compiler. See nvidia_doc
+    kw of `uniform`: Non-static global; the *initial* value of the variable/parameter is expected to be *constant* -> "*do not vary* from one pixel instance (thread) to the next" in B-15
+  - TODO how `texCUBE` and `tex2d` implemented.
+    they return [color](https://forum.unity.com/threads/shaders-whats-the-return-value-of-tex2d.592699/#post-3959776), also [see](https://gamedev.stackexchange.com/questions/56494/what-range-of-values-can-hlsls-tex2d-function-return#:~:text=The%20tex2D%20function%20usually%20returns,the%20latter%20is%20full%20intensity.)
+    Or see this [example `lerp(main_color, secondary_color, _Blend)`](https://www.ronja-tutorials.com/post/009-interpolating-colors/)
+    - `clamp` in `Cg` means [definite range](https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Lerp-Node.html)
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -9912,7 +9924,10 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 # computer graphic
 ## tutorial
 - [1](https://www.3dgep.com/category/math/)
-
+- [2](https://web.archive.org/web/20120229133252/http://www.gpgpu.org/wiki/FAQ#Where_can_I_learn_about_OpenGL_and_Direct3D.3F) from [this](https://stackoverflow.com/questions/5709023/what-exactly-is-a-floating-point-texture)
+- [3](https://shadowmint.gitbooks.io/unity-material-shaders/content/support/syntax/lerp.html)
+### Cg
+- [1](https://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter03.html)
 ---
 
 # Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
@@ -10218,6 +10233,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [electronic_stackexchange_EPROM_EEPROM]:https://electronics.stackexchange.com/questions/675556
 
 [CUDA_doc]:../CUDA/doc/CUDA_C_Programming_Guide.pdf
+[nvidia_Cg]:../CUDA/doc/Cg/Cg-3.1_April2012_ReferenceManual.pdf
 <!-- directx -->
 <!-- [directx_9]:../CUDA/doc/directx/windows-win32-direct3d9.pdf too big -->
 [directx_11]:../CUDA/doc/directx/windows-win32-direct3d11.pdf
