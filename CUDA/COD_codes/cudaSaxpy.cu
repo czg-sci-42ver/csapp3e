@@ -32,7 +32,8 @@ __host__ int main(void)
 	not use old CUDA-MEMCHECK https://stackoverflow.com/a/75973968/21294350
 	*/
 	// long long int N = 488259584l/2+1;
-	long long int N = 488259584l/4;
+	// long long int N = 488259584l/(1<<9);
+	long long int N = 256l;
 	// long long int N = 488259584l;
 	printf("%lld\n%d\n",N,2147483647/(1<<3));
 	// long long int N = 256*256;

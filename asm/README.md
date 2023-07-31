@@ -8240,6 +8240,8 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     - kw: “cold” path
 - "B-29" 
   "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.".
+  - "2-by-2 pixel quad" is to calculate [Derivatives](http://www.aclockworkberry.com/shader-derivative-functions/) referenced [here](https://www.gamedev.net/forums/topic/700823-how-fragment-derivatives-are-actually-evaluated-within-the-2x2-group/5399275/)
+    Also [see](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/deriv-rtx-coarse--sm5---asm-)
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
   - `&& !P0` because it corresponds to `pc+1` which is case: not taken.
@@ -10124,6 +10126,16 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
   - [uniform register](https://forums.developer.nvidia.com/t/whats-uniform-register-in-turing/65406/2) is to not corrupt the *floating* data path.
 ## miscs
 - why use [scalar processor "takes up more space than a scalar unit ... not be fully used ... equiring more chip area for the instruction *decoder*"](https://forums.developer.nvidia.com/t/why-scalar-processors/10337/2) -> to improve *hardware* design and increase parallel.
+### `nsight-graphics`
+- comment `install -Dm644 "${srcdir}/${pkgname}.desktop" ${pkgdir}/usr/share/applications/${pkgname}.desktop ...` two lines based on [this](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=nsight-graphics)
+  Then run `makepkg -si --skipinteg` (Just use `yay -Rsn` to uninstall).
+  See [modified PKGBUILD](../CUDA/nsight-graphics/PKGBUILD)
+## optimization
+- CUDA [occupancy](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485/5?u=czgf2v) tested with [Occupancy Calculator "Launching from the Profiler Report"](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator)
+  [definition](https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/achievedoccupancy.htm): "the ratio of active warps on an SM ..."
+  - [installation](https://aur.archlinux.org/packages/nsight-graphics#comment-927000) of nsight_compute
+    Then launch `/opt/cuda/nsight_compute/ncu-ui` connect -> profile. See `cudaSaxpy.report.ncu-rep` file.
+    - Also see "Higher occupancy *does not always result* in higher performance, however, low occupancy always reduces the ability to hide latencies, resulting in overall performance degradation" in the `ncu-ui`.
 # How to read papers
 - see [this](https://www.scientifica.uk.com/neurowire/gradhacks-a-guide-to-reading-research-papers)
   kw: 8. Write a succinct ... ; 4. Identify how this paper fits ; 2. *Skim all* of the sections ; 1. Check the publish date ; 2. Read *critically*
