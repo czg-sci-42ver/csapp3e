@@ -21,6 +21,7 @@
 - reddit seems to unable to support the [whole math symbols](https://www.reddit.com/r/mathriddles/comments/34fxve/writing_math_on_reddit/)
   maybe [`[; ... ;]`](https://www.reddit.com/r/math/comments/12h42y/comment/c6v6lx2/?utm_source=share&utm_medium=web2x&context=3) only usable in r/math
   or use [this](https://editor.codecogs.com/)
+- archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike)
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -4709,7 +4710,7 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
   - ‘FIGURE 4.36’ although here must use 'address' to read memory, but maybe to be distinct with 'FIGURE 4.38' write, so just split.
 - p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
   - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
-  - how related [hardware p12 (based on truth table)][truth_table] implemented <a id="hardware"></a>
+  - how related [hardware p12 (based on truth table)][truth_table] implemented <a id="truth_table_hardware"></a>
     - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
     - TODO how Function code in p6 above defined
     - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALUop"></a>
@@ -6457,7 +6458,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   1. "the absence of side effects by a function call." -> may avoid pushing some variable to stack which won't be changed during the call before the call.
   2. "the absence of aliasing between two pointers" -> allow above [optimizations](#optimizations), see [this](https://stackoverflow.com/questions/52399590/is-there-a-way-to-tell-the-c-compiler-that-a-pointer-has-no-aliasing-stores) where `read_array(arr);` interferes the optimization where it may increase the reference count of `p` and change its value and the [`restrict`](https://www.geeksforgeeks.org/restrict-keyword-c/) tells the compiler of "the absence of aliasing".
 - "pointer code" may be unoptimized due to not knowing the above *2 absences*.
-- ["Code motion"](https://en.wikipedia.org/wiki/Code_motion#Uses)
+- ["Code motion" / code hoisting](https://en.wikipedia.org/wiki/Code_motion#Uses) <a id="loop_invariant_optimization"></a>
+  Also [see p4](https://llvm.org/devmtg/2016-11/Slides/Kumar-Pop-GVNHoist.pdf)
   "Removing unused/useless operations" which exists with *one branch* but not the other "moving instructions to branches in which they are used".
   "Code Factoring": "*merges* common dependencies" which is just opposite of the first. This is similar to ~~vscode~~ [Refactoring](https://code.visualstudio.com/docs/editor/refactoring#_refactoring-actions)
   "code scheduling" is just as [COD_RISC_V_2nd] book [says](#code_scheduling) to avoid dependency penalties.
@@ -7416,7 +7418,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - [DAXPY](https://netlib.org/utk/papers/latbw/node10.html)
 - [vector lane Figure 1.4](https://developer.arm.com/documentation/den0018/a/Introduction/Fundamentals-of-NEON-technology/Registers--vectors--lanes-and-elements?lang=en#CFFFHHBE) just parallel. But "cannot be a carry or overflow from one lane to another." to keep *independent*.
   Also see p532 comparison with "lanes on highways" (where "vector lane" also includes "a *portion* of the vector register file" -> "*element N* from other vector registers").
-- "bookkeeping code" in p530 may just record the manipulation counts.
+- "bookkeeping code" in p530 may just record the manipulation counts and ["recording"](https://www.topaccountingdegrees.org/faq/what-is-a-bookkeeping-system/#:~:text=Bookkeeping%20systems%20are%20technically%20defined,transactions%20that%20occur%20in%20business.) related infos to [recover](https://stackoverflow.com/a/76798806/21294350).
 - ["strip mining"](http://physics.ujep.cz/~zmoravec/prga/main_for/mergedProjects/optaps_for/common/optaps_vec_mine.htm) and "handle the leftovers" (i.e. Cleanup) is just same as csapp says. Also see [this](#strip-mined)
 - "Vector versus Scalar" p531
   2,4 reduced check of independence between data.
@@ -7469,7 +7471,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 
     From FIGURE 6.9, "SIMD threads" run on "SIMD Lanes" (From FIGURE 6.12, SIMD Lane is *processing hardware*).
     From FIGURE 6.4, SIMD Lane contains multiple primitive instruction like `add` / `mul`.
-  - [PTX](https://en.wikipedia.org/wiki/Parallel_Thread_Execution) just functions as "assembly language".
+  - [PTX](https://en.wikipedia.org/wiki/Parallel_Thread_Execution) just functions as "assembly language" targetted at CUDA.
   - [Warp](https://nyu-cds.github.io/python-gpu/02-cuda/) can be seen as combination of ~~instructions~~ threads to issue.
     ![](https://nyu-cds.github.io/python-gpu/fig/02-sm.png)
   - From [this](https://en.wikipedia.org/wiki/CUDA#Ontology), cuda core is just cuda thread because "GPU L0 cache".
@@ -8013,9 +8015,15 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     Then use "inputs appear in the sensitivity list"
   - "assigns a value to the exact *same* set of bits" just make the output can be *truly multiplexed*.
   - "all combinational logic in a *continuous* assignment or an always block." just make it not sequential where continuous means `assign`.
+
 ### B
 Notice:
 1. CUDA doc [online](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions) or [pdf][CUDA_doc]
+
+---
+
+something like "The programming model scales transparently to large numbers of processor cores" and *others* are duplicately said in this section ......
+
 - [PC](https://streamersplaybook.com/pc-vs-desktop-whats-the-difference/) -> Windows-based computers which is subset of *desktop*.
 - [graphics (i.e. vector) vs images (i.e. raster)](https://www.quora.com/What-are-the-differences-between-graphics-and-images) and [vector](https://guides.lib.umich.edu/c.php?g=282942&p=1885352) is mainly based on formulas,etc. <a id="graphic_image"></a>
 - [1st GPU in 1999](https://en.wikipedia.org/wiki/GeForce_256)
@@ -8023,7 +8031,7 @@ Notice:
   VGA [hardware](https://digilent.com/reference/learn/programmable-logic/tutorials/vga-display-congroller/start) or [VHDL](https://www.instructables.com/Design-of-a-Simple-VGA-Controller-in-VHDL/)
 - [VGA diff GPU](https://www.quora.com/What-is-the-difference-between-GPU-and-VGA/answer/Kolya-Galston)
   Also see [COD_RISCV_2nd_A_appendix] B-5 "*hardwired*, limited capability VGA controllers"
-- GPU core is similar to CPU core, see [appendix_A_exercise_ans] p547.
+- GPU core is similar to CPU core, see [COD_RISCV_2nd_A_appendix] p547.
 - index arithmetic [See](https://stackoverflow.com/questions/29157639/what-are-the-benefits-of-symmetric-level-index-arithmetic-alternative-to-floati) and [codes][miscs_py_script]
   TODO [more detailed](https://math.oxford.emory.edu/site/math125/indexArithmetic/)
 
@@ -8063,6 +8071,9 @@ Notice:
   Also see B-12 "*myriad* thread instances in parallel"
   - [lockstep](https://www.acecloudhosting.com/blog/what-is-simd-and-how-gpus-employ-it/#:~:text=SIMD%20and%20SIMT,-Single%20Instruction%20stream&text=Like%20SIMD%2C%20all%20the%20instructions,concurrently%20manage%20multiple%20data%20streams.) in SIMD/SIMT where "each core waits for other cores to finish processing their data before all the cores *simultaneously proceed to the next* data batch." (i.e. one `AVX` instruction must be finished to start next logically, but OoO may change it).
     Also "Consecutive *threads proceeding in lock-step* are grouped as warps, which are then grouped as thread blocks" -> means [parallel](https://stackoverflow.com/questions/76791769/does-lockstep-in-simd-simt-imply-the-ecc-tolerance). Also by ["are analogous to SIMD *lanes*"](https://en.wikipedia.org/wiki/Single_instruction,_multiple_threads)
+
+    warp -> Also [see](http://15418.courses.cs.cmu.edu/spring2017/lecture/gpuarch/slide_059) where it is the  block minimum unit (["further divide this into 16 sequential blocks"](https://stackoverflow.com/a/3792301/21294350)) is the warp. So [cuda_cpp_Best_Practices_Guide] or [online](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html) "choosing sensible thread block sizes, such as *multiples of the warp* size ... facilitates memory accesses by warps that are properly *aligned*." Also see B-27
+    but not see [COD_RISCV_2nd_A_appendix] p548
 - [chipset](https://en.wikipedia.org/wiki/Chipset#Computers) is just one *interface* between cpu and I/O,etc.
 - compare [ISA](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) and [PCI](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) based on the right card.
 - [framebuffer](https://en.wikipedia.org/wiki/Linux_framebuffer#) is one software abstraction. [See the kernel doc "doesn't need to know anything about the low-level (hardware *register*) stuff."](https://docs.kernel.org/fb/framebuffer.html#introduction) 
@@ -8103,7 +8114,7 @@ Notice:
   - [TPC](https://www.geeks3d.com/20100318/tips-what-is-a-texture-processor-cluster-or-tpc/) include [SMC: SM controller][Tesla_ARCHITECTURE]
   - other abbr see [this](https://people.cs.pitt.edu/~melhem/courses/3580p/gpu.pdf) or [Tesla_ARCHITECTURE]
   - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM.
-- [Cg and HLSL](https://en.wikipedia.org/wiki/Cg_(programming_language)) are same thing.
+- [Cg and HLSL](https://en.wikipedia.org/wiki/Cg_(programming_language)) are same thing. Also [see](https://forum.unity.com/threads/i-dont-know-the-difference-between-cg-and-hlsl-in-my-custom-shader-noob.1169453/#post-7495772)
 #### Directx 10 (2023 newest is 11)
 better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18)
 - FIGURE B.3.1
@@ -8137,6 +8148,16 @@ better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18
     ~~better see [directx_11] "1D Textures",etc.~~
   - [`w`](https://stackoverflow.com/questions/2422750/in-opengl-vertex-shaders-what-is-w-and-why-do-i-divide-by-it) in `x, y, z, w` is used to calculate "`(x, y, z)` screen position"
   - ["high dynamic range"](https://developer.nvidia.com/high-dynamic-range-display-development) compared with normal ...
+- B-16
+  - ["language construct" -> "flow-control constructs"](https://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter01.html) like loop,etc.
+  - ["subsurface scattering"](https://therealmjp.github.io/posts/sss-intro/) -> [BRDF](https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function)
+- "throughput computing" -> [HTC](https://en.wikipedia.org/wiki/High-throughput_computing#High-throughput_vs._high-performance_vs._many-task) which "over a *long period* of time instead of how fast"
+  "*loosely*-coupled tasks" and "grid computing" -> GPU
+
+  MPC: "over short periods"; "both dependent and independent tasks"; "coupled via *file system* operations"
+- ["PCs, workstations, and servers"](https://techdifferences.com/difference-between-server-and-workstation.html)
+  the 2nd may not has GUI
+  and the 3rd is for "dedicated task"s.
 #### Cg
 better view [nvidia_doc](https://developer.download.nvidia.com/cg/Cg_language.html) or [pdf][nvidia_Cg], [wikibook](https://en.wikibooks.org/wiki/Cg_Programming/Vector_and_Matrix_Operations)
 - B-15
@@ -8147,7 +8168,160 @@ better view [nvidia_doc](https://developer.download.nvidia.com/cg/Cg_language.ht
   - TODO how `texCUBE` and `tex2d` implemented.
     they return [color](https://forum.unity.com/threads/shaders-whats-the-return-value-of-tex2d.592699/#post-3959776), also [see](https://gamedev.stackexchange.com/questions/56494/what-range-of-values-can-hlsls-tex2d-function-return#:~:text=The%20tex2D%20function%20usually%20returns,the%20latter%20is%20full%20intensity.)
     Or see this [example `lerp(main_color, secondary_color, _Blend)`](https://www.ronja-tutorials.com/post/009-interpolating-colors/)
+
+    "Sampler to lookup." means `sampler2D`, etc., which is handler to the texture. 
     - `clamp` in `Cg` means [definite range](https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Lerp-Node.html)
+#### CUDA
+From B.3, most of the book contents are copied verbatim from its [reference][Scalable_CUDA] and [Tesla_ARCHITECTURE]
+- B-19
+  - [`dim3`](https://icl.utk.edu/~mgates3/docs/cuda.html)
+  - `__syncthreads()` see [CUDA_doc] 10.6
+- why CPU is [high](https://forums.developer.nvidia.com/t/high-host-cpu-load/198104/2) when running CUDA
+- TODO
+  - ["queue pointer"](https://learn.microsoft.com/en-us/windows-hardware/drivers/display/gpu-hardware-queue)
+- Also see [One kernel only one grid](https://stackoverflow.com/a/26059511/21294350) which is also shown by "interkernel barrier"
+- [local mem](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) ~~["just part of global memory"](https://forums.developer.nvidia.com/t/thread-local-memory/41141/2)~~ "physically separate memories" in B-21.
+- B-22
+  - here "each kernel" -> P in SPMD
+    "convenient degree of parallelism" -> *variable* number instead of "the same number of threads"
+  - TODO "nested data parallelism" with [quicksort](https://www.classes.cs.uchicago.edu/archive/2016/winter/32001-1/papers/nepal.pdf)
+- check [SM count](https://superuser.com/a/198309/1658455)
+  SP is same as [CUDA core](https://www.cgdirector.com/cuda-cores-vs-stream-processors/#:~:text=Stream%20Processors%20and%20CUDA%20Cores,use%20their%20own%20unique%20architecture.) also see ["500 CUDA Cores and the other had 500 Stream Processors ... distinctive way"](https://qr.ae/pyc1fu)
+- [Dedicated/Shared GPU Memory](https://superuser.com/a/1763829/1658455)
+- "GPU thread has its own private registers ..." is similar to the CPU counterpart. The former's "private per-thread memory" corresponds to "stack" in csapp p1029 instead of the latter shared virtual memory.
+- Register File is said before with [verilog](http://cs.middlesexcc.edu/~schatz/csc264/handouts/mips.datapath.html)
+  physically they are based on SRAM with [2 more MOSs](https://en.wikipedia.org/wiki/Register_file#Array) to offer *more ports* while [SRAM](https://en.wikipedia.org/wiki/Static_random-access_memory#Design) use only one port by $BL$/$\overline{BL}$.
+  - TODO "Write bit lines may be *braided*", "This optimization increases the speed of the write."
+- "fast barrier synchronization" because of independent -> no lock needed [p9](https://sci-hub.ru/10.1109/IPDPS.2010.5470477)
+- ~~"limiting each SP to 32 threads"~~ "supporting up to 64 threads": with my gtx 1650, it should be 16 <a id="deviceQuery"></a>
+  ```bash
+  $ /opt/cuda/extras/demo_suite/deviceQuery
+    (14) Multiprocessors, ( 64) CUDA Cores/MP:     896 CUDA Cores
+    Maximum number of threads per multiprocessor:  1024
+  $ ipython -c "1024/64"
+  Out[1]: 16.0
+  ```
+
+  "limiting each SP to 32 threads," because of *RF size*.
+- "warp size of 32 threads" is same as mu [gpu "Warp size"](#my-gpu-parameters)
+- how `warp` implies [`I` (see the figure)](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/) in `SIMT` where it implies multiple lanes (threads).
+  "data-level parallelism among threads at *runtime*" because the thread num may change due to `offset` size.
+- notice grid size can be [*larger*](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485) than physical thread size.
+  This is also said in this [Q&A](https://superuser.com/a/1801197/1658455) where it is achieved by "puts a *new* work block into the processor block when another block *finishes*." which is same as nvidia post "use spare thread when one thread finishes".
+- "executing four threads in each of the eight SP cores over four *clocks*" because *single issue* and ["because each core is effectively *a scalar ALU*"](https://stackoverflow.com/questions/5891082/simt-warp-question).
+  It means same as "SP *scalar processor core* executes an instruction ... using *four clocks*"
+- "data lanes" -> one ALU (think AVX) but "multiple independent threads" -> maybe multiple ALUs in different threads in different cores.
+- "branch diver-gence" See [Tesla_ARCHITECTURE] and 
+  - [Branch_Divergence] from [this](https://stackoverflow.com/questions/17223640/is-branch-divergence-really-so-bad#comment35866340_17223640) where "distinct" means ["clear"](https://www.merriam-webster.com/dictionary/distinct) like [`jmp`](https://www.javatpoint.com/branch-instruction-in-computer-organization)
+    Here due to SIMT ["not possible to carry out *different* instructions on different threads within the *same warp* at the same time"](https://stackoverflow.com/questions/29896422/cuda-avoiding-serial-execution-on-branch-divergence) -> ["synchronously broadcast to all SIMT cores from a single unit with a *single* instruction cache ... using a *single Program Counter*"](https://en.wikipedia.org/wiki/Single_instruction,_multiple_threads)
+
+    So "warps are much narrower" in B-29 -> imply *less* threads needed to execute the same instruction -> less divergent.
+
+    It is also dependent on count of [instruction dispatch units](https://stackoverflow.com/questions/29896422/cuda-avoiding-serial-execution-on-branch-divergence#comment48677732_29897366) and can also "*completely different* group of 32 physical cores". And the [warp in the whitepaper](https://web.archive.org/web/20150627190401/http://www.nvidia.com/content/pdf/kepler/nvidia-kepler-gk110-architecture-whitepaper.pdf) also imples they issue the *same* instruction.
+    - based on the compiler:
+      1. "predicated instructions" 
+    - based on software 
+      1. "Iteration delaying" mainly due to *independent*. So they can be delayed and reordered.
+        "preserves the order of iterations" -> only combine *adjacent* loops with *common* true/false by "delaying favors *fast-changing* branch directions which requires *fewer number of iteration delays*"
+      2. "round-robin" mainly "not starve threads"
+        ```c
+        cond_for_all = ( counter >= num_zeros );
+        // remove idle iteration
+        cond_for_all = cond_for_all ?
+        __any ( cond ) : __all ( cond );
+        ```
+        `counter >= num_zeros` implies `cond_for_all=0` `num_zeros` times, then `__all ( cond )` implies only **all** `cond=1` will `=1`, otherwise `0` -> `else`.
+
+        Then after `num_zeros` times, `__any ( cond )` implies only when **all** `cond=0` will `=0`,otherwise `1` -> `if`.
+      3. Branch distribution is similar to [Loop-invariant code motion](https://en.wikipedia.org/wiki/Loop-invariant_code_motion) which is also said [above](#loop_invariant_optimization) (all compiler [optimization](https://en.wikipedia.org/wiki/Optimizing_compiler#Specific_techniques))
+        "reduce the level of paral-lelism" maybe because *not fused* muladd because mul is moved out of the conditional block.
+    - ["dynamic instruction"](https://stackoverflow.com/a/13458277/21294350)
+      just means not fixed instruction which is implied by *condition*.
+    - kw: “cold” path
+- "B-29" 
+  "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.".
+##### [Benchmarking_thread_divergence_CUDA]
+- p4
+  - `&& !P0` because it corresponds to `pc+1` which is case: not taken.
+- [`SSY`](https://cseweb.ucsd.edu/classes/wi15/cse262-a/static/cuda-5.5-doc/html/cuda-binary-utilities/index.html) -> Set *synchronization* point
+  So `SSY 0x128;` just means synchronize *divergent* branches at `0x128`.
+  TODO `BSSY` may just barrier added to `SSY`.
+- `ISETP` is [chained](https://forums.developer.nvidia.com/t/cuda-sass-question/62334) by `PT` at 2rd pos and `PT/Px` at 5th pos (`x` is `0,1,...`).
+  so `ISETP.LT.AND P0, PT, R0, 0x20, PT;` means if `R0<0x20` (i.e. `LT`) then `PT` is set to `P0` and chained by `AND`.
+  
+  Also [see](https://stackoverflow.com/a/19370940/21294350)
+  - "since the compiler used a clever transformation" -> "into `((i < 4) & (i >= 0))`" with implied `>=0` -> "a *single* ISETP".
+  - find out by examining additional usage examples. :)
+  - "I have not had a need to look at this instruction closely, as it *does not seem to occur very often*"
+  - "chain with `PT`" may means only *true* predicate will be in the `AND` (This is related how hardware designed See [COD_RISCV_2nd_A_appendix] "FIGURE A.3.3" and [this](#truth_table_hardware) where only take `true` in account when calculating `AND`). 
+  - `PSETP.AND.AND P0, PT, !P0, PT, PT;` just puts `!P0 & PT(true) = !PT` to `PT`.
+- `CS2R` [vs](https://forums.developer.nvidia.com/t/how-costly-is-the-s2r-instruction-reading-a-special-register/50472/6) `S2R`
+  Also see [throughput table](https://forums.developer.nvidia.com/t/how-costly-is-the-s2r-instruction-reading-a-special-register/50472)
+- [`@pred/@!pred`](https://stackoverflow.com/a/30289191/21294350)
+- "active threads" just means idle threads which can *execute* -> So used in `and` by `active_mask && P0`.
+- "stack Unwinding" just functions as `ret` in `x86`.
+  Better see "Fig 3" where `NOP.S;` is used to execute the branch *not taken* by `token.mask ← active_mask && !P0` and `push(token)`.
+- ["RAII"](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) just means constructor (i.e. initialization) to do "Resource allocation" and destructor to "resource deallocation". (the *coupled* relation is similar to acquire-release model in c++ (So it is similar to [Stack unwinding](https://stackoverflow.com/a/2331413/21294350)) -> implies "*Scope*-based Resource Management" but it is normally related with "*automatic* variables"). -> "if there are no object leaks, there are *no resource leaks*."
+  above implies "Constructor Acquires, Destructor Releases (CADRe)".
+  - whether "free store" and "heap" "in the same area" is ["*compiler* specific".](https://stackoverflow.com/a/9193170/21294350)
+    The former implies "constructor and destructor".
+
+    Better see [this](https://stackoverflow.com/questions/1350819/c-free-store-vs-heap#comment57565753_1350833) heap may be one old terminology and `free store` can be seen one 
+    (TODO one more common terminology of Encapsulation in csapp) Encapsulation of original `free` -> '[finished goods' supplier](https://stackoverflow.com/questions/1350819/c-free-store-vs-heap#comment110106618_1350833). 
+    Or they are just [same p2](https://web.archive.org/web/20190712222152/https://www.stroustrup.com/Programming/17_free_store.ppt)
+##### my GPU parameters
+```bash
+$ /opt/cuda/extras/demo_suite/deviceQuery
+/opt/cuda/extras/demo_suite/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "NVIDIA GeForce GTX 1650"
+  CUDA Driver Version / Runtime Version          12.2 / 12.2
+  CUDA Capability Major/Minor version number:    7.5
+  Total amount of global memory:                 3725 MBytes (3906076672 bytes)
+  (14) Multiprocessors, ( 64) CUDA Cores/MP:     896 CUDA Cores
+  GPU Max Clock rate:                            1515 MHz (1.51 GHz)
+  Memory Clock rate:                             6001 Mhz
+  Memory Bus Width:                              128-bit
+  L2 Cache Size:                                 1048576 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1024
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 3 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device supports Compute Preemption:            Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 12.2, CUDA Runtime Version = 12.2, NumDevs = 1, Device0 = NVIDIA GeForce GTX 1650
+Result = PASS
+```
+##### TODO
+- [Occupancy Calculator](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator) from [this](https://stackoverflow.com/a/9986071/21294350)
+##### [Scalable_CUDA]
+- p13
+  - "low-cost barriers in making coopera-tion" related with "Parallel reduction" maybe because they are one *huge cross-grid* reduction.
 # valgrind
 - using [latest](https://forum.manjaro.org/t/unable-to-use-valgrind/120042/14) arch
 - [different types](https://developers.redhat.com/blog/2021/04/23/valgrind-memcheck-different-ways-to-lose-your-memory#generating_a_leak_summary) of leak, [official](https://valgrind.org/docs/manual/faq.html#faq.deflost)
@@ -8199,6 +8373,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
   [check](https://superuser.com/questions/837970/is-there-a-way-to-know-the-size-of-l1-l2-l3-cache-and-ram-in-ubuntu#comment2554233_837989) in linux directly (L1 cache [per core](https://www.quora.com/In-a-multi-core-system-does-each-core-have-a-cache-memory-for-itself-or-does-it-have-to-share-the-same-cache-with-other-cores) and [relation](https://unix.stackexchange.com/questions/468766/understanding-output-of-lscpu) among thread,core,socket ) <a id="cpu_socket"></a>
   from the following, L2 is 64 byte (cacheline size per way) <a id="cacheline_byte"></a>:
   ```bash
+      # cache size infos
   $ lscpu --cache
   NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
   L1d       32K     256K    8 Data            1   64        1             64
@@ -9923,11 +10098,36 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 # computer graphic
 ## tutorial
-- [1](https://www.3dgep.com/category/math/)
-- [2](https://web.archive.org/web/20120229133252/http://www.gpgpu.org/wiki/FAQ#Where_can_I_learn_about_OpenGL_and_Direct3D.3F) from [this](https://stackoverflow.com/questions/5709023/what-exactly-is-a-floating-point-texture)
-- [3](https://shadowmint.gitbooks.io/unity-material-shaders/content/support/syntax/lerp.html)
+- [3dgep](https://www.3dgep.com/category/math/)
+- [GPGPU](https://web.archive.org/web/20120229133252/http://www.gpgpu.org/wiki/FAQ#Where_can_I_learn_about_OpenGL_and_Direct3D.3F) from [this](https://stackoverflow.com/questions/5709023/what-exactly-is-a-floating-point-texture)
+- [unity](https://shadowmint.gitbooks.io/unity-material-shaders/content/support/syntax/lerp.html)
 ### Cg
 - [1](https://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter03.html)
+### CUDA
+- [error checking](https://leimao.github.io/blog/Proper-CUDA-Error-Checking/) from [this](https://forums.developer.nvidia.com/t/maximum-number-of-threads-on-thread-block/46392/2)
+- [optimization](https://stackoverflow.com/a/19041467/21294350)
+  it also says about SASS which is "PTX will be compiled into device assembly code, called SASS"
+
+  it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and "Constant memory".
+# CUDA
+- check infos by `/opt/cuda/extras/demo_suite/deviceQuery` or by [table](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities) referenced in [this](https://stackoverflow.com/a/72075628/21294350)
+## `cuobjdump`
+- output [interpretation](https://stackoverflow.com/a/57851949/21294350).
+- use [`cuobjdump -sass`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#usage)
+### `nvdisasm`
+- TODO inline in [`nvdisasm -gi`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm) [usage by `nvcc -gencode arch=compute_75,code=sm_75 single_loop.cu --cubin`](https://forums.developer.nvidia.com/t/nvdisasm-says-binary-is-not-a-supported-elf-file/238918/2)
+## `SASS` and `PTX`
+- better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX]) [then](https://stackoverflow.com/a/35055749/21294350) `SASS`
+  - `c[0x0][0x24]` -> [constant](https://forums.developer.nvidia.com/t/the-meaning-of-cuda-disassemly/60924/3) mem bank
+  - default var at the 1st pos is *dst*.
+- `SASS` [ISA](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html?highlight=ISETP#turing-instruction-set)
+  - [uniform register](https://forums.developer.nvidia.com/t/whats-uniform-register-in-turing/65406/2) is to not corrupt the *floating* data path.
+## miscs
+- why use [scalar processor "takes up more space than a scalar unit ... not be fully used ... equiring more chip area for the instruction *decoder*"](https://forums.developer.nvidia.com/t/why-scalar-processors/10337/2) -> to improve *hardware* design and increase parallel.
+# How to read papers
+- see [this](https://www.scientifica.uk.com/neurowire/gradhacks-a-guide-to-reading-research-papers)
+  kw: 8. Write a succinct ... ; 4. Identify how this paper fits ; 2. *Skim all* of the sections ; 1. Check the publish date ; 2. Read *critically*
+
 ---
 
 # Links inspired by [this](https://stackoverflow.com/questions/25815856/including-reference-links-in-markdown-as-bullet-point-list-on-github)
@@ -10173,6 +10373,8 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [spectre]:../references/papers/spectre.pdf
 [spectre_origin_arXiv]:../references/other_resources/COD/references/papers/spectre_origin_arXiv.pdf
 [Tesla_ARCHITECTURE]:../CUDA/doc/papers/lindholm08_tesla.pdf
+[Branch_Divergence]:../CUDA/doc/papers/Branch_Divergence.pdf
+[Benchmarking_thread_divergence_CUDA]:../CUDA/doc/papers/Benchmarking_thread_divergence_CUDA.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -10234,6 +10436,8 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
 [CUDA_doc]:../CUDA/doc/CUDA_C_Programming_Guide.pdf
 [nvidia_Cg]:../CUDA/doc/Cg/Cg-3.1_April2012_ReferenceManual.pdf
+[PTX]:../CUDA/doc/ptx_isa_8.2.pdf
+[cuda_cpp_Best_Practices_Guide]:../CUDA/doc/CUDA_C_Best_Practices_Guide.pdf
 <!-- directx -->
 <!-- [directx_9]:../CUDA/doc/directx/windows-win32-direct3d9.pdf too big -->
 [directx_11]:../CUDA/doc/directx/windows-win32-direct3d11.pdf

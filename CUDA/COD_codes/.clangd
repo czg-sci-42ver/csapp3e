@@ -1,0 +1,19 @@
+# Turing 1650 https://www.notebookcheck.net/NVIDIA-GeForce-GTX-1650-Laptop-GPU.416044.0.html#:~:text=The%20Nvidia%20GeForce%20GTX%201650,no%20Raytracing%20or%20Tensor%20cores. 
+# sm_75 https://llvm.org/docs/CompileCudaWithLLVM.html (1650 Ti -> 7.5) or https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+# https://github.com/clangd/vscode-clangd/issues/125 from https://stackoverflow.com/questions/75474131/how-to-use-cuda-with-lsp-clangd
+# config more general https://github.com/clangd/clangd/issues/649
+# TODO gencode with nvcc https://stackoverflow.com/questions/35656294/cuda-how-to-use-arch-and-code-and-sm-vs-compute
+CompileFlags:
+  Add:
+    # - -std=c++11
+    # - -x c++
+    - --cuda-path=/opt/cuda
+    - --cuda-gpu-arch=sm_75
+    - -L/opt/cuda/lib64
+    - -I/opt/cuda/include
+    - -lcudart_static
+    - -lcudadevrt
+    - -lrt 
+    - -lpthread
+    - -ldl
+  # Compiler: nvcc
