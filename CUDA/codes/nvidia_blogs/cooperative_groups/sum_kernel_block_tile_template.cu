@@ -8,20 +8,26 @@ ref_1: https://developer.nvidia.com/blog/even-easier-introduction-cuda/
 #include <cooperative_groups.h>
 #include <stdio.h>
 using namespace cooperative_groups;
-__device__ int reduce_sum(thread_group g, int *temp, int val) {
-  int lane = g.thread_rank();
 
-  // Each iteration halves the number of active threads
-  // Each thread adds its partial sum[i] to sum[lane+i]
-  for (int i = g.size() / 2; i > 0; i /= 2) {
-    temp[lane] = val;
-    g.sync(); // wait for all threads to store
-    if (lane < i)
-      val += temp[lane + i];
-    g.sync(); // wait for all threads to load
-  }
-  return val; // note: only thread 0 will return full sum
+template <typename group_t>
+__device__ int reduce_sum(group_t g, int *temp, int val)
+{
+    int lane = g.thread_rank();
+
+    // Each iteration halves the number of active threads
+    // Each thread adds its partial sum[i] to sum[lane+i]
+    #pragma unroll
+    for (int i = g.size() / 2; i > 0; i /= 2)
+    {
+        temp[lane] = val;
+        g.sync(); // wait for all threads to store
+        if (lane < i) val += temp[lane + i];
+        g.sync(); // wait for all threads to load
+    }
+
+    return val; // note: only thread 0 will return full sum
 }
+
 __device__ int thread_sum(int *input, int n) {
   int sum = 0;
 // printf("%d; %d\n",blockIdx.x * blockDim.x + threadIdx.x,blockDim.x *
@@ -49,27 +55,23 @@ __device__ int thread_sum(int *input, int n) {
   return sum;
 }
 
-__global__ void sum_kernel_block(int *sum, int *input, int n) {
-  int my_sum = thread_sum(input, n);
-  // printf("my_sum: %d\n",my_sum);
+__global__ void sum_kernel_32(int *sum, int *input, int n)
+{
+    int my_sum = thread_sum(input, n); 
 
-  extern __shared__ int temp[];
-  auto g = this_thread_block();
-  int block_sum = reduce_sum(g, temp, my_sum);
+    extern __shared__ int temp[];
 
-  // only add once the current thread block sum
-  if (g.thread_rank() == 0)
-    atomicAdd(sum, block_sum);
+    auto g = this_thread_block();
+    auto tileIdx = g.thread_rank() / 32;
+    int* t = &temp[32 * tileIdx];
+    
+    // thread_block_tile<32> tile32 = tiled_partition<32>(g);
+    // int tile_sum = reduce_sum<thread_block_tile<32>>(tile32, t, my_sum);
 
-  thread_group tile32 = tiled_partition(this_thread_block(), 32);
-  /*
-  1. here thread_group only corresponds to the thread related one by "the threads of rank 0 in each tile4 group"
-  in https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cg#tiled-partition
-  this can also be seen from `int tile_sum = reduce_sum(tile32, t, my_sum);`
-  */
-  thread_group tile4 = tiled_partition(tile32, 4);
-  if (tile4.thread_rank() == 0)
-    printf("Hello from tile4 rank 0: %d\n", this_thread_block().thread_rank());
+    auto tile32 = tiled_partition(g, 32);
+    int tile_sum = reduce_sum<thread_group>(tile32, t, my_sum);
+
+    if (tile32.thread_rank() == 0) atomicAdd(sum, tile_sum);
 }
 
 int main() {
@@ -85,7 +87,7 @@ int main() {
   std::fill_n(data, n, 1); // initialize data
   cudaMemset(sum, 0, sizeof(int));
 
-  sum_kernel_block<<<nBlocks, blockSize, sharedBytes>>>(sum, data, n);
+  sum_kernel_32<<<nBlocks, blockSize, sharedBytes>>>(sum, data, n);
   /*
   see ../C_Programming_Guide/Broadcast
 

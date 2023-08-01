@@ -7665,7 +7665,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
     - p433 `inscan`
       [Prefix sum](https://en.wikipedia.org/wiki/Prefix_sum)
       also [see](https://passlab.github.io/OpenMPProgrammingBook/MultiCoreMultiCPU/2_UsingOpenMP_parallel.html#reduction-clause).
-      - ["inclusive or exclusive scan"](https://en.wikipedia.org/wiki/Prefix_sum#Inclusive_and_exclusive_scans)
+      - ["inclusive or exclusive scan"](https://en.wikipedia.org/wiki/Prefix_sum#Inclusive_and_exclusive_scans) <a id="parallel_Scan"></a>
       - The first example codes implies "inclusive" by "indicates that value a[k] (a(k) in Fortran) is included"
     - Notice ["2.19.5 .4" of `reduction`](https://www.openmp.org/spec-html/5.0/openmpsu107.html#x140-5890002.19.5.4) "a *private copy* is created in *each implicit task or SIMD lane*" and "*After the end* of the region, the original list item is updated with the values of the private copies using the *combiner* associated with the reduction-identifier." just corresponds to the [COD_RISC_V_2nd] p539 and p540 codes
     - Task Reduction in [openmp_example] p399 just corresponds to conditions where some other *prerequisites* are needed before the reduction task (i.e. nested task where reduction is nested in a bigger one).
@@ -8258,7 +8258,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       just means not fixed instruction which is implied by *condition*.
     - kw: “cold” path
 - "B-29" 
-  "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.".
+  "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.". <a id="safely_ignored"></a>
   - "2-by-2 pixel quad" is to calculate [Derivatives](http://www.aclockworkberry.com/shader-derivative-functions/) referenced [here](https://www.gamedev.net/forums/topic/700823-how-fragment-derivatives-are-actually-evaluated-within-the-2x2-group/5399275/)
     Also [see](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/deriv-rtx-coarse--sm5---asm-)
   - "If the number of active warps times the clocks per warp exceeds the pipeline latency, the programmer can ignore the pipeline latency" means *independent* warps in parallel *hides* the pipeline latency.
@@ -8355,7 +8355,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       p2 compiler algorithm; 
       is `BB5` out of the kernel?
       what do `IN (BB)` and `OUT (BB)` mean? reread after discrete mathematics.
-- [Cooperative Groups](https://developer.nvidia.com/blog/cooperative-groups)
+- [Cooperative_Groups]
   - TODO
     - "intra-block Cooperative Groups functionality"
     - what does `thread_sum` sum? and what is its `blockDim` and why `i < n / 4;`
@@ -8565,7 +8565,124 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
             Portability -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU."
   - kerenl param [`<<<nBlocks, blockSize, sharedBytes>>>`](https://stackoverflow.com/a/26774770/21294350)
-  - `thread_group tile4 = tiled_partition(tile32, 4);` is runned in 
+  - ~~`thread_group tile4 = tiled_partition(tile32, 4);` is runned in ~~
+  - modularity -> pass a group as an explicit *parameter* -> explicitly tell *what* to `__syncthreads();`
+  - TODO "statically sized group"
+  - ["parallel_Scan"](#parallel_Scan)
+    Also see [parprefix] which is part of [this](https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda)
+    - p6 should be ~~`d := 0` to begin from `x_1`~~ $k\ge 2^{d-1}$.
+    - Why use double buffer:
+      > The results of one warp will be *overwritten* by threads in another warp.
+      And also for one thread *output* may change the other thread *input*. Just see the "Figure 1".
+
+      Here double buffer *swap* at the end to make the *current out* is next *in*. 
+      This is same as [this problem](https://forums.developer.nvidia.com/t/what-is-the-advantage-of-rotate-streams-and-swap-events-at-the-end-of-the-loop/261648?u=czgf2v)
+
+      Also see [application](https://gameprogrammingpatterns.com/double-buffer.html) of `swap` in GPU
+      > a swap operation swaps the *next and current* buffers instantly so that the new buffer is now *publicly visible*
+
+    - "Figure 2" the last line should be `d=0`
+      "performs 2*(n-1) adds and n-1 swaps);" just view the figure.
+      TODO read after p12.
+  - [cuda_warp]
+    - "*collective* operation" implies "synchronized"
+    - TODO
+      1. why `offset = 16` which may make addition element `__shfl_down_sync(mask, val, offset)` of `val` exceeds the range of `input[];`.
+         ```c++
+         for (int offset = 16; offset > 0; offset /= 2)
+           val += __shfl_down_sync(mask, val, offset);
+         ```
+    - On the latest Volta (and future) GPUs, you can run library functions that use warp synchronous primitives *without worrying* whether the function is called in a *thread-divergent* branch.
+
+      This explains why *divergent* warp can execute the *same instruction*. See [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture-notes) from 
+      > Prior to NVIDIA Volta, warps used *a single program counter* shared amongst all 32 threads in the warp *together with an active mask* specifying the active threads of the warp. As a result, threads from the same warp in divergent regions or different states of execution *cannot signal each other or exchange data*, and algorithms requiring fine-grained sharing of data guarded by locks or mutexes can easily lead to deadlock, depending on *which warp the contending threads* come from.
+      Here still all threads in the same warp run the *same instruction*. But the *hardware* active mask makes some inactive (i.e. stall). Then since lock-step, if some threads need others in the *same warp* to *run* which may release locks, then obviously not available. But different independent warps can.
+      This explains the above problem when thread-divergent.
+
+      > Starting with the NVIDIA Volta architecture, *Independent Thread Scheduling* allows full concurrency between threads, regardless of warp. With Independent Thread Scheduling, the GPU maintains *execution state per thread*, including a program counter and call stack, and can yield execution *at a per-thread granularity*, either to *make better use of execution resources* or to allow one thread to wait for data to be produced by another. A schedule optimizer determines how to group active threads from the same warp together into SIMT units. This retains the high throughput of SIMT execution as in prior NVIDIA GPUs, but with much more flexibility: threads can now diverge and *reconverge at sub-warp granularity*.
+      > Therefore, *switching* from one execution context to another has *no cost*
+      ["execution state per thread" implies "fine-grained"](https://stackoverflow.com/a/76734313/21294350).
+      here use hardware *schedule optimizer* to decide ~~queue~~ targets of "SIMT units".
+
+      But [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture) (here some words are referenced in [Tesla_ARCHITECTURE] [See](#safely_ignored) ) says "Individual threads composing a warp *start together* at the same program address, but they have their *own instruction address counter* and register state and are therefore free to *branch and execute independently*." So divergent just not influences whether they execute the same **1st** instruction.
+      > the warp executes each branch path taken, *disabling* threads that are not on that path.
+      >  a warp scheduler *selects a warp that has threads ready* to execute its next instruction (the *active* threads of the warp) and issues the instruction to *those threads*.
+      implies above *inactive* thread.
+      > A key difference is that SIMD vector organizations expose the *SIMD width* to the software, whereas SIMT instructions specify the execution and branching behavior of *a single thread*.
+      the former highlights the *data* parallel by "width" while the latter is targetted at the thread.
+      > In particular, any warp-synchronous code (such as synchronization-free, *intra-warp reductions*) should be revisited to ensure compatibility
+      here `intra-warp` -> between warps, which can guessed ["A warp shuffle is about inter-thread communication"](https://stackoverflow.com/a/76123988/21294350) and ["intra-warp synchronization"](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#independent-thread-scheduling)
+      TODO synchronization-free
+
+      detailed hardware
+      > In particular, each multiprocessor has a set of 32-bit *registers* that are *partitioned among* the *warps*, and a parallel *data cache or shared memory* that is partitioned among the *thread blocks*.
+      > a function of the compute capability of the device and are given in **Compute Capabilities**.
+    - `__activemask` has no `sync` implies
+      > *not* guarantee that all threads taking the branch together will execute the __activemask() *together*
+      means same as ["Note that threads that are *convergent* at an __activemask() call are *not* guaranteed to be *convergent at subsequent* instructions unless those instructions are synchronizing warp-builtin functions."][Warp_Vote]
+      other instructions with `sync` are all synchronous
+      > For __all_sync, __any_sync, and __ballot_sync ... to ensure they are properly *converged before* the intrinsic is executed by the hardware.
+      > all non-exited threads named in mask must execute the same intrinsic with the same mask
+
+      [Warp_Vote] This ensures synchronous which make threads *finished* and it can get the data like `mask`, but not control *how* they are finished.
+      > These intrinsics do not imply a memory barrier. They do not guarantee any memory ordering.
+
+    - [`thread_scope`](https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#scope-relationships) in the [memory fence](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-fence-functions)
+    - "Then __syncwarp() is used to ensure *all threads have done the store*" `smem[y1][x1] = val;`.
+    > There is a shared memory *read followed* by a shared memory *write* *between* every two __syncwarp() calls.
+      TODO So may ~~read~~ *use* one undefined value to write before read the same value `shmem[tid]`.
+    - listing 13
+      [`__shfl`](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__activemask#warp-vote-functions)
+      > Removal Notice: When targeting devices with compute capability 7.x or higher, __shfl, __shfl_up, __shfl_down, and __shfl_xor are no longer available and their *sync variants* should be used instead.
+    - here "atomicAdd() (line 8) " is wrong -> line 7
+      - `atomicAdd` is one wrapper which increase the `*ptr` and return the old `*ptr`.
+      - ~~TODO "Line 10 computes and returns the old value the current thread would get from atomicInc() if it were to call the function instead of atomicAggInc."~~
+        `res + __popc(mask & ((1 << lane_id()) – 1))` only take threads num less than self in account compared with `res = atomicAdd(ptr, __popc(mask));`.
+        ~~So what is `atomicInc()`.~~
+      - here `int mask = __match_any_sync(__activemask(), (unsigned long long)ptr);` to get one warp-level `mask` which is then used in *only one* addition `res = atomicAdd(ptr, __popc(mask));`.
+    > The mask argument, as explained previously, specifies the set of threads in a warp that *must participate* in the primitives. The new primitives perform *intra-warp thread-level* synchronization if the threads specified by the mask are *not already synchronized* during execution.
+      here `mask` implies `sync`.
+    > It assumes that threads in the same warp that are *once synchronized* will *stay* synchronized until the next thread-divergent branch.
+    > Second, ... Remember, thread convergence is guaranteed only within explicitly synchronous warp-level primitives.
+    Here all thread are synchronized at `__syncwarp();`, but after that, they may have *different speeds*, so 
+    "this *re-convergence is not guaranteed*".
+    explicitly synchronous warp-level primitives -> `__shfl_sync`,etc.
+
+    > Once threads *leave* the __syncwarp(), the odd threads and the even threads become *divergent* again. Therefore, the __shfl(0) at line 4 will get an undefined value because lane 0 is *inactive* when line 4 is executed.
+    Here `__shfl(0)` can't get lane 0 value if it's inactive. TODO 0 in `__shfl(0)` means lane or var in [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__ballot#id35)
+
+    tips
+    > Don’t just use FULL_MASK (i.e. 0xffffffff for 32 threads) as the mask value. If *not all* threads in the warp can reach the primitive according to the program logic, then using FULL_MASK may cause the program to *hang*.
+    > Don’t just use __activemask() as the mask value. __activemask() tells you what threads *happen to be convergent* when the function is called, which can be *different* from what you want to be in the collective operation.
+    > Do analyze the *program logic* and understand the membership requirements. Compute the mask ahead based on your program logic.
+    > If your program does opportunistic warp-synchronous programming, use “detective” functions such as __activemask() and __match_all_sync() to find the right mask.
+    Similar to predicate.
+    > Use __syncwarp() to *separate* operations with intra-warp dependences. Do not assume lock-step execution.
+    just not both read and write which may cause the race condition.
+    and `__syncwarp()` only ensure lock-step when execute itself, but *not later*.
+    > you may want to recompile your program with nvcc options `-arch=compute_60 -code=sm_70`. Such compiled programs opt-in to *Pascal’s thread scheduling*
+    i.e. use *old PTX* then go to binary.
+
+    From the last figure, "independent thread scheduling" split the loop body which is "*fine*-grain parallel algorithms".
+    - [independent_thread_scheduling] and view the [whiterpaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf)
+      See Figure 4,5,10,11,12,13,
+      - "Starvation-Free Algorithms" just use *more locks* by "Per-node locks".
+  - > Intentionally removing synchronizations is an *unsafe* technique (known as implicit warp synchronous programming) that *expert* CUDA programmers have often used to achieve *higher performance* for warp-level cooperative operations. *Always explicitly synchronize* your thread groups, because implicitly synchronized programs have race conditions.
+  - here `val += g.shfl_down(val, i);` no diverge and is at the beginning of the kernel, no need to synchronization.
+    here assume all run it, so no mask to synchronize.
+  - > Individual threads in a warp may be *inactive due to independent branching* in the program.
+    > The threads that remain *active* on the path are referred to as *coalesced*.
+    > Odd-numbered threads within a warp will be *part of the same coalesced_group*, and thus they can be *synchronized* by calling active.sync().
+
+    > In warp aggregation, the threads of a warp first compute a total increment among themselves, and then elect a single thread to atomically add the increment to a global counter.
+    this implies Concurrency by `res = atomicAdd(ptr, __popc(mask));` in [cuda_warp].
+    > warp intrinsics can be used to elect the *first active* thread in the warp.
+    [`atomicAdd`](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH____BFLOAT162__ARITHMETIC.html#group__CUDA__MATH____BFLOAT162__ARITHMETIC_1g550f52c89d672213390e9bfd8a3c42bf)
+    >     // broadcast previous value within the warp
+    just make [*all threads get*](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__ballot#broadcast-of-a-single-value-across-a-warp) one data in *one thread*.
+    > possibilities of *flexible and explicit* groups of cooperating threads
+    > Cooperative Groups enables synchronization of groups of threads *smaller* than a thread block as well as groups that *span* an entire kernel launch running on one or multiple GPUs.
+    - Vectorized Memory Access like [`int2, int4, or float2.`](https://developer.nvidia.com/blog/cuda-pro-tip-increase-performance-with-vectorized-memory-access/)
 - TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
@@ -10478,8 +10595,10 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 ### Nsight Compute
 - show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=czgf2v) by `nvcc async.cu -g --generate-line-info`.
 ## API
-- [doc](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+- [runtime doc](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
 - [extended API](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html) with `ThreadGroup`
+  Better [see](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cg#tiled-partition) referenced [here](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html)
+- [math](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__INTRINSIC__INT.html)
 ## `cuda-gdb`
 - need to be in kernel to view the [GPU assembly codes](https://developer.download.nvidia.com/GTC/PDF/1062_Satoor.pdf).
 ```bash
@@ -10866,5 +10985,10 @@ Dump of assembler code for function _Z6kernelPfi:
 [unified_memory]:https://developer.nvidia.com/blog/beyond-gpu-memory-limits-unified-memory-pascal/
 [unified_memory_basic]:https://developer.nvidia.com/blog/unified-memory-cuda-beginners/
 [unified_memory_cuda_6]:https://developer.nvidia.com/blog/unified-memory-in-cuda-6/
+[independent_thread_scheduling]:https://developer.nvidia.com/blog/inside-volta/
+[Cooperative_Groups]:https://developer.nvidia.com/blog/cooperative-groups
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+
+<!-- cuda doc -->
+[Warp_Vote]:https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__activemask#warp-vote-functions
