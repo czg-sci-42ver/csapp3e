@@ -1,3 +1,15 @@
 hello
 !COD_codes/
+!cooperative_groups/
+!C_Programming_Guide/
+!Benchmarking_thread_divergence_CUDA/
+!nvidia_blogs/
+*.cubin
+*.fatbin*
+*.ii
+# *.cu
+*.gpu
+*.cudafe1*
+*.ptx
+*.reg*
 windows-win32-direct3d9.pdf

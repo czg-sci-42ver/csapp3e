@@ -5113,6 +5113,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - p37 'over Common Data Bus that broadcasts results to all FUs', so can run in parallel which the latter can't -> can [decentralized](https://courses.cs.washington.edu/courses/csep548/00sp/lectures/class3/tsld035.htm) with Function Units
   - p7 Rj [meaning p3 (may be wrong based on following wikipedia link)](https://web.njit.edu/~sohna/cs650/lec4-2.pdf) `Rj = Yes` [means (here also says 'RAW' solve by Scoreboarding in ‘Read operands’)](https://en.wikipedia.org/wiki/Scoreboarding) 'ready for and are not yet read.'~~not avialable (see p12 vs p11)~~. ~~however,p15 load F2 means **not available**, while mul says `rj` is no which means **available** ~~
     - so cycle 1,2 `Rk=Yes`, cycle 3 `Rk=No` because has been read; cycle 6 `Rj=No` because not ready for.
+    - Scoreboard [algorithm](https://en.wikipedia.org/wiki/Scoreboarding#The_original_6600_algorithm) <a id="scoreboard"></a>
+      - wait until `!Result[dst]` (i.e. until `Result[dst]=0`, from `Result[Fi[FU]] ← 0; // 0 means no FU generates the register's result` means the *last* Result has been *completed*. Notice: here although program written order `Result[Fi[FU]] ← 0;` ~~then assign the value~~ is before `RegFile[Fi[FU]] ← computed value;`, but similar to verilog grammar, here may mean *non-blocking* assignment.)
+        This is to "In order to avoid output dependencies ( WAW ...)"
+      - "when write dependencies (RAW – Read after Write) have been dropped" and "To avoid Register File *Port contention*" -> `wait until (Rj[FU] AND Rk[FU]);`.
+        po this can be optimized to allow multiple instructions to read same data.
+      - `(Fj[f]≠Fi[FU] OR Rj[f]=No)` means either the write `Fi[FU]` won't influence other reads or other has read (`Rj[f]=No`). -> "the Unit is *clear of all* (WAR – Write after Read) hazards".
+      - po here Scoreboard just means *recording scores* (i.e. infos about registers including register dependency and others).
 - Dynamic instruction scheduling [overlook](../references/other_resources/COD/references/HY425_L8_ReorderBuffer.pdf) https://www.csd.uoc.gr/~hy425/2020f/lectures/HY425_L8_ReorderBuffer.pdf
   - also known as [Superscalar](http://thebeardsage.com/multiple-issue-processors/) [1](https://en.wikipedia.org/wiki/Superscalar_processor) <a id="scheduling"></a>
     Superscalar is just ~~pipeline~~ [multiple isuue](https://en.wikipedia.org/wiki/Superscalar_processor) "by using multiple execution units" which is independent of pipeline ("different performance enhancement techniques"). <a id="Superscalar"></a>
@@ -5946,6 +5953,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 #### chapter 3
 - p394 TODO [SRT](https://en.wikipedia.org/wiki/Division_algorithm#SRT_division) with prediction.
 - p433 Ordered and UnOrdered compare [diff](https://stackoverflow.com/questions/8627331/what-does-ordered-unordered-comparison-mean)
+  better see [this](https://stackoverflow.com/a/38516544/21294350) `ordered = (x>y) | (x==y) | (x<y);` just means *normal* comparison -> normal.
+  while NaN can't be compared -> unordered -> unordered comparison checks if *either* operand is a NaN (i.e. allow compare NAN, see [this](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=equ#floating-point-comparisons-floating-point-operators-nan)).
 - p396 nonperforming restoring division also referenced [above](#geeks)
 - p393 show why round to zero
 - p375 use hardware parallel to carry by [carry lookahead ('reduce')](https://en.wikipedia.org/wiki/Carry-lookahead_adder)
@@ -6436,6 +6445,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - "The Front End" is just what [bison](#bison) and flex do.
 - "intermediate representation" is just one *simple initiated* machine codes.
 - "virtual registers" may be just *comments* like `tmp87` in the `gcc -S -fverbose-asm`
+  Also [see "overlapping live ranges" and "the *infinite* number of virtual registers and fixed number of physical registers"](https://llvm.org/devmtg/2014-10/Slides/Baev-Controlling_VRP.pdf)
 #### 3
 - FIGURE e2.15.2 [factor](https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html) can be thought as *constant* used in *calculation*.
 #### 4 <a id="Local_Global_Optimizations"></a>
@@ -6451,7 +6461,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - see 5 "shift left."
 #### 5
 - here `0(r103)` stores `x[i]`
-- "dead code" due to [macros, templates](https://stackoverflow.com/questions/48209595/ignore-dead-code-warnings-in-c-c) because it not knows the type of variable (maybe *const*.)
+- "dead code" (means ~~*never* run~~ [not used](https://en.wikipedia.org/wiki/Dead_code#:~:text=In%20some%20areas%20of%20computer,wastes%20computation%20time%20and%20memory.)) due to [macros, templates](https://stackoverflow.com/questions/48209595/ignore-dead-code-warnings-in-c-c) because it not knows the type of variable (maybe *const*.) <a id="dead_code"></a>
+
+  TODO somewhere in this doc say elimination of "dead code" may have detrimental influences.
 #### 6
 - "conservative." just as csapp says.
 - "allocate a variable to a register" because of thinking its [*liveness* "cannot be in the same register wherever their *live ranges overlap*"](https://www.cs.cmu.edu/~fp/courses/15411-f13/lectures/03-regalloc.pdf) is long.
@@ -6540,6 +6552,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - TODO the inner idea of "tree-based pattern matcher" should be same as parser.
     similar to FIGURE e2.15.2.
 - TODO different computers [may](https://groups.google.com/g/r-inla-discussion-group/c/qkoV9ZtA1Wo) generate different results. Also see ["using the mathematics of the target machine"](https://en.citizendium.org/wiki/Constant_folding)
+  - Constant folding Also [see](https://www.codingninjas.com/studio/library/constant-folding-in-compiler-design) (i.e. *precalculate* the constant.)
 - "localized instruction scheduling" see [COD_RISC_V_2nd] p345 FIGURE 4.71 and the following figure.
 - ["Straight-line code"](https://www.pls-lab.org/en/Straight-line#:~:text=One%20could%20say%20that%20straight,doesn't%20seem%20precise%20either.) which obviously excludes branch. <a id="Straight_line_code"></a>
 - "Stack height reduction" may be similar to "Tree Height Reduction" which increases [ILP](https://en.wikipedia.org/wiki/Instruction-level_parallelism) obviously.
@@ -6665,7 +6678,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
           - [ ] Re-ducing the resolution of the clock
     - " in user pro-cesses from accessing *kernel* memory, the attack will stillwork"
       See [this](https://cyber.wtf/2017/07/28/negative-result-reading-kernel-memory-from-user-mode/): mainly also based on "last two instructions are executed *speculatively*" Then cache stores the data "differs depending on the value *loaded from somekerneladdress*".
-    - ["orthogonal" techopedia](https://www.techopedia.com/definition/16420/orthogonal#:~:text=Orthogonal%2C%20in%20a%20computing%20context,are%20perpendicular%20to%20each%20other.) just means independent ("without considering its after-effects", "two things vary from each other independently").
+    - ["orthogonal" techopedia](https://www.techopedia.com/definition/16420/orthogonal#:~:text=Orthogonal%2C%20in%20a%20computing%20context,are%20perpendicular%20to%20each%20other.) just means independent ("without considering its after-effects", "two things vary from each other independently"). <a id="orthogonal"></a>
       This is same as [wikipedia definition](https://en.wikipedia.org/wiki/Orthogonality_(programming))
       - "C++ is considered non-orthogonal" because it doesn't "nothing but that instruction happens" but may generate [exceptions](https://stackoverflow.com/a/19929214/21294350).
         - from [c2](http://wiki.c2.com/?ConcurrencyIssuesAreOrthogonalToObjects)
@@ -6696,7 +6709,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - notice: although "rewinds its register state." ~~before~~ when "read from array2 is pending", "the speculative read from array2 affects the cache state" *still occurs*. So "the next read to array2[n*256] will be fast for *n=k*"
       "secret byte using the *out-of-bounds* x" (`k`)
     - "flush+probe" in p6 ~~just use explicit load instead of ~~ is just from [FLUSH_RELOAD] p5.
-    - ["soft page fault"](https://techcommunity.microsoft.com/t5/ask-the-performance-team/the-basics-of-page-faults/ba-p/373120#:~:text=On%20the%20other%20hand%2C%20a,working%20set%20of%20another%20process.) implies DLL.
+    - ["soft page fault"](https://techcommunity.microsoft.com/t5/ask-the-performance-team/the-basics-of-page-faults/ba-p/373120#:~:text=On%20the%20other%20hand%2C%20a,working%20set%20of%20another%20process.) implies DLL. <a id="page_fault"></a>
     - p9 gadget
       - "gadget" is just some mem-reference program .
       - "onto smaller regions" by controlling `edi` and fixed data in `[ebx+edx+13BE13BDh]` when `ebx` is controlled fixed.
@@ -7621,7 +7634,8 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - See 334, `vectored interrupts` just uses one *Vector Table Base Register* to control the cause (similar to the virtual method table).
   `SCAUSE` just see [riscv_privileged] p70
 - It shouldn't happen that "user programs could perform I/O *directly*." so "OS provides abstractions"
-- "zero-copy" just skip the "intermediary buffers".
+- "zero-copy" just skip the "intermediary buffers". <a id="zero_copy"></a>
+  See ["then *unnecessary data copies*, from kernel space to user space and from user space to kernel space, can be avoided by using *special* (zero-copy) system calls"](https://en.wikipedia.org/wiki/Zero-copy#Principle) and ["across the kernel-user boundary to the *application* ... reduces the number of *context switches* between kernel and user mode."](https://developer.ibm.com/articles/j-zerocopy/)
 - From [this](https://en.wikipedia.org/wiki/Cyclic_redundancy_check#Standards_and_common_use)
   Also see [this](#hamming_distance)
   - TODO 
@@ -8204,20 +8218,25 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
 
   "limiting each SP to 32 threads," because of *RF size*.
 - "warp size of 32 threads" is same as mu [gpu "Warp size"](#my-gpu-parameters)
-- how `warp` implies [`I` (see the figure)](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/) in `SIMT` where it implies multiple lanes (threads).
+- how `warp` implies [`SI` (see the figure)][cuda_warp] in `SIMT` where it implies multiple lanes (threads).
   "data-level parallelism among threads at *runtime*" because the thread num may change due to `offset` size.
 - notice grid size can be [*larger*](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485) than physical thread size.
   This is also said in this [Q&A](https://superuser.com/a/1801197/1658455) where it is achieved by "puts a *new* work block into the processor block when another block *finishes*." which is same as nvidia post "use spare thread when one thread finishes".
 - "executing four threads in each of the eight SP cores over four *clocks*" because *single issue* and ["because each core is effectively *a scalar ALU*"](https://stackoverflow.com/questions/5891082/simt-warp-question).
+  This says one warp (32 threads) with [one instruction cache](https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming)) -> 4 (thread per core) *8 (core num) threads
+
+  Notice: from [this](#deviceQuery) my gpu is 16 threads / core.
   It means same as "SP *scalar processor core* executes an instruction ... using *four clocks*"
 - "data lanes" -> one ALU (think AVX) but "multiple independent threads" -> maybe multiple ALUs in different threads in different cores.
-- "branch diver-gence" See [Tesla_ARCHITECTURE] and 
+- "branch diver-gence" See [Tesla_ARCHITECTURE] and [Branch_Divergence]
   - [Branch_Divergence] from [this](https://stackoverflow.com/questions/17223640/is-branch-divergence-really-so-bad#comment35866340_17223640) where "distinct" means ["clear"](https://www.merriam-webster.com/dictionary/distinct) like [`jmp`](https://www.javatpoint.com/branch-instruction-in-computer-organization)
     Here due to SIMT ["not possible to carry out *different* instructions on different threads within the *same warp* at the same time"](https://stackoverflow.com/questions/29896422/cuda-avoiding-serial-execution-on-branch-divergence) -> ["synchronously broadcast to all SIMT cores from a single unit with a *single* instruction cache ... using a *single Program Counter*"](https://en.wikipedia.org/wiki/Single_instruction,_multiple_threads)
 
     So "warps are much narrower" in B-29 -> imply *less* threads needed to execute the same instruction -> less divergent.
 
     It is also dependent on count of [instruction dispatch units](https://stackoverflow.com/questions/29896422/cuda-avoiding-serial-execution-on-branch-divergence#comment48677732_29897366) and can also "*completely different* group of 32 physical cores". And the [warp in the whitepaper](https://web.archive.org/web/20150627190401/http://www.nvidia.com/content/pdf/kepler/nvidia-kepler-gk110-architecture-whitepaper.pdf) also imples they issue the *same* instruction.
+    - many places have said "all threads within a warp must execute the *same* instruction at any given time". So "receive instructions from *a single issue unit*", then `-` in "Figure 2" may mean *nothing issued* to that thread.
+    - Also see one [optimization](https://forums.developer.nvidia.com/t/solved-ptx-isa-predicated-execution-and-the-warp-divergence-issue/31957) about branch which is similar to conditional move.
     - based on the compiler:
       1. "predicated instructions" 
     - based on software 
@@ -8242,6 +8261,223 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
   "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.".
   - "2-by-2 pixel quad" is to calculate [Derivatives](http://www.aclockworkberry.com/shader-derivative-functions/) referenced [here](https://www.gamedev.net/forums/topic/700823-how-fragment-derivatives-are-actually-evaluated-within-the-2x2-group/5399275/)
     Also [see](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/deriv-rtx-coarse--sm5---asm-)
+  - "If the number of active warps times the clocks per warp exceeds the pipeline latency, the programmer can ignore the pipeline latency" means *independent* warps in parallel *hides* the pipeline latency.
+
+    As book says "Different warps execute independently", "a round-robin schedule of eight warps has a period of 32 cycles between successive instructions for the same warp" due to ($4*8=32$ where 8 is due to round-robin (i.e. interleaved execution) ) may be due to *only one dispatch unit* to schedule the instructions.
+    "keep 256 threads active" -> $256/32=8$ (i.e. eight threads per core)
+
+    Notice: "*pipeline* uses *several clocks* of latency to complete each instruction." So above latency is mainly due to *pipeline* because scheduler can always *schedule* the instruction to the idle thread.
+- B-30
+  - "an *IPC of 1.0* per processor core" implies [this](#scalar_unit_gpu)
+  - ["register dependency scoreboard"](#scoreboard)
+    How "warps" are qualified, see examples in the above referenced pdf.
+  - "(CTAs)" can be thought same as CUDA thread block which consists of *multiple warps*.
+    influence whether can "at *full* multiprocessor performance."
+  - kw: "accumulates and *packs*"
+- B-31
+  - "shader programs are becoming longer and more *scalar*" where scalar means we only manipulate with *part* of the vector indicated by "scalar code per thread".
+  - "*combining subvectors* of work to gain efficiency) but that complicated the scheduling hardware" because vectors needs to be packed and unpacked instead of each element just manipulated by *one* thread without many overheads.
+  - "different binary microinstruction formats" means their ~~microarchitecture~~ ISA encoding may totally differ.
+  - ["Direct3D vector instructions"](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dp3---ps)
+  - [IR (Intermediate representation)](https://en.wikipedia.org/wiki/Intermediate_representation) just its literal meaning.
+    - shift in `shift + add` mean multiply like `rdi*4` in `add dword [rbx + rdi*4]`.
+  - ["optimizes SIMT branch diverge and *converge point*"][speculativereconvergence]
+    - `A` is [post-dominator](https://en.wikipedia.org/wiki/Dominator_(graph_theory)#Postdominance) of `B` ~~just means~~ doesn't `A` is dominated by `B` (i.e. in the graph, *all* paths to `B` are though `A` -> dominated).
+      because "all paths to the *exit* node of the graph starting at n must go through z" (i.e. n *out* must to z) may mean `n` *out* is only a *part* of *in* to `z` which is not "every path from the entry node *to n* must go through d"
+      more explicitly, here not "*every* path from the entry node to" z "must go through" n -> not `n >> z`.
+      ```bash
+      entry --> n ->  z -> exit
+            |        /|\ 
+            |-> n'----|
+      ```
+
+      "immediate dominator" just literally *no other intermediate* dominator by "does not strictly *dominate any other node* that strictly dominates n".
+
+      "strictly dominate" only excludes self from all dominators by viewing the graph.
+
+      dominance frontier-> "where d's dominance *stops*".
+      - So "post-dominator (PDOM) of the divergent region" (i.e. these branches) is the 1st instruction out of the branches which they *must execute after* (i.e. "all paths to the exit node" in wikipedia and "guaranteed to arrive" in the paper) the branches.
+    - ["short-circuit"](https://www.geeksforgeeks.org/short-circuit-evaluation-in-programming/) implies "*removes* a thread from the specified convergence barrier"
+      `BSSY` construct one barrier joined *list* and `BSYNC` (synchronize) `BREAK` (manipulate list members) are based on the 1st instruction.
+
+      "non-standard convergence points" by "collects multiple threads *across different iterations*" or others means not "*standard* reconvergence logic collects all threads at the *post-dominator*"
+    - In short `converge point` can be "at earlier points of execu-tion" to be parallel (see 1st figure).
+    - "inner loop *post-tail*" -> "post-dominator".
+    - Figure 2(c) "Common function call" is more direct to "recognize" than (a) "Divergent condition".
+    - "may prefer to reconverge for *expensive* paths while *allowing diverged* execution of *less* expensive paths" because "Threads *wait* at the start of the expensive region for all threads to arrive". So only expensive thread may *amortize* this overhead.
+    - TODO "insert a `RejoinBarrier` in BB3 where the barrier b0 was cleared by a WaitBarrier" because  it needs "*waits* on a barrier that it has *already cleared* rejoins the barrier"
+    - ~~TODO~~ "increase serialized executions of other portions" because of ~~*wait*~~ changes of "reconvergence point" moving the *prolog/Epilog* locations. See figure 3(b).
+      This means same as "maximizing convergence may not always be the best choice. ... we can also increase serialized executions of *other portions*"
+      
+      Notice: here only the time to execute each instruction differs, but these instructions are same by `accumulate_neutron_cross_sections()`.
+      here same color interpret same instructions maybe with *different data sources* -> So (b)(iii) has red color and black color can't be at the same line. And (ii) can't be real (i.e. Ideal) because of the overheads between iterations. (Also see ["to load and store from *divergent addresses* ... the threads of a warp execute the *same instruction sequences* together"][cuda_warp])
+    - p4 "does not *conflict*
+    with the compiler inserted reconvergence point at the post-
+    dominator, nor does it affect convergence properties of the
+    code outside the function body." See 4.3 Deconfliction ("overlap" may cause the "deadlock" ("wait for each other") ).
+    - "masking off" in p2 means same as "predication".
+      "*branch* independently depending on the evaluation of the branch condition ... *serializes* the execution of the taken and not-taken paths ... resume *parallel* execution" just see figure 3(b) where prolog is parallel but `accumulate_neutron_cross_sections()` is serial (As [this](https://stackoverflow.com/questions/76798409/does-conditional-evaluation-at-the-alu-always-imply-no-branch-divergence#comment135398286_76798806) says, it not means predication just means "diverging branches" -> running *different paths*.)
+    - How to implement 
+      1. compiler: "reconvergence *hints*"
+    
+    - in Figure 4, `b1` should be "branch post-dominators." Then probably `BB5` is the "post-dominator".
+    - 4.1 Reconvergence point
+      - "predicted location for reconvergence." -> `L1:` by "via a label". 
+        From "where all threads wait before" -> ` WaitBarrier(b0)`.
+      - "The *region* of code where this prediction should apply." -> `JoinBarrier(b0),CancelBarrier(b0)` by "threads that leave the re-gion are *no longer considered candidates*"
+        `Predict(L1)` -> "*start* of the prediction region"
+    - 4.2
+      - TODO "prior to the synchro-nization pass" may means before synchronization takes effect.
+      - "waits on a barrier that it has already cleared rejoins the barrier" just means need to rejoin for waiting.
+      - "exits the region *without waiting* on a barrier that it has joined" ~~may mean although running `WaitBarrier<barrier>` but ~~no~~ all other threads joined and then quickly `CancelBarrier<barrier>` because of *not taken* branch.~~
+        Same as "a CancelBarrier in BB5 where threads that joined bar-rier b0 may *escape without clearing* the barrier"
+        Here not waiting because of not taken branch -> not running `WaitBarrier(b0)` which is same as "describes *which* threads are considered to be *candidates* for reconvergence"
+
+        "so other threads do not wait forever." beacuse `WaitBarrier(b0)` will wait for the *joined member* if it *not clear* the barrier.
+      - "orthogonal barrier register" can be seen as independent. [See](#orthogonal)
+
+      - "(1) whether a thread is part of an uncleared barrier, and (2) whether a thread expects to wait on the barrier." just correspond to `CancelBarrier` and `RejoinBarrier` each.
+        |                       |                                                                                                                                        |
+        | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+        | WaitBarrier\<barrier> | Threads wait on all participating threads to arrive **before clearing** the barrier and continuing execution. Implemented using BSYNC. |
+      - "where the barrier b0 was *cleared* by a WaitBarrier" So it needs `RejoinBarrier` to "reconverge" well in the *subsequent loops*.
+      - dead -> "it has no further uses" means same as [this](#dead_code)
+      - [Heuristic](https://en.wikipedia.org/wiki/Heuristic_(computer_science)) just means take *samples* and select the best by "*ranks* alternatives in search algorithms at each *branching step*".
+      - "result in poor performance." because one convergence is explicitly eliminated "`b1` are removed thereby eliminating the conflict" and one is implicitly eliminated "the *newly defined* convergence point is never, or *rarely*, en-tered,"
+      - "Loop Merge" in p3 -> col-lecting threads *across iterations*
+        This is same as "Iteration Delay" and also referenced in this [paper][Branch_Divergence]
+      - "soft barriers" means not hard to reconverge at the "user-defined convergence point" *every time*.
+        - "exit barrier `bPdom` to allow the remaining threads to continue execution." may be redundant because `WaitBarrier(bTemp)` has almost synchronized (i.e. "`bAll` collects all threads at the loop exit"), So no need to ensure no delay with `WaitBarrier(bPdom)`.
+      - ["parallelizing compilers"](https://en.wikipedia.org/wiki/Automatic_parallelization) just function similar to GPU kernel function.
+      - "barriers and warp synchronous instructions may affect the correctness of modifying the convergence properties" -> 4.3 Deconfliction
+        4.5 doesn't say detailedly how the compiler implemented for "Automatic Detection of Reconvergence Point" (as it says, " challenging problem for the compiler to solve unaided, particularly when there are *conflicting* locations")
+    - TODO
+      p2 compiler algorithm; 
+      is `BB5` out of the kernel?
+      what do `IN (BB)` and `OUT (BB)` mean? reread after discrete mathematics.
+- [Cooperative Groups](https://developer.nvidia.com/blog/cooperative-groups)
+  - TODO
+    - "intra-block Cooperative Groups functionality"
+    - what does `thread_sum` sum? and what is its `blockDim` and why `i < n / 4;`
+  - here `reduce_sum` function same as `__shfl_down_sync`
+  - memset [vs](https://stackoverflow.com/a/1373422/21294350) `std::fill`
+  - [`cudaMallocManaged` "Unified Memory"](https://developer.nvidia.com/blog/unified-memory-cuda-beginners/) vs [`cudaMalloc` where distinct between the host and device](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cudaMalloc#memory-allocation-and-lifetime)
+    Notice the [migration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#data-migration-and-coherency) of `cudaMallocManaged` may [decrease][Maximizing_Unified_mem] the performance (link from [this](https://stackoverflow.com/a/21990899/21294350)).
+    Used in [jetson](https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#id1) to "reduce the readImage() time".
+
+    Also see [vs](https://forums.developer.nvidia.com/t/difference-between-cudamallocmanaged-and-cudamallochost/208479/2) [`cudaMallocHost`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gd5c991beb38e2b8419f50285707ae87e) where "pinned memory" [p6](https://engineering.purdue.edu/~smidkiff/ece563/NVidiaGPUTeachingToolkit/Mod14DataXfer/Mod14DataXfer.pdf) means [same](https://saturncloud.io/blog/cuda-and-pinned-page-locked-memory-not-page-locked-at-all/#:~:text=Page%2Dlocked%20memory%20is%20a,about%20the%20overhead%20of%20paging.) as page-locked memory.
+    kw: "moves the resident location of an allocation to the processor that needs it. Pinned memory *does not*"
+    - [Maximizing_Unified_mem]
+      better to see "Get Started with Unified Memory in CUDA" at the end
+      > In this post I’ve aimed to provide *experienced* CUDA developers the knowledge needed to optimize applications to get the best Unified Memory performance. If you are *new* to CUDA and would like to get started with Unified Memory, please *check out the posts* An Even Easier Introduction to CUDA and Unified Memory for CUDA Beginners.
+      - "Page Migration Mechanism" says how Migration in `cudaMallocManaged` is done which implies "copies".
+      - ["zero-copy access"](#zero_copy)
+      - "Considering that Unified Memory introduces a *complex page fault handling* mechanism, the on-demand streaming Unified Memory *performance is quite reasonable*"
+      - "generate many faults *concurrently*" because of delay of synchronization.
+      - kw: density prefetching; "page fault groups"; "this overlap is severely limited *due to the SM stalls* caused by page fault handling."; "because the CPU’s page tables *cannot be updated asynchronously*"; hardware access counters
+      - "merge nearby smaller pages into larger pages" may means same as [this](#hugepage)
+      - po "Instead of having multiple hardware warps *accessing the same* page, we can divide pages between warps"
+        so less conflict miss -> performance better.
+        - TLB update is implied by [page fault](#page_fault)
+          
+          Also see [this][unified_memory] 
+          - "see the *virtual address and reason* for every migration event" and "2MB page is *evicted* to free space"
+            "do not correlate back to the *application code*."
+          - It also says how to "*automate* this process." "if you have hundreds or thousands of page faults in *different parts* of your application" by `CUPTI` and `sqlite`.
+          - "once we hit the GPU memory limit, the driver starts *evicting old* pages"
+            "First, the page fault processing takes a significant amount of time. Second, the migration latency is completely exposed" the 2 things just means same (i.e. 1st caused 2rd).
+          - Optimizing Performance with Prefetching and Usage Hints:
+            
+            "prefetching operation can be issued in a *separate CUDA stream* and *overlapped* with some compute work ... *non-blocking* stream to enable concurrent" says why `Prefetch` better. See [cuda_stream]
+            - "prefetches are scheduled while GPU is working on the other AMR levels to *avoid any conflicts*" See Figure 9.
+              Notice the `3` is unevicted due to `least-recently-used`.
+            - TODO read more about [async](https://docs.nvidia.com/cuda/cuda-runtime-api/api-sync-behavior.html#api-sync-behavior__memcpy-async) from [this](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge8dc9199943d421bc8bc7f473df12e42)
+            - "the CPU could still be *involved* as it needs to initiate *page migration* and update page mappings" means `cudaMemPrefetchAsync` needs to wait (i.e. synchronous) for cpu to complete.
+              - "for better overlap with GPU kernels we need to make sure enough GPU work is *scheduled in advance*"
+                TO keep `cudaMemPrefetchAsync` busy most of time which is synchronous with CPU so CPU is also busy. Then CPU overheads of `page migration`,etc., can be hidden. (Here also assumes the *spacial locality* to take effects).
+                "a prefetching operation can be submitted to a separate stream *after* all GPU levels are scheduled but *before* we synchronize GPU" just *early* prefetching.
+            - `cudaMemAdvise(ptr, size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId); cudaMemAdvise(ptr, size, cudaMemAdviseSetAccessedBy, myGpuId);` is to "pin regions to *CPU* memory and establish a direct mapping from the *GPU*" (i.e. used by GPU). Then less *page faults*.
+            - `cudaMemAdviseSetReadMostly` "automatically *duplicates* data on a specified processor." -> ["read-duplicated *copies* of the data ... the *collapsed* copy will be the *preferred* location"](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+              "Writing to such memory is allowed and doing so will *invalidate* all the copies"
+              
+              Usage: "*constant throughout* the application execution and *shared*"
+              "isolate and *eliminate* the remaining CPU page faults and keep the Unified Memory profile *clean* during GPU memory oversubscription." because no page faults and overheads related with these *constants* due to *read-only*.
+              - TODO 
+                - read "more sophisticated prefetching solution that *splits* the grid into multiple parts can help improve performance even further, but this a good topic for *another* post."
+                - "OpenACC"
+          - "the *compiler directives* approach provides a great option for *portability* to various architectures"
+        - [cuda_stream]
+          > streams, sequences of commands that execute *in order*. Different streams may execute their commands *concurrently* or *out of order* with respect to each other
+          > the *default* stream which *implicitly synchronizes* with all other streams
+          - "the very small bars for the *dummy* kernels on the default stream, how they cause all of the other streams to *serialize*." See [this code profiler data](../CUDA/codes/nvidia_blogs/streams/stream_test_no_default.nvvp) after removing the dummy.
+          - here use compiler `default-stream per-thread`
+            1. "*each host thread* its own default stream" -> this is reflected in the 2rd example.
+            2. "regular streams ... may run *concurrently* with commands in *non-default* streams" which is opposite of the legacy streams.
+              This is reflected in 1st example.
+            These 2 properties correspond to "as far as *synchronization and concurrency* goes"
+          - Notice `cudaStreamLegacy` and `cudaStreamPerThread` differences which can be seen from Figure 3,4.
+            Just see "More *Tips*"
+        - [cuda_async] to Overlap Data Transfer
+          Here is mainly by non-blocking with async by "`cudaMemcpyAsync()` is non-blocking on the host".
+          - "The default stream" limits "because it is a *synchronizing* stream with respect to operations on the device: no operation in the *default* stream will begin until all *previously* issued operations in *any* stream on the device have completed" (just as [cuda_stream] says)
+            - "asynchronous behavior of kernel" makes "executes `myCpuFunction()`, *overlapping* its execution" possible 
+              But since `cudaMemcpy(a, d_a, numBytes, cudaMemcpyDeviceToHost);` has data dependency `d_a` in `increment<<<1,N>>>(d_a)`, So this asynchronous can't influence `cudaMemcpy`
+              So it only "overlap kernel execution in the *default* stream with *execution of code*"
+          - non-default
+            - here the order is limited by the *~~issue~~ engine unit number* of "C1060".
+            > For the first asynchronous version of our code the *order* of execution in the copy engine is: H2D stream(1), D2H stream(1), H2D stream(2), D2H stream(2), and so forth.
+            > in an order that *precludes* any overlap of kernel execution and data transfer
+            - C2050 has 2 engines. So 1st async works.
+              
+              Notice: here "*concurrently* run multiple kernels" implies *no defined order*. -> "*delays* a signal that normally occurs *after* each kernel completion" to keep the *correct* results. 
+              Then "performance *degradation*" compared with C1060.
+            - "should use *non-default* streams ... This is especially important when writing *libraries*."
+          - TODO [read](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/)
+        - [data_transfers](https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/)
+          - "As we port more of our code, we’ll remove intermediate transfers" may means no need to report the same kernel since "code can be ported to CUDA *one kernel at a time*".
+            "as you write more *device* code you will eliminate some of the *intermediate* transfers, so any effort you spend optimizing transfers early in porting may be wasted" because `__global__` function as one intermediate, so multiple parallel device `__device__` code amortize the overheads from `__host__` to `__global__`.
+          - optimization
+            1. use "Pinned" mem to skip one step which is similar to zero-copy.
+              This is also said in [unified_memory] "pin pages to system memory and enable zero-copy access"
+            2. "Batching Small Transfers" just like [COD_RISCV_2nd_A_appendix] 5.15 cache blocking
+              This "take care to *minimize* transfers"
+            3. Use `nvpp` or `nvprof`.
+      - why `cudaMemPrefetchAsync` and `cudaMemcpyAsync` better
+        because "manually tiling your data into *contiguous* memory regions" while threads *order* is undefined which caused "on-demand access" may cause higher overheads.
+        - `cudaMemcpyAsync` *not update page table* but only "only needs to *submit copies* over the interconnect"
+          TODO read SASS to understand the differences "requires the application to maintain host and device memory allocations *separately*".
+      - "The exact scenarios under which the driver may decide to *defer* can *vary from driver to driver*." (here defer because "prefetch operation has to execute *in stream order*" ([stream p3](https://developer.download.nvidia.com/CUDA/training/StreamsAndConcurrencyWebinar.pdf)) )
+      - "out-of-core matrix multiplication" means use gpu-outside memory 
+      - How to overlap the prefetch
+        1. Since "For *idle* streams, the driver has a choice to either defer the operation or not, but the driver *typically does not defer* because of the associated overhead" -> So " the stream *should not be idle* when calling cudaMemPrefetchAsync."
+
+          See "Let’s look at a simple example."
+          Here `cudaDeviceSynchronize();` manually make the streams *idle*, so next iteration the 1st `cudaMemPrefetchAsync` blocks.
+          TODO "if you use the same CPU path (*either deferred or non-deferred*) for device-to-host and host-to-device prefetches they are *likely to be serialized*"
+
+          So to optimize
+          "we have the device-to-host prefetch issued in a *busy* stream while the host-to-device prefetch is issued in an *idle* stream" just to *match the driver design*.
+          Here use `cudaEventRecord` and `cudaEventSynchronize` to contro the path.
+          1. `cudaStreamSynchronize(s2);` make stream *idle*, then do `cudaMemPrefetchAsync(... 0 ...)` (HtoD).
+          2. `cudaMemPrefetchAsync(... cudaCpuDeviceId ...)` has no synchronization -> probably stream *busy*.
+          Then see "Figure 4" where DtoH has been defered.
+          Here also `// rotate streams and swap events` to make 
+      - [`cudaMemAdvise`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+    - [cuda_introduction]
+      - ["grid-stride loop"](https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/) is to ~~avoid~~ ensure "a single large grid of threads to process the entire array *in one pass*" therefore keep the *independence*.
+        But also ["memory coalescing" -> spacial locality](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/).
+        > *Rather than* assume that the thread grid is *large enough* to cover the entire data array, this kernel loops over the data array *one grid-size* at a time.
+        - benefits
+          1. "support any problem size"
+            
+            "a *multiple* of the number of multiprocessors on the device, to *balance* utilization" -> "threads are *reused for multiple* computations" and "amortizes thread *creation and destruction cost*, etc."
+          2. "Debugging" -> Serializing
+            "eliminate numerical *variations* caused ... your numerics are correct *before tuning the parallel* version."
+          3. "more like the original sequential loop" -> readability
+            TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
+            Portability -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU."
+  - kerenl param [`<<<nBlocks, blockSize, sharedBytes>>>`](https://stackoverflow.com/a/26774770/21294350)
+- TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
   - `&& !P0` because it corresponds to `pc+1` which is case: not taken.
@@ -8269,7 +8505,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     The former implies "constructor and destructor".
 
     Better see [this](https://stackoverflow.com/questions/1350819/c-free-store-vs-heap#comment57565753_1350833) heap may be one old terminology and `free store` can be seen one 
-    (TODO one more common terminology of Encapsulation in csapp) Encapsulation of original `free` -> '[finished goods' supplier](https://stackoverflow.com/questions/1350819/c-free-store-vs-heap#comment110106618_1350833). 
+    (~~TODO~~ one more common terminology of Encapsulation in csapp) ~~Encapsulation~~ wrapper of original `free` -> '[finished goods' supplier](https://stackoverflow.com/questions/1350819/c-free-store-vs-heap#comment110106618_1350833). 
     Or they are just [same p2](https://web.archive.org/web/20190712222152/https://www.stroustrup.com/Programming/17_free_store.ppt)
 ##### my GPU parameters
 ```bash
@@ -9691,7 +9927,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
         - p103 
           - "less than about 750 instructions" explains [this](#4-level)
           - "Decoded ICache *residency*" means whether [invalidate it](https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-430.html). It is related with hyper-threading because hyper-threading will change the context and may change virtual memory map which is related with CR3
-            - Adaptive Mode: just not "competitively shared" (i.e. which may cause invalidation) when CR3 and [paging mode (similar riscv hugepage)](https://en.wikipedia.org/wiki/Intel_5-level_paging) are unchanged.
+            - Adaptive Mode: just not "competitively shared" (i.e. which may cause invalidation) when CR3 and [paging mode (similar riscv hugepage)](https://en.wikipedia.org/wiki/Intel_5-level_paging) are unchanged. <a id="hugepage"></a>
             - loop-fission is just the opposite of loop-unrolling. The former is to [achieve better utilization of *locality* of reference](https://en.wikipedia.org/wiki/Loop_fission_and_fusion) while the latter is to avoid too frequent branching.
             - "to about 1500 instructions." implies one opcache per core if two threads per core (this is the normal case). 
             - ~~"among two different 32-byte chunks"~~ "adding multiple byte NOPs" is used in the *above codes*
@@ -10111,21 +10347,33 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
   it also says about SASS which is "PTX will be compiled into device assembly code, called SASS"
 
   it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and "Constant memory".
-# CUDA
+# CUDA here I use `12.2` version
+```bash
+$ nvcc -V
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jun_13_19:16:58_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.91
+Build cuda_12.2.r12.2/compiler.32965470_0
+```
 - check infos by `/opt/cuda/extras/demo_suite/deviceQuery` or by [table](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities) referenced in [this](https://stackoverflow.com/a/72075628/21294350)
+- docs see [Exercises](https://developer.nvidia.com/blog/even-easier-introduction-cuda/)
 ## `cuobjdump`
 - output [interpretation](https://stackoverflow.com/a/57851949/21294350).
 - use [`cuobjdump -sass`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#usage)
 ### `nvdisasm`
 - TODO inline in [`nvdisasm -gi`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm) [usage by `nvcc -gencode arch=compute_75,code=sm_75 single_loop.cu --cubin`](https://forums.developer.nvidia.com/t/nvdisasm-says-binary-is-not-a-supported-elf-file/238918/2)
-## `SASS` and `PTX`
+## `SASS` and `PTX` *scalar* instructions
 - better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX]) [then](https://stackoverflow.com/a/35055749/21294350) `SASS`
   - `c[0x0][0x24]` -> [constant](https://forums.developer.nvidia.com/t/the-meaning-of-cuda-disassemly/60924/3) mem bank
   - default var at the 1st pos is *dst*.
 - `SASS` [ISA](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html?highlight=ISETP#turing-instruction-set)
   - [uniform register](https://forums.developer.nvidia.com/t/whats-uniform-register-in-turing/65406/2) is to not corrupt the *floating* data path.
+- from [COD_RISCV_2nd_A_appendix] B-31 "different binary microinstruction formats", it implies why SASS less documented than `PTX` because `PTX` is more *portable* similar to the high-level language.
+### PTX detailed see [doc][PTX]
+- `ftz` -> flush to zero
 ## miscs
-- why use [scalar processor "takes up more space than a scalar unit ... not be fully used ... equiring more chip area for the instruction *decoder*"](https://forums.developer.nvidia.com/t/why-scalar-processors/10337/2) -> to improve *hardware* design and increase parallel.
+- why use [scalar processor "takes up more space than a scalar unit ... not be fully used ... equiring more chip area for the instruction *decoder*"](https://forums.developer.nvidia.com/t/why-scalar-processors/10337/2) -> to improve *hardware* design and increase parallel. <a id="scalar_unit_gpu"></a>
 ### `nsight-graphics`
 - comment `install -Dm644 "${srcdir}/${pkgname}.desktop" ${pkgdir}/usr/share/applications/${pkgname}.desktop ...` two lines based on [this](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=nsight-graphics)
   Then run `makepkg -si --skipinteg` (Just use `yay -Rsn` to uninstall).
@@ -10134,8 +10382,68 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 - CUDA [occupancy](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485/5?u=czgf2v) tested with [Occupancy Calculator "Launching from the Profiler Report"](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator)
   [definition](https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/achievedoccupancy.htm): "the ratio of active warps on an SM ..."
   - [installation](https://aur.archlinux.org/packages/nsight-graphics#comment-927000) of nsight_compute
-    Then launch `/opt/cuda/nsight_compute/ncu-ui` connect -> profile. See `cudaSaxpy.report.ncu-rep` file.
+    Then launch Nsight Compute which is part of [nvtx](https://docs.nvidia.com/gameworks/index.html#gameworkslibrary/nvtx/nvidia_tools_extension_library_nvtx.htm) `/opt/cuda/nsight_compute/ncu-ui` connect -> profile. See `cudaSaxpy.report.ncu-rep` file.
     - Also see "Higher occupancy *does not always result* in higher performance, however, low occupancy always reduces the ability to hide latencies, resulting in overall performance degradation" in the `ncu-ui`.
+### Nsight Compute
+- show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=czgf2v) by `nvcc async.cu -g --generate-line-info`.
+## API
+- [doc](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+## `cuda-gdb`
+- need to be in kernel to view the [GPU assembly codes](https://developer.download.nvidia.com/GTC/PDF/1062_Satoor.pdf).
+```bash
+$ cuda-gdb a.out -ex "start" -ex "br kernel" -ex "c" -ex "disass"
+Dump of assembler code for function _Z6kernelPfi:
+   0x00007fffe3e34200 <+0>:     MOV R1, c[0x0][0x28] 
+   0x00007fffe3e34210 <+16>:    MOV R2, RZ 
+   0x00007fffe3e34220 <+32>:    LDC.64 R2, c[0x0][R2+0x160] 
+   0x00007fffe3e34230 <+48>:    MOV R16, R2 
+   0x00007fffe3e34240 <+64>:    MOV R2, R3 
+   0x00007fffe3e34250 <+80>:    MOV R16, R16 
+   0x00007fffe3e34260 <+96>:    MOV R2, R2 
+   0x00007fffe3e34270 <+112>:   MOV R0, 0x8 
+   0x00007fffe3e34280 <+128>:   LDC R0, c[0x0][R0+0x160] 
+   0x00007fffe3e34290 <+144>:   MOV R0, R0 
+   0x00007fffe3e342a0 <+160>:   MOV R16, R16 
+   0x00007fffe3e342b0 <+176>:   MOV R2, R2 
+   0x00007fffe3e342c0 <+192>:   MOV R0, R0 
+=> 0x00007fffe3e342d0 <+208>:   S2R R3, SR_TID.X
+```
+## `nvcc`
+- how to generate the `ptx` shown with `cuobjdump -ptx main`, [See](https://forums.developer.nvidia.com/t/ptx-is-not-embedded-in-the-binary/201858) -> must have [`compute_50` SO answer](https://stackoverflow.com/a/47909204/21294350) (this question has been asked [many times][gencode_mul_refs] in SO) with `-code` to generate `ptx` and `sm_50` to generate `sass`.
+  This can also be seen from the [official doc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-architecture-arch-native-all-all-major-arch).
+  > 4.2.7.2. --gpu-code code,... (-code)
+  > Specify the name of the NVIDIA GPU to assemble and *optimize PTX for*.
+  > nvcc *embeds a compiled code image* in the resulting executable for each specified code architecture, which is a *true binary load image* for each real architecture (such as sm_50), and *PTX code* for the virtual architecture (such as compute_50).
+  This means `--gpu-code` means what to *generate* from `PTX`.
+  > During runtime, such embedded PTX code is dynamically compiled by the CUDA runtime system if *no binary* load image is found for the current GPU.
+  `PTX` may be used in [JIT](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#just-in-time-compilation).
+  > For instance, --gpu-architecture=compute_60 is not *compatible* with --gpu-code=sm_52, because the earlier compilation stages will *assume* the availability of compute_60 features that are not present on sm_52.
+  Here `PTX` is mainly to support higher *real architecture* just as above SO says.
+
+  `--gpu-architecture` can
+  1. not shorthand
+    > must be a virtual architecture ... Normally, this option alone does *not trigger assembly* of the generated PTX for a real architecture (that is the role of nvcc option --gpu-code, see below); rather, its purpose is to control *preprocessing* and compilation of *the input to PTX*.
+  2. shorthand
+    > If no value for option --gpu-code is specified, then the value of this option defaults to the value of --gpu-architecture. ... the value specified for --gpu-architecture *may be a real* architecture (such as a sm_50)
+    This implies *real architecture* implies virtual but not vice versa.
+    > For example, nvcc --gpu-architecture=sm_50 is equivalent to nvcc --gpu-architecture=compute_50                                        --gpu-code=sm_50,compute_50.
+    Notice: So `--gpu-architecture=sm_50` may be better if only targetted to one ~~machine~~ GPU.
+  > -arch=native ... *no PTX* program will be generated for this option.
+  > for all supported *major* versions (sm_*0)
+
+  - Above means same as [this](https://stackoverflow.com/a/17599585/21294350)
+    > The *virtual* architecture (e.g. compute_20, whatever is specified by -arch compute...) determines what type of *PTX* code will be generated. The additional switches (e.g. -code sm_21) determine what type of SASS code will be *generated*. SASS is actually executable object code for a GPU (machine language). An executable can *contain multiple versions of SASS and/or PTX*, and there is a *runtime loader* mechanism that will pick appropriate versions based on the GPU actually being used.
+
+    These 2 steps can be seen more intuitively [here](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#virtual-architectures). 
+    Also see [gencode_mul_refs] "then yes, it means that: ... ".
+    - > The cuobjdump tool can be used to *identify what components exactly are in* a given binary.
+
+  > This option provides a generalization of the --gpu-architecture=arch --gpu-code=code,... option *combination* for specifying nvcc behavior with respect to code generation.
+  > Where use of the previous options generates code for *different real* architectures with the PTX for the *same virtual* architecture, option --generate-code allows *multiple* PTX generations for *different virtual* architectures.
+  > --generate-code options may be *repeated for different virtual* architectures.
+  `generate-code` is mainly to generate more *groups* of virtual and real architectures.
+  
+  - old version can use [`cubin`](https://stackoverflow.com/a/65499046/21294350)
 # How to read papers
 - see [this](https://www.scientifica.uk.com/neurowire/gradhacks-a-guide-to-reading-research-papers)
   kw: 8. Write a succinct ... ; 4. Identify how this paper fits ; 2. *Skim all* of the sections ; 1. Check the publish date ; 2. Read *critically*
@@ -10387,6 +10695,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [Tesla_ARCHITECTURE]:../CUDA/doc/papers/lindholm08_tesla.pdf
 [Branch_Divergence]:../CUDA/doc/papers/Branch_Divergence.pdf
 [Benchmarking_thread_divergence_CUDA]:../CUDA/doc/papers/Benchmarking_thread_divergence_CUDA.pdf
+[speculativereconvergence]:../CUDA/doc/papers/speculativereconvergence.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -10399,6 +10708,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 [opcache]:https://superuser.com/questions/1368480/how-is-the-micro-op-cache-tagged
 [miss_rate]:https://stackoverflow.com/a/50035058/21294350
 [move_elimination]:https://stackoverflow.com/a/75204602/21294350
+[gencode_mul_refs]:https://stackoverflow.com/a/35657430/21294350
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
@@ -10453,3 +10763,11 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 <!-- directx -->
 <!-- [directx_9]:../CUDA/doc/directx/windows-win32-direct3d9.pdf too big -->
 [directx_11]:../CUDA/doc/directx/windows-win32-direct3d11.pdf
+
+<!-- nvidia blog -->
+[cuda_warp]:https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/
+[Maximizing_Unified_mem]:https://developer.nvidia.com/blog/maximizing-unified-memory-performance-cuda/
+[cuda_introduction]:https://developer.nvidia.com/blog/even-easier-introduction-cuda/
+[cuda_stream]:https://developer.nvidia.com/blog/gpu-pro-tip-cuda-7-streams-simplify-concurrency/
+[cuda_async]:https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/
+[unified_memory]:https://developer.nvidia.com/blog/beyond-gpu-memory-limits-unified-memory-pascal/

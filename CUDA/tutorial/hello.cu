@@ -1,7 +1,7 @@
 //#include <stdio.h>
 #include<iostream>
 __global__ void cuda_hello(){
-    //printf("Hello World from GPU!\n");
+    printf("Hello World from GPU!\n");
 	//std::cout << "Hello World from GPU!\n" << std::endl;
 }
 
