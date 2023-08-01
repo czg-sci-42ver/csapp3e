@@ -6709,7 +6709,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - notice: although "rewinds its register state." ~~before~~ when "read from array2 is pending", "the speculative read from array2 affects the cache state" *still occurs*. So "the next read to array2[n*256] will be fast for *n=k*"
       "secret byte using the *out-of-bounds* x" (`k`)
     - "flush+probe" in p6 ~~just use explicit load instead of ~~ is just from [FLUSH_RELOAD] p5.
-    - ["soft page fault"](https://techcommunity.microsoft.com/t5/ask-the-performance-team/the-basics-of-page-faults/ba-p/373120#:~:text=On%20the%20other%20hand%2C%20a,working%20set%20of%20another%20process.) implies DLL. <a id="page_fault"></a>
+    - ["soft page fault"](https://techcommunity.microsoft.com/t5/ask-the-performance-team/the-basics-of-page-faults/ba-p/373120#:~:text=On%20the%20other%20hand%2C%20a,working%20set%20of%20another%20process.) implies DLL. (link also says about hard ones) <a id="soft_hard_page_fault"></a>
     - p9 gadget
       - "gadget" is just some mem-reference program .
       - "onto smaller regions" by controlling `edi` and fixed data in `[ebx+edx+13BE13BDh]` when `ebx` is controlled fixed.
@@ -8378,7 +8378,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       - "merge nearby smaller pages into larger pages" may means same as [this](#hugepage)
       - po "Instead of having multiple hardware warps *accessing the same* page, we can divide pages between warps"
         so less conflict miss -> performance better.
-        - TLB update is implied by [page fault](#page_fault)
+        - TLB update is implied by [page fault](#soft_hard_page_fault)
           
           Also see [this][unified_memory] 
           - "see the *virtual address and reason* for every migration event" and "2MB page is *evicted* to free space"
@@ -8406,6 +8406,94 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
                 - read "more sophisticated prefetching solution that *splits* the grid into multiple parts can help improve performance even further, but this a good topic for *another* post."
                 - "OpenACC"
           - "the *compiler directives* approach provides a great option for *portability* to various architectures"
+        - [unified_memory_basic]
+          - > First, because Pascal GPUs such as the NVIDIA Titan X and the NVIDIA Tesla P100 are the *first* GPUs to include the Page *Migration* Engine, which is *hardware* support for Unified Memory page faulting and migration
+            > it is only supported on Pascal and newer GPUs
+            See [GPU_list]
+          - "it may only be populated *on access* (or prefetching)." -> on-demand which is said in other blogs.
+          - footnote-2 says "the stream *the kernel is launched on*. By default, managed allocations are *attached to all streams* so any kernel launch will trigger migrations" and "*all* pages previously migrated ... back to the device memory of the device running the *kernel*"
+            Here `cudaStreamAttachMemAsync()` just one "specific CUDA stream" instead of "all streams".
+          - notice here `nvprof` differences between pre-Pascal and post-Pascal
+            - pre-Pascal
+              > On systems with pre-Pascal GPUs like the Tesla K80, calling cudaMallocManaged() *allocates* size bytes of managed memory on the *GPU* device that is active when the call is made
+              > Since the pages are *initially resident in device* memory, a page fault occurs on the CPU for each array page to which it writes, and the GPU driver *migrates* the page from device memory *to CPU* memory.
+              1st migration when init.
+              > the CUDA runtime must migrate all pages *previously migrated to host* memory or to *another GPU* *back* to the device memory of the device running the kernel
+              2rd migration when usage in kernel.
+              > Since these older GPUs *can’t page fault*, all data must be *resident on the GPU* just in case the kernel accesses it
+              So implicit prefetch -> "kernel run time *separate* from the migration time, since the migrations happen *before* the kernel runs."
+              So `ms` magnitude in `1.154720ms  Host To Device`
+            - post-Pascal
+              > Unlike the pre-Pascal GPUs, the Tesla P100 supports *hardware page faulting* and migration. So in this case the runtime *doesn’t automatically* copy all the pages back to the GPU *before* running the kernel. The kernel launches *without any migration overhead*, and when it accesses any absent pages, the GPU *stalls* execution of the accessing threads, and the Page Migration Engine migrates the pages to the device before resuming the threads.
+              here "stall" implies "the cost of the migrations is *included* in the kernel run time"
+              So "why the *kernel* time measured by the profiler is longer" -> `us` in `860.5760us  Host To Device`
+
+              So "get a more *accurate* measurement" *without mixing* kernel running time and migration time.
+              1. Initialize the Data in a Kernel
+                > If we move initialization from the CPU to the GPU, the add kernel *won’t page fault*
+                because they are both in *device mem*.
+
+                This works because in `main` `x[i]/y[i]` are only inited, ~~but *not used*.~~ which corresponds to host to device causing *device* page faults and then delay.
+              2. Run It Many Times may be worse than 1st method.
+                `4.000000MB  339.7760us  Device To Host` corresponds to `maxError = fmax(maxError, fabs(y[i]-3.0f));`
+              3. `cudaMemPrefetchAsync` copy large block like `2.0000MB` instead of *maybe small* units when normal migration.
+            - "hardware page faulting, so coherence can’t be guaranteed" may means [soft page fault](#soft_hard_page_fault), i.e. other processor in ["handles page faults by bringing the page from disk or *other processor*'s memory"](https://pages.cs.wisc.edu/~sschang/OS-Qual/distOS/sharedVM.htm)
+              "segmentation fault" maybe due to hardware un-support.
+            - `cudaDeviceSynchronize` is important for asynchronous kernel
+              > In our simple example, we have a call to cudaDeviceSynchronize() after the kernel launch. This *ensures* that the kernel runs to *completion* before the CPU tries to read the results from the managed memory pointer.
+            - "The Page Migration engine allows GPU threads to *fault on non-resident* memory accesses" i.e. implement "hardware page faulting".
+            - "49-bit virtual addressing" similar to Memory paging which includes secondary memory, i.e. disks.
+              i.e. [Unified Virtual Address Space "a single address space is used for *the host and all the devices*"](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#unified-virtual-address-space)
+            - "oversubscribing GPU memory" ~~i.e. "out-of-core computations"~~ means use too many GPU memory. ~~Maybe evict page or ~~
+              This may be due to frequent eviction due to weird data pattern or just [out-of-core computations "*too large to fit* into a computer’s main memory."](https://machinelearning.wtf/terms/out-of-core/#:~:text=The%20term%20out%2Dof%2Dcore,(relatively)%20small%20performance%20penalty.)
+              - TODO [read](https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/)
+            - [performance_metrics]
+              > The function cudaEventSynchronize() blocks CPU execution *until the specified event is recorded*.
+              `cudaEventSynchronize()` just wait for Event.
+              means same ["Waits until the completion of all work currently *captured* in event."](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EVENT.html#group__CUDART__EVENT_1g949aa42b30ae9e622f6ba0787129ff22) (similar to consumer in release-consume model)
+              better understood with `cudaEventElapsedTime(&milliseconds, start, stop);`.
+              - Theoretical Bandwidth
+                $1546 * 10^6 * 2$ -> transaction times / s (2 due to DDR)
+                $(384/8)$ -> transaction unit
+                $/ 10^9$ -> transform to GB
+                Above is same as "In this calculation, we convert the memory ..."
+              - `N*4*3` just as blog says.
+                $4$ -> 4 bytes / int
+                $3=1+2$ 1 write and 2 reads
+              - computational throughput -> "single multiply-add instruction (2 FLOPs)"
+              - "A large percentage of kernels are memory bandwidth bound ... a good *first step*"
+        - [unified_memory_cuda_6]
+          > The key is that the system automatically *migrates* data allocated in Unified Memory between host and device so that it *looks like* CPU memory to code running on the CPU, and like GPU memory to code running on the GPU.
+
+          > by making device memory management an *optimization*, rather than a requirement.
+          > uses *streams and cudaMemcpyAsync* to efficiently overlap execution with data transfers may very well perform better than a CUDA program that only uses Unified Memory.
+          So has above [Maximizing_Unified_mem]
+          - compared with "Unified Virtual Addressing (UVA)"
+            1. "UVA does *not automatically migrate*"
+            2. "UVA enables “Zero-Copy” memory, which is *pinned* host memory" while Unified Memory migrate to *nearest* mem.
+
+            > enables pointers to be accessed from GPU code *no matter where* in the system they reside
+            > cudaMemcpy to be used *without specifying where exactly* the input and output parameters reside
+            [Copies data *between* host and device.](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gc263dbe6574220cc776b45438fc351e8)
+            > but none of the performance, because it is always *accessed with PCI-Express’s low bandwidth* and high latency.
+            ~~TODO what~~ Unified Memory ~~uses~~ copys *once* and access GPU memory.
+            - `cudaMemcpy(d_elem, elem, sizeof(dataElem), cudaMemcpyHostToDevice);` is done by ["Copy data from the CPU to the GPU;"][Maximizing_Unified_mem]
+            > *Porting* code with existing *complex* data structures to the GPU used to be a daunting exercise, but Unified Memory makes this so much easier
+              just let the *hardware* do the complex migration.
+            - TODO in `c++`, maybe use *overloaded* `new`, `delete` and "copy constructor" to make all *inherited* classes also using *Unified memory* by `dataElem *data = new dataElem;`.
+              > A copy constructor is a function that knows how to create an object of a class, allocate space for its members, and copy their values from another object.
+
+              TODO `// Deriving from “Managed” allows pass-by-reference` and `  // Unified memory copy constructor allows pass-by-value`
+              Maybe `  void *operator new(size_t len) {` implies pass-by-value, so no need to reimplement , then just implement pass-by-reference `  String (const String &s) {` is enough.
+              ```c++
+              // Pass-by-reference version
+              __global__ void kernel_by_ref(dataElem &data) { ... }
+              ```
+
+              `String (const String &s) {` implies *deep* copies.
+              > Note that You need to make sure that *every class in the tree* inherits from Managed, otherwise you have a hole in your memory map.
+              So `  String name;` -> `class String : public Managed {`
+          - "Our first release is aimed at making CUDA programming *easier*, especially for beginners."
         - [cuda_stream]
           > streams, sequences of commands that execute *in order*. Different streams may execute their commands *concurrently* or *out of order* with respect to each other
           > the *default* stream which *implicitly synchronizes* with all other streams
@@ -10348,6 +10436,7 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 
   it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and "Constant memory".
 # CUDA here I use `12.2` version
+[GPU_list] and compatibility like `compute_xx` comparison
 ```bash
 $ nvcc -V
 nvcc: NVIDIA (R) Cuda compiler driver
@@ -10359,6 +10448,7 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 - check infos by `/opt/cuda/extras/demo_suite/deviceQuery` or by [table](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities) referenced in [this](https://stackoverflow.com/a/72075628/21294350)
 - docs see [Exercises](https://developer.nvidia.com/blog/even-easier-introduction-cuda/)
 ## `cuobjdump`
+[doc](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html?highlight=ptx#) with other binary utilities
 - output [interpretation](https://stackoverflow.com/a/57851949/21294350).
 - use [`cuobjdump -sass`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#usage)
 ### `nvdisasm`
@@ -10409,6 +10499,7 @@ Dump of assembler code for function _Z6kernelPfi:
 => 0x00007fffe3e342d0 <+208>:   S2R R3, SR_TID.X
 ```
 ## `nvcc`
+[doc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#cuda-compilation-trajectory__cuda-compilation-from-cu-to-executable)
 - how to generate the `ptx` shown with `cuobjdump -ptx main`, [See](https://forums.developer.nvidia.com/t/ptx-is-not-embedded-in-the-binary/201858) -> must have [`compute_50` SO answer](https://stackoverflow.com/a/47909204/21294350) (this question has been asked [many times][gencode_mul_refs] in SO) with `-code` to generate `ptx` and `sm_50` to generate `sass`.
   This can also be seen from the [official doc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-architecture-arch-native-all-all-major-arch).
   > 4.2.7.2. --gpu-code code,... (-code)
@@ -10771,3 +10862,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [cuda_stream]:https://developer.nvidia.com/blog/gpu-pro-tip-cuda-7-streams-simplify-concurrency/
 [cuda_async]:https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/
 [unified_memory]:https://developer.nvidia.com/blog/beyond-gpu-memory-limits-unified-memory-pascal/
+[unified_memory_basic]:https://developer.nvidia.com/blog/unified-memory-cuda-beginners/
+[unified_memory_cuda_6]:https://developer.nvidia.com/blog/unified-memory-in-cuda-6/
+
+[GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
