@@ -8565,6 +8565,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
             Portability -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU."
   - kerenl param [`<<<nBlocks, blockSize, sharedBytes>>>`](https://stackoverflow.com/a/26774770/21294350)
+  - `thread_group tile4 = tiled_partition(tile32, 4);` is runned in 
 - TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
@@ -10478,6 +10479,7 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 - show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=czgf2v) by `nvcc async.cu -g --generate-line-info`.
 ## API
 - [doc](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+- [extended API](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html) with `ThreadGroup`
 ## `cuda-gdb`
 - need to be in kernel to view the [GPU assembly codes](https://developer.download.nvidia.com/GTC/PDF/1062_Satoor.pdf).
 ```bash
