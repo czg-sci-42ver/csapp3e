@@ -9,20 +9,13 @@ ref_1: https://developer.nvidia.com/blog/even-easier-introduction-cuda/
 #include <stdio.h>
 using namespace cooperative_groups;
 
-template <typename group_t>
-__device__ int reduce_sum(group_t g, int *temp, int val)
+template <int tile_sz>
+__device__ int reduce_sum_tile_shfl(thread_block_tile<tile_sz> g, int val)
 {
-    int lane = g.thread_rank();
-
     // Each iteration halves the number of active threads
     // Each thread adds its partial sum[i] to sum[lane+i]
-    #pragma unroll
-    for (int i = g.size() / 2; i > 0; i /= 2)
-    {
-        temp[lane] = val;
-        g.sync(); // wait for all threads to store
-        if (lane < i) val += temp[lane + i];
-        g.sync(); // wait for all threads to load
+    for (int i = g.size() / 2; i > 0; i /= 2) {
+        val += g.shfl_down(val, i);
     }
 
     return val; // note: only thread 0 will return full sum
@@ -55,27 +48,15 @@ __device__ int thread_sum(int *input, int n) {
   return sum;
 }
 
-__global__ void sum_kernel_32(int *sum, int *input, int n)
+template<int tile_sz>
+__global__ void sum_kernel_tile_shfl(int *sum, int *input, int n)
 {
-    int my_sum = thread_sum(input, n); 
+    int my_sum = thread_sum(input, n);
 
-    extern __shared__ int temp[];
+    auto tile = tiled_partition<tile_sz>(this_thread_block());
+    int tile_sum = reduce_sum_tile_shfl<tile_sz>(tile, my_sum);
 
-    auto g = this_thread_block();
-    auto tileIdx = g.thread_rank() / 32;
-    int* t = &temp[32 * tileIdx];
-    
-    /*
-    Knowing the tile size at compile time provides the opportunity for better optimization
-    */
-    constexpr int tile_size = 32;
-    thread_block_tile<tile_size> tile32 = tiled_partition<32>(g);
-    int tile_sum = reduce_sum<thread_block_tile<tile_size>>(tile32, t, my_sum);
-
-    // auto tile32 = tiled_partition(g, 32);
-    // int tile_sum = reduce_sum<thread_group>(tile32, t, my_sum);
-
-    if (tile32.thread_rank() == 0) atomicAdd(sum, tile_sum);
+    if (tile.thread_rank() == 0) atomicAdd(sum, tile_sum);
 }
 
 int main() {
@@ -91,7 +72,7 @@ int main() {
   std::fill_n(data, n, 1); // initialize data
   cudaMemset(sum, 0, sizeof(int));
 
-  sum_kernel_32<<<nBlocks, blockSize, sharedBytes>>>(sum, data, n);
+  sum_kernel_tile_shfl<32><<<nBlocks, blockSize, sharedBytes>>>(sum, data, n);
   /*
   see ../C_Programming_Guide/Broadcast
 

@@ -8361,6 +8361,14 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
   - TODO
     - "intra-block Cooperative Groups functionality"
     - what does `thread_sum` sum? and what is its `blockDim` and why `i < n / 4;`
+  - definition
+    > defining and *synchronizing* *groups* of threads in a CUDA program
+  - fundamental type (maybe similar to base class)
+    > thread_group, which is a *handle* to a *group* of threads
+  - > Collective operations, or simply collectives, are operations that need to *synchronize* or otherwise communicate amongst a *specified set* of threads.
+    i.e. sync with mask.
+    > The simplest collective is a *barrier*, which *transfers no* data and *merely synchronizes* the threads in the group.
+  - > Cooperative Groups introduces a new datatype, thread_block, to *explicitly* represent this concept within the kernel. An instance of thread_block is a *handle* to the group of threads in a CUDA thread block that you initialize as follows.
   - here `reduce_sum` function same as `__shfl_down_sync`
   - memset [vs](https://stackoverflow.com/a/1373422/21294350) `std::fill`
   - [`cudaMallocManaged` "Unified Memory"][unified_memory_basic] vs [`cudaMalloc` where distinct between the host and device](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cudaMalloc#memory-allocation-and-lifetime)
@@ -8961,17 +8969,57 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     here assume all run it, so no mask to synchronize.
   - > Individual threads in a warp may be *inactive due to independent branching* in the program.
     > The threads that remain *active* on the path are referred to as *coalesced*.
-    > Odd-numbered threads within a warp will be *part of the same coalesced_group*, and thus they can be *synchronized* by calling active.sync().
+    > Keep in mind that since threads from *different warps are never coalesced*, the largest group that coalesced_threads() can return is a full warp.
+  - Here Concurrency 
+    1. is done by active mask -> coalesced_group
+       > Odd-numbered threads within a warp will be *part of the same coalesced_group*, and thus they can be *synchronized* by calling active.sync().
 
-    > In warp aggregation, the threads of a warp first compute a total increment among themselves, and then elect a single thread to atomically add the increment to a global counter.
-    this implies Concurrency by `res = atomicAdd(ptr, __popc(mask));` in [cuda_warp].
-    > warp intrinsics can be used to elect the *first active* thread in the warp.
-    [`atomicAdd`](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH____BFLOAT162__ARITHMETIC.html#group__CUDA__MATH____BFLOAT162__ARITHMETIC_1g550f52c89d672213390e9bfd8a3c42bf)
-    >     // broadcast previous value within the warp
-    just make [*all threads get*](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__ballot#broadcast-of-a-single-value-across-a-warp) one data in *one thread*.
+       > It’s common to need to work with the current active set of threads, *without making assumptions* about which threads are present. This is necessary to ensure *modularity* of utility functions that may be called in *different situations* but which *still want to coordinate* the activities of whatever threads happen to be active.
+       This means *without checking overheads* when running one function with *different groups*.
+
+    2. the following implies Concurrency with ["Warp-Aggregated"][warp_aggregation] by `res = atomicAdd(ptr, __popc(mask));` in [cuda_warp].
+       > In warp aggregation, the threads of a warp first compute a *total* increment among themselves, and then *elect* a single thread to atomically add the increment to a global counter.
+
+       > This aggregation *reduces* the number of *atomics* performed by up to the number of threads in a warp (up to 32x on current GPUs), and can dramatically improve performance. Moreover, it can be used as a drop-in replacement for *`atomicAdd()`*. 
+
+       > To enable use inside divergent branches, warp aggregation *can’t just pick thread zero* of the warp because it might be *inactive* in the current branch. Instead, as the blog post explains, warp intrinsics can be used to elect the *first active* thread in the warp.
+        This is done in [warp_aggregation] `unsigned int rank = __popc(active & __lanemask_lt());` where higher zero is done by `__lanemask_lt()` and lower zero is due to "first active" then zeroed by `active`. Then `if(rank == 0)` selects the Leader.
+        [`atomicAdd`](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH____BFLOAT162__ARITHMETIC.html#group__CUDA__MATH____BFLOAT162__ARITHMETIC_1g550f52c89d672213390e9bfd8a3c42bf)
+       >     // broadcast previous value within the warp
+        just make [*all threads get*](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__ballot#broadcast-of-a-single-value-across-a-warp) one data in *one thread*.
+       1. > The Cooperative Groups coalesced_group type makes this trivial, since its thread_rank() method ranks only threads that are *part of the group*. This enables a simple implementation of warp-aggregated atomics that is *robust and safe* to use on any GPU architecture.
     > possibilities of *flexible and explicit* groups of cooperating threads
     > Cooperative Groups enables synchronization of groups of threads *smaller* than a thread block as well as groups that *span* an entire kernel launch running on one or multiple GPUs.
     - Vectorized Memory Access like [`int2, int4, or float2.`](https://developer.nvidia.com/blog/cuda-pro-tip-increase-performance-with-vectorized-memory-access/)
+  - TODO 
+    > In a follow-up post we plan to cover the *grid_group* and *multi_grid_group* types and the cudaLaunchCooperative* APIs that enable them. Stay tuned.
+  - See [codes](../CUDA/codes/nvidia_blogs/cooperative_groups/sum_kernel_block_tile_template.cu)
+    `thread_block_tile<32>` can be one *type* (this is one c++ feature)
+
+    Here `constexpr int tile_size = 32;` to be at compile time or `g.size()` maybe at runtime/compiler time.
+  - SIMT explanation
+    > In the GPU’s SIMT (Single Instruction Multiple Thread) architecture, the GPU streaming multiprocessors (SM) execute thread instructions in *groups of 32* called warps. The threads in a SIMT warp are all of the *same type* and *begin at the same* program address, but they are free to branch and *execute independently*. At each instruction issue time, the instruction unit *selects a warp* that is ready to execute and issues its next instruction to the warp’s *active threads*. The instruction unit *applies an active mask* to the warp to ensure that only threads that are active issue the instruction. Individual threads in a warp may be *inactive* due to *independent branching* in the program.
+    Here *applies an active mask* implies the hardware. This explains [Branch_Divergence] Figure 2
+  - [warp_aggregation] only brief read
+    Read "we replace atomic operations with the following steps"
+    main idea is to 
+    1. select leader which do the whole calculation (implies auto coherency)
+      1. > The __ffs() primitive returns the 1-based index of the lowest set bit, so subtract 1 to get a *0-based index*.
+        select by `int leader = __ffs(active) - 1;`.
+      2. > For this, use the `__popc(int v)` intrinsic, which returns the *number of bits set* in the binary representation of integer v.  
+        Increment -> `int change = __popc(active);`
+      3. [`__lanemask_lt` -> `%lanemask_lt` -> (lt -> less than)](https://forums.developer.nvidia.com/t/lanemask-lt-undefined/216466/5) may be one register function.
+        > If you prefer to use *primitive functions*, you must compute the rank of each lane using __lanemask_lt(), which returns the mask of all lanes (*including inactive* ones) with ID *less than* the current lane.
+    2. broadcast to let others do the rest trivial calculation.
+      1. `warp_old = atomicAdd(ctr, change); // ctr is the pointer to the counter` is just to increment `change` each step.
+        So 1st time, `warp_res = __shfl_sync(active, warp_res, leader);` will just get `*ctr` which may default to 0.
+        Then *5th step*, `g.shfl(warp_res, 0) + g.thread_rank();` will get `g.thread_rank()`
+        And next time, it will use the last time active count `warp_res` to be the *base* and do the `atomicAdd(ctr, 1)` in some way (here `1` is implied by `g.thread_rank()` -> This caused *less atomic adds*).
+    - Since thread order is undefined, `dst[atomicAdd(nres, 1)] = src[i];` won't make `atomicAdd(nres, 1) = i` always.
+
+    TODO Performance Comparison different orders with different CUDA version.
+    mainly because
+    > In fact, the technique turns out to be so useful that it is now *implemented in the NVCC compiler*, and you get warp aggregation in many cases by default with no additional effort required.
 - TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
@@ -11280,6 +11328,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [grid_stride_loop]:https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 [access_global_memory]:https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
 [improving_gpu_oversubscription_performance]:https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/
+[warp_aggregation]:https://developer.nvidia.com/blog/cuda-pro-tip-optimized-filtering-warp-aggregated-atomics/
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 

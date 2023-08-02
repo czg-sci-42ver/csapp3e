@@ -14,4 +14,5 @@ hello
 *.reg*
 !uvm_oversubs/
 !Starvation_Free/
+!warp_aggregated/
 windows-win32-direct3d9.pdf
