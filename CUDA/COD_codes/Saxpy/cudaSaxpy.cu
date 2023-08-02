@@ -1,6 +1,8 @@
 // https://student.cs.uwaterloo.ca/~cs450/w18/public/cudaSaxpy.pdf
 /*
 TODO more general https://developer.nvidia.com/blog/six-ways-saxpy/
+
+above pdf seems to use this https://developer.nvidia.com/blog/easy-introduction-cuda-c-and-c/
 */
 
 #include <stdio.h>

@@ -8369,10 +8369,113 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
 
     Also see [vs](https://forums.developer.nvidia.com/t/difference-between-cudamallocmanaged-and-cudamallochost/208479/2) [`cudaMallocHost`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gd5c991beb38e2b8419f50285707ae87e) where "pinned memory" [p6](https://engineering.purdue.edu/~smidkiff/ece563/NVidiaGPUTeachingToolkit/Mod14DataXfer/Mod14DataXfer.pdf) means [same](https://saturncloud.io/blog/cuda-and-pinned-page-locked-memory-not-page-locked-at-all/#:~:text=Page%2Dlocked%20memory%20is%20a,about%20the%20overhead%20of%20paging.) as page-locked memory.
     kw: "moves the resident location of an allocation to the processor that needs it. Pinned memory *does not*"
+    - [improving_gpu_oversubscription_performance]
+      - Sequential access analysis
+        1. Impact of the access pattern
+           > Here, the block stride access pattern achieves higher memory bandwidth *due to the page fault traffic* that this pattern generates.
+           So higher memory bandwidth may mean worse performance due to unnecessary overheads.
+           > It is also worth noting that the default system memory *page size* on Power9 CPU is 64 KB, compared to 4 KB on x86 systems. This helps Unified Memory fault migration move *larger chunks* of memory from CPU to GPU when a page-fault event is triggered.
+        2. Sensitivity to GPU architecture and interconnect
+          > However, interconnect bandwidth is *not saturated*. The primary factor for higher bandwidth is that A100 GPU with 108 streaming multiprocessors can *generate more page faults* due to a higher number of active thread blocks on the GPU. This understanding is also confirmed by the P9 test, where *despite* the NVLink connection between GPU-CPU with theoretical peak bandwidth of 75 GB/s, *lower* read bandwidth than A100 is achieved.
+        - Tip
+          > During the experiments for this post, we discovered that the streaming grid and block stride kernel access patterns are *not sensitive* to thread block size and intra-block synchronization. However, to achieve better performance using the other optimization methods discussed, we used *128* threads in a block with intra-block synchronization at each loop unroll. This ensured that *all the warps* of the block used the SM’s address translation units efficiently. To look at kernel design for intra-block synchronization, see the source code released with this post. Try out the variant with and without synchronization with different block sizes.
+          Here is probably that multiple threads *amortize the overheads* of thread block size and intra-block synchronization.
+          
+          means better full use of the whole warps $128=32*4$.
+      - Random obviously
+        > Since accesses are random, *a small fraction* of migrated memory is used. The migrated memory may end up *evicted back* to the CPU to make space for other memory fragments.
+      - Optimization
+        1. "Figure 8" is obvious.
+          TODO 
+          > The grid stride bandwidth pattern on an A100 GPU degrades with *oversubscription due to the GPU MMU address translation misses* that add to latency for load instructions.
+          view A100 vs V100.
+
+          > Pinned system memory is advantageous when you want to *avoid the overhead of memory unmap and map* from CPU and GPU. If an application is going to use the allocated data just *one* time, then directly accessing using zero-copy memory is better. However, if there is *reuse* of data in the application, then *faulting and migrating* data to GPU can yield a *higher* aggregate bandwidth, depending on the access pattern and reuse.
+          here, "*higher* aggregate bandwidth" due to original migration addition with the pinned memory overhead.
+
+          - Tip
+            > we used 128 threads in a block with intra-block synchronization at each loop unroll.
+            > The performance of the block stride pattern can be improved to the *same level as grid* stride by making the per-warp memory access *128*-byte *aligned*.
+            TODO here maybe due to the block thread size -> 128
+        2. Optimization 2
+          ```c++
+          CUDA_CHECK(cudaGetDeviceProperties(&prop, current_device));
+          int flip_devId = current_device;
+          if (cpu_factor > 1.0) {
+             mod_zero_devId = current_device; // GPU
+             flip_devId = cudaCpuDeviceId;
+          ...
+          }
+          for (int i = 0; i < num_pages; i++) {
+          ...
+           if ((i % mod_scale) == 0 && i != 0) // almost equal scatter between GPU and CPU except for the `permissible_phys_pages_count` threshold. This implies "round-robin manner".
+                       device = mod_zero_devId; // 
+          }
+          if (gpu_page_count == permissible_phys_pages_count)
+            device = cudaCpuDeviceId;
+          if (itr == 0) {
+            CUDA_CHECK(cudaMemAdvise(running_ptr, args.page_size, cudaMemAdviseSetPreferredLocation,
+                          device)); // GPU/CPU
+
+            if (device == cudaCpuDeviceId)
+              CUDA_CHECK(cudaMemAdvise(running_ptr, args.page_size, cudaMemAdviseSetAccessedBy,
+                                        current_device)); // if not CPU, no need to set unnecessarily `cudaMemAdviseSetAccessedBy` by GPU.
+          }
+          ```
+          - > For oversubscription values greater than 1.0, factors like base *HBM memory bandwidth* and CPU-GPU *interconnect speed steer* the final memory read bandwidth.
+            Here 
+            1. `if` overhead
+            2. small chunk `args.page_size` increases transfer overheads (both counts and speed because of always reinit the transfer channel).
+            ```c++
+            // 1st
+             if (itr == 0) {
+               CUDA_CHECK(cudaMemAdvise(uvm_alloc_ptr, allocation_size,
+                                         cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+               CUDA_CHECK(cudaMemAdvise(uvm_alloc_ptr, allocation_size,
+                                         cudaMemAdviseSetAccessedBy, current_device));
+             }
+            // 2rd
+            void *running_ptr = uvm_alloc_ptr;
+            for (int i = 0; i < num_pages; i++) {
+              if (itr == 0) {
+                CUDA_CHECK(cudaMemAdvise(running_ptr, args.page_size, cudaMemAdviseSetPreferredLocation,
+                                        device));
+
+                if (device == cudaCpuDeviceId)
+                  CUDA_CHECK(cudaMemAdvise(running_ptr, args.page_size, cudaMemAdviseSetAccessedBy,
+                                            current_device));
+              } 
+              running_ptr = reinterpret_cast<void*>((size_t)running_ptr + args.page_size);
+            }
+            ```
+          - Tip
+            > When testing on a *Power9* system, we came across an interesting behavior of *explicit* bulk memory prefetch (option a). Because access counters are enabled on P9 systems, the evicted memory *doesn’t always stay pinned to CPU* and Unified Memory driver can initiate data migration from CPU to GPU. This results in *evictions from GPU* and the cycle continues throughout the lifetime of a kernel. This process negatively affects the streaming block and grid stride kernels, and they get lower bandwidth than the manual page distribution.
+            This says *pinned* mem migration to GPU caused more GPU page faults.
+            So start from 500 in Figure 11
+      - Solution: Single GPU oversubscription
+        > depends on the memory access pattern and reuse of on-GPU memory. 
+        grid-stride is always better.
+        > When you are choosing between the fault and the pinned system memory allocation, the latter performs *consistently better* across all platforms and GPUs. 
+        
+        > If *GPU residency* of the memory subregion *benefits* from overall application speed, then memory page distribution between GPU and CPU is a better allocation strategy.
+        This means "oversubscription factor" less than `1.0` in Figure 11 to better use GPU mem than CPU.
+      - Try Unified Memory optimizations
+        See This [pdf last page](https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9726-unified-memory-for-data-analytics-and-deep-learning.pdf) maybe just hardware helps solving "memory pool fragmentation issue" by p17 fine-grained.
+
+        [fragmentation](https://www.softwareverify.com/blog/memory-fragmentation-your-worst-nightmare/#:~:text=Memory%20fragmentation%20is%20when%20the,satisfy%20that%20memory%20allocation%20request.)
+        > the size of any *individual* fragment (or *contiguous* fragments) is *too small to* satisfy that memory allocation request.
+
     - [Maximizing_Unified_mem]
       better to see "Get Started with Unified Memory in CUDA" at the end
       > In this post I’ve aimed to provide *experienced* CUDA developers the knowledge needed to optimize applications to get the best Unified Memory performance. If you are *new* to CUDA and would like to get started with Unified Memory, please *check out the posts* An Even Easier Introduction to CUDA and Unified Memory for CUDA Beginners.
       - "Page Migration Mechanism" says how Migration in `cudaMallocManaged` is done which implies "copies".
+        1. Allocate new pages on the GPU;
+        2. Unmap old pages on the CPU;
+        3. Copy data from the CPU to the GPU;
+        4. Map new pages on the GPU;
+        5. Free old CPU pages.
+        Also see [improving_gpu_oversubscription_performance] Figure 5
+        So idle GPU memory penalty is higher than full ones.
       - ["zero-copy access"](#zero_copy)
       - "Considering that Unified Memory introduces a *complex page fault handling* mechanism, the on-demand streaming Unified Memory *performance is quite reasonable*"
       - "generate many faults *concurrently*" because of delay of synchronization.
@@ -8437,7 +8540,15 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
         so less conflict miss -> performance better.
         - TLB update is implied by [page fault](#soft_hard_page_fault)
           
-          Also see [this][unified_memory] 
+          Also see [this][unified_memory]
+          - Features (just see the 1st sentence of each paragraph).
+            1. > Unified Memory is crucial for such systems and it enables more seamless code development on *multi-GPU* nodes.
+            2. out-of-core computations
+              49-bit virtual addressing -> not limited by the physical size of GPU memory.
+            3. on-demand page migration
+          - Profiling
+            1. > The segments are *colored* according to their weight highlighting *migrations and faults* that take most of the time.
+              3 groups (1 for migrations and 2 for faults)
           - "see the *virtual address and reason* for every migration event" and "2MB page is *evicted* to free space"
             "do not correlate back to the *application code*."
           - It also says how to "*automate* this process." "if you have hundreds or thousands of page faults in *different parts* of your application" by `CUPTI` and `sqlite`.
@@ -8445,7 +8556,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             "First, the page fault processing takes a significant amount of time. Second, the migration latency is completely exposed" the 2 things just means same (i.e. 1st caused 2rd).
           - Optimizing Performance with Prefetching and Usage Hints:
             
-            "prefetching operation can be issued in a *separate CUDA stream* and *overlapped* with some compute work ... *non-blocking* stream to enable concurrent" says why `Prefetch` better. See [cuda_stream]
+            "prefetching operation can be issued in a *separate CUDA stream* and *overlapped* with some compute work ... *non-blocking* stream to enable concurrent" says why `Prefetch` better because of 3 keywords. See [cuda_stream]
             - "prefetches are scheduled while GPU is working on the other AMR levels to *avoid any conflicts*" See Figure 9.
               Notice the `3` is unevicted due to `least-recently-used`.
             - TODO read more about [async](https://docs.nvidia.com/cuda/cuda-runtime-api/api-sync-behavior.html#api-sync-behavior__memcpy-async) from [this](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge8dc9199943d421bc8bc7f473df12e42)
@@ -8453,8 +8564,9 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
               - "for better overlap with GPU kernels we need to make sure enough GPU work is *scheduled in advance*"
                 TO keep `cudaMemPrefetchAsync` busy most of time which is synchronous with CPU so CPU is also busy. Then CPU overheads of `page migration`,etc., can be hidden. (Here also assumes the *spacial locality* to take effects).
                 "a prefetching operation can be submitted to a separate stream *after* all GPU levels are scheduled but *before* we synchronize GPU" just *early* prefetching.
-            - `cudaMemAdvise(ptr, size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId); cudaMemAdvise(ptr, size, cudaMemAdviseSetAccessedBy, myGpuId);` is to "pin regions to *CPU* memory and establish a direct mapping from the *GPU*" (i.e. used by GPU). Then less *page faults*.
-            - `cudaMemAdviseSetReadMostly` "automatically *duplicates* data on a specified processor." -> ["read-duplicated *copies* of the data ... the *collapsed* copy will be the *preferred* location"](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
+            - How Usage Hints works: `cudaMemAdvise(ptr, size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId); cudaMemAdvise(ptr, size, cudaMemAdviseSetAccessedBy, myGpuId);` is to "pin regions to *CPU* memory and establish a direct mapping from the *GPU*" (i.e. used by GPU). Then less *page faults*.
+              pinned implies "direct access" in Conclusion.
+            - `cudaMemAdviseSetReadMostly` "automatically *duplicates* data on a specified processor." -> ["read-duplicated *copies* of the data ... the *collapsed* copy will be the *preferred* location"](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a) implies "duplicate memory regions" in Conclusion.
               "Writing to such memory is allowed and doing so will *invalidate* all the copies"
               
               Usage: "*constant throughout* the application execution and *shared*"
@@ -8491,34 +8603,48 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
                 because they are both in *device mem*.
 
                 This works because in `main` `x[i]/y[i]` are only inited, ~~but *not used*.~~ which corresponds to host to device causing *device* page faults and then delay.
-              2. Run It Many Times may be worse than 1st method.
+              2. Run It Many Times may perform worse than 1st method because of `Host To Device`.
                 `4.000000MB  339.7760us  Device To Host` corresponds to `maxError = fmax(maxError, fabs(y[i]-3.0f));`
-              3. `cudaMemPrefetchAsync` copy large block like `2.0000MB` instead of *maybe small* units when normal migration.
-            - "hardware page faulting, so coherence can’t be guaranteed" may means [soft page fault](#soft_hard_page_fault), i.e. other processor in ["handles page faults by bringing the page from disk or *other processor*'s memory"](https://pages.cs.wisc.edu/~sschang/OS-Qual/distOS/sharedVM.htm)
+              3. Same as 2 to perform worse, `cudaMemPrefetchAsync` copy large block like `2.0000MB` instead of *maybe small* units when normal migration.
+          - A Note on Concurrency
+            Here not offers how to achieve Concurrency, but show *caveats* when doing Concurrency. 
+            1. > Therefore, we have to be careful when accessing the managed allocations on either processor, to ensure there are *no race conditions*.
+              >  however, it is up to the application developer to ensure there are no race conditions caused by simultaneous accesses.
+              Similar to x86 cpu programming
+            2. > Even in our simple example, there is a CPU thread and one GPU execution *context*
+              context switch.
+            3. hardware *page faulting* support
+              "This is because pre-Pascal GPUs lack hardware *page faulting*, so coherence can’t be guaranteed" may means [soft page fault](#soft_hard_page_fault), i.e. other processor in ["handles page faults by bringing the page from disk or *other processor*'s memory"](https://pages.cs.wisc.edu/~sschang/OS-Qual/distOS/sharedVM.htm)
               "segmentation fault" maybe due to hardware un-support.
-            - `cudaDeviceSynchronize` is important for asynchronous kernel
+            4. synchronization:
+              `cudaDeviceSynchronize` is important for asynchronous kernel
               > In our simple example, we have a call to cudaDeviceSynchronize() after the kernel launch. This *ensures* that the kernel runs to *completion* before the CPU tries to read the results from the managed memory pointer.
-            - "The Page Migration engine allows GPU threads to *fault on non-resident* memory accesses" i.e. implement "hardware page faulting".
-            - "49-bit virtual addressing" similar to Memory paging which includes secondary memory, i.e. disks.
+          - Benefits of Unified Memory on *Pascal and Later* GPUs
+            > *improved* with 49-bit virtual addressing and on-demand page migration
+            This is also said in "What is Unified Memory" and the beginning.
+            1. "The Page Migration engine allows GPU threads to *fault on non-resident* memory accesses ... from *anywhere* in the system" i.e. implement "hardware page faulting".
+            2. "49-bit virtual addressing" similar to Memory paging which includes secondary memory, i.e. disks.
               i.e. [Unified Virtual Address Space "a single address space is used for *the host and all the devices*"](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#unified-virtual-address-space)
-            - "oversubscribing GPU memory" ~~i.e. "out-of-core computations"~~ means use too many GPU memory. ~~Maybe evict page or ~~
-              This may be due to frequent eviction due to weird data pattern or just [out-of-core computations "*too large to fit* into a computer’s main memory."](https://machinelearning.wtf/terms/out-of-core/#:~:text=The%20term%20out%2Dof%2Dcore,(relatively)%20small%20performance%20penalty.)
-              - TODO [read](https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/)
-            - [performance_metrics]
-              > The function cudaEventSynchronize() blocks CPU execution *until the specified event is recorded*.
-              `cudaEventSynchronize()` just wait for Event.
-              means same ["Waits until the completion of all work currently *captured* in event."](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EVENT.html#group__CUDART__EVENT_1g949aa42b30ae9e622f6ba0787129ff22) (similar to consumer in release-consume model)
-              better understood with `cudaEventElapsedTime(&milliseconds, start, stop);`.
-              - Theoretical Bandwidth
-                $1546 * 10^6 * 2$ -> transaction times / s (2 due to DDR)
-                $(384/8)$ -> transaction unit
-                $/ 10^9$ -> transform to GB
-                Above is same as "In this calculation, we convert the memory ..."
-              - `N*4*3` just as blog says.
-                $4$ -> 4 bytes / int
-                $3=1+2$ 1 write and 2 reads
-              - computational throughput -> "single multiply-add instruction (2 FLOPs)"
-              - "A large percentage of kernels are memory bandwidth bound ... a good *first step*"
+              - "oversubscribing GPU memory" ~~i.e. "out-of-core computations"~~ means use too many GPU memory. ~~Maybe evict page or ~~
+                > At the event of oversubscription, GPU automatically starts to *evict* memory pages to system memory to *make room* for active in-use virtual memory addresses.
+                > For example, an oversubscription factor value of 1.5 for a GPU with 32-GB memory means that *48 GB memory was allocated* using Unified Memory.
+                This ~~may be due to frequent eviction due to weird data pattern or ~~ is just [out-of-core computations "*too large to fit* into a computer’s main memory."](https://machinelearning.wtf/terms/out-of-core/#:~:text=The%20term%20out%2Dof%2Dcore,(relatively)%20small%20performance%20penalty.)
+                - TODO [read][improving_gpu_oversubscription_performance]
+          - [performance_metrics]
+            > The function cudaEventSynchronize() blocks CPU execution *until the specified event is recorded*.
+            `cudaEventSynchronize()` just wait for Event.
+            means same ["Waits until the completion of all work currently *captured* in event."](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EVENT.html#group__CUDART__EVENT_1g949aa42b30ae9e622f6ba0787129ff22) (similar to consumer in release-consume model)
+            better understood with `cudaEventElapsedTime(&milliseconds, start, stop);`.
+            - Theoretical Bandwidth
+              $1546 * 10^6 * 2$ -> transaction times / s (2 due to DDR)
+              $(384/8)$ -> transaction unit
+              $/ 10^9$ -> transform to GB
+              Above is same as "In this calculation, we convert the memory ..."
+            - `N*4*3` just as blog says.
+              $4$ -> 4 bytes / int
+              $3=1+2$ 1 write and 2 reads
+            - computational throughput -> "single multiply-add instruction (2 FLOPs)"
+            - "A large percentage of kernels are memory bandwidth bound ... a good *first step*"
         - [unified_memory_cuda_6]
           > The key is that the system automatically *migrates* data allocated in Unified Memory between host and device so that it *looks like* CPU memory to code running on the CPU, and like GPU memory to code running on the GPU.
 
@@ -8552,29 +8678,65 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
               So `  String name;` -> `class String : public Managed {`
           - "Our first release is aimed at making CUDA programming *easier*, especially for beginners."
         - [cuda_stream]
+          - Asynchronous Commands list
+            > asynchronous commands return control to the calling host thread *before* the device has *finished* the requested task (they are *non-blocking*)
+            
+            > Kernel launches;
+            important to get the right result.
+            > Memory copies between two addresses to the same device memory;
+            > Memory copies from host to device of a memory block of 64 KB or less;
+            related with *device* memory
+            the 3rd should specify [`cudaMemcpyAsync`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1g85073372f776b4c4d5f89f7124b7bf79) instead of [`cudaMemcpy`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gc263dbe6574220cc776b45438fc351e8)
+            > Memory copies performed by functions with the *Async* suffix;
+            > Memory set function calls.
+            `memset`.
+          - default vs non-default
+            1. the former "which causes implicit synchronization"
+              > two commands from different streams *cannot run concurrently* if the host thread issues any CUDA command to the *default* stream *between* them.
+              This is shown in the 1st figure and Figure 3
+            2. Also see [this](#default_stream_per_thread)
+
           > streams, sequences of commands that execute *in order*. Different streams may execute their commands *concurrently* or *out of order* with respect to each other
           > the *default* stream which *implicitly synchronizes* with all other streams
           - "the very small bars for the *dummy* kernels on the default stream, how they cause all of the other streams to *serialize*." See [this code profiler data](../CUDA/codes/nvidia_blogs/streams/stream_test_no_default.nvvp) after removing the dummy.
-          - here use compiler `default-stream per-thread`
+          - here use compiler `default-stream per-thread` <a id="default_stream_per_thread"></a>
             1. "*each host thread* its own default stream" -> this is reflected in the 2rd example.
             2. "regular streams ... may run *concurrently* with commands in *non-default* streams" which is opposite of the legacy streams.
               This is reflected in 1st example.
             These 2 properties correspond to "as far as *synchronization and concurrency* goes"
           - Notice `cudaStreamLegacy` and `cudaStreamPerThread` differences which can be seen from Figure 3,4.
-            Just see "More *Tips*"
+            
+          - Just see "More *Tips*"
+            1. just the definition of "per-thread default streams"
+            2. flag needs passed *per* compilation unit
+            3. `cudaDeviceSynchronize` still *device* granularity
+            4. `cudaStreamPerThread` and `cudaStreamLegacy` ~~ignores the compiler flag `--default-stream`.~~ select `PerThread` / `Legacy` more conveniently.
+            5. `cudaStreamNonBlocking` -> forced `async`.
         - [cuda_async] to Overlap Data Transfer
           Here is mainly by non-blocking with async by "`cudaMemcpyAsync()` is non-blocking on the host".
-          - "The default stream" limits "because it is a *synchronizing* stream with respect to operations on the device: no operation in the *default* stream will begin until all *previously* issued operations in *any* stream on the device have completed" (just as [cuda_stream] says)
-            - "asynchronous behavior of kernel" makes "executes `myCpuFunction()`, *overlapping* its execution" possible 
+          - "The default stream" limits "because it is a *synchronizing* stream with respect to operations on the device: no operation in the *default* stream will begin until all *previously* issued operations in *any* stream on the device have completed, and an operation in the *default* stream must *complete before* any other operation (in any stream on the device) will begin." (just as [cuda_stream] says)
+            - "asynchronous behavior of kernel" makes "executes `myCpuFunction()`, *overlapping* its execution" possible
+              > Whether the host function or device kernel completes first *doesn’t affect the subsequent device-to-host transfer*, which will begin only after the kernel completes.  From the perspective of the device, nothing has changed from the previous example; the *device is completely unaware* of myCpuFunction().
+              Here only make CPU performance better, but not GPU because of `cudaMemcpy` still synchronous.
               But since `cudaMemcpy(a, d_a, numBytes, cudaMemcpyDeviceToHost);` has data dependency `d_a` in `increment<<<1,N>>>(d_a)`, So this asynchronous can't influence `cudaMemcpy`
               So it only "overlap kernel execution in the *default* stream with *execution of code*"
+          - > From the perspective of the host, the *implicit data transfers are blocking* or synchronous transfers, while the kernel launch is asynchronous. Since the host-to-device data transfer on the first line is synchronous, the CPU thread will *not reach the kernel call* on the second line until the host-to-device transfer is complete. Once the kernel is issued, the CPU thread moves to the third line, but the transfer on that line *cannot begin due to the device-side* order of execution.
+            Here CPU no parallel.
+            here just above "data dependency `d_a`".
           - non-default
-            - here the order is limited by the *~~issue~~ engine unit number* of "C1060".
-            > For the first asynchronous version of our code the *order* of execution in the copy engine is: H2D stream(1), D2H stream(1), H2D stream(2), D2H stream(2), and so forth.
-            > in an order that *precludes* any overlap of kernel execution and data transfer
+            - C1060
+              - `cudaMemcpyAsync` has same performance as sequential because of no overlap due to data dependency and no reordering in the old GPU architecture.
+                - here the order is limited by the *~~issue~~ engine unit number* of "C1060".
+                > For the first asynchronous version of our code the *order* of execution in the copy engine is: H2D stream(1), D2H stream(1), H2D stream(2), D2H stream(2), and so forth.
+                > in an order that *precludes* any overlap of kernel execution and data transfer
+              - version 2
+                > For version two, however, where *all* the host-to-device transfers are *issued before* any of the device-to-host transfers, *overlap is possible* as indicated by the lower execution time.
+                just issue all `cudaMemcpyAsync ... cudaMemcpyHostToDevice`  at once to be overlapped with `kernel` which changes the above *order*.
             - C2050 has 2 engines. So 1st async works.
-              
-              Notice: here "*concurrently* run multiple kernels" implies *no defined order*. -> "*delays* a signal that normally occurs *after* each kernel completion" to keep the *correct* results. 
+              - version 1 
+                > the device-to-host transfer of data in stream[i] *does not block* the host-to-device transfer of data in stream[i+1] as it did on the C1060 because there is a *separate engine* for each copy direction on the C2050.
+
+              - version 2 Notice: here "*concurrently* run multiple kernels" implies *no defined order*. -> "*delays* a signal that normally occurs *after* each kernel completion" to keep the *correct* results.
               Then "performance *degradation*" compared with C1060.
             - "should use *non-default* streams ... This is especially important when writing *libraries*."
           - TODO [read](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/)
@@ -8589,6 +8751,9 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             3. Use `nvpp` or `nvprof`.
           - > In the initial stages of porting, data transfers may *dominate* the overall execution time. It’s worthwhile to keep tabs on time spent on data transfers *separately* from time spent in kernel execution.
             "initial stages" just because need HtoD / DtoH to transfer data to begin the kernel.
+            This is same as [unified_memory_basic] says.
+            > In this kernel, every page in the arrays is written by the CPU, and then accessed by the CUDA kernel on the GPU, causing the kernel to *wait* on a lot of page migrations. 
+
             > we’ll remove intermediate transfers and decrease the overall execution time correspondingly.
             This is similar.
       - why `cudaMemPrefetchAsync` and `cudaMemcpyAsync` better
@@ -11064,6 +11229,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [data_transfers]:https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/
 [grid_stride_loop]:https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 [access_global_memory]:https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
+[improving_gpu_oversubscription_performance]:https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 

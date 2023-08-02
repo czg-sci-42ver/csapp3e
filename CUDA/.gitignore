@@ -12,4 +12,5 @@ hello
 *.cudafe1*
 *.ptx
 *.reg*
+!uvm_oversubs/
 windows-win32-direct3d9.pdf

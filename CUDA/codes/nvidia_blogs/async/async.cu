@@ -96,9 +96,11 @@ int main(int argc, char **argv)
   // baseline case - sequential transfer and execute
   memset(a, 0, bytes);
   checkCuda( cudaEventRecord(startEvent,0) );
+  
   checkCuda( cudaMemcpy(d_a, a, bytes, cudaMemcpyHostToDevice) );
   kernel<<<n/blockSize, blockSize>>>(d_a, 0);
   checkCuda( cudaMemcpy(a, d_a, bytes, cudaMemcpyDeviceToHost) );
+
   checkCuda( cudaEventRecord(stopEvent, 0) );
   checkCuda( cudaEventSynchronize(stopEvent) );
   checkCuda( cudaEventElapsedTime(&ms, startEvent, stopEvent) );
