@@ -8486,7 +8486,8 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
         Above is done by hardware and the driver.
         > The profiler shows that there are 114 faults reported just for *a single page*, and then more faults for the same address later. The driver must *filter duplicate* faults and transfer each page just *once*. 
         This implies page fault group.
-      - > Instead of having *multiple hardware warps* accessing the *same page*, we can divide pages between warps to have a one-to-one mapping and have each warp perform *multiple iterations over the 64K region*.
+      - Warp-Per-Page Approach
+        > Instead of having *multiple hardware warps* accessing the *same page*, we can divide pages between warps to have a one-to-one mapping and have each warp perform *multiple iterations over the 64K region*.
         Here is mainly based on minimum **SIMT** unit is warp, and multiple calls to `stream_warp` make each warp manipulate *same data* but *without thrashing* the page table.
 
         original code loop:
@@ -8629,7 +8630,15 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
                 > At the event of oversubscription, GPU automatically starts to *evict* memory pages to system memory to *make room* for active in-use virtual memory addresses.
                 > For example, an oversubscription factor value of 1.5 for a GPU with 32-GB memory means that *48 GB memory was allocated* using Unified Memory.
                 This ~~may be due to frequent eviction due to weird data pattern or ~~ is just [out-of-core computations "*too large to fit* into a computer’s main memory."](https://machinelearning.wtf/terms/out-of-core/#:~:text=The%20term%20out%2Dof%2Dcore,(relatively)%20small%20performance%20penalty.)
-                - TODO [read][improving_gpu_oversubscription_performance]
+                - ~~TODO~~Also [read][improving_gpu_oversubscription_performance]
+            3. > It “just works” *without any modifications* to the application, whether running on one GPU or multiple GPUs.
+              portability
+            4. > Also, Pascal and Volta GPUs support *system-wide atomic* memory operations. That means you can atomically operate on values anywhere in the *system from multiple GPUs*.
+              Although this is not due to the "Unified Memory".
+            5. > Demand paging can be particularly beneficial to applications that access data with a *sparse* pattern.
+              See "Warp-Per-Page" in [Maximizing_Unified_mem]
+              > In some applications, it’s *not known ahead of time* which specific memory addresses a particular processor will access. Without hardware page faulting, applications can only pre-load whole arrays, or suffer the cost of high-latency off-device accesses (also known as “Zero Copy”). But page faulting means that only the pages the kernel *accesses* need to be *migrated*.
+              This is similar to 3.
           - [performance_metrics]
             > The function cudaEventSynchronize() blocks CPU execution *until the specified event is recorded*.
             `cudaEventSynchronize()` just wait for Event.
@@ -8647,10 +8656,15 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             - "A large percentage of kernels are memory bandwidth bound ... a good *first step*"
         - [unified_memory_cuda_6]
           > The key is that the system automatically *migrates* data allocated in Unified Memory between host and device so that it *looks like* CPU memory to code running on the CPU, and like GPU memory to code running on the GPU.
-
           > by making device memory management an *optimization*, rather than a requirement.
-          > uses *streams and cudaMemcpyAsync* to efficiently overlap execution with data transfers may very well perform better than a CUDA program that only uses Unified Memory.
-          So has above [Maximizing_Unified_mem] blog to optimize
+
+          - Performance Through Data Locality
+            > Unified Memory can offer the *performance of local* data on the GPU, while providing the ease of use of globally shared data. 
+            > the 250 GB/s of GDDR5 memory is vital to *feeding* the compute throughput of a Kepler GPU.
+            implies migration and Locality
+
+            > uses *streams and cudaMemcpyAsync* to efficiently overlap execution with data transfers may very well perform better than a CUDA program that only uses Unified Memory. Understandably so: the CUDA runtime *never has as much information as the programmer* does about where data is needed and when!
+            So has above [Maximizing_Unified_mem] blog to optimize
           - compared with "Unified Virtual Addressing (UVA)"
             1. "UVA does *not automatically migrate*"
             2. "UVA enables “Zero-Copy” memory, which is *pinned* host memory" while Unified Memory migrate to *nearest* mem.
@@ -8661,8 +8675,10 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             > but none of the performance, because it is always *accessed with PCI-Express’s low bandwidth* and high latency.
             ~~TODO what~~ Unified Memory ~~uses~~ copys *once* and access GPU memory.
             - `cudaMemcpy(d_elem, elem, sizeof(dataElem), cudaMemcpyHostToDevice);` is done by ["Copy data from the CPU to the GPU;"][Maximizing_Unified_mem]
-            > *Porting* code with existing *complex* data structures to the GPU used to be a daunting exercise, but Unified Memory makes this so much easier
-              just let the *hardware* do the complex migration.
+            - Shared Linked Lists
+              > The only option is to allocate the list in Zero-Copy memory (pinned host memory), which means that GPU accesses are *limited to PCI-express* performance.
+              - > *Porting* code with existing *complex* data structures to the GPU used to be a daunting exercise, but Unified Memory makes this so much easier
+                just let the *hardware* do the complex migration.
             - TODO in `c++`, maybe use *overloaded* `new`, `delete` and "copy constructor" to make all *inherited* classes also using *Unified memory* by `dataElem *data = new dataElem;`.
               > A copy constructor is a function that knows how to create an object of a class, allocate space for its members, and copy their values from another object.
 
@@ -8676,7 +8692,8 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
               `String (const String &s) {` implies *deep* copies.
               > Note that You need to make sure that *every class in the tree* inherits from Managed, otherwise you have a hole in your memory map.
               So `  String name;` -> `class String : public Managed {`
-          - "Our first release is aimed at making CUDA programming *easier*, especially for beginners."
+          - A Bright Future for Unified Memory can be ignored since it's old CUDA 6.
+            "Our first release is aimed at making CUDA programming *easier*, especially for beginners."
         - [cuda_stream]
           - Asynchronous Commands list
             > asynchronous commands return control to the calling host thread *before* the device has *finished* the requested task (they are *non-blocking*)
@@ -8903,9 +8920,42 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     i.e. use *old PTX* then go to binary. Then debug by "pin down the *culprit module* more quickly".
 
     From the last figure, "independent thread scheduling" split the loop body which is "*fine*-grain parallel algorithms".
-    - [independent_thread_scheduling] and view the [whiterpaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf)
+    - [independent_thread_scheduling] and view the [volta whiterpaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf)
+      p13
+      > GPU Processing Clusters (GPCs), Texture Processing Clusters (TPCs), Streaming Multiprocessors (SMs), 
       See Figure 4,5,10,11,12,13,
-      - "Starvation-Free Algorithms" just use *more locks* by "Per-node locks".
+      
+      Figure 5 implies SIMT in warp scheduler.
+
+      > independent thread scheduling ... per-thread scheduling resources such as program counter (PC) and call stack (S), 
+
+      > Importantly, Volta’s ability to *independently schedule threads* within a warp makes it possible to implement complex, *fine-grained* algorithms and data structures in a more natural way. 
+      > Volta independent thread scheduling enables *interleaved* execution of statements from *divergent* branches. This enables execution of fine-grain parallel algorithms where threads within a warp *may* synchronize and communicate.
+      independent thread scheduling breaks original SIMT organization in some  way. -> Figure 12
+      > While the scheduler supports independent execution of threads, it optimizes non-synchronizing code to maintain *as much convergence* as possible for maximum SIMT efficiency.
+      See Figure 13
+
+
+      - "Starvation-Free Algorithms" ~~just use *more locks* by "Per-node locks".~~
+        > have *adequate access* to a contended resource.
+        ~~implies self lock.~~
+        - relation Also [see](https://stackoverflow.com/q/76497234/21294350)
+        > For example, a mutex (or lock) may be used in a starvation-free algorithm if a thread attempting to acquire the mutex is guaranteed *eventually to succeed*. In a system that does not support starvation-freedom, one or more threads may *repeatedly acquire and release a mutex* while *starving* another thread from ever successfully acquiring the mutex.
+        ~~Here "independent" implies in independent resources including self *lock*.~~
+        > Independent thread scheduling in Volta *ensures* that even if a thread T0 currently holds the lock for node A, another thread T1 in the same warp can *successfully wait for* the lock to become available without impeding the progress of thread T0.
+          ~~instead of wait from the beginning as Figure 10~~
+          With "Independent thread scheduling", one thread T1 can get the lock *instead of starvation* by the next iteration of other threads or T0.
+          Although above SO not shows the behavior.
+        > Note, however, that because active threads in a warp execute together, threads *spinning* on a lock may *degrade* the performance of the thread holding the lock.
+          [spinlock](https://en.wikipedia.org/wiki/Spinlock#:~:text=The%20idea%20is%20to%20use,thread%20is%20not%20currently%20running.) just loop (i.e. spin) to poll the lock state.
+        > Traditional doubly-linked list implementations may use a *coarse*-grained lock that provides exclusive access to the *entire structure*, rather than separately protecting *individual nodes*. This approach typically leads to poor performance in applications with many threads—Volta may have up to 163,840 concurrent threads—caused by extremely *high contention for the lock*. By using a fine-grained lock on each node, the average per-node contention in large lists will usually be *low* except under certain *pathological node insertion patterns*.
+          `coarse` -> means one lock one code block.
+          Also view [my answer](https://stackoverflow.com/a/76817779/21294350)
+        - [NVLink](https://www.nvidia.com/en-us/data-center/nvlink/) is for multi-GPU which include A100/V100.
+          NVswitch,NVlink is [similar](https://images.nvidia.com/aem-dam/Solutions/gtcs22/nvlink/hpc-video-nvlink-video-2781044.mp4) to switch,wire.
+      - TODO 
+        view "Key Features"
+      - [HBM](https://en.wikipedia.org/wiki/High_Bandwidth_Memory)
   - > Intentionally removing synchronizations is an *unsafe* technique (known as implicit warp synchronous programming) that *expert* CUDA programmers have often used to achieve *higher performance* for warp-level cooperative operations. *Always explicitly synchronize* your thread groups, because implicitly synchronized programs have race conditions.
   - here `val += g.shfl_down(val, i);` no diverge and is at the beginning of the kernel, no need to synchronization.
     here assume all run it, so no mask to synchronize.

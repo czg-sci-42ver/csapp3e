@@ -13,4 +13,5 @@ hello
 *.ptx
 *.reg*
 !uvm_oversubs/
+!Starvation_Free/
 windows-win32-direct3d9.pdf
