@@ -5657,6 +5657,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
               (this is similar to nvidia [slide](https://www.olcf.ornl.gov/wp-content/uploads/2019/12/05_Atomics_Reductions_Warp_Shuffle.pdf) p14). <a id="reduction_nvidia"></a>
               It seems to have no relation with [this](https://en.wikipedia.org/wiki/Reduction_of_summands#:~:text=Reduction%20of%20summands%20is%20an,reduction%20of%20summands%2C%20and%20summation.) where has no copy and parallel and it use carry and original bit summand separately. <a id="reduction"></a>
               - above nvida offer some pdf in p25 [reduction_1](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) and [reduction_2](https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/)
+                old [`__shfl`](https://docs.nvidia.com/cuda/archive/8.0/cuda-c-programming-guide/index.html#warp-shuffle-functions)
                 - reduction_1: 
                   - two addressing: 1. p8 Interleaved Addressing which may use *same bank* in p12 because not adjacent memory addr. 2. same as above slide 3. TODO the other #... in reduction_1.
                   - the second is same as 'Shuffle Warp Reduce' in reduction_2.
@@ -8033,6 +8034,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 ### B
 Notice:
 1. CUDA doc [online](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions) or [pdf][CUDA_doc]
+  old ones [see](https://docs.nvidia.com/cuda/archive/8.0/cuda-c-programming-guide/index.html#warp-shuffle-functions) which has deprecated `__shfl_down` description.
 
 ---
 
@@ -8218,7 +8220,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
 
   "limiting each SP to 32 threads," because of *RF size*.
 - "warp size of 32 threads" is same as mu [gpu "Warp size"](#my-gpu-parameters)
-- how `warp` implies [`SI` (see the figure)][cuda_warp] in `SIMT` where it implies multiple lanes (threads).
+- how `warp` implies [`SI` (see the figure `__shfl_down_sync`)][cuda_warp] in `SIMT` where it implies multiple lanes (threads).
   "data-level parallelism among threads at *runtime*" because the thread num may change due to `offset` size.
 - notice grid size can be [*larger*](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485) than physical thread size.
   This is also said in this [Q&A](https://superuser.com/a/1801197/1658455) where it is achieved by "puts a *new* work block into the processor block when another block *finishes*." which is same as nvidia post "use spare thread when one thread finishes".
@@ -8361,7 +8363,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     - what does `thread_sum` sum? and what is its `blockDim` and why `i < n / 4;`
   - here `reduce_sum` function same as `__shfl_down_sync`
   - memset [vs](https://stackoverflow.com/a/1373422/21294350) `std::fill`
-  - [`cudaMallocManaged` "Unified Memory"](https://developer.nvidia.com/blog/unified-memory-cuda-beginners/) vs [`cudaMalloc` where distinct between the host and device](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cudaMalloc#memory-allocation-and-lifetime)
+  - [`cudaMallocManaged` "Unified Memory"][unified_memory_basic] vs [`cudaMalloc` where distinct between the host and device](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cudaMalloc#memory-allocation-and-lifetime)
     Notice the [migration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#data-migration-and-coherency) of `cudaMallocManaged` may [decrease][Maximizing_Unified_mem] the performance (link from [this](https://stackoverflow.com/a/21990899/21294350)).
     Used in [jetson](https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#id1) to "reduce the readImage() time".
 
@@ -8375,6 +8377,61 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       - "Considering that Unified Memory introduces a *complex page fault handling* mechanism, the on-demand streaming Unified Memory *performance is quite reasonable*"
       - "generate many faults *concurrently*" because of delay of synchronization.
       - kw: density prefetching; "page fault groups"; "this overlap is severely limited *due to the SM stalls* caused by page fault handling."; "because the CPU’s page tables *cannot be updated asynchronously*"; hardware access counters
+      - Gpu page fault groups
+        > the driver may also *merge* nearby smaller pages into larger pages on the GPU to improve TLB coverage. All this happens *automatically* during *page fault processing* (and outside of user control).
+        > The number 88 above on the second line is not the total number of faults, but rather *the number of page fault groups*. The faults are written to a special buffer in system memory and multiple faults forming a group are *processed simultaneously* by the Unified Memory driver.
+        Above is done by hardware and the driver.
+        > The profiler shows that there are 114 faults reported just for *a single page*, and then more faults for the same address later. The driver must *filter duplicate* faults and transfer each page just *once*. 
+        This implies page fault group.
+      - > Instead of having *multiple hardware warps* accessing the *same page*, we can divide pages between warps to have a one-to-one mapping and have each warp perform *multiple iterations over the 64K region*.
+        Here is mainly based on minimum **SIMT** unit is warp, and multiple calls to `stream_warp` make each warp manipulate *same data* but *without thrashing* the page table.
+
+        original code loop:
+        ```c++
+        for(; tid < n; tid += blockDim.x * gridDim.x) // one grid stride, here warps may be scheduled different data each time by the scheduler.
+          if (op == READ) accum += ptr[tid]; 
+            else ptr[tid] = val;         
+        ```
+        optimized:
+        ```c++
+        int lane_id = threadIdx.x & 31; 
+        size_t warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
+        int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
+        size_t warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
+
+        size_t n = size / sizeof(data_type); 
+        data_type accum = 0;
+        /*
+        2rd loop: 
+        1. do all corresponding lanes in different warps by `rep*32` in the range STRIDE_64K by `rep < STRIDE_64K/sizeof(data_type)/32` 
+         So here won't change data each time, because 
+        2. and `warp_id * STRIDE_64K/sizeof(data_type)` just select the corresponding warp in the grid.
+        */
+        for(; warp_id < warp_total; warp_id += warps_per_grid) { // once per grid
+          #pragma unroll
+          for(int rep = 0; rep < STRIDE_64K/sizeof(data_type)/32; rep++) { 
+            size_t ind = warp_id * STRIDE_64K/sizeof(data_type) + rep * 32 + lane_id;
+            if (ind < n) { 
+              if (op == READ) accum += ptr[ind]; 
+              else ptr[ind] = val; 
+            }
+          } 
+        }         
+        ```
+        Notice: when "multiple hardware warps accessing the *same* page". Since 
+        > When Pascal and Volta GPUs access a page that is *not resident* in the local GPU memory the translation for this page generates a *fault* message and *locks the TLBs* for the corresponding SM (on Tesla P100 it locks a pair of SMs that share a single TLB). This means any *outstanding translations* can proceed but any new translations will be stalled until all faults are resolved.
+        > The *minimum* size usually equals the OS page size which is *64KB* on the test system (IBM Power CPU).
+        >  As you can see from the profiler output the driver has transferred chunks of up to *896 KB*. The mechanism for this is called density prefetching, which works by testing how much of the predefined region has been or is being transferred; if it meets a certain threshold the driver *prefetches the rest* of the pages. In addition, the driver may also *merge nearby smaller pages* into larger pages on the GPU to improve TLB coverage.
+        Then when one page fault corresponds to multiple multiple warps (because of "outstanding translations" *per pairs* of SM) $n_{warp_per_page_fault}>>1$, the *first iteration* of the *whole grid* is 
+        $n_{warp_per_page_fault}*n_{page}>> =n_{page}$
+        ~~and even worse, with `tid += blockDim.x * gridDim.x` which may *thrash the page table fetched* with very large ~~
+        ~~$n>>blockDim.x * gridDim.x$, the *subsequent iterations* may incur *linear increase* of page faults.~~
+        next iteration go to *next grid*, so no influence to the current state.
+
+        But with the optimized, the 1st iteration is just scattered by minimum page size `64K`, so $n_{warp_per_page_fault}=1$, 
+        Then 1st iteration $n_{warp_per_page_fault}*n_{page}=n_{page}$
+        in the subsequent *inner loop* iterations, `rep < STRIDE_64K/sizeof(data_type)/32` keeps no thrash of the page table.
+
       - "merge nearby smaller pages into larger pages" may means same as [this](#hugepage)
       - po "Instead of having multiple hardware warps *accessing the same* page, we can divide pages between warps"
         so less conflict miss -> performance better.
@@ -8467,7 +8524,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
 
           > by making device memory management an *optimization*, rather than a requirement.
           > uses *streams and cudaMemcpyAsync* to efficiently overlap execution with data transfers may very well perform better than a CUDA program that only uses Unified Memory.
-          So has above [Maximizing_Unified_mem]
+          So has above [Maximizing_Unified_mem] blog to optimize
           - compared with "Unified Virtual Addressing (UVA)"
             1. "UVA does *not automatically migrate*"
             2. "UVA enables “Zero-Copy” memory, which is *pinned* host memory" while Unified Memory migrate to *nearest* mem.
@@ -8521,7 +8578,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
               Then "performance *degradation*" compared with C1060.
             - "should use *non-default* streams ... This is especially important when writing *libraries*."
           - TODO [read](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/)
-        - [data_transfers](https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/)
+        - [data_transfers]
           - "As we port more of our code, we’ll remove intermediate transfers" may means no need to report the same kernel since "code can be ported to CUDA *one kernel at a time*".
             "as you write more *device* code you will eliminate some of the *intermediate* transfers, so any effort you spend optimizing transfers early in porting may be wasted" because `__global__` function as one intermediate, so multiple parallel device `__device__` code amortize the overheads from `__host__` to `__global__`.
           - optimization
@@ -8530,6 +8587,10 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             2. "Batching Small Transfers" just like [COD_RISCV_2nd_A_appendix] 5.15 cache blocking
               This "take care to *minimize* transfers"
             3. Use `nvpp` or `nvprof`.
+          - > In the initial stages of porting, data transfers may *dominate* the overall execution time. It’s worthwhile to keep tabs on time spent on data transfers *separately* from time spent in kernel execution.
+            "initial stages" just because need HtoD / DtoH to transfer data to begin the kernel.
+            > we’ll remove intermediate transfers and decrease the overall execution time correspondingly.
+            This is similar.
       - why `cudaMemPrefetchAsync` and `cudaMemcpyAsync` better
         because "manually tiling your data into *contiguous* memory regions" while threads *order* is undefined which caused "on-demand access" may cause higher overheads.
         - `cudaMemcpyAsync` *not update page table* but only "only needs to *submit copies* over the interconnect"
@@ -8550,20 +8611,27 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
           2. `cudaMemPrefetchAsync(... cudaCpuDeviceId ...)` has no synchronization -> probably stream *busy*.
           Then see "Figure 4" where DtoH has been defered.
           Here also `// rotate streams and swap events` to make 
+        > ideal overlap (maximum of kernel and prefetch times)
+        just *no idle* between data migration.
       - [`cudaMemAdvise`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
     - [cuda_introduction]
-      - ["grid-stride loop"](https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/) is to ~~avoid~~ ensure "a single large grid of threads to process the entire array *in one pass*" therefore keep the *independence*.
-        But also ["memory coalescing" -> spacial locality](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/).
+      - ["grid-stride loop"][grid_stride_loop] is to ~~avoid~~ ensure "a single large grid of threads to process the entire array *in one pass*" therefore keep the *independence*.
+        But also ["memory coalescing" -> spacial locality][access_global_memory].
         > *Rather than* assume that the thread grid is *large enough* to cover the entire data array, this kernel loops over the data array *one grid-size* at a time.
         - benefits
-          1. "support any problem size"
+          1. "support any problem size" -> "Scalability"
             
             "a *multiple* of the number of multiprocessors on the device, to *balance* utilization" -> "threads are *reused for multiple* computations" and "amortizes thread *creation and destruction cost*, etc."
+            This mainly when `blockDim.x * gridDim.x < n`. So the loop runned multiple times.
           2. "Debugging" -> Serializing
             "eliminate numerical *variations* caused ... your numerics are correct *before tuning the parallel* version."
           3. "more like the original sequential loop" -> readability
             TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
             Portability -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU."
+        - [access_global_memory] Here only do one brief read.
+          - "Misaligned Data Accesses"
+            > Devices of compute capability 2.0, such as the Tesla C2050, have an *L1 cache* in each multiprocessor with a 128-byte line size. The device *coalesces accesses by threads in a warp* into as few cache lines as possible, resulting in *negligible* effect of alignment on throughput for sequential memory accesses across threads.
+          - "Strided Memory Access" just destroys the locality.
   - kerenl param [`<<<nBlocks, blockSize, sharedBytes>>>`](https://stackoverflow.com/a/26774770/21294350)
   - ~~`thread_group tile4 = tiled_partition(tile32, 4);` is runned in ~~
   - modularity -> pass a group as an explicit *parameter* -> explicitly tell *what* to `__syncthreads();`
@@ -8585,6 +8653,8 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       "performs 2*(n-1) adds and n-1 swaps);" just view the figure.
       TODO read after p12.
   - [cuda_warp]
+    - > Some computations can use *whatever* threads *happen to be* executing together. We can use a technique called *opportunistic* warp-level programming, as the following example illustrates
+      implemented by `int mask = __match_any_sync(__activemask(), (unsigned long long)ptr);` where `__activemask` -> ~~"happen to be"~~ basic choice of active threads and `__match_any_sync` just do next operation based on `ptr` to choose "happen to be".
     - "*collective* operation" implies "synchronized"
     - TODO
       1. why `offset = 16` which may make addition element `__shfl_down_sync(mask, val, offset)` of `val` exceeds the range of `input[];`.
@@ -8657,11 +8727,15 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     > Do analyze the *program logic* and understand the membership requirements. Compute the mask ahead based on your program logic.
     > If your program does opportunistic warp-synchronous programming, use “detective” functions such as __activemask() and __match_all_sync() to find the right mask.
     Similar to predicate.
+    Here 1,2 is to choose appropriate `mask` and 3 is how to calculate `mask`.
+    4 is targetted at "opportunistic warp-synchronous programming" to use right `mask`. 
     > Use __syncwarp() to *separate* operations with intra-warp dependences. Do not assume lock-step execution.
-    just not both read and write which may cause the race condition.
+    > Make sure that __syncwarp() *separates* shared memory reads and writes to avoid race conditions
+    just not both read and write which may cause the race condition ("intra-warp dependences" -> data dependency).
     and `__syncwarp()` only ensure lock-step when execute itself, but *not later*.
+
     > you may want to recompile your program with nvcc options `-arch=compute_60 -code=sm_70`. Such compiled programs opt-in to *Pascal’s thread scheduling*
-    i.e. use *old PTX* then go to binary.
+    i.e. use *old PTX* then go to binary. Then debug by "pin down the *culprit module* more quickly".
 
     From the last figure, "independent thread scheduling" split the loop body which is "*fine*-grain parallel algorithms".
     - [independent_thread_scheduling] and view the [whiterpaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf)
@@ -10987,6 +11061,9 @@ Dump of assembler code for function _Z6kernelPfi:
 [unified_memory_cuda_6]:https://developer.nvidia.com/blog/unified-memory-in-cuda-6/
 [independent_thread_scheduling]:https://developer.nvidia.com/blog/inside-volta/
 [Cooperative_Groups]:https://developer.nvidia.com/blog/cooperative-groups
+[data_transfers]:https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/
+[grid_stride_loop]:https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
+[access_global_memory]:https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 
