@@ -1,6 +1,10 @@
 # what to learn
 - See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) ([i.e.](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/)) for what to learn.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800) 
+# standards
+- [c++](https://www.iso-9899.info/wiki/The_Standard)
+  [9899:2011](https://www.iso-9899.info/n1570.html)
+  - latest [draft](http://eel.is/c++draft/intro.races#9)
 # miscs
 - hwo to [post](https://stackoverflow.com/help/minimal-reproducible-example) question
 - stackoverflow image [size](https://meta.stackoverflow.com/a/253405/21294350) based on imgur (use "l" is enough:https://i.stack.imgur.com/Cneu8l.png).
@@ -22,6 +26,8 @@
   maybe [`[; ... ;]`](https://www.reddit.com/r/math/comments/12h42y/comment/c6v6lx2/?utm_source=share&utm_medium=web2x&context=3) only usable in r/math
   or use [this](https://editor.codecogs.com/)
 - archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike)
+- edit [formulas](https://meta.stackexchange.com/a/76905/1355014) in SO
+  newline in newer SO seems to be needed to use [`\`](https://stackoverflow.com/a/58465541/21294350) instead of just newline.
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -37,6 +43,8 @@
 ### sed
 - use [loop](https://unix.stackexchange.com/a/26290/568529) with label like `:a`
 - also with [*not* operator `!`](https://stackoverflow.com/a/57720342/21294350)  
+## latex cheatsheet
+- [1](https://www.cmor-faculty.rice.edu/~heinken/latex/symbols.pdf), [2](https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols)
 # NOT DO
 - Not to pay too much attention to the definitions of memory consistency models. But pay more attention to whether it runs correctly.
   - TODO read [riscv_spec] p163 and [related codes](https://github.com/litmus-tests/litmus-tests-riscv) on how implemented.
@@ -584,6 +592,7 @@ pwndbg> stack
 - cpu in [90min](https://www.lighterra.com/papers/modernmicroprocessors/)
 ## kernel
 - [Parallel Programming](https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html)
+  See [this](http://www.rdrop.com/~paulmck/)
 ## personal
 ### OI
 - [1](https://blog.baoshuo.ren/post/oi/)
@@ -4819,10 +4828,10 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
     - 'A safe reordering' to address 'problem of address aliasing' by using local variable which is also said in csapp. Also applies to $f(*a)$ which may change $*b$
     - contains load buffer, Store Address Buffer (SAB) and Store Data Buffer (SDB) [p5](../references/other_resources/COD/references/1903.00446.pdf)
     - recommend this [blog](http://gavinchou.github.io/summary/c++/memory-ordering/) which says all and more like `compare_exchange_strong` about Memory Order.
-    - in `c++` always avoid [std::memory_order_consume](https://stackoverflow.com/questions/19609964/how-do-acquire-and-consume-memory-orders-differ-and-when-is-consume-prefe#comment29108991_19609964) because ['// may or may not fire: data does not carry dependency from ptr'](https://en.cppreference.com/w/cpp/atomic/memory_order#Release-Consume_ordering)
+    - in `c++` always avoid [std::memory_order_consume](https://stackoverflow.com/questions/19609964/how-do-acquire-and-consume-memory-orders-differ-and-when-is-consume-prefe#comment29108991_19609964) because ['// may or may not fire: data does not carry dependency from ptr'](https://en.cppreference.com/w/cpp/atomic/memory_order#Release-Consume_ordering) <a id="Release_Consume_example"></a>
       - why have `memory_order_consume`, at least [cheaper](https://stackoverflow.com/questions/55741148/memory-order-consume-usage-in-c11)
       - diff in [code](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/) (this link from [this where also says why not use consume sometimes](https://stackoverflow.com/questions/65336409/what-does-memory-order-consume-really-do)) , consume use pointer to synchronize and acquire use something like *global* variable.
-        - acquire and release [definition p3 'Synchronization accesses can further be partitioned '][isca90_GLL_90] 
+        - acquire and release [definition p3 'Synchronization accesses can further be partitioned '][isca90_GLL_90]
     - intel reference p3284 only ensure one processor order, not ensure multi, see figure 9-1
   - memory barrier
     - [no needed](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory) in [strong](https://stackoverflow.com/questions/12183311/difference-in-mfence-and-asm-volatile-memory#comment88616281_12204320) memory model. But ['storeload'][Weak_vs_Strong_Memory_Models] still exists.~~So we need~~ This can be solved with store release and load acquire.
@@ -8155,7 +8164,7 @@ better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18
       - materials vs Textures: ["Textures can be *one* of those things that can be contained in a material"](https://artisticrender.com/what-is-the-difference-between-materials-shaders-and-textures-in-blender/)
         TODO how used in the software.
   - "Stencil" see [directx_9] 
-  - depth buffer See [directx_9], more [detailed](http://archive.gamedev.net/archive/reference/programming/features/occlusionculling/)
+  - depth buffer See [directx_9], more [detailed](http://archive.gamedev.net/archive/reference/programming/features/occlusionculling/) <a id="depth_buffer"></a>
   - ["Render Target"](https://en.wikipedia.org/wiki/Render_Target) is "intermediate memory buffer".
 - B-14
   - "fragments are *potential* contributions to pixels" -> ["produce *multiple* fragments from the same triangle per-pixel"](https://stackoverflow.com/questions/31173002/what-is-the-difference-between-a-sample-a-pixel-and-a-fragment)
@@ -8182,15 +8191,22 @@ better view [nvidia_doc](https://developer.download.nvidia.com/cg/Cg_language.ht
   - `out` and `uniform` is used to instruct the compiler. See nvidia_doc
     kw of `uniform`: Non-static global; the *initial* value of the variable/parameter is expected to be *constant* -> "*do not vary* from one pixel instance (thread) to the next" in B-15
   - TODO how `texCUBE` and `tex2d` implemented.
-    they return [color](https://forum.unity.com/threads/shaders-whats-the-return-value-of-tex2d.592699/#post-3959776), also [see](https://gamedev.stackexchange.com/questions/56494/what-range-of-values-can-hlsls-tex2d-function-return#:~:text=The%20tex2D%20function%20usually%20returns,the%20latter%20is%20full%20intensity.)
+    they return [color](https://forum.unity.com/threads/shaders-whats-the-return-value-of-tex2d.592699/#post-3960121), also [see](https://gamedev.stackexchange.com/questions/56494/what-range-of-values-can-hlsls-tex2d-function-return#:~:text=The%20tex2D%20function%20usually%20returns,the%20latter%20is%20full%20intensity.)
     Or see this [example `lerp(main_color, secondary_color, _Blend)`](https://www.ronja-tutorials.com/post/009-interpolating-colors/)
 
+    TODO see [code implementation](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#texture-object-api)
+
     "Sampler to lookup." means `sampler2D`, etc., which is handler to the texture. 
+    - [This](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#tex2d) said clearly
+      > fetches *from* the CUDA array or the region of linear memory *specified* by the two-dimensional texture object texObj *using* texture *coordinate* (x,y).
+
+      Also see [ptx](#COD_CUDA_PTX_TEX)
     - `clamp` in `Cg` means [definite range](https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Lerp-Node.html)
 #### CUDA
 From B.3, most of the book contents are copied verbatim from its [reference][Scalable_CUDA] and [Tesla_ARCHITECTURE]
+See [this](#notice)
 - B-19
-  - [`dim3`](https://icl.utk.edu/~mgates3/docs/cuda.html)
+  - [`dim3`][brief_CUDA_API]
   - `__syncthreads()` see [CUDA_doc] 10.6
 - why CPU is [high](https://forums.developer.nvidia.com/t/high-host-cpu-load/198104/2) when running CUDA
 - TODO
@@ -8817,12 +8833,17 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
             "eliminate numerical *variations* caused ... your numerics are correct *before tuning the parallel* version."
           3. "more like the original sequential loop" -> readability
             TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
-            Portability -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU."
+            *Portability* -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU." This done by 
+            > *compiles* and runs either as a parallel CUDA kernel on the GPU or as a *sequential loop* on the CPU. 
         - [access_global_memory] Here only do one brief read.
+          - Here "Global Memory Coalescing" is done by hardware or the driver, dependent on the device architectures.
+            > The device *coalesces* global memory loads and stores issued by threads of a warp into as *few transactions* as possible to minimize DRAM bandwidth (on *older hardware* of compute capability less than 2.0, transactions are coalesced within *half* warps of 16 threads rather than whole warps). To make clear the conditions under *which coalescing* occurs across CUDA *device architectures* we run some simple experiments on three Tesla cards: 
+          Just see the figures and the titles may be enough.
           - "Misaligned Data Accesses"
             > Devices of compute capability 2.0, such as the Tesla C2050, have an *L1 cache* in each multiprocessor with a 128-byte line size. The device *coalesces accesses by threads in a warp* into as few cache lines as possible, resulting in *negligible* effect of alignment on throughput for sequential memory accesses across threads.
           - "Strided Memory Access" just destroys the locality.
-  - kerenl param [`<<<nBlocks, blockSize, sharedBytes>>>`](https://stackoverflow.com/a/26774770/21294350)
+            > This should not be surprising: when concurrent threads simultaneously access memory addresses that are *very far apart* in physical memory, then there is *no chance* for the hardware to *combine* the accesses. 
+  - kerenl param [`<<<nBlocks, blockSize, sharedBytes,S(cudaStream_t)>>>`](https://stackoverflow.com/a/26774770/21294350)
   - ~~`thread_group tile4 = tiled_partition(tile32, 4);` is runned in ~~
   - modularity -> pass a group as an explicit *parameter* -> explicitly tell *what* to `__syncthreads();`
   - TODO "statically sized group"
@@ -8928,7 +8949,8 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     i.e. use *old PTX* then go to binary. Then debug by "pin down the *culprit module* more quickly".
 
     From the last figure, "independent thread scheduling" split the loop body which is "*fine*-grain parallel algorithms".
-    - [independent_thread_scheduling] and view the [volta whiterpaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf)
+    - [independent_thread_scheduling] and view the [volta_whitepaper](https://images.nvidia.com/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf) (most of the [independent_thread_scheduling] is from the whitepaper)
+      - TODO also see [1](https://forums.developer.nvidia.com/t/warp-divergence-in-independent-thread-scheduling/188557) [2](https://forums.developer.nvidia.com/t/does-the-new-independent-thread-scheduling-give-better-performance/111499)
       p13
       > GPU Processing Clusters (GPCs), Texture Processing Clusters (TPCs), Streaming Multiprocessors (SMs), 
       See Figure 4,5,10,11,12,13,
@@ -8947,7 +8969,7 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
       - "Starvation-Free Algorithms" ~~just use *more locks* by "Per-node locks".~~
         > have *adequate access* to a contended resource.
         ~~implies self lock.~~
-        - relation Also [see](https://stackoverflow.com/q/76497234/21294350)
+        - relation Also [see][Starvation_Free_failure]
         > For example, a mutex (or lock) may be used in a starvation-free algorithm if a thread attempting to acquire the mutex is guaranteed *eventually to succeed*. In a system that does not support starvation-freedom, one or more threads may *repeatedly acquire and release a mutex* while *starving* another thread from ever successfully acquiring the mutex.
         ~~Here "independent" implies in independent resources including self *lock*.~~
         > Independent thread scheduling in Volta *ensures* that even if a thread T0 currently holds the lock for node A, another thread T1 in the same warp can *successfully wait for* the lock to become available without impeding the progress of thread T0.
@@ -8961,6 +8983,13 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
           Also view [my answer](https://stackoverflow.com/a/76817779/21294350)
         - [NVLink](https://www.nvidia.com/en-us/data-center/nvlink/) is for multi-GPU which include A100/V100.
           NVswitch,NVlink is [similar](https://images.nvidia.com/aem-dam/Solutions/gtcs22/nvlink/hpc-video-nvlink-video-2781044.mp4) to switch,wire.
+        - [Starvation_Free_failure]
+          As [API](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic.html) says, it is ok to just view original c++ implementation because
+          > The class template cuda::atomic is an extended form of `cuda::std::atomic` that takes an additional cuda::thread_scope argument, defaulted to cuda::std::thread_scope_system. It has the *same* interface and semantics as cuda::std::atomic, with the following *additional* operations.
+          [`fetch_add`](https://en.cppreference.com/w/cpp/atomic/atomic/fetch_add) -> ["post-increment"](https://en.cppreference.com/w/cpp/atomic/atomic/operator_arith). As its name fetch (i.e. assignment) then adds (i.e. post).
+          - [`std::jthread`](https://en.cppreference.com/w/cpp/thread/jthread) to rejoins on destruction (i.e. immediately before destruction) to solve the [problem with `std::thread`](https://stackoverflow.com/a/62325770/21294350)
+            > See, std::thread's destructor would *terminate* the program if you didn't join or detach it manually *beforehand*.
+          [`atomicExch`](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#atomicexch) can be used by `val=atomicExch(&lock, val);` to exchange the `val` and `lock`.
       - TODO 
         view "Key Features"
       - [HBM](https://en.wikipedia.org/wiki/High_Bandwidth_Memory)
@@ -9021,6 +9050,315 @@ From B.3, most of the book contents are copied verbatim from its [reference][Sca
     mainly because
     > In fact, the technique turns out to be so useful that it is now *implemented in the NVCC compiler*, and you get warp aggregation in many cases by default with no additional effort required.
 - TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
+##### PTX
+- `ex2` and `lg2` maybe to ~~replace~~ give one more readable format of [`<<`](https://stackoverflow.com/questions/8012602/usage-of-for-exponentiation-in-c-or-cuda) and `>>`.
+- [cuda memory model](https://www.3dgep.com/cuda-memory-model/)
+  - how to use [shared mem][gpu_shared_mem], below should first see the previous [post][access_global_memory]
+    Notice the memory ordering is [not guaranteed](https://forums.developer.nvidia.com/t/cuda-memory-consistency/220/2), So must manually avoid race conditions.
+    - > shared memory is much faster than local
+      here should be other threads' local to be shared.
+    - Thread Synchronization
+      > Thus, we can *avoid the race condition* described above by calling __syncthreads() after the store to shared memory and before any threads load from shared memory.
+      avoid weird read/write orders.
+    - Static Shared Memory
+      > If the shared memory array size is known *at compile time*,
+      implies static
+      > The reason shared memory is used in this example is to facilitate global memory *coalescing* on *older CUDA devices* (Compute Capability 1.1 or earlier). Optimal global memory coalescing is achieved for both reads and writes because global memory is always accessed through the *linear, aligned* index t. 
+      1st reason why use static shared
+      > The *reversed* index tr is only used to access shared memory, which does not have the *sequential access restrictions* of global memory for optimal performance.
+      2rd reason
+      This also explains
+      >  By *reversing* the array using *shared* memory we are able to have all global memory reads and writes performed with *unit stride*, achieving full coalescing on any CUDA GPU.
+
+      > (Note that on devices of Compute Capability 1.2 or later, the memory system can fully coalesce even the *reversed* index stores to global memory. But this technique is still useful for other access patterns, as I’ll show in the next post.)
+      implementation depends on hardware.
+    - Dynamic Shared Memory
+      > In this case the shared memory allocation size per thread block must be *specified (in bytes) using an optional third* execution configuration parameter, as in the following excerpt.
+    - Shared memory bank conflicts
+      > However, if multiple threads’ requested addresses map to the *same memory bank*, the accesses are *serialized*.
+      > Therefore, any memory load or store of n addresses that spans b *distinct* memory banks can be serviced *simultaneously*,
+      > Setting the bank size to *eight bytes* can help avoid shared memory bank conflicts when accessing *double* precision data.
+    - How to configure L1 and shared appropriately.
+      See [this](https://forums.developer.nvidia.com/t/whats-the-difference-between-l1-cache-and-the-shared-memory/24730/2)
+      > unpredictable reads and writes => prefer L1.
+      And also [this](https://stackoverflow.com/a/15938207/21294350)
+  - [local mem](https://developer.download.nvidia.com/CUDA/training/register_spilling.pdf)
+    See p5
+    - p8
+      Estimated L2 transactions *counts*
+      $2*(number of SMs)*4*l1_local_load_miss$
+      2 -> store then load
+      all warp do the same -> $number of SMs$
+      4 -> 1 L1 miss correspond to 4 L2 transactions
+      $l1_local_load_miss$ obvious meaning to count misses
+    - See p13 for real perf.
+      p15 from another perspective.
+  - [global mem][access_global_memory]
+  - [constant mem](#Constant_memory)
+- [`atom`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-atom)
+  [`.scope`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#scope)
+  > Atomically loads the original value at location *a into destination register d*, performs a reduction operation with operand b and the value in location a, and *stores* the result of the specified operation at location *a*, overwriting the original value.
+  So here a->d, then func(a,b) -> a.
+  >  Operand a specifies a location in the specified state space. If no state space is given, perform the memory accesses using Generic Addressing
+  a is influenced by `.space`
+  Notice: `.scope` is related with *synchronization* but not data address space.
+  - [`f16x2`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#packed-floating-point-data-types)
+  - `noftz` -> (not) (f)lush (z)ero with subnormal.
+    > it preserves subnormal inputs and results, and does not flush them to zero.
+    "()" shows the abbr
+  - `cas(r,s,t) = (r == s) ? t : r;` this shows the `c` in `atom{.sem}{.scope}{.space}.cas.b16 d, [a], b, c;` is the *swap target* value `t`.
+  - [limited rounding](https://stackoverflow.com/a/67453456/21294350)
+  - [CTA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#grid-of-clusters-grid-with-ctas)
+  - TODO 
+    read vector type related
+    read [`createpolicy`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-createpolicy) related with `cache-policy` and `..level::cache_hint`.
+- `tex` <a id="COD_CUDA_PTX_TEX"></a>
+  Here only see `tex.geom.v4.dtype.ctype  d, [a, c] {, e} {, f};` with `tex.{1d,2d,3d}`
+  - > Texture lookup using a texture coordinate vector. The instruction loads data *from* the texture named by operand a at *coordinates* given by operand `c` into *destination* d
+    > An optional operand f may be specified for *depth textures*. Depth textures are special type of textures which hold data from the *depth buffer*. ... Operand f is .f32 scalar value that specifies *depth compare* value for depth textures. Each element fetched from texture is compared against value given in `f` operand. If comparison *passes*, result is 1.0; otherwise result is 0.0.
+    See [this](#depth_buffer) for the depth meaning.
+
+    `v4.b32` says detailed about how `c` used. (here `b32` -> `dtype` implies `u32`).
+    [`.b32`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#type-information-for-instructions-and-operands-type-checking-rules) can be guessed just its literal meaning
+    > For 2d texture arrays, operand c has type .v4.b32. The first element is interpreted as an unsigned integer *index* (.u32) into the texture array, and the next two elements are interpreted as 2d texture *coordinates* of type .ctype. The *fourth* element is ignored.
+  > Operand e is a vector of `.s32` values that specifies coordinate offset. ... Operand e is a *singleton* tuple for 1d textures; is a two element vector 2d textures; and is *four-element* vector for 3d textures, where the fourth element is ignored.
+    says about book "scalars or vectors of two to four components, up to 128 bits in total" (here should be 1 to 4).
+- [`bar` / `barrier`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar)
+  Better see **examples**
+  > bar{.cta}.sync is *equivalent* to barrier{.cta}.sync.*aligned*.
+  > Instruction barrier{.cta} has optional .aligned modifier. When *specified*, it indicates that *all* threads in CTA will execute the *same* barrier{.cta} instruction.
+  - TODO what if no `.cta` since here defaults to be in CTA.
+    > Performs barrier synchronization and communication within a CTA.
+  - `a`
+    > Source operand a specifies a *logical barrier* resource as an immediate constant or register with value 0 through 15.
+  - `b`
+    > Depending on operand b, either specified number of threads (in multiple of warp size) *or all* threads in the CTA participate in barrier{.cta} instruction.
+    if none, then default for all
+  - what barrier does
+    > The barrier{.cta}.sync or barrier{.cta}.red or barrier{.cta}.arrive instruction guarantees that when the barrier *completes*, *prior* memory accesses requested by this thread are *performed relative to all* threads participating in the barrier.
+    > A memory read (e.g., by ld or atom) has been performed when the value read has been transmitted from memory and *cannot be modified* by another thread participating in the barrier. A memory write (e.g., by st, red or atom) has been performed when the value written has become *visible* to other threads participating in the barrier, that is, when *the previous value can no longer* be read.
+    i.e. all memory access are *seen* by others in the CTA. more specifically, the read/write behavior in the CTA is *almost defined* as the doc says.
+    Better see examples 1 and 2, mainly to ensure store and read queues *not overlap*.
+    > *In addition to signaling its arrival* at the barrier, the barrier{.cta}.red and barrier{.cta}.sync instructions causes executing thread to *wait* for non-exited threads of all other warps participating in the barrier to *arrive*.
+    This "arrive" implements the synchronization
+    - **USAGE**: Then example `Producer/consumer model` has said detailedly explains `.sync` and `.arrive`.
+      Produce: `bar.arrive  0,64;` in the Producer will cause the `bar.sync   0,64;` in the Consumer *block*s/waits before *consume*.
+      Consume: is similar
+      > Once the data returns from memory, the producer must wait
+      `ld.global   r1,[r2];` has been done without blocking by `bar.arrive  0,64;`
+      > until the consumer signals that it has read the value from
+      > the shared memory location.
+      `bar.sync    1,64;` to ensure `[r0]` consumed before next produce `st.shared   [r0],r1;`.
+  - `.red`
+    > barrier{.cta}.red performs a *reduction* operation across threads.
+    > barrier{.cta}.red *should not be intermixed* with barrier{.cta}.sync or barrier{.cta}.arrive using the same active barrier. Execution in this case is unpredictable.
+    It is mainly to *combine* predicate with barrier because predicate is often used in *branches*.
+    - **USAGE**:
+      > Once the *barrier count* is reached, the final value is written to the destination register in *all threads* waiting at the barrier.
+      ~~Mainly~~ tuned by the `b` count.
+    
+    - here `r3` in `bar.cta.red.and.pred r3,1,p; // r3=AND(p) forall threads in CTA` may be due to ["predicates spilling"](https://forums.developer.nvidia.com/t/how-many-predicate-registers-a-thread-has/68794/2)
+      > Based on my experience, your questions focus on a very *unlikely (i.e. largely hypothetical) corner case*. Use of predicate registers is *not* typically something CUDA programmers should be *worried* about. Instead, use the CUDA profiler to identify actual bottlenecks.
+- other data [formats](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#alternate-floating-point-data-formats) like `bf16` / `e4m3`
+- Notice the [COD_RISCV_2nd_A_appendix] is absed on PASCAL, so may be too old.
+- `immediate` is one special [*embeded*](https://reverseengineering.stackexchange.com/a/17678/43760) constant in the instruction.
+  More detailed [see](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#constants)
+- can highly tune the [cache manipulation](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators) similar to one product of IBM.
+- [128-bit](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#vectors)
+> On current GPUs, *PTX* 64-bit integer and logical instructions are *translated* to two or more binary *microinstructions* that perform 32-bit operations.
+- ~~From this, GPU may add *one more abstraction* (i.e. SASS) between uop and instruction (i.e.) in the CPU.~~
+> The GPU special function instructions are limited to *32-bit* floating-point.
+- this means SASS only 32 bits. 
+  See [this](https://forums.developer.nvidia.com/t/question-about-atomic-add-sass/62444)
+  - To load `x`, it use 2 loads `MOV32I` to load `double`
+    > As GPUs are *32-bit* machines they use aligned register *pairs* when operating on 64-bit data, meaning the low-order portion of the data is stored in an even-numbered register, and the high-order portion of the data in the next higher odd-numbered register.
+    ```asm
+        /*0028*/                   MOV32I R4, 0x7ae147ae;      /* 0x0107ae147ae7f004 */
+        /*0030*/                   MOV32I R5, 0x3ff3ae14;      /* 0x0103ff3ae147f005 */
+        /*0038*/                   RED.E.ADD.F64.RN [R2], R4;
+    ```
+    Here [`.RN`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#rounding-modifiers-floating-point-rounding-modifiers) in [`RED`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#id10) (i.e. [`red`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-red)).
+    on my turing machine, `RED.E.ADD.F64.RN.STRONG.GPU [UR4], R2 ;` is shown. Here [`.gpu`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id61) and ["strong" maybe](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id60)
+    - memory fence
+      [This](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#release-and-acquire-patterns) said well about release and acquire.
+      >  The release pattern makes *prior* operations from the current thread1 *visible* to some operations from *other threads*. The acquire pattern makes some operations from *other threads* *visible* to later operations from the current thread.
+- strong meaning in CU
+  See this [table](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id60)
+  |   |   |
+  |---|---|
+  | strong operation  | A *memory fence* operation, or a memory operation with a .relaxed, .acquire, .release, .acq_rel, .volatile, or .mmio qualifier.   |
+  here `fence` implies synchronization, 
+  > The semantic meaning of mmio operations *cannot be defined precisely* as it is defined by the underlying I/O device. For formal specification of semantics of mmio operation from Memory Consistency Model perspective, it is *equivalent* to the semantics of a *strong* operation.
+  So `.mmio` can be seen like others in `strong`.
+  Since 
+  > ld.volatile has the same memory synchronization semantics as `ld.relaxed.sys`.
+  So `volatile` also implies atomicity.
+
+  Notice although `relaxed` is only [atomic without synchronization](https://stackoverflow.com/questions/12346487/what-do-each-memory-order-mean#comment99835782_14091836), it is categoried as `strong` here.
+  - ["morally strong"](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#morally-strong-operations)
+    - proxy
+      > A memory proxy, or a proxy is an *abstract label* applied to a *method* of memory access. When two memory operations use *distinct methods* of memory access, they are said to be different proxies.
+      > Memory operations as defined in Operation types use *generic method* of memory access, i.e. a *generic proxy*.
+      So proxy -> *method class* like generic method.
+
+      > A proxy fence is required to *synchronize* memory operations across different proxies.
+      > Although virtual aliases use the generic method of memory access, since using distinct virtual addresses behaves as if using different proxies, they *require a proxy fence* to establish memory ordering.
+      This may be just manually designed just as "generic method" definition distinct from "textures and surfaces".
+      - [virtual aliasing](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#aliases)
+        TODO relation with [this](https://www.postfix.org/VIRTUAL_README.html#:~:text=Virtual%20aliasing%20solves%20one%20problem,add%20more%20UNIX%20system%20accounts.)
+    - Conflict and Data-races
+      > Two conflicting memory operations are said to be in a *data-race* if they are not related in causality order and they are *not morally strong*.
+
+      > Two overlapping memory operations are said to conflict when at least one of them is a *write*.
+        ~~Here conflict -> hazard excluding RAR(read after read).~~ Here excludes the both read. So overlap may means concurrently.
+          - Also see "Limitations on Mixed-size Data-races"
+            > A data-race between operations that overlap completely is called a *uniform-size* data-race, while a data-race between operations that *overlap partially* is called a mixed-size data-race.
+
+    > The operations are related in program order (i.e, they are both *executed by the same thread*), or each operation is *strong* and specifies a scope that *includes the thread executing the other operation*.
+    This implies two operations has relations (i.e. not totally independent).
+    
+    This explains how "morally strong" excludes *data-race*.
+    Because the *atomicity* / synchronization by `strong` (The `or` may imply `program order` also has atomicity property).
+      - This can also be seen "Limitations on atomicity at system scope"
+        > When communicating with the host CPU, the 64-bit strong operations with system scope may not be performed *atomically* on some systems.
+      - From [this](https://stackoverflow.com/a/31978762/21294350) `<atomic>` implies atomic op but maybe multiple atomic ops like in `a = a + 12;`, So `std::memory_order` also atomic.
+      - From cpp [implementation](https://en.cppreference.com/w/cpp/atomic/atomic_thread_fence) of fence, atomicity is also implied.
+
+    > Both operations are performed via the same proxy.
+
+    > If both are memory operations, then they *overlap* completely.
+
+    - Also see [examples](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#atomicity)
+      where 
+      1. overlap -> concurrent
+      2. same proxy -> both generic methods
+      3. both in CTA -> same scope.
+      TODO what the 
+- Program Order
+  > The *sequence of operations* performed by each thread is captured as program order while memory synchronization across threads is captured as causality order.
+  > The program order relates *all operations* performed by a thread to the order in which a sequential processor will execute instructions in the *corresponding PTX source*. It is a transitive relation that forms a total order over the operations performed by the thread, but does not relate operations from different threads.
+    This means the all iterations of kernel runned by one thread. Here program order -> total order of *one specific* thread.
+    "transitive relation" connects all different kernels runned.
+    And it *maybe* keeps the original code *source order*.
+  > These asynchronous operations are *ordered after prior* instructions in the same thread (except in the case of wgmma.mma_async), but they are *not part of the program order* for that thread.
+- synchronization
+  - From this [blog](https://preshing.com/20130823/the-synchronizes-with-relation/) referenced [here](https://stackoverflow.com/questions/52318299/synchronizing-against-relaxed-atomics#comment91610148_52324801)
+    > ”Synchronizes-with” is a term invented by language designers to describe ways in which the *memory effects* of source-level operations – even non-atomic operations – are guaranteed to *become visible* to other threads.
+    This is similar to [COD_RISCV_2nd_A_appendix] "consistency" in p475.
+  - See c++ 
+    1. [Synchronizes with / synchronize-with](https://en.cppreference.com/w/cpp/atomic/memory_order#Synchronizes_with)
+      just means release-acquire.
+    2. dependency-ordered
+      just means direct release-consume and indirect others with transitive dependency.
+    3. [sequenced-before](https://en.cppreference.com/w/cpp/language/eval_order#Ordering)
+      just means sequential in *same* thread.
+    4. Inter-thread happens-before
+      just take 1,2, 1 with in-thread sequenced-before and others partly transitive with "inter-thread".
+      Here not have "A is dependency-ordered some evaluation X, and X is sequenced-before B" because consume *only* has its dependency but not anything before itself (just see [this](#Release_Consume_example) Or simple explanation ["Writes to data-dependent variables"][memory_order_Explanation] but not "All writes in other threads"). This same as [this](http://eel.is/c++draft/intro.races#note-8)
+        > The reason that this limitation applies only to the end of such a concatenation is that any *subsequent release* operation will provide the required ordering for a prior consume operation.
+          here use the `release` which is implied by `consume`
+          From [this](http://eel.is/c++draft/basic#pre-9)， c++ standard `----` beginning defaults to be `and`.
+        > The reasons for this limitation are (1) to permit “inter-thread happens before” to be *transitively closed* and (2) the “happens before” relation, defined below, provides for relationships consisting entirely of “sequenced before”.
+          [Transitive closure](https://en.wikipedia.org/wiki/Transitive_closure#:~:text=In%20mathematics%2C%20the%20transitive%20closure,minimal%20transitive%20superset%20of%20R.) just means not infinite and minimal (i.e. closure) with Transitive.
+    5. [Sequentially-consistent](https://en.cppreference.com/w/cpp/atomic/memory_order#Sequentially-consistent_ordering)
+      mainly has one **whole** *sequence*
+      > Atomic operations tagged memory_order_seq_cst *not only* order memory the same way as release/acquire ordering (everything that happened-before a store in one thread becomes a *visible side effect* in the thread that did a load), but also establish a single *total* modification order of all atomic operations that are so tagged.
+      Notice here the [visible side effect](https://en.cppreference.com/w/cpp/atomic/memory_order#Visible_side-effects) only take the last release one.
+      TODO "so tagged" meaning?
+    example
+      ```c++
+      // Thread 1:
+       x.store(1, std::memory_order_seq_cst); // A
+       y.store(1, std::memory_order_release); // B
+       // Thread 2:
+       r1 = y.fetch_add(1, std::memory_order_seq_cst); // C
+       r2 = y.load(std::memory_order_relaxed); // D
+       // Thread 3:
+       y.store(3, std::memory_order_seq_cst); // E
+       r3 = x.load(std::memory_order_seq_cst); // F
+      ```
+      TODO here "A happens-before C" may be wrong, because they are with respect to different variables.
+      The C-E-F-A is more obvious, because C-E is about `y` and F-A is `x` (if [reordered][ac_rel] in thread 3, then F-A-E-C is also ok.)
+      Notice: From [memory_order_Explanation], `memory_order_seq_cst` just contains `memory_order_acq_rel` and "total order". So `F-A` and `C-E`
+      Also see example [codes](../self_test/cppreference/memory_order_seq_cst/memory_order_seq_cst.cpp)
+- view standard [changes](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html) related with strongly happens-before 
+  - TODO
+    1. 
+    > The core fix (S1fix in the paper) is to *relax* the restriction that a happens before ordering implies ordering in S to *only* the sequenced before case, or the case in which the happens before ordering between a and b is produced by a *chain*
+    > > a is sequenced before x happens before y is sequenced before b
+    > The downside of this is that "happens before" now has a rather strange meaning, since sequentially consistent operations can appear to execute in an order that's not consistent with it.
+    2. 
+    > This does not have the "cumulativity"/transitivity properties that would be required to make the store to x visible to Thread 3 under these circumstances.
+      TODO how "does not have the "cumulativity"/transitivity" says in the the standard.
+      This mainly kills the 1.x->1.y->2.b relation by killing the "1.x->1.y" (see the following in [Repairing_Sequential_Consistency])
+      > Conversely, if we follow the leading sync convention, the hb-path (in Fig. 3) from k to m ending with an sw edge avoidthe fence placed before m. The result is that S1 *enforces more ordering* than the hardware provides!
+    3. > This means that there is only an *lwsync* fence between Thread 1's instructions.
+  - why has above [changes](https://stackoverflow.com/a/70558199/21294350)
+    > fixing the compilers had a *performance cost*, so they fixed the standard instead.
+- [happens-before](https://stackoverflow.com/a/58994136/21294350)
+  - See the table based on viewing above "synchronization".
+    here assumes that all are cross-threads, to no direct sequenced-before
+    - From the definitions of SHB(Simply-HB),HB, sequenced-before in *one thread* are all of them.
+    1. Then relaxed no [HB](https://en.cppreference.com/w/cpp/atomic/memory_order#Happens-before) because no "synchronizes-with" and "dependency-ordered".
+    2. "dependency-ordered" by "Inter-thread" implies release/consume -> HB.
+      This is same as the definition [here](https://preshing.com/20130702/the-happens-before-relation/)
+      > Let A and B represent operations performed by a *multithreaded* process. If A happens-before B, then the memory effects of A effectively become *visible* to the thread performing B before B is performed.
+      - > If operations A and B are performed by the *same* thread, and A’s statement comes *before* B’s statement in program order, then A happens-before B.
+        This is same as "sequenced-before".
+      - > In this case, though, the store to A *doesn’t actually influence* the store to B. (2) still behaves the same as it would have even if the effects of (1) had been visible, which is effectively the same as (1)’s effects being visible. Therefore, this doesn’t count as a violation of the happens-before rule.
+        This is not totally same as above cppreference definition because it is not "sequenced-before" and take the instruction reordering in account.
+        So here "Happening Before" after reordering is Happens-Before in cppreference.
+        > I’ll admit, this explanation is a bit *dicey*, but I’m fairly confident it’s consistent with *the meaning* of happen-before in all those language specifications.
+      - > In this case, we know that (2) must *have* happened before (3). But that doesn’t mean there *is* a happens-before *relationship* between (2) and (3)!
+        > The happens-before relationship only exists where the *language standards say it exists*. And since these are *plain* loads and stores, the C++11 standard has no rule which introduces a happens-before *relation* between (2) and (3), even *when* (3) reads the value written by (2).
+        This just means *occasionally* Happening Before doesn't mean *definite* happens-before
+        > I believe the ambiguity that exists between the happens-before relation and the *actual order* of operations is part of what makes low-level lock-free programming so tricky.
+        - [lock-free](https://preshing.com/20120612/an-introduction-to-lock-free-programming/)
+          > In this sense, the lock in lock-free does *not* refer directly to mutexes, but rather to the possibility of *“locking up”* the entire application in some way, whether it’s *deadlock, livelock* – or even due to hypothetical thread scheduling decisions made by your worst enemy.
+          just means no thread are locked.
+          Although this is not same defined [elsewhere](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming?redirectedfrom=MSDN) which is referenced in above.
+    3. "synchronizes-with" implies release/acquire -> Simply-HB.
+    4. "sequentially consistent" SC -> Strongly-HB.
+- happens-before relation with `sc` sequentially consistent
+  See my [answer](https://stackoverflow.com/a/76833947/21294350)
+  - [left composition](https://math.stackexchange.com/questions/3792492/what-is-left-composition-of-two-binary-relations) -> Composition of relations [`;`](https://en.wikipedia.org/wiki/Composition_of_relations#Definition)
+  - [`memory_order_seq_cst` vs `acq/rel`](https://stackoverflow.com/a/14864466/21294350)
+    > If all the memory orderings are changed to std::memory_order_seq_cst then this enforces an *ordering* between the stores to x and y. 
+    This is same as cppreference definition "a single total modification order".
+- memory-fence [usage](https://stackoverflow.com/a/58248188/21294350)
+  > I think even without a seq_cst fence at the end of f1, but that doesn't hurt. I think thread.join **makes sure** everything done inside a thread is visible after thread.join
+  [definition](https://stackoverflow.com/a/286705/21294350) -> controls order as [batty2016] says.
+- how weird [thin-air](https://stackoverflow.com/questions/56673990/what-formally-guarantees-that-non-atomic-variables-cant-see-out-of-thin-air-val) occurs with **speculation**
+  here is mainly due to `relaxed`.
+
+  The first 3 steps are speculative. it seems that [spectre] or others said modern cpu speculation queue is very long with hundreds of magnitudes.
+  > This part **won't happen** on real C++ implementations unless they use an M:N thread model, not the more common 1:1 C++ thread to OS thread. Real CPUs don't rename the privilege level: they don't take interrupts or otherwise enter the kernel with speculative instructions in flight that might need to rollback and **redo entering kernel mode** from a different architectural state.
+  [M:N thread model](https://stackoverflow.com/q/59130893/21294350) may occur this weird case because the schedule is *scattered*.
+  > But along this path of execution, where the x = 42 did happen, this branch *condition will execute and confirm* the prediction).
+  But all are based on the 1st wrong speculation.
+  > but the final step store *can't forward* to the first step load because this is *program order* and OoO exec preserves that.
+  > this was all on the **same CPU core** so this y=42 store is after the r2=y load in **program-order**; it can't give that load a 42 to let the r2==42 speculation be confirmed. So this possible ordering doesn't demonstrate this in action after all. This is why threads have to be running on separate cores with inter-thread speculation **for effects like this to be possible**.
+  when one program order, let 
+  - As quote says, this is temporarily unsolved. As its [reference](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3710.html) says:
+    > This famously allows both r1 and r2 to have final values of 42, or *any other "out of thin air" value*. This occurs if each load sees the store in the other thread. It effectively models an execution in which the compiler *speculates* that both atomic variables will have a value of 42, speculatively stores the resulting values, and then *performs the loads to confirm* that the speculation was correct and nothing needs to be undone.
+    "out of thin air" means undefined.
+  - as [latest draft](https://timsong-cpp.github.io/cppwp/atomics.order#8) says:
+    > this *recommendation discourages* producing r1 == r2 == 42, since the store of 42 to y is only possible if the store to x stores 42, which *circularly* depends on the store to y storing 42. Note that without this restriction, such an execution is possible.
+    So it depends on the **compiler** or JIT,etc.
+  - [UB](https://news.ycombinator.com/item?id=16250729)
+- memory order also see [gcc wiki](https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync) referenced [here](https://stackoverflow.com/questions/12346487/what-do-each-memory-order-mean#comment99835782_14091836)
+- atomic needs [no interrupt](https://stackoverflow.com/a/73315929/21294350)
+- [block scheduling](https://stackoverflow.com/questions/30361459/what-is-the-behavior-of-thread-block-scheduling-to-specific-sms-after-cuda-kern/30379454#comment117849670_30379454)
+- TODO [interpolation](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#changes-in-ptx-isa-version-2-2) by [`tld4`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#texture-instructions-tld4)
+- [generic addressing](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#generic-addressing)
+  > are modeled as *windows* within the generic address space. Each window is defined by a window base and a window size that is *equal to the size of the corresponding state space*. A generic address *maps to global* memory unless it falls within the window for const, local, or shared memory.
+  
+  > by subtracting the window base from the generic address.
+  implies offset.
+  - from [doc](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#addresses-as-operands)
+    default minimum size is byte -> byte-addressable.
+    > there is no support for C-style pointer arithmetic.
+
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
   - `&& !P0` because it corresponds to `pc+1` which is case: not taken.
@@ -10889,8 +11227,13 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 - [optimization](https://stackoverflow.com/a/19041467/21294350)
   it also says about SASS which is "PTX will be compiled into device assembly code, called SASS"
 
-  it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and "Constant memory".
-# CUDA here I use `12.2` version
+  it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and how to use "Constant memory". <a id="Constant_memory"></a>
+  - Also see [official doc](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#constant-memory)
+    Also see how to [use](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#device-memory) in the codes similar to [this SO](https://stackoverflow.com/a/28993944/21294350)
+# CUDA here I use `12.2` version <a id="notice"></a>
+**NOTICE**: CUDA implementation is influenced by the **always changing** GPU architecture.
+**SO not to stick** to one version's CUDA implementation.
+
 [GPU_list] and compatibility like `compute_xx` comparison
 ```bash
 $ nvcc -V
@@ -10909,14 +11252,18 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 ### `nvdisasm`
 - TODO inline in [`nvdisasm -gi`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm) [usage by `nvcc -gencode arch=compute_75,code=sm_75 single_loop.cu --cubin`](https://forums.developer.nvidia.com/t/nvdisasm-says-binary-is-not-a-supported-elf-file/238918/2)
 ## `SASS` and `PTX` *scalar* instructions
-- better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX]) [then](https://stackoverflow.com/a/35055749/21294350) `SASS`
+- better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX]) [then (SO answer)](https://stackoverflow.com/a/35055749/21294350) `SASS`
+  As the answer [history "Note:"](https://stackoverflow.com/posts/35055749/timeline#history_b545f721-68d8-48b7-ba71-627cf508d793) shows, ths SASS may be very hard to understand all because of the very brief SASS docs.
   - `c[0x0][0x24]` -> [constant](https://forums.developer.nvidia.com/t/the-meaning-of-cuda-disassemly/60924/3) mem bank
   - default var at the 1st pos is *dst*.
+  - PTX mainly see [section 9.7](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#instructions) for ISA usage.
 - `SASS` [ISA](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html?highlight=ISETP#turing-instruction-set)
   - [uniform register](https://forums.developer.nvidia.com/t/whats-uniform-register-in-turing/65406/2) is to not corrupt the *floating* data path.
 - from [COD_RISCV_2nd_A_appendix] B-31 "different binary microinstruction formats", it implies why SASS less documented than `PTX` because `PTX` is more *portable* similar to the high-level language.
 ### PTX detailed see [doc][PTX]
 - `ftz` -> flush to zero
+### notice `nvvm` based on `lvvm` differ slightly from `nvvc`
+- [doc](https://docs.nvidia.com/cuda/pdf/NVVM_IR_Spec.pdf)
 ## miscs
 - why use [scalar processor "takes up more space than a scalar unit ... not be fully used ... equiring more chip area for the instruction *decoder*"](https://forums.developer.nvidia.com/t/why-scalar-processors/10337/2) -> to improve *hardware* design and increase parallel. <a id="scalar_unit_gpu"></a>
 ### `nsight-graphics`
@@ -10936,6 +11283,7 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 - [extended API](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html) with `ThreadGroup`
   Better [see](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cg#tiled-partition) referenced [here](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html)
 - [math](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__INTRINSIC__INT.html)
+- [brief_CUDA_API]
 ## `cuda-gdb`
 - need to be in kernel to view the [GPU assembly codes](https://developer.download.nvidia.com/GTC/PDF/1062_Satoor.pdf).
 ```bash
@@ -10993,6 +11341,8 @@ Dump of assembler code for function _Z6kernelPfi:
   `generate-code` is mainly to generate more *groups* of virtual and real architectures.
   
   - old version can use [`cubin`](https://stackoverflow.com/a/65499046/21294350)
+## inline asm
+- [doc](https://docs.nvidia.com/cuda/inline-ptx-assembly/index.html) from [this](https://forums.developer.nvidia.com/t/using-ptx-barrier-sync/68237/2).
 # How to read papers
 - see [this](https://www.scientifica.uk.com/neurowire/gradhacks-a-guide-to-reading-research-papers)
   kw: 8. Write a succinct ... ; 4. Identify how this paper fits ; 2. *Skim all* of the sections ; 1. Check the publish date ; 2. Read *critically*
@@ -11179,7 +11529,7 @@ Dump of assembler code for function _Z6kernelPfi:
 
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
-[herlihy]:../references/other_resources/COD/references/memory_consistency/p463-herlihy.pdf
+[herlihy]:../references/other_resources/COD/references/memory_consistency/AC_SC/p463-herlihy.pdf
 [CAAQA]:Computer_Architecture_Sixth_Edition_A_Qu.pdf
 [Misra_1985]:../references/other_resources/COD/references/memory_consistency/Misra_1985.pdf
 [Lamport_1985]:../references/other_resources/COD/references/memory_consistency/interprocess.pdf
@@ -11245,6 +11595,8 @@ Dump of assembler code for function _Z6kernelPfi:
 [Branch_Divergence]:../CUDA/doc/papers/Branch_Divergence.pdf
 [Benchmarking_thread_divergence_CUDA]:../CUDA/doc/papers/Benchmarking_thread_divergence_CUDA.pdf
 [speculativereconvergence]:../CUDA/doc/papers/speculativereconvergence.pdf
+[batty2016]:../CUDA/doc/papers/batty2016.pdf
+[Repairing_Sequential_Consistency]:../CUDA/doc/papers/Repairing_Sequential.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -11258,6 +11610,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [miss_rate]:https://stackoverflow.com/a/50035058/21294350
 [move_elimination]:https://stackoverflow.com/a/75204602/21294350
 [gencode_mul_refs]:https://stackoverflow.com/a/35657430/21294350
+[Starvation_Free_failure]:https://stackoverflow.com/q/76497234/21294350
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
@@ -11329,8 +11682,13 @@ Dump of assembler code for function _Z6kernelPfi:
 [access_global_memory]:https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
 [improving_gpu_oversubscription_performance]:https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/
 [warp_aggregation]:https://developer.nvidia.com/blog/cuda-pro-tip-optimized-filtering-warp-aggregated-atomics/
+[gpu_shared_mem]:https://developer.nvidia.com/blog/using-shared-memory-cuda-cc/
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 
 <!-- cuda doc -->
 [Warp_Vote]:https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__activemask#warp-vote-functions
+[brief_CUDA_API]:https://icl.utk.edu/~mgates3/docs/cuda.html
+
+<!-- cppreference -->
+[memory_order_Explanation]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants
