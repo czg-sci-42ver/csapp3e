@@ -6049,7 +6049,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - TODO [performance counters](https://relate.cs.illinois.edu/course/cs598apk-f18/f/demos/upload/perf/Using%20Performance%20Counters.html) for [retire slots ‘td_slots_retired’](https://lore.kernel.org/lkml/1462489447-31832-4-git-send-email-andi@firstfloor.org/), [metric](https://shbakram.github.io/assets/papers/honors-thesis-adi.pdf) understanding
     - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
     - lfence is [no use](https://stackoverflow.com/questions/20316124/does-it-make-any-sense-to-use-the-lfence-instruction-on-x86-x86-64-processors) in contemporary cpu and SFENCE is less than MFENCE with `StoreLoad`.
-      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*'. Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
+      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*' (memory-mapped IO) and not cached (so not used locally based on the temporal locality). Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
         - `USWC` -> [Uncacheable by L1 cache](https://stackoverflow.com/questions/75224657/memory-type-wb-vs-uswc-of-memory-mapped-files-on-x86),etc.
         - more [detailed](https://sites.utexas.edu/jdm4372/2018/01/01/notes-on-non-temporal-aka-streaming-stores/) which says 'Non-allocating store'
           - 'Non-globally-ordered store': order is only needed in the processor, not always when interprocessor communication. (Same as intel doc says).
@@ -6519,7 +6519,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - "in statement 10 where it is stored" -> 9
   - `addi r7, r6, 1` -> `addi r7, r2, 1` where `r2` is `i` and later `sw r7, i` to store to `i`.
 #### 10
-- "load-store architectures" / register-register architecture is specific to RISC and CISC allows [mem-reg -> reg / mem-mem](https://www.geeksforgeeks.org/computer-organization-risc-and-cisc/) (i.e. register-memory architecture). Also [see wikipedia](https://en.wikipedia.org/wiki/Load%E2%80%93store_architecture#See_also) and [this lecture](https://cs.colby.edu/courses/F20/cs232/notes/9.ISA(II).pdf) (load/store is *between* reg and mem just as wikipedia says) <a id="CISC"></a>
+- "load-store architectures" / register-register architecture is specific to RISC
+  CISC normally use another "Register–memory architecture", allowing [mem-reg -> reg / mem-mem](https://www.geeksforgeeks.org/computer-organization-risc-and-cisc/) from [wikipedia](https://en.wikipedia.org/wiki/Load%E2%80%93store_architecture#See_also) and [this lecture](https://cs.colby.edu/courses/F20/cs232/notes/9.ISA(II).pdf) (load/store is *between* reg and mem just as wikipedia says) <a id="CISC"></a>
   Also see [chap_2_24] 174.e2.
 - "The process": 1~2 -> def-use chain (here just use reg like `r4` as src but not dest); 3 use-def chain (here may use something like `add r4,r4,4` to modify original def of `r4`); 4 iteration.
 - TODO [interference graph](https://users.cs.northwestern.edu/~simonec/files/Teaching/CC/slides/Interference_graph.pdf)
@@ -7494,7 +7495,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 
     From FIGURE 6.9, "SIMD threads" run on "SIMD Lanes" (From FIGURE 6.12, SIMD Lane is *processing hardware*).
     From FIGURE 6.4, SIMD Lane contains multiple primitive instruction like `add` / `mul`.
-  - [PTX](https://en.wikipedia.org/wiki/Parallel_Thread_Execution) just functions as "assembly language" targetted at CUDA.
+  - [PTX_wikipedia](https://en.wikipedia.org/wiki/Parallel_Thread_Execution) just functions as "assembly language" targetted at CUDA.
   - [Warp](https://nyu-cds.github.io/python-gpu/02-cuda/) can be seen as combination of ~~instructions~~ threads to issue.
     ![](https://nyu-cds.github.io/python-gpu/fig/02-sm.png)
   - From [this](https://en.wikipedia.org/wiki/CUDA#Ontology), cuda core is just cuda thread because "GPU L0 cache".
@@ -8136,6 +8137,11 @@ something like "The programming model scales transparently to large numbers of p
       These are implemented by hardware in ["Transcendentals (SFU)"](https://www.informit.com/articles/article.aspx?p=2103809&seqNum=3)
     4. In newer CUDA doc, "Table 7" -> "Table 9"
     5. TODO "perform several FMAD instructions"
+    - [Table](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions)
+      From [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#arithmetic-instructions-throughput-native-arithmetic-instructions) and [COD_RISCV_2nd_A_appendix] "FIGURE B.4.3" `rcp` (`__drcp_`) ,`rsqrt` is also SFU. This is same as the [paper][areaefficient_multifunction] referenced in the [QA comment](https://forums.developer.nvidia.com/t/fermi-and-kepler-gpu-special-function-units/28345/3) shows (it also says about "interpolation").
+      - quote from [COD_RISCV_2nd_A_appendix]
+        > 32-bit floating-point approximations to reciprocal
+      At least `__fsqrt_`, etc., is SFU.
   - [TPC](https://www.geeks3d.com/20100318/tips-what-is-a-texture-processor-cluster-or-tpc/) include [SMC: SM controller][Tesla_ARCHITECTURE]
   - other abbr see [this](https://people.cs.pitt.edu/~melhem/courses/3580p/gpu.pdf) or [Tesla_ARCHITECTURE]
   - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM.
@@ -8224,7 +8230,7 @@ See [this](#notice)
 - Register File is said before with [verilog](http://cs.middlesexcc.edu/~schatz/csc264/handouts/mips.datapath.html)
   physically they are based on SRAM with [2 more MOSs](https://en.wikipedia.org/wiki/Register_file#Array) to offer *more ports* while [SRAM](https://en.wikipedia.org/wiki/Static_random-access_memory#Design) use only one port by $BL$/$\overline{BL}$.
   - TODO "Write bit lines may be *braided*", "This optimization increases the speed of the write."
-- "fast barrier synchronization" because of independent -> no lock needed [p9](https://sci-hub.ru/10.1109/IPDPS.2010.5470477)
+- "fast barrier synchronization" because of independent -> no lock needed [p9](https://sci-hub.ru/10.1109/IPDPS.2010.5470477) <a id="fast_barrier"></a>
 - ~~"limiting each SP to 32 threads"~~ "supporting up to 64 threads": with my gtx 1650, it should be 16 <a id="deviceQuery"></a>
   ```bash
   $ /opt/cuda/extras/demo_suite/deviceQuery
@@ -9095,7 +9101,7 @@ See [this](#notice)
       p15 from another perspective.
   - [global mem][access_global_memory]
   - [constant mem](#Constant_memory)
-- [`atom`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-atom)
+- [`atom.`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-atom)
   [`.scope`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#scope)
   > Atomically loads the original value at location *a into destination register d*, performs a reduction operation with operand b and the value in location a, and *stores* the result of the specified operation at location *a*, overwriting the original value.
   So here a->d, then func(a,b) -> a.
@@ -9358,7 +9364,37 @@ See [this](#notice)
   - from [doc](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#addresses-as-operands)
     default minimum size is byte -> byte-addressable.
     > there is no support for C-style pointer arithmetic.
-
+- why [round-to-nearest-even](https://mathematica.stackexchange.com/a/2117), similar to why use 2's complement in csapp.
+  Same as wikipedia [says](https://en.wikipedia.org/wiki/Rounding#Rounding_half_to_even)
+- [`mad.`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#floating-point-instructions-mad)
+  > then the mantissa is *truncated* to 23 bits, but the exponent is preserved
+  check "subnormal numbers" with `sm_xx`.https://forums.developer.nvidia.com/t/fermi-and-kepler-gpu-special-function-units/28345/2
+- [denormal](https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number#comment10285814_8341395) -> subnormal.
+- All SFU see the paper [areaefficient_multifunction]
+- SIMT is more like [MIMD](https://www.geeksforgeeks.org/difference-between-simd-and-mimd) (here SIMT with same I)
+- SIMD is [not](https://stackoverflow.com/a/59624515/21294350) Multi-threading
+  Also see SO [tag](https://stackoverflow.com/questions/59623054/difference-between-simd-and-multi-threading#comment105418662_59623054)
+  > you can have *multiple chefs* (multi-threading or multi-processing) who are all slicing their green beans *efficiently* (SIMD).
+  > If I make an analogy with cooking a meal, then SIMD is like *lining up* all your green beans and slicing them in *one go*. The single instruction is "slice", the multiple, repeated data are the beans. In fact, lining things up ("memory *alignment*") is an important aspect of SIMD.
+- [edge condition](https://en.wikipedia.org/wiki/Edge_case)
+- ["fine-grained parallel"](https://dl.acm.org/doi/fullHtml/10.1145/1365490.1365500) due to two-level.
+  > Coarse-grained thread blocks map *naturally* to separate processor *cores*, while fine-grained threads map to *multiple-thread* contexts, vector operations, and pipelined loops *in each core*. 
+  > The GPU excels at *fine-grained, data-parallel* workloads consisting of thousands of independent threads executing vertex, geometry, and pixel-shader program threads concurrently.
+  > Fast barrier synchronization together with *lightweight thread creation* and zero-overhead thread scheduling efficiently support very fine-grained parallelism,
+  
+  ~~TODO~~ how "Fast barrier synchronization" -> [this](#fast_barrier)
+  > The overhead of CPU–GPU interaction and data transfers is minimized by using *DMA* block-transfer engines and *fast interconnects*
+  - "both fine-grained and coarse-grained operations"
+    View "FIGURE 6.5", the coarse means independent between blocks, while the former is based on threads.
+    the former -> branches in one kernel.
+    the latter -> different kernels. 
+- notice same "instruction stream" but not exactly same instructions executed due to branches. 
+  > Each thread executes its *instruction stream* on one of the eight streaming processor (SP) cores, which are multithreaded up to 64 threads.
+- GPU use load–store due to not relying too much on the cache, [see](#CISC).
+- [blending](https://community.khronos.org/t/the-performance-of-blend-operation/38877/8) [steps](https://community.khronos.org/t/the-performance-of-blend-operation/38877/2)
+- pixel [vs](https://tvtropes.org/pmwiki/pmwiki.php/UsefulNotes/PixelVsTexel#:~:text=Digital%20images%20are%20composed%20of,pixel%20within%20a%20texture%20image.) texel
+  > a *contraction* of the term 'picture element'
+  pixel byte size depends on [implementation](https://qr.ae/pyJbkn).
 ##### [Benchmarking_thread_divergence_CUDA]
 - p4
   - `&& !P0` because it corresponds to `pc+1` which is case: not taken.
@@ -11252,7 +11288,8 @@ Build cuda_12.2.r12.2/compiler.32965470_0
 ### `nvdisasm`
 - TODO inline in [`nvdisasm -gi`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm) [usage by `nvcc -gencode arch=compute_75,code=sm_75 single_loop.cu --cubin`](https://forums.developer.nvidia.com/t/nvdisasm-says-binary-is-not-a-supported-elf-file/238918/2)
 ## `SASS` and `PTX` *scalar* instructions
-- better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX]) [then (SO answer)](https://stackoverflow.com/a/35055749/21294350) `SASS`
+Notice [OPENGL compatibility](https://forums.developer.nvidia.com/t/how-to-write-ptx-instructions-in-opengl-in-nvidia/19393/5), so not stay stuck with PTX, even SASS. [Also](https://community.khronos.org/t/is-that-possible-to-directly-use-ptx-instruction/65671/2)
+- better read [`PTX`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc) (or [pdf][PTX_ISA_DOC]) [then (SO answer)](https://stackoverflow.com/a/35055749/21294350) `SASS`
   As the answer [history "Note:"](https://stackoverflow.com/posts/35055749/timeline#history_b545f721-68d8-48b7-ba71-627cf508d793) shows, ths SASS may be very hard to understand all because of the very brief SASS docs.
   - `c[0x0][0x24]` -> [constant](https://forums.developer.nvidia.com/t/the-meaning-of-cuda-disassemly/60924/3) mem bank
   - default var at the 1st pos is *dst*.
@@ -11597,6 +11634,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [speculativereconvergence]:../CUDA/doc/papers/speculativereconvergence.pdf
 [batty2016]:../CUDA/doc/papers/batty2016.pdf
 [Repairing_Sequential_Consistency]:../CUDA/doc/papers/Repairing_Sequential.pdf
+[areaefficient_multifunction]:../CUDA/doc/papers/a-highperformance-areaefficient-multifunction-interpolator.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -11660,7 +11698,7 @@ Dump of assembler code for function _Z6kernelPfi:
 
 [CUDA_doc]:../CUDA/doc/CUDA_C_Programming_Guide.pdf
 [nvidia_Cg]:../CUDA/doc/Cg/Cg-3.1_April2012_ReferenceManual.pdf
-[PTX]:../CUDA/doc/ptx_isa_8.2.pdf
+[PTX_ISA_DOC]:../CUDA/doc/ptx_isa_8.2.pdf
 [cuda_cpp_Best_Practices_Guide]:../CUDA/doc/CUDA_C_Best_Practices_Guide.pdf
 <!-- directx -->
 <!-- [directx_9]:../CUDA/doc/directx/windows-win32-direct3d9.pdf too big -->

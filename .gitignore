@@ -85,3 +85,4 @@ main
 *.output
 !*.svg
 *.bk
+!SO_QA/
