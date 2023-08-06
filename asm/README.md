@@ -6049,7 +6049,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     - TODO [performance counters](https://relate.cs.illinois.edu/course/cs598apk-f18/f/demos/upload/perf/Using%20Performance%20Counters.html) for [retire slots ‘td_slots_retired’](https://lore.kernel.org/lkml/1462489447-31832-4-git-send-email-andi@firstfloor.org/), [metric](https://shbakram.github.io/assets/papers/honors-thesis-adi.pdf) understanding
     - [‘indexed addressing modes micro-fused’](https://stackoverflow.com/questions/76394605/question-about-micro-op-fusion-related-with-rob-entry-occupation-and-micro-op-f) -> ‘indexed addressing modes are always *un-laminated*’
     - lfence is [no use](https://stackoverflow.com/questions/20316124/does-it-make-any-sense-to-use-the-lfence-instruction-on-x86-x86-64-processors) in contemporary cpu and SFENCE is less than MFENCE with `StoreLoad`.
-      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming, because 'write directly to the *graphics frame buffer*' (memory-mapped IO) and not cached (so not used locally based on the temporal locality). Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
+      - why non-temporal [implies](https://community.intel.com/t5/Intel-C-Compiler/Asymmetry-in-non-temporal-streaming-load-store-intrinsics/m-p/1185919) streaming (stream-cache), because 'write directly to the *graphics frame buffer*' (memory-mapped IO) and not cached (so not used locally based on the temporal locality). Also see [this](https://web.archive.org/web/20120210023754/https://software.intel.com/en-us/articles/copying-accelerated-video-decode-frame-buffers), so it implies '`USWC` memory'. <a id="non_temporal_streaming"></a>
         - `USWC` -> [Uncacheable by L1 cache](https://stackoverflow.com/questions/75224657/memory-type-wb-vs-uswc-of-memory-mapped-files-on-x86),etc.
         - more [detailed](https://sites.utexas.edu/jdm4372/2018/01/01/notes-on-non-temporal-aka-streaming-stores/) which says 'Non-allocating store'
           - 'Non-globally-ordered store': order is only needed in the processor, not always when interprocessor communication. (Same as intel doc says).
@@ -8045,6 +8045,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 Notice:
 1. CUDA doc [online](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions) or [pdf][CUDA_doc]
   old ones [see](https://docs.nvidia.com/cuda/archive/8.0/cuda-c-programming-guide/index.html#warp-shuffle-functions) which has deprecated `__shfl_down` description.
+2. This is based on very old GPU architecture TESLA. So not be stuck with this section.
 
 ---
 
@@ -8122,7 +8123,7 @@ something like "The programming model scales transparently to large numbers of p
 - ["Rasterizer"](https://en.wikipedia.org/wiki/Rasterisation) is related with [this](#graphic_image)
 - B-10
   This based on this [paper][Tesla_ARCHITECTURE]
-  - ["texture filtering"](https://en.wikipedia.org/wiki/Anisotropic_filtering)
+  - ["texture filtering"](https://en.wikipedia.org/wiki/Anisotropic_filtering) may implies interpolation.
     - ["raster operations" p3](https://web.pdx.edu/~jduh/courses/geog475f09/Students/W5_Raster%20presentation%2010-27-09.pdf) is similar to [convolution](https://pro.arcgis.com/en/pro-app/3.0/help/analysis/spatial-analyst/performing-analysis/cell-size-and-resampling-in-analysis.htm) while the latter may change the shape size.
     - [anti-aliasing](https://en.wikipedia.org/wiki/Anti-aliasing) avoid [Aliasing](https://en.wikipedia.org/wiki/Aliasing) (i.e. frequency *overlap* See signal processing). This is similar to [aliasing](#compiler_anti_aliasing) in the compiler.
       So it can [drop high-frequency signals "Filters"](https://www.selecthub.com/resources/what-is-anti-aliasing/#:~:text=Anti%2Daliasing%20is%20a%20technique,to%20make%20visuals%20look%20natural.)
@@ -8208,6 +8209,8 @@ better view [nvidia_doc](https://developer.download.nvidia.com/cg/Cg_language.ht
 
       Also see [ptx](#COD_CUDA_PTX_TEX)
     - `clamp` in `Cg` means [definite range](https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Lerp-Node.html)
+    - TODO [`.b0`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-prmt) in `.asel` meaning
+    - [`.abs`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#half-precision-floating-point-instructions-min)
 #### CUDA
 From B.3, most of the book contents are copied verbatim from its [reference][Scalable_CUDA] and [Tesla_ARCHITECTURE]
 See [this](#notice)
@@ -8841,7 +8844,7 @@ See [this](#notice)
             TODO [hemi](https://developer.nvidia.com/blog/simple-portable-parallel-c-hemi-2/)
             *Portability* -> "a kernel launch when compiled for CUDA, *or* a function call when compiled for the CPU." This done by 
             > *compiles* and runs either as a parallel CUDA kernel on the GPU or as a *sequential loop* on the CPU. 
-        - [access_global_memory] Here only do one brief read.
+        - [access_global_memory] Here only do one brief read. <a id="access_global_memory"></a>
           - Here "Global Memory Coalescing" is done by hardware or the driver, dependent on the device architectures.
             > The device *coalesces* global memory loads and stores issued by threads of a warp into as *few transactions* as possible to minimize DRAM bandwidth (on *older hardware* of compute capability less than 2.0, transactions are coalesced within *half* warps of 16 threads rather than whole warps). To make clear the conditions under *which coalescing* occurs across CUDA *device architectures* we run some simple experiments on three Tesla cards: 
           Just see the figures and the titles may be enough.
@@ -9056,6 +9059,52 @@ See [this](#notice)
     mainly because
     > In fact, the technique turns out to be so useful that it is now *implemented in the NVCC compiler*, and you get warp aggregation in many cases by default with no additional effort required.
 - TODO read [cuda c++ 11](https://developer.nvidia.com/blog/power-cpp11-cuda-7/)
+- [when](https://www.adobe.com/uk/creativecloud/photography/discover/lossy-vs-lossless.html#:~:text=Lossy%20compression%20is%20typically%20used,undetectable%20to%20the%20human%20eye.) use lossy Compression techniques.
+- fetch [vs](https://superuser.com/a/490679/1658455) read
+  so mostly instruction fetch but not data fetch (allow data prefetch).
+  - [instruction fetch](https://stackoverflow.com/a/47036603/21294350) may 
+    > once into a *data* cache for calculating the *hash* and again into the instruction cache.
+    TODO read the paper referenced above.
+  - load [vs](https://superuser.com/a/942243/1658455) read
+    > read is usually associated reading data from a *permanent storage* (HDD, USB Stick etc.). load on the other hand is loading data you have previously *read from RAM* into a CPU register/accumulator (Assembly command lda).
+    is mainly related with the load-store architecture.
+- notice:
+  1. > The design must take care that no particular request waits too long, otherwise some processing units can starve waiting for data and ultimately cause *neighboring processors to become idle*.
+    DRAM traffic *may cause not independent* multiprocessor.
+  2. > To achieve the best load balance and therefore approach the theoretical performance of n partitions, addresses are finely *interleaved evenly across* all memory partitions. 
+    > This naturally favors a multibank and/or *multiport* arrangement of SRAM arrays.
+    This may seem to be contrary to spacial locality in CPU, but CPU use virtual address, so it may be also the above case (i.e. CPU only prefers adjacent virtual addresses in the cache line).
+- "streaming cache architecture" ~~has no relation with~~ may be related with the cpu [stream-cache](https://www.cl.cam.ac.uk/research/srg/projects/fairisle/bluebook/12/scache/node2.html#:~:text=With%20an%20s%2Dcache%20architecture,further%20traversal%20of%20the%20interconnect.) where the GPU sends the stream.
+  > The data has not arrived yet. This is treated as a cache miss and the CPU can be *halted* until the required item arrives. If the data will not arrive for some (long) period of time the operating system may choose to reschedule the CPU.
+  > With an s-cache architecture, data arriving from the stream is placed *directly into the cache*; it does not pass through main memory which *avoids unnecessary buffering* and a further traversal of the *interconnect*.
+  This is to ensure not destroy other cache on other processors, also [see](#non_temporal_streaming).
+- B-38
+  - `2 × 4 × 4 × 64 = 2048` ~~should be `2 × 4 × 4 × 16` or `2 × 4 × 64`.~~ may imply 4 texture units.
+    > Each *bilinear interpolation* requires *four* separate texels, and each texel might be a *64*-bit value.
+    > A typical texture unit may evaluate *two* bilinear interpolations for each of four pixels per clock cycle, and a GPU may have *many such texture units* all operating independently.
+- > For computing, load and store thread instructions use *32-bit byte addresses*, which are extended to a 40-bit virtual address by adding a *40-bit offset*.
+  See [cuda_addressing] and [ld](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-ld) doc Examples where 40bit depends on the implementation.
+  `.type` specify all variable [types](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#integer-arithmetic-instructions-add).
+  `ld.local.b32     x,[p+-8]; // negative offset` where `-8` is the offset.
+- `membar` is more strict than `fence`
+- > Because commonly *most or all threads* in a SIMT warp read from the *same* address in constant memory, a single address lookup per clock is sufficient. The constant cache is designed to *broadcast* scalar values to threads in each warp.
+  So see [this](#Constant_memory).
+- texture [cfg](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#texture-object-api)
+  - [cudaAddressModeBorder](https://stackoverflow.com/a/27411685/21294350)
+  - [cudaReadModeNormalizedFloat](https://forums.developer.nvidia.com/t/when-is-cudareadmodenormalizedfloat-cudareadmodeelementtype/29404)
+  - > Noninteger coordinates invoke a bilinear weighted interpolation of the four closest values (for a 2D texture) before the result is returned to the program.
+    So plus [0.5](https://forums.developer.nvidia.com/t/when-is-cudareadmodenormalizedfloat-cudareadmodeelementtype/29404/2), also [see](https://www.reedbeta.com/blog/texture-gathers-and-coordinate-precision/)
+- some types of [casts](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#operand-size-exceeding-instruction-type-size-relaxed-type-checking-rules-destination-operands)
+- ROP see [Tesla_ARCHITECTURE] Figure 1
+- B-42 
+  - storage formats depends on the [implementation](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html) although 16-bit may be [preferred](https://en.wikipedia.org/wiki/IEEE_754#Binary).
+    > A floating-point storage format specifies how a floating-point format is *stored in memory*. The IEEE standard defines the formats, but it leaves to implementors the choice of storage formats.
+  - [pixel blending](https://www.codeproject.com/Articles/41977/Learn-How-To-Do-Alphablending-with-CUDA)
+  - [OpenEXR HDR(high dynamic-range)](https://developer.nvidia.com/gpugems/gpugems/part-iv-image-processing/chapter-26-openexr-image-file-format)
+- [pineiro2005.pdf]
+  - says why use $log_2$ 
+    because binary floating.
+  - 
 ##### PTX
 - `ex2` and `lg2` maybe to ~~replace~~ give one more readable format of [`<<`](https://stackoverflow.com/questions/8012602/usage-of-for-exponentiation-in-c-or-cuda) and `>>`.
 - [cuda memory model](https://www.3dgep.com/cuda-memory-model/)
@@ -9088,7 +9137,7 @@ See [this](#notice)
       See [this](https://forums.developer.nvidia.com/t/whats-the-difference-between-l1-cache-and-the-shared-memory/24730/2)
       > unpredictable reads and writes => prefer L1.
       And also [this](https://stackoverflow.com/a/15938207/21294350)
-  - [local mem](https://developer.download.nvidia.com/CUDA/training/register_spilling.pdf)
+  - [local mem](https://developer.download.nvidia.com/CUDA/training/register_spilling.pdf) <a id="cuda_local"></a>
     See p5
     - p8
       Estimated L2 transactions *counts*
@@ -9118,18 +9167,20 @@ See [this](#notice)
   - TODO 
     read vector type related
     read [`createpolicy`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-createpolicy) related with `cache-policy` and `..level::cache_hint`.
-- `tex` <a id="COD_CUDA_PTX_TEX"></a>
+- [`tex.`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#texture-instructions-tex) <a id="COD_CUDA_PTX_TEX"></a>
   Here only see `tex.geom.v4.dtype.ctype  d, [a, c] {, e} {, f};` with `tex.{1d,2d,3d}`
   - > Texture lookup using a texture coordinate vector. The instruction loads data *from* the texture named by operand a at *coordinates* given by operand `c` into *destination* d
     > An optional operand f may be specified for *depth textures*. Depth textures are special type of textures which hold data from the *depth buffer*. ... Operand f is .f32 scalar value that specifies *depth compare* value for depth textures. Each element fetched from texture is compared against value given in `f` operand. If comparison *passes*, result is 1.0; otherwise result is 0.0.
     See [this](#depth_buffer) for the depth meaning.
 
-    `v4.b32` says detailed about how `c` used. (here `b32` -> `dtype` implies `u32`).
+    `v4.b32` in `a1d` says detailed about how `c` used with texture array (i.e. a in `a1d`). (here `b32` -> `dtype` implies `u32`).
     [`.b32`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#type-information-for-instructions-and-operands-type-checking-rules) can be guessed just its literal meaning
     > For 2d texture arrays, operand c has type .v4.b32. The first element is interpreted as an unsigned integer *index* (.u32) into the texture array, and the next two elements are interpreted as 2d texture *coordinates* of type .ctype. The *fourth* element is ignored.
   > Operand e is a vector of `.s32` values that specifies coordinate offset. ... Operand e is a *singleton* tuple for 1d textures; is a two element vector 2d textures; and is *four-element* vector for 3d textures, where the fourth element is ignored.
     says about book "scalars or vectors of two to four components, up to 128 bits in total" (here should be 1 to 4).
 - [`bar` / `barrier`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar)
+  Notice: barrier default means [completion order](https://developer.arm.com/documentation/100941/0101/Barriers) instead of issue.
+  > The barrier{.cta}.sync or barrier{.cta}.red or barrier{.cta}.arrive instruction guarantees that when the barrier *completes*, prior *memory accesses* requested by this thread are *performed* relative to all threads *participating in the barrier*.
   Better see **examples**
   > bar{.cta}.sync is *equivalent* to barrier{.cta}.sync.*aligned*.
   > Instruction barrier{.cta} has optional .aligned modifier. When *specified*, it indicates that *all* threads in CTA will execute the *same* barrier{.cta} instruction.
@@ -9165,6 +9216,13 @@ See [this](#notice)
     
     - here `r3` in `bar.cta.red.and.pred r3,1,p; // r3=AND(p) forall threads in CTA` may be due to ["predicates spilling"](https://forums.developer.nvidia.com/t/how-many-predicate-registers-a-thread-has/68794/2)
       > Based on my experience, your questions focus on a very *unlikely (i.e. largely hypothetical) corner case*. Use of predicate registers is *not* typically something CUDA programmers should be *worried* about. Instead, use the CUDA profiler to identify actual bottlenecks.
+  - `membar/fence` only cares about mem. See [this](https://stackoverflow.com/a/51882742/21294350)
+    ~~and `membar` not cares about order.~~
+    `fence` controlling [order](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#release-acquire-patterns) with more options. Aloo see [COD_RISCV_2nd_A_appendix] B-39
+    > On sm_70 and higher membar is a *synonym* for fence.sc.
+
+    Also see [wikipedia](https://en.wikipedia.org/wiki/Memory_barrier)
+    [collective routines](https://en.wikipedia.org/wiki/Collective_operation) means parallel.
 - other data [formats](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#alternate-floating-point-data-formats) like `bf16` / `e4m3`
 - Notice the [COD_RISCV_2nd_A_appendix] is absed on PASCAL, so may be too old.
 - `immediate` is one special [*embeded*](https://reverseengineering.stackexchange.com/a/17678/43760) constant in the instruction.
@@ -9361,7 +9419,7 @@ See [this](#notice)
   
   > by subtracting the window base from the generic address.
   implies offset.
-  - from [doc](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#addresses-as-operands)
+  - from [doc][cuda_addressing]
     default minimum size is byte -> byte-addressable.
     > there is no support for C-style pointer arithmetic.
 - why [round-to-nearest-even](https://mathematica.stackexchange.com/a/2117), similar to why use 2's complement in csapp.
@@ -11238,7 +11296,9 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
   Tanenbaum used by [this](http://www.cs.columbia.edu/~nieh/teaching/w4118_f03/)
 - ["operating system Tom Anderson"](https://ospp.cs.washington.edu/) has too many volumes.
 - better to view [the codes](https://www.zhihu.com/question/27871198/answer/1821996217).
-  
+- also try [this](https://diveintosystems.org/book/C4-Binary/byte_order.html)
+- pitch for [padding](https://stackoverflow.com/a/16119944/21294350)
+  since unit is byte, so [`char*`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1g32bd7a39135594788a542ae72217775c)
 # Algorithms and Data Structures
 - ["solving around 100 random leetcode"](https://teachyourselfcs.com/#algorithms)
 ## Discrete Mathematics 
@@ -11263,7 +11323,13 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 - [optimization](https://stackoverflow.com/a/19041467/21294350)
   it also says about SASS which is "PTX will be compiled into device assembly code, called SASS"
 
-  it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" and how to use "Constant memory". <a id="Constant_memory"></a>
+  it also reference [this](https://stackoverflow.com/questions/12388207/interpreting-the-verbose-output-of-ptxas-part-i) which says about "register spilling" which then use [local memory](#cuda_local) and how to use "Constant memory". The Constant memory is written by the [host](https://www.tutorialspoint.com/cuda/cuda_memories.htm#:~:text=The%20constant%20memory%20can%20be,simultaneously%20access%20the%20same%20location.) <a id="Constant_memory"></a>
+    > If a warp makes a request to __constant__ memory where different threads in the warp are accessing *different locations*, those requests will be *serialized*.
+    > The constant cache can serve up *one quantity* per SM "at a time".
+    So for different array accesses, better use global mem as the last example and "Yes, if you know that in" says.
+    if same like `array[20]` then ok to be in the const mem.
+    > If you access the *same* simple type structure element *across threads*, that is ideal for constant cache usage.
+    - [trip-counts](http://users.ece.utexas.edu/~bevans/hp-dsp-seminar/03_C6xDSP/tsld020.htm) is used when [perf](https://www.intel.com/content/www/us/en/docs/advisor/user-guide/2023-0/trip-counts.html) to find the bottleneck,
   - Also see [official doc](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#constant-memory)
     Also see how to [use](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#device-memory) in the codes similar to [this SO](https://stackoverflow.com/a/28993944/21294350)
 # CUDA here I use `12.2` version <a id="notice"></a>
@@ -11313,6 +11379,8 @@ Notice [OPENGL compatibility](https://forums.developer.nvidia.com/t/how-to-write
   - [installation](https://aur.archlinux.org/packages/nsight-graphics#comment-927000) of nsight_compute
     Then launch Nsight Compute which is part of [nvtx](https://docs.nvidia.com/gameworks/index.html#gameworkslibrary/nvtx/nvidia_tools_extension_library_nvtx.htm) `/opt/cuda/nsight_compute/ncu-ui` connect -> profile. See `cudaSaxpy.report.ncu-rep` file.
     - Also see "Higher occupancy *does not always result* in higher performance, however, low occupancy always reduces the ability to hide latencies, resulting in overall performance degradation" in the `ncu-ui`.
+- whether coalesced depends on the [code implementation](https://stackoverflow.com/a/5044424/21294350). Also [see](#access_global_memory).
+- 
 ### Nsight Compute
 - show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=czgf2v) by `nvcc async.cu -g --generate-line-info`.
 ## API
@@ -11726,7 +11794,8 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- cuda doc -->
 [Warp_Vote]:https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__activemask#warp-vote-functions
-[brief_CUDA_API]:https://icl.utk.edu/~mgates3/docs/cuda.html
+[brief_CUDA_API]:https://icl.utk.edu/~mgates3/docs/cuda.html_node
+[cuda_addressing]:https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#addresses-as-operands
 
 <!-- cppreference -->
 [memory_order_Explanation]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants

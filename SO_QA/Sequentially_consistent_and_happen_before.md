@@ -1,4 +1,4 @@
-The following contents use many levels of markdown item lists which may be difficult to view on the **mobile** devices. 
+The following contents use many levels of markdown item lists which may be difficult to view on the **mobile devices**. 
 
 Recently I also read the same cppreference section and has the same question as you at first and got the idea after viewing related SO QAs and papers. I hope this answer can also help you understand what the cppreference says.
 
@@ -11,17 +11,19 @@ These are based on my understanding of the papers and related links. *Please poi
 #### Short answer:
 1. View the quote in QA_1 question, you will get the occasion where the above **conflict** occurs based on the **old c++11** standard.\
    And the QA_1 answer says how this can occur in the real world (can be due to the cache **consistency** which cause different threads see different order of **different** variables).
-2. More specifically, view the Figure 3 of the paper_1
+2. More specifically, view the **Figure 3 with its context**, (S1fix) context and related terminology definitions in the paper_1
    - "A happens-before C" corresponds to `S(k, m)`
-      - A is **sequenced before** B (This implies in the same thread by [cppreference_2][6]) and B **synchronized with** C about `y` but not about `x`, so A happens before C. (This is definition of "happens before", see the detailed answer.)
+      - A is **sequenced before** (sb) B (This is because they are in the same thread by [cppreference_2][6])\
+         B **synchronized with** (sw) C about the variable `y` but not about `x`, so A happens before C.
+         (This is definition of "happens before": a sequence composed of sb and sw.)
    - the total modification order "C-E-F-A" corresponds to `S(m, o, p, k)` (here I coalesced different `S(,)` by order).
       - here `S(p,k)` is due to "reads-before" (IMO, this means "reads-before-write" due to ![](https://latex.codecogs.com/svg.image?rf%5E%7B-1%7D;mo). It is to solve with the WAR hazard).
-      Others I will say in the detailed answer.
-   - Then it cause the **cycle**, so in the paper "What Went Wrong and How to Fix it", it **redefines** and the **c++20** standard is now based on it as the paper_2 says. 
-     - Here you can think that it splits the original cycle (i.e. **old c++11** total modification order) into two parts `S(k, m)` and `S(m, o, p, k)` where the former stays "happens-before" and the latter is the **new** total modification order. I will say more in the detailed answer.
-   - To be more specific, the cppreference can have one observation order `(A)-B-C-E-D-F-A` (here "(A)" means it runs before but observed later.
-     - Please see the definition of "happens-before" following for why it can be this case.
+   - Then the above causes the **cycle**, so in the paper_1 it says "What Went Wrong and How to Fix it" context and it **redefines** in (S1fix). The **c++20** standard is now based on it as the paper_2 says. 
+     - Here you can think that it splits the original cycle (i.e. **old c++11** total modification order) into two parts `S(k, m)` and `S(m, o, p, k)` where the former stays "happens-before" and the latter is the **new** total modification order.
+   - To be more specific, the original question can have one observation order `(A)-B-C-E-D-F-A` (here "(A)" means it runs before but **observed later**.)
+     - here A not synchronizes with C, so there is no must that A needs to be observed by C.
 
+Notice: *maybe* the above optimized memory model introduced in c++20 is still flawed. However, I'm not one compiler/computer architecture expert, so it's beyond my abilities to find the flaws.
 
    <!-- https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols#Set_and.2For_logic_notation -->
 #### Detailed answer mainly based on the paper_1:
@@ -144,8 +146,6 @@ Notice: here only some symbols are rephrased, you may better **view the original
    - how changes make work:\
       After changing, the example pattern `sb;hb` is dropped. (view Figure 3: `S(k,l)` is `sb`) (Specifically to say, `hb=sw`). So the old happens-before `A,C` is **not take in account now** in the total modification order.
       - There are other examples also work after changes, try them if you are interested.
-
-Notice: *maybe* the above optimized memory model introduced in c++20 is still flawed. However, I'm not one compiler/computer architecture expert, so it's beyond my abilities to find the flaws.
 
 [1]: https://stackoverflow.com/q/73446334/21294350
 [2]: https://stackoverflow.com/questions/70554277/what-is-the-significance-of-strongly-happens-before-compared-to-simply-happ
