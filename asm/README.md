@@ -4601,7 +4601,7 @@ from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4
 C[i][j] C[i+1][j]
 ```
 - p375 [Carry Look-Ahead Adder](https://www.geeksforgeeks.org/carry-look-ahead-adder/)
-- p377 more [clear](https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html)
+- p377 more [clear][Booth_Algorithm], highly recommend to [see](#sd-signed-digit)
 - p380 may be [(the link show swap and `escape` which the book don't mention)](https://stackoverflow.com/questions/39841223/mips-hardware-multiplication-alu),also [p383](https://electronics.stackexchange.com/questions/56488/parallel-multiplication-hardware?rq=1) also see 'FIGURE 3.6'
 ```bash
 # second method in https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html inspired by 'Instead of shifting multiplicand to left, shift product to right?' to make 'least significant bits of product ' can be changed
@@ -9107,6 +9107,7 @@ See [this](#notice)
     because binary floating.
   - See Fig. 1
     To use Quadratic Interpolator, it must be only used in one **finite range**.
+    - here "Square root" should both $X\in (1,2)$.
   - [CSA](https://en.wikipedia.org/wiki/Carry-save_adder#The_basic_concept) (i.e. 3-2 compressors) <a id="CSA"></a>
     mainly by XOR to calculate sum without carry $S=a\oplus b\oplus c$
     
@@ -9162,7 +9163,9 @@ Google:
     (5) doesn't need $2^{-1}$ because 
     $m_0$ is the end with no relation afterwards.
   - "subtract r" in the example use 2's complement.
+  - here Shortcut/shortcutting method is just the [normal works](https://apstricks.wordpress.com/basic-shortcut-tricks/basic-addition-shortcut-tricks/multiplication-shortcut-methods/) of multiplication.
 - radix-4 vs radix-8 [Generalized_Multibit_Recoding]
+  Also see [VHDL radix-4](https://forum.digikey.com/t/booth-radix-4-multiplier-for-low-density-pld-applications-vhdl/13402)
   - the underlying idea of "radix-4" is same as radix-2.
     - take the multipler `0.1001` for example (not take `0.01000` as the example because of the trailing zero which may cause the result wrong) (notice from the [booth1951], the right shift is mainly used to fractions instead of integers).
       Think as ["Table 2" and "Table 3"][multipler_sign_extension]
@@ -9191,19 +9194,20 @@ Google:
           $x_{ki-1}*2^{ki}=2^{ki}$
 
           So correspond to $2^{ki}-2^{ki-1}=2^{ki-1}$.
-- [a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori]
-  - this shows why not use radix-8 which is ~~also said in~~ ~~same as~~ why [A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp] is published to solve the problem.
+- [fast_hybrid_multiplier]
+  - this shows why not use radix-8 which is ~~also said in~~ ~~same as~~ why [Radix_8_Multiplier] is published to solve the problem.
     ~~but~~ the latter says it can use memory and precalculated carry to amortize the delay of the adder. 
-    - TODO after all, the [a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori] doesn't show the details of its implementation. So maybe not easy to say which one is right.
+    - TODO after all, the [fast_hybrid_multiplier] doesn't show the details of its implementation. So maybe not easy to say which one is right.
     > However, the speed to *generate*,plus the size to *select* the partial prod-ucts is very limiting, as will be seen.
   - two types of muxes
     > the *carry in* of one is added in the reduction structure, to complete the 2’s complement. A special *mux* for the LSB enables this carry in to be set when a “-B” partial product is needed.
     > The muxes *select the appropriate partial product* (or 0 for just shift which mults if none of the other partial products am selected)
   - $\bar{B}:1 \to 2\bar{B}$ is to make $2\bar{B}+2B=\underbrace{1\ldots}_\text{bit num of 2B}$
-- [A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp]
+- [Radix_8_Multiplier]
   - 4-2 compressors is based on 3-2 ones. See [this](https://web.stanford.edu/class/archive/ee/ee371/ee371.1066/lectures/lect_05.2up.pdf) which is composed by 2 [3-2 compressors](#CSA).
   - TODO "Fig. 6" seems to not right, because it only depends on one bit.
   - Fig. 8 is the similar construct as "pp_gen" with CSAs in [pineiro2005] "Fig. 6"
+    here pp (partial product) is just each rows of product of multiplicand and part of the multipler with SD format.
   - Fig. 9
     - here "Squared bits" means 1'complement -> 2's complement
       See [miscs_py_script] 
@@ -9225,7 +9229,12 @@ Google:
         $2^7$ carry to the higher bit by *2-bit offset*.
         - the other schemas are similar.
         - notice here schema(a) -> Fig. 9 used pattern.
-  - 
+- CSD is just Canonical Signed Digit is just original [booth1951] says to deal with each bit.
+  But here says more general to "find a string of 1s".
+- [Carry-select adder](https://en.wikipedia.org/wiki/Carry-select_adder#Construction) is similar to Carry-lookahead adder but is doesn't calculate the propagate and generate $P,G$
+  > one time with the assumption of the carry-in *being zero* and *the other* assuming it will be one. After the two results are calculated, the correct sum, as well as the correct carry-out, is then *selected* with the multiplexer once the *correct carry-in* is known.
+  It calculate twice with different carry-in. See the [figure](https://en.wikipedia.org/wiki/Carry-select_adder#Uniform-sized_adder) similar to propagate.
+  - TODO [verilog](https://barrywatson.se/dd/dd_carry_select_adder.html)
 ##### PTX
 - `ex2` and `lg2` maybe to ~~replace~~ give one more readable format of [`<<`](https://stackoverflow.com/questions/8012602/usage-of-for-exponentiation-in-c-or-cuda) and `>>`.
 - [cuda memory model](https://www.3dgep.com/cuda-memory-model/)
@@ -11824,6 +11833,12 @@ Dump of assembler code for function _Z6kernelPfi:
 [batty2016]:../CUDA/doc/papers/batty2016.pdf
 [Repairing_Sequential_Consistency]:../CUDA/doc/papers/Repairing_Sequential.pdf
 [areaefficient_multifunction]:../CUDA/doc/papers/a-highperformance-areaefficient-multifunction-interpolator.pdf
+[booth1951]:../references/papers/SD_Radix_Multiplier/booth1951.pdf
+[Generalized_Multibit_Recoding]:../references/papers/SD_Radix_Multiplier/Generalized_Multibit_Recoding.pdf
+[Digital_Computer_Arithmetic]:../references/papers/SD_Radix_Multiplier/Digital_Computer_Arithmetic.pdf
+[pineiro2005]:../references/papers/pineiro2005.pdf
+[Radix_8_Multiplier]:../references/papers/SD_Radix_Multiplier/A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf
+[fast_hybrid_multiplier]:../references/papers/SD_Radix_Multiplier/a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -11923,3 +11938,6 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- digitalsystemdesign -->
 [multipler_sign_extension]:https://digitalsystemdesign.in/accumulation-of-partial-products-for-signed-numbers/
+
+<!-- miscs -->
+[Booth_Algorithm]:https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html
