@@ -1,3 +1,5 @@
+This doc records all csapp contents and COD contents until B-43
+Since it is too large to be rendered, newer contents [see](../COD/README.md).
 # what to learn
 - See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) ([i.e.](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/)) for what to learn.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800) 
@@ -9118,6 +9120,46 @@ See [this](#notice)
   - [CPA Carry-Propagate Adder](https://people.ece.ubc.ca/stevew/515/handouts/arith.pdf) which is said in [COD_RISCV_2nd_A_appendix].
   - TODO [this](https://ocw.snu.ac.kr/sites/default/files/MATERIAL/6648.pdf)
     1. p20 Alternate 2-bit-at-a-time Algorithm
+  - Fig. 3
+    - new [`proc`](https://www.maplesoft.com/support/help/maple/view.aspx?path=procedure#examples) use `endproc`.
+    - Notice: here $C_{1,2,3}$ is based on 
+      $i$ which corresponds to $X_1$ because of the 
+      $2^{-m}$ step which is also shown in "Fig. 2".
+    - step 1
+      - select m with Maple's [`minimax`](https://www.maplesoft.com/support/help/Maple/view.aspx?path=numapprox/minimax&cid=203) when `t,p,q` no limits.
+        > The parameter $\delta$ has been introduced in the heuristic described in Fig. 3 in order to be *aggressive* in the minimization of m and $\delta$; p; qÞ since it *prevents early discarding* of configurations which might be allowed later in combination with a specific *rounding bias*.
+        it is same to why we choose $2^{-r-1}$.
+    - step 2
+      - calculate the $\sqrt{1+i*2^{-m}+x}$ where 
+        $x=X_2$ because all $X_2 \in (0,2^{-m})$
+      - `2^(-p)*round()` in `2^(-p)*round(coeff(poll, x)*2^(p))` is to make $C_1$ has $2^{-p}$ ulp.
+      - ~~TODO~~ `aa2 : = a2 + (al-C1)*2^(6);` 
+        see [partially_rounded]
+        - first it is same as the [pineiro2005] to caclulate minimax $P(l)=a_0\ldots$.
+        - >  for which the degree-1 coefficient has a binary representation with *a small number, say k, of bits*
+          So all coefficients need to be changed
+          $P^*(l)=a_0^*\ldots$
+
+          - Then $L=l^2\in [0,2^{-p}] \to \sqrt{L} \in [0,2^{-2p}]$
+            - From (1), we can get the $A_1=2^p$ and by viewing "Figure 2", $p$ is above m in [pineiro2005]
+            - $A_0$ can be got from
+              > *derivative* of this function is zero
+          - by (3), here $k$ decides the value $|a_1-a_1^*|$
+            - $\epsilon_{minimax}$ is caused by $P(l)$
+              and here is "upper-bounded", so just plus their absolutes.
+      - since `pO : = minimax` and `CO : = round` (here `tcoeff` should be [`coeff`](https://www.maplesoft.com/support/help/maple/view.aspx?path=coeff)) to recalculate the $C_0$ based on biased $C_2$ due to $C_1$ rounding and rounded $C_1$, so here $C_0$ not use the [partially_rounded] ones.
+      - TODO [$L_{\infin}$](https://mathworld.wolfram.com/L-Infinity-Norm.html) meaning of "L"
+        - here `infnorm` is only one `x` variable instead of one vector, so just calculate max error.
+      - $goodbits>r$ if $\epsilon_{total}<2^{-r}$
+      - obviously higher $m$ -> higher precison -> $\epsilon$ smaller.
+  - > Smaller tables could be employed for approximations with *looser accuracy constraints*
+    > In our method, the first alternative is employed because it allows a *minimum table size*, while the accumulation of partial products can be *arranged* so that the effective delay corresponds to only three levels of 4:2 adders.
+    - here radix-8 has more bigger recoding value like $\pm 3$, so the error may be larger, then the coefficient precision needs higher, so larger table size.
+    - by viewing the (11) equation, $t_{pp_gen}$ means 
+      $t_{pp_gen2},t_{pp_gen1}+t_{3:2_CSA}$
+    - > Note also that, in the resulting accumulation tree, *only the leftmost* carry-save adders in levels *second to fourth* (see Fig. 6) must have *full* single- precision wordlength, while all other adders benefit from the reduced wordlength of the polynomial coefficients.
+      here is probably due to $X_2**2$ has more precision than $X_2$, so it not needs
+      and that the higher level not needs may be because of the performance.
   - Fig. 6
     - not use alternative 2 because this may use $\pm 4$ *increasing the error* which needs coefficient to offset the errors by radix-8.
     - here whether use $x_7$ depends on the function to approximate.
@@ -11839,6 +11881,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [pineiro2005]:../references/papers/pineiro2005.pdf
 [Radix_8_Multiplier]:../references/papers/SD_Radix_Multiplier/A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf
 [fast_hybrid_multiplier]:../references/papers/SD_Radix_Multiplier/a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf
+[partially_rounded]:../references/papers/partially-rounded-smallorder-approximations-for-accurate-hardwar.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
