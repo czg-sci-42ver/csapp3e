@@ -608,3 +608,39 @@ test_level_index_print(1)
 test_level_index_print(10**100)
 
 # print(level_index(231,0.25850929940458))
+
+"""
+SD(signed digit) radix-8 
+"""
+def partial_product(Multiplicand,partial_Multiplier):
+    print(bin(Multiplicand*partial_Multiplier))
+def arbitrary_len_signed_num(input:int):
+    """
+    input like 0b1010
+    """
+    str_input = "{0:b}".format(input)
+    # print("input: ",str_input)
+    num_len = len(str_input)
+    return int(str_input[1:],2)-int(str_input[0],2)*2**(num_len-1)
+# 21 bits
+Multiplicand = 0b111100010010110111001
+Multiplier = 0b100011010100110100111
+result_bits = 31+6+3+1
+# https://stackoverflow.com/questions/32413109/using-variables-in-the-format-function-in-python
+print("Multiplicand: ",arbitrary_len_signed_num(Multiplicand))
+print("mul result:","{0:0{1}b}".format(arbitrary_len_signed_num(Multiplicand)*arbitrary_len_signed_num(Multiplier),result_bits))
+def Radix_8(Quartet_value:str):
+    """
+    input like 0101
+    """
+    str_len=len(str)
+    if str_len !=4:
+        exit("len error")
+    msb_num = (-1)**Quartet_value[0]*(2**(str_len-1))
+    no_sign_num = int(Quartet_value,2) & int('1'*(str_len-1),2)
+    intermediate_num = no_sign_num >> 1
+    lsb_num = int(Quartet_value[str_len-1],2)
+    return msb_num+intermediate_num+lsb_num
+Multiplier_append_zero = int("{0:b}".format(Multiplicand)+'0',2)
+
+# partial_product(Multiplicand=Multiplicand)

@@ -4630,6 +4630,7 @@ step    multiplier  multiplicand    product
 8       00000000    11111010        11111111 11101000
 ```
 - booth's [algorithm](https://en.wikipedia.org/wiki/Booth%27s_multiplication_algorithm#How_it_works) may be redundant
+  Also see [this](https://forum.digikey.com/t/booth-radix-4-multiplier-for-low-density-pld-applications-vhdl/13402) -> Radix-4 Multiplier is same as above booth's algorithm.
 ```cpp
 # https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html
 Example: 2 x 6
@@ -9101,10 +9102,41 @@ See [this](#notice)
     > A floating-point storage format specifies how a floating-point format is *stored in memory*. The IEEE standard defines the formats, but it leaves to implementors the choice of storage formats.
   - [pixel blending](https://www.codeproject.com/Articles/41977/Learn-How-To-Do-Alphablending-with-CUDA)
   - [OpenEXR HDR(high dynamic-range)](https://developer.nvidia.com/gpugems/gpugems/part-iv-image-processing/chapter-26-openexr-image-file-format)
-- [pineiro2005.pdf]
+- [pineiro2005]
   - says why use $log_2$ 
     because binary floating.
-  - 
+  - See Fig. 1
+    To use Quadratic Interpolator, it must be only used in one **finite range**.
+  - [CSA](https://en.wikipedia.org/wiki/Carry-save_adder#The_basic_concept) 
+    mainly by XOR to calculate sum without carry $S=a\oplus b\oplus c$
+    
+    Then Use OR with all $a_ia_{i+1}$ 
+    where $a_i$ is **binary** number to add
+    and $a_{n+1}=a_1$ when index start from 1.
+    to calculate all carry out (similar to Carry-lookahead adder)
+  - [CPA Carry-Propagate Adder](https://people.ece.ubc.ca/stevew/515/handouts/arith.pdf) which is said in [COD_RISCV_2nd_A_appendix].
+  - TODO [this](https://ocw.snu.ac.kr/sites/default/files/MATERIAL/6648.pdf)
+    1. p20 Alternate 2-bit-at-a-time Algorithm
+  - Fig. 6
+    - not use alternative 2 because this may use $\pm 4$ *increasing the error* which needs coefficient to offset the errors by radix-8.
+    - here whether use $x_7$ depends on the function to approximate.
+     > Since m = 6 for square root and exponential and m = 7 for reciprocal and logarithm,
+    - ~~TODO~~ CS, see above CSA, here probably default $C+S$ to bin, then to SD.
+     > carried out in *carry-save* form and then recoded to SD-4 representa-tion.
+    - 17 is due to $23-m(6)=17$ when $X$ is 23 bit due to:
+     > with an implicit leading 1 (only the *fractional 23-bits* are stored)
+     
+     16 is chosen
+     > but their use is limited to computations accurate up to 16-bits (maybe 20-bits) with *current VLSI* technology
+     > Truncation at position $2^{-28}$ when m = 6 results in a wordlength of 16 bits for X2 2
+     So $28-2*6=16$.
+##### SD (signed digit)
+paper relations
+A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf -> a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf -> "A Generalized Multibit Recod-ing of WO’s Complement Binary Numbers and its Proofwith Applications in Multiplier ImpIemencationS" (Generalized_Multibit_Recoding.pdf) -> booth1951.pdf ; MacSorley.1961.pdf (this can be ignored because it is too long and the former is enough to understand the underlying idea)
+
+Google: 
+1. A_Low_Power_Radix-4_Booth_Multiplier_with_Pre-Enco.pdf showing the more direct formula derivation.
+2. BoothRadix4.pdf explains the encoding meaning.
 ##### PTX
 - `ex2` and `lg2` maybe to ~~replace~~ give one more readable format of [`<<`](https://stackoverflow.com/questions/8012602/usage-of-for-exponentiation-in-c-or-cuda) and `>>`.
 - [cuda memory model](https://www.3dgep.com/cuda-memory-model/)
