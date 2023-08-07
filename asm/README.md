@@ -9107,7 +9107,7 @@ See [this](#notice)
     because binary floating.
   - See Fig. 1
     To use Quadratic Interpolator, it must be only used in one **finite range**.
-  - [CSA](https://en.wikipedia.org/wiki/Carry-save_adder#The_basic_concept) 
+  - [CSA](https://en.wikipedia.org/wiki/Carry-save_adder#The_basic_concept) (i.e. 3-2 compressors) <a id="CSA"></a>
     mainly by XOR to calculate sum without carry $S=a\oplus b\oplus c$
     
     Then Use OR with all $a_ia_{i+1}$ 
@@ -9120,23 +9120,112 @@ See [this](#notice)
   - Fig. 6
     - not use alternative 2 because this may use $\pm 4$ *increasing the error* which needs coefficient to offset the errors by radix-8.
     - here whether use $x_7$ depends on the function to approximate.
-     > Since m = 6 for square root and exponential and m = 7 for reciprocal and logarithm,
+      > Since m = 6 for square root and exponential and m = 7 for reciprocal and logarithm,
     - ~~TODO~~ CS, see above CSA, here probably default $C+S$ to bin, then to SD.
-     > carried out in *carry-save* form and then recoded to SD-4 representa-tion.
+      > carried out in *carry-save* form and then recoded to SD-4 representa-tion.
     - 17 is due to $23-m(6)=17$ when $X$ is 23 bit due to:
-     > with an implicit leading 1 (only the *fractional 23-bits* are stored)
-     
-     16 is chosen
-     > but their use is limited to computations accurate up to 16-bits (maybe 20-bits) with *current VLSI* technology
-     > Truncation at position $2^{-28}$ when m = 6 results in a wordlength of 16 bits for X2 2
-     So $28-2*6=16$.
+      > with an implicit leading 1 (only the *fractional 23-bits* are stored)
+
+      16 is chosen
+      > but their use is limited to computations accurate up to 16-bits (maybe 20-bits) with *current VLSI* technology
+      > Truncation at position $2^{-28}$ when m = 6 results in a wordlength of 16 bits for X2 2
+      So $28-2*6=16$.
+      - here $(17+1)/2=9$ and $16/2=8$ correspond to the `pp_gen` the output wire number.
 ##### SD (signed digit)
+~~the most original paper [pineiro2005]~~ 
+
 paper relations
-A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf -> a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf -> "A Generalized Multibit Recod-ing of WO’s Complement Binary Numbers and its Proofwith Applications in Multiplier ImpIemencationS" (Generalized_Multibit_Recoding.pdf) -> booth1951.pdf ; MacSorley.1961.pdf (this can be ignored because it is too long and the former is enough to understand the underlying idea)
+A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf -> a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf -> "A Generalized Multibit Recod-ing of WO’s Complement Binary Numbers and its Proofwith Applications in Multiplier ImpIemencationS" (Generalized_Multibit_Recoding.pdf); booth1951.pdf ; MacSorley.1961.pdf (this can be ignored because it is too long and the former is enough to understand the underlying idea although it gives more **general** idea. "Generalized_Multibit_Recoding" has **summarized** what MacSorley showed.)
 
 Google: 
-1. A_Low_Power_Radix-4_Booth_Multiplier_with_Pre-Enco.pdf showing the more direct formula derivation.
+1. A_Low_Power_Radix-4_Booth_Multiplier_with_Pre-Enco.pdf showing the more direct formula derivation which is also shown in [Generalized_Multibit_Recoding].
 2. BoothRadix4.pdf explains the encoding meaning.
+- the most original paper [booth1951] with radix-2 (each time *right shift one bit* to divide 2 because of starting from LSB) (this term is not official, here is to be compared with radix-4)
+  - notice here $\pm$ is related with 
+    [$\equiv$](https://tex.stackexchange.com/a/169946) mod operation
+    See this 
+    - [underflow](https://en.wikipedia.org/wiki/Arithmetic_underflow) means "negative overflow"
+      like $1 \underbrace{\ldots 1}_\text{(n-1) 1s}+1\underbrace{0\ldots 0}_\text{(n-1) 0s} = (1)0\underbrace{1\ldots}_\text{(n-1) 1s}$ where "(1)" means underflow.
+    - > arithmetic modulo n is a system of addition (and subtraction) in which *overflow and underflow* cause you to "cycle back" to a valu from 0 to n−1.
+      *overflow and underflow* implies modular arithmetic
+  - > Such *correction operations* as envisaged above are *highly undesirable*, and it is natural to inquire whether any process exists whereby multiplica-tion can be performed in a *uniform manner* without the necessity of any special devices to examine the signs of the interacting numbers.
+  - TODO 
+    - here "Sign Correction in Modulus Conventio" is not included in [google scholar](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=T.+J.+R+E+Y+and+R.+E.+SPENCER%2C+Sign+Correction+in+Modulus+Conventio&btnG=).
+    - $(—m)xr = (1—m)r  =  r—mr$ why $1-m$
+  - $1\bar{4}\bar{2}\bar{3}4\bar{3}$ means $10-3=7,30+10=40$ with the $4\bar{3}$
+    then 
+    $\bar{4}\bar{2}\bar{3}$ is due to first $58\bar{3}$, then 
+    $6\bar{2}\bar{3}$,etc.
+  - > examine the nth digit ($m_n$) of m
+    from the following example $0.0...01_n 00...0$, the $1_n0$ and $01_n$ is **related** to construct the right number, so needs $2^{-1}$ in all steps in 1~4.
+    
+    (5) doesn't need $2^{-1}$ because 
+    $m_0$ is the end with no relation afterwards.
+  - "subtract r" in the example use 2's complement.
+- radix-4 vs radix-8 [Generalized_Multibit_Recoding]
+  - the underlying idea of "radix-4" is same as radix-2.
+    - take the multipler `0.1001` for example (not take `0.01000` as the example because of the trailing zero which may cause the result wrong) (notice from the [booth1951], the right shift is mainly used to fractions instead of integers).
+      Think as ["Table 2" and "Table 3"][multipler_sign_extension]
+      "the result shifted right by 2 bits." just correspond to the `XX`.
+      - the 1st `01{0}` just $r$ (notice the non-overlapping and here `r` take [booth1951] terminology as the multiplicand)
+        ("{0}" means multipler $m_{-1}$)
+        then right shift $r*\frac{1}{4}$
+        
+        then $100$ -> $-2*r$ -> $-2*r+r*\frac{1}{4}$
+        - notice: here take $4$ as the base because of $\frac{1}{4}$
+          so $100$ is $10$ (binary: 2) -> $-2$
+          relative to the $4$.
+        then right shift -> $(-2*r+r*\frac{1}{4})*\frac{1}{4}$
+
+        then $001$ -> $r$ -> $r+(-2*r+r*\frac{1}{4})*\frac{1}{4}$
+        here $00100$ -> $01\bar{1}00$ -> $1*4\quad -2$ (notice tha last bit $0$ is related the group `01{0}`) See "TABLE II".
+    - The above can be more intuitively seen by "(2.1.2)" and "(2.1.3)"
+      - (2.1.3)
+        the middle "(...)" is the **non-overlapping** ones
+        
+        think of example $x_{kt-1}\ldots x_{k(t-1)}|\ldots|\underset{ki-1}{1}\ldots,t=\frac{n}{k}$ where 
+        $x_{ki-1}=1$. (Here `|` is to split number ranges.)
+        - then in $D_{i-1}*2^{k(i-1)}$ -> 
+          $-x_{k(i-1+1)-1}*2^{k-1}*2^{k(i-1)}=-x_{ki-1}\ldots=-2^{ki-1}$
+          and in $D_{i}*2^{ki}$ -> 
+          $x_{ki-1}*2^{ki}=2^{ki}$
+
+          So correspond to $2^{ki}-2^{ki-1}=2^{ki-1}$.
+- [a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori]
+  - this shows why not use radix-8 which is ~~also said in~~ ~~same as~~ why [A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp] is published to solve the problem.
+    ~~but~~ the latter says it can use memory and precalculated carry to amortize the delay of the adder. 
+    - TODO after all, the [a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori] doesn't show the details of its implementation. So maybe not easy to say which one is right.
+    > However, the speed to *generate*,plus the size to *select* the partial prod-ucts is very limiting, as will be seen.
+  - two types of muxes
+    > the *carry in* of one is added in the reduction structure, to complete the 2’s complement. A special *mux* for the LSB enables this carry in to be set when a “-B” partial product is needed.
+    > The muxes *select the appropriate partial product* (or 0 for just shift which mults if none of the other partial products am selected)
+  - $\bar{B}:1 \to 2\bar{B}$ is to make $2\bar{B}+2B=\underbrace{1\ldots}_\text{bit num of 2B}$
+- [A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp]
+  - 4-2 compressors is based on 3-2 ones. See [this](https://web.stanford.edu/class/archive/ee/ee371/ee371.1066/lectures/lect_05.2up.pdf) which is composed by 2 [3-2 compressors](#CSA).
+  - TODO "Fig. 6" seems to not right, because it only depends on one bit.
+  - Fig. 8 is the similar construct as "pp_gen" with CSAs in [pineiro2005] "Fig. 6"
+  - Fig. 9
+    - here "Squared bits" means 1'complement -> 2's complement
+      See [miscs_py_script] 
+      where `0b111100010010110111001` -> `-121415` and `bin(121415)=0b11101101001000111`
+    - Encircled bits
+      See [Digital_Computer_Arithmetic] p35,36 (means same as [multipler_sign_extension])
+      here $1-s_1=\bar{s_1}$ is obvious (this is **important** for simple implementation by just Inverter)
+      then $(1-s_1+1)*2^{5-1}=-s_1*2^4+2^5$ and the $2^5$ cause the **carry** <a id="carry"></a>
+      then the carry causes the $1$ at the column 6
+      then all is *similar* to how the column 5 works.
+      - 37
+        - based on 2's complement, then $(\underset{6}{-s_1})\underset{5}{s_1}\ldots=(\underset{6}{0})\underset{5}{-s_1}\ldots$ (here "underset" represents the bit location).
+        - more detailedly, $-s_1*2^5+s_1*2^4=-s_1*2^4$ -> $\underset{5}{-s_1}$
+          $2-s_2$ is similar to [above](#carry)
+      - 38 correspond to above "Squared bits"
+      - 42 -> Radix-4
+        similar to the above propagation process
+        $(1+(1-s_1))*2^5+1*2^6=2*2^6-s_1*2^5=2^7-s_1*2^5$ then 
+        $2^7$ carry to the higher bit by *2-bit offset*.
+        - the other schemas are similar.
+        - notice here schema(a) -> Fig. 9 used pattern.
+  - 
 ##### PTX
 - `ex2` and `lg2` maybe to ~~replace~~ give one more readable format of [`<<`](https://stackoverflow.com/questions/8012602/usage-of-for-exponentiation-in-c-or-cuda) and `>>`.
 - [cuda memory model](https://www.3dgep.com/cuda-memory-model/)
@@ -11831,3 +11920,6 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- cppreference -->
 [memory_order_Explanation]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants
+
+<!-- digitalsystemdesign -->
+[multipler_sign_extension]:https://digitalsystemdesign.in/accumulation-of-partial-products-for-signed-numbers/
