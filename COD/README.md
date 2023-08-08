@@ -10,6 +10,7 @@
   - "area" is because multi level adders (See [pineiro2005] diagram and [COD_RISCV_2nd_A_appendix] different carry adders with mutli-bits parallel).
 - TODO "conversions between different floating-point and integer formats" circuit.
 - FIGURE B.6.2
+  codes [related](https://www.kdab.com/fma-woes/)
   Notice the **color** which relates related operations.
   - TODO Multiplier Array
   - Inversion
@@ -18,6 +19,7 @@
     - It is the opposite operation of the Complementer.
       > The result is *conditionally recomplemented*, so as to return a result in *sign-magnitude* form
   - Alignment shifter does right shift of `A`
+    Notice it is different from [HAN_DISSERTATION]
     see [2012_03_bfpfma] Figure 3-6
     - (a)
       here takes the *rounding* into account implicitly
@@ -28,8 +30,11 @@
     - (b)
       here to keep the multipler result *not rounded* before adding. So keep their 106 bits.
       From "Figure 3-8", when $d<105$, the `A` will not be added at all. Obviously, here the 55 MSB is nothing.
+      - TODO [this](https://electronics.stackexchange.com/q/676878/341985) conflicts with [floatingpoint_fused_multiplyadd]
+        > The 55 most-significant bits of the aligned A are *concatenated* at the output of the CSA to obtain the 161-bit sum.
+        View the codes.
     - "Normalizer" does the opposite (left shift) to make the *implicit one* shows in the result.
-      - TODO "Figure 3-1" how LZA functions.
+      - TODO "Figure 3-1" how LZA functions. See [hokenek1990_LZA] (what does LZA calculate).
         > Many methods have been proposed in [3] so far to handle the *one-bit error of the LZA* logic.
         - From the "Figure 3-9", it is obvious "LZD" just outputs the leading one location where 0 means the first MSB.
           And the `P` is concatenated by two binary to output from 0~3 which is also obvious.
@@ -37,6 +42,8 @@
           See [sticky_bit]
   - Rounder removes the precision kept in "Carry Propagate Adder". It is same as [COD_RISCV_2nd_A_appendix] FIGURE 3.15 and p218 "Step 4".
   - [Multiplier Array](https://www.geeksforgeeks.org/array-multiplier-in-digital-logic/) will probably be replaced by the improved "CSA Tree" shown in [2012_03_bfpfma] (i.e. "Wallace reduction tree." in [Radix_8_Multiplier]).
+  - From "Figure 1.2.1" by [Charles_FMA] and [COD_RISCV_2nd_A_appendix] "FIGURE 3.14", "Post-Normalize" is needed.
+  - 
 #### SD (this continues from [this](../asm/README.md) "SD (signed digit)")
 - from the Abstract
     > Moreover, the use of an enhanced minimax approximation which, through an *iterative* process, takes into account the effect of *rounding* the polynomial coefficients to a finite size allows for a further reduction in the *size of the look-up tables* to be used, making our method very suitable for the implementation of an *elementary* function generator in state-of-the-art DSPs or graphics processing units
@@ -53,7 +60,8 @@
     - ["dot products"](https://www-pequan.lip6.fr/~graillat/papers/posterRNC7.pdf) with FMA and the condition number.
     - ["exactly rounded division"](https://stackoverflow.com/a/65445072/21294350) by FMA
 # Computer Graphics books
-- [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3)
+- [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3) vs "[11]" referenced in [pineiro2005]
+
 ---
 
 <!-- SD -->
@@ -71,3 +79,8 @@
 
 [sticky_bit]:https://stackoverflow.com/a/76858612/21294350
 [2012_03_bfpfma]:../references/papers/2012_03_bfpfma.pdf
+
+[floatingpoint_fused_multiplyadd]:../references/papers/floatingpoint_fused_multiplyadd.pdf
+[Charles_FMA]:../references/papers/Charles_FMA.pdf
+[HAN_DISSERTATION]:../references/papers/HAN-DISSERTATION.pdf
+[hokenek1990_LZA]:../references/papers/hokenek1990_LZA.pdf
