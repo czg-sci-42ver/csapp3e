@@ -7253,13 +7253,18 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 - TODO [emulation](https://news.ycombinator.com/item?id=4108557)  of  the  AM  6502?
 - [LR-parsing](https://en.wikipedia.org/wiki/LR_parser) just see [bison](#bison) and [MIPS_COD]
 ### 3
+> This section surveys the history of the floating point going back to von Neumann, including the surprisingly *controversial* IEEE standards effort, the rationale for the 80-bit stack architecture for floating point in the IA-32, and an update on the next round of the standard.
+This "controversial" is due to "von Neumann" refused to use floating.
+>  probably because the *floating point* made it appear too complicated to finish before the Germans expected World War II to end. Hence, von Neumann *refused to include it* in the computer he built at Princeton.
 - ["Bad money"](https://en.wikipedia.org/wiki/Gresham%27s_law#%22Good_money%22_and_%22bad_money%22) include *counterfeit* coins 
 - just See [COD_RISC_V_2nd] p193 for "the tail of the accumulator and *shifted out*".
 - "scale factors" -> one floating number
 - "1948, Von Neumann and Goldstine"'s [paper](https://www.historyofinformation.com/detail.php?id=658)
 - reread 242.e4.
   The main problem is that roundoff without guard digits.
-  also see [this](https://stackoverflow.com/questions/45662113/guard-round-sticky-bits-floating-point#comment78287551_45662113) and [this Q&A_2](https://stackoverflow.com/questions/76709959/is-there-one-way-to-alleviate-roundoff-errors)  
+  also see [this](https://stackoverflow.com/questions/45662113/guard-round-sticky-bits-floating-point#comment78287551_45662113) which says "sticky bit remains a 1 ("sticks" at 1)" and [this Q&A_2](https://stackoverflow.com/questions/76709959/is-there-one-way-to-alleviate-roundoff-errors)
+  - sticky bit
+    - See [this][sticky_bit]
   Codes see "/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/Guard_digit".
 
   It may be also one problem of the compiler "*Without compiler* support, these features have *atrophied*".
@@ -7297,6 +7302,21 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   "about one-third of the bits that normal multiplier arrays generate have been *left out* of his multipliers"
 - "combine a flat register file with a stack": just manipulate the fpu registers *like the stack*.
   "get the same result as a two-operand instruction" -> [implies](https://www.felixcloutier.com/x86/fxch) st0 and st1.
+  > FXCH was *much faster* than the floating-point operations of the 8087.
+  this same as 3 of [this](https://stackoverflow.com/a/26447672/21294350) 
+  1. because FP as states to restore is not frequent.
+    > *neither* callers nor callees would have to explicitly *save and restore FP registers*.
+    This is same as 2rd paragraph in "2 How fast ..." in [paper][Advantages_8087_Stack]
+  2. compatibility with current instruction fotmat "provide 1-operand instructions".
+    Also, from [this](https://stackoverflow.com/a/51488870/21294350), it is to increase the data bandwidth if with a [flat register file](https://arcb.csc.ncsu.edu/~mueller/cluster/ps3/SDK3.0/docs/accessibility/sdkpt/flatreg_gloss.html).
+    > provides explicit *banking* to reduce register port count ... providing three *read ports* to each file would allow all pairs of one FP ... compared with a five read ports with *single* register file
+- why 80-bit is used and ~~dropped by history~~ (`st0` FP stack register still exists).
+  See [this](https://stackoverflow.com/a/52175510/21294350) which says 80-bit is one "separate chip".
+  And [this](https://stackoverflow.com/questions/26444243/why-does-the-80x87-instruction-set-use-a-stack-based-design#comment41548734_26447672) says the compiler not support well 80-bit and caused it unused now.
+  - better see [this](https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format) which referenced paper says:
+    > An Extendedformat as wide as we dared (80 bits) was included to serve the same support role as the 13-decimal *internal format* serves in Hewlett-Packard’s 10-decimal calculators (their *12-digit* calculators use *15* digits)
+    So here "80 bits" is mainly as intermediate "internal format" which will be used in `FMA` (fused-multiply-add).
+    And maybe [alignment](https://en.wikipedia.org/wiki/Long_double#Implementations) is used.
 - [ulp](https://en.wikipedia.org/wiki/Unit_in_the_last_place) is just the [precision](https://stackoverflow.com/questions/43965347/ulp-unit-of-least-precision).
 - "commutative." is not the always case in 242.e9.
 - TODO read papers referenced in the para of Further Reading.
@@ -7794,7 +7814,7 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
   uses -> just as inputs of multiple multiplexors
 - TODO continue reading [Ada](https://www.electronicdesign.com/technologies/communications/iot/article/21801203/comparing-ada-and-c)
   kw: "a focus on support for *embedded real-time*"; "through features that include *checks* either statically or at run time."; "strongly *typed extensible* language ... definition of constrained *subranges* of scalar values"
-- [Full adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Full_adder) adds carry based on half-adder.
+- [Full adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Full_adder) ~~adds carry based on~~ is 3-operand version of the [half-adder](https://www.geeksforgeeks.org/half-adder-in-digital-logic/).
   - explains how the adder in A-26 is implemented.
   - This also explain how full adder implemented by *2 half adder*.
     "carry outputs from the two half-adders are connected to an OR gate" because $A+B=0b10$ which will eliminate the $C_{in}$ influence. So need `OR` to recover.
@@ -8139,6 +8159,7 @@ something like "The programming model scales transparently to large numbers of p
     2. have *limited* precision
     3. [Transcendental function "not satisfy a *polynomial* equation"](https://en.wikipedia.org/wiki/Transcendental_function) related with taylor series
       These are implemented by hardware in ["Transcendentals (SFU)"](https://www.informit.com/articles/article.aspx?p=2103809&seqNum=3)
+      TODO prove functions in [pineiro2005] are Transcendental functions.
     4. In newer CUDA doc, "Table 7" -> "Table 9"
     5. TODO "perform several FMAD instructions"
     - [Table](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions)
@@ -8168,6 +8189,15 @@ better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18
     - ~~TODO~~ how [mipmap](https://en.wikipedia.org/wiki/Mipmap) implemented to "reduce aliasing artifacts".
       See [paper](https://en.wikipedia.org/wiki/Mipmap#Origin)
       Better see [this](https://www.3dgep.com/learning-directx-12-4/#Mipmapping)
+      - from the paper
+        >  sampling high-resolution data at *larger sample intervals* invites aliasing.
+        This sentence means [same "high-resolution image at a lower resolution"](https://en.wikipedia.org/wiki/Spatial_anti-aliasing)
+
+        it is similar to "[temporal aliasing"](https://en.wikipedia.org/wiki/Aliasing) ([visual](https://thewolfsound.com/what-is-aliasing-what-causes-it-how-to-avoid-it/))
+        this just means original *adjacent differences disappear*.
+        - With [mipmap](https://en.wikipedia.org/wiki/Mipmap#Overview), smaller images can be directly got from smaller mipmap images.
+        - ["Jaggies"](https://en.wikipedia.org/wiki/Jaggies) can be solved similarly.
+        - [Spatial frequency](https://www.cs.auckland.ac.nz/courses/compsci773s1c/lectures/ImageProcessing-html/topic1.htm)
   - TODO detailed infos about Sampler more than ["addressing and filtering"](https://vfxdoc.readthedocs.io/en/latest/textures/sampling/#:~:text=Texture%20sampling%20is%20the%20process,these%20textures%20using%20different%20algorithms.)
   - Geometry Shader See [directx_11] for "output topologies" and " inputs are the vertices for a full primitive"
     - pointlist see [directx_9]
@@ -9122,7 +9152,7 @@ See [this](#notice)
     1. p20 Alternate 2-bit-at-a-time Algorithm
   - Fig. 3
     - new [`proc`](https://www.maplesoft.com/support/help/maple/view.aspx?path=procedure#examples) use `endproc`.
-    - Notice: here $C_{1,2,3}$ is based on 
+    - Notice: here $C_{0,1,2}$ is based on 
       $i$ which corresponds to $X_1$ because of the 
       $2^{-m}$ step which is also shown in "Fig. 2".
     - step 1
@@ -9270,7 +9300,15 @@ Google:
         $(1+(1-s_1))*2^5+1*2^6=2*2^6-s_1*2^5=2^7-s_1*2^5$ then 
         $2^7$ carry to the higher bit by *2-bit offset*.
         - the other schemas are similar.
-        - notice here schema(a) -> Fig. 9 used pattern.
+        - notice here schema(a) ~~->~~ is similar to Fig. 9 used pattern.
+          - here is a bit different from Fig. 9
+            1. the latter: the multiplicand is 21 bits while the 22 bit keeps the sign
+              the former: multiplicand is 6 bits from [Digital_Computer_Arithmetic] p35.
+            2. the latter shifts 3 bits each step because of radix-8
+            3. the latter is more like hybrid of schema(a) and schema(b)
+              the 2 circle 1s is to pass carry to the next row
+              the $x_22=\bar{s_1},x_21=s_1=0$ (here $x_21$ means the column index 21 starting from 0), then $(1+1-s_1)*2^{22}+s_1*2^{21}+s_1*2^{20}=2^{23}-2^{20}$ 
+              (notice here propagate to the column 20: $-2^{20}$)
 - CSD is just Canonical Signed Digit is just original [booth1951] says to deal with each bit.
   But here says more general to "find a string of 1s".
 - [Carry-select adder](https://en.wikipedia.org/wiki/Carry-select_adder#Construction) is similar to Carry-lookahead adder but is doesn't calculate the propagate and generate $P,G$
@@ -11882,6 +11920,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [Radix_8_Multiplier]:../references/papers/SD_Radix_Multiplier/A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf
 [fast_hybrid_multiplier]:../references/papers/SD_Radix_Multiplier/a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf
 [partially_rounded]:../references/papers/partially-rounded-smallorder-approximations-for-accurate-hardwar.pdf
+[Advantages_8087_Stack]:https://web.archive.org/web/20170118054747/http://www.cims.nyu.edu/~dbindel/class/cs279/87stack.pdf
 
 <!-- script -->
 [miscs_py_script]:../debug/bfloat16_half.py
@@ -11896,6 +11935,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [move_elimination]:https://stackoverflow.com/a/75204602/21294350
 [gencode_mul_refs]:https://stackoverflow.com/a/35657430/21294350
 [Starvation_Free_failure]:https://stackoverflow.com/q/76497234/21294350
+[sticky_bit]:https://stackoverflow.com/a/76858612/21294350
 
 <!-- repo -->
 [mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply

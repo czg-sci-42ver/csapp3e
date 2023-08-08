@@ -627,8 +627,10 @@ Multiplicand = 0b111100010010110111001
 Multiplier = 0b100011010100110100111
 result_bits = 31+6+3+1
 Multiplicand_signed = arbitrary_len_signed_num(Multiplicand)
+Multiplier_signed = arbitrary_len_signed_num(Multiplier)
 # https://stackoverflow.com/questions/32413109/using-variables-in-the-format-function-in-python
 print("Multiplicand: ",Multiplicand_signed," and abs(Multiplicand): ",bin(abs(Multiplicand_signed)))
+print("Multipler: ",Multiplier_signed," and abs(Multiplicand): ",bin(Multiplier_signed))
 print("mul result:","{0:0{1}b}".format(arbitrary_len_signed_num(Multiplicand)*arbitrary_len_signed_num(Multiplier),result_bits))
 def Radix_8(Quartet_value:str):
     """
