@@ -30,6 +30,7 @@ Since it is too large to be rendered, newer contents [see](../COD/README.md).
 - archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike)
 - edit [formulas](https://meta.stackexchange.com/a/76905/1355014) in SO
   newline in newer SO seems to be needed to use [`\`](https://stackoverflow.com/a/58465541/21294350) instead of just newline.
+- [`pandas`](https://qr.ae/pyx7P2) naming.
 ## bash
 - use [`${!x}`](https://stackoverflow.com/a/3816570/21294350) to expand variable `x` before passing it to `$`.
 ## TODO
@@ -4699,7 +4700,10 @@ B[k][j] B[k][j] ...
 - p410 see p204->~~223~~222 in COD5
   - why unnormalized operand [not fast](https://stackoverflow.com/questions/36781881/why-denormalized-floats-are-so-much-slower-than-other-floats-from-hardware-arch) mainly is trade-off of CPU architecture (TODO self design referenced in the link).
 - p426 row major vs column major, how to [choose](https://stackoverflow.com/questions/47691785/why-does-julia-uses-column-major-is-it-fast/47734127#comment82352970_47691785) which should be consistent with how to [access](https://cs.stackexchange.com/a/153479), [more](https://comp.lang.fortran.narkive.com/ry8nFrVm/historical-reason-why-fortran-has-chosen-column-major-order)
-- p427 [Newton–Raphson division](https://en.wikipedia.org/wiki/Newton%27s_method#Multiplicative_inverses_of_numbers_and_power_series) more [intuitive](https://wethestudy.com/mathematics/newton-raphson-method-how-calculators-work/)
+- p427 [Newton–Raphson division](https://en.wikipedia.org/wiki/Newton%27s_method#Multiplicative_inverses_of_numbers_and_power_series) 
+  more [intuitive](https://wethestudy.com/mathematics/newton-raphson-method-how-calculators-work/) where different pink lines represent different approximation cycles.
+  First [see](https://en.wikipedia.org/wiki/Newton's_method#Description) to get the basic idea.
+  - [COD_RISCV_2nd_A_appendix] 
 - p448
   - [exceptions or interrupts](https://www.microcontrollertips.com/exceptions-traps-and-interrupts-whats-the-difference-faq/) 
     - this is different from how csapp defined them:
@@ -5329,6 +5333,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - how [counting sort](https://en.wikipedia.org/wiki/Counting_sort) sort? mainly by $count[i] = count[i] + count[i - 1]$
   - why radix sort -> TLB miss, see [this](../references/other_resources/COD/references/rahman2001.pdf), 1. p3, 'working set' because each sort will be through the whole number list. 
     - TODO 1. explicit block transfer. p11 2. how PRE-SORTING help, p12 3. p9 *Reducing* working set size
+    - Also see the [codes](https://www.geeksforgeeks.org/radix-sort/) where it truly traverses the entire list too many times.
+      From [COD_RISCV_2nd_A_appendix] B-55
+      > The CPU radix sort performance varies widely, likely due to poor cache locality of its *global permutations*.
 - p869
   - [next-state function and output function](https://inst.eecs.berkeley.edu/~cs61c/fa06/labs/10/PH-B10.pdf), also see p1240
   - see p1413, the PLA and the ROM implementation is similar based on *mapping*.
@@ -5668,7 +5675,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
               also see [this](https://dournac.org/info/gpu_sum_reduction) which uses local memory (i.e. private copy) to parallel calculate global memory 
               (this is similar to nvidia [slide](https://www.olcf.ornl.gov/wp-content/uploads/2019/12/05_Atomics_Reductions_Warp_Shuffle.pdf) p14). <a id="reduction_nvidia"></a>
               It seems to have no relation with [this](https://en.wikipedia.org/wiki/Reduction_of_summands#:~:text=Reduction%20of%20summands%20is%20an,reduction%20of%20summands%2C%20and%20summation.) where has no copy and parallel and it use carry and original bit summand separately. <a id="reduction"></a>
-              - above nvida offer some pdf in p25 [reduction_1](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) and [reduction_2](https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/)
+              - above nvida offer some pdf in p25 [reduction_1](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) and [reduction_2][cuda_reduction]
                 old [`__shfl`](https://docs.nvidia.com/cuda/archive/8.0/cuda-c-programming-guide/index.html#warp-shuffle-functions)
                 - reduction_1: 
                   - two addressing: 1. p8 Interleaved Addressing which may use *same bank* in p12 because not adjacent memory addr. 2. same as above slide 3. TODO the other #... in reduction_1.
@@ -8069,6 +8076,7 @@ Notice:
 1. CUDA doc [online](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#intrinsic-functions) or [pdf][CUDA_doc]
   old ones [see](https://docs.nvidia.com/cuda/archive/8.0/cuda-c-programming-guide/index.html#warp-shuffle-functions) which has deprecated `__shfl_down` description.
 2. This is based on very old GPU architecture TESLA. So not be stuck with this section.
+3. Different architecture may have different memory models, see "Figure 6" in [Turing_Whitepaper] which imply the L1 and shared memory are coalesced.
 
 ---
 
@@ -8141,7 +8149,7 @@ something like "The programming model scales transparently to large numbers of p
   - kw: SLI-*certified* motherboard; *multiple* PCI-Express x16 slots and are *specifically* engineered for SLI configurations; *external* SLI bridge connectors; the *driver* is properly installed for all the GPUs, SLI rendering must be enabled in the NVIDIA *control panel*; treat both GPUs as *one logical* device, and divide rendering workload *automatically depending on the selected mode*.
 - [coherent or noncoherent PCI-Express](https://www.quora.com/What-is-coherent-and-non-coherent-traffic-related-to-PCIe-transactions) both keep cache-coherence while the latter just skip the cache when transaction ("marked *non-cacheable* ... no need to snoop any of the caches").
 - ["Aperture"](https://en.wikipedia.org/wiki/Aperture_(computer_memory)) is related with "a particular *peripheral* device or a memory unit".
-  In newer GPU, PCIE [replaced](https://tech-fairy.com/history-of-graphics-card-motherboard-slots-pci-vs-agp-vs-pci-express-vs-integrated-graphics/) AGP which may be used in [2006](https://forums.tomshardware.com/threads/what-is-graphics-aperture-size.850830/).
+  In newer GPU, PCIE [replaced](https://tech-fairy.com/history-of-graphics-card-motherboard-slots-pci-vs-agp-vs-pci-express-vs-integrated-graphics/) AGP which may be used in [2006](https://forums.tomshardware.com/threads/what-is-unified-aperture-size.850830/).
 - [shader](https://en.wikipedia.org/wiki/Shader#:~:text=Vertex%20shaders%20describe%20the%20attributes,one%20(updated)%20vertex%20out.) just add attributes.
 - ["Rasterizer"](https://en.wikipedia.org/wiki/Rasterisation) is related with [this](#graphic_image)
 - B-10
@@ -8169,7 +8177,8 @@ something like "The programming model scales transparently to large numbers of p
       At least `__fsqrt_`, etc., is SFU.
   - [TPC](https://www.geeks3d.com/20100318/tips-what-is-a-texture-processor-cluster-or-tpc/) include [SMC: SM controller][Tesla_ARCHITECTURE]
   - other abbr see [this](https://people.cs.pitt.edu/~melhem/courses/3580p/gpu.pdf) or [Tesla_ARCHITECTURE]
-  - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM.
+  - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM. Also see B-47
+    > directing all primitive and vertex attribute and topology *flow* in the TPC.
 - [Cg and HLSL](https://en.wikipedia.org/wiki/Cg_(programming_language)) are same thing. Also [see](https://forum.unity.com/threads/i-dont-know-the-difference-between-cg-and-hlsl-in-my-custom-shader-noob.1169453/#post-7495772)
 #### Directx 10 (2023 newest is 11)
 better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18)
@@ -8204,6 +8213,9 @@ better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18
       - materials vs Textures: ["Textures can be *one* of those things that can be contained in a material"](https://artisticrender.com/what-is-the-difference-between-materials-shaders-and-textures-in-blender/)
         TODO how used in the software.
   - "Stencil" see [directx_9] 
+    Also [wikipedia](https://en.wikipedia.org/wiki/Stencil_buffer) and [this](https://www.mathworks.com/help/parallel-computing/stencil-operations-on-a-gpu.html)
+    > In the simplest case, the stencil buffer is used to *limit the area* of rendering (stenciling).
+    > The "stencil" in this case is therefore the *3x3 region* around each element
   - depth buffer See [directx_9], more [detailed](http://archive.gamedev.net/archive/reference/programming/features/occlusionculling/) <a id="depth_buffer"></a>
   - ["Render Target"](https://en.wikipedia.org/wiki/Render_Target) is "intermediate memory buffer".
 - B-14
@@ -8321,6 +8333,9 @@ See [this](#notice)
   "analogous" is only based on that they "can be *safely ignored* ... but must be considered in the code structure when designing for *peak performance*.". <a id="safely_ignored"></a>
   - "2-by-2 pixel quad" is to calculate [Derivatives](http://www.aclockworkberry.com/shader-derivative-functions/) referenced [here](https://www.gamedev.net/forums/topic/700823-how-fragment-derivatives-are-actually-evaluated-within-the-2x2-group/5399275/)
     Also [see](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/deriv-rtx-coarse--sm5---asm-)
+    - TODO [relation](http://c0de517e.blogspot.com/2008/05/mipmaps-generation-and-level-selection.html) with mipmap
+      > On modern hardware (GPU) mipmaps are chosen according to *UV gradients*
+    - also [application](https://forum.beyond3d.com/threads/which-parts-of-the-gpu-exactly-process-2x2-pixels-at-once.50107/#post-1507459) in the pixel shader.
   - "If the number of active warps times the clocks per warp exceeds the pipeline latency, the programmer can ignore the pipeline latency" means *independent* warps in parallel *hides* the pipeline latency.
 
     As book says "Different warps execute independently", "a round-robin schedule of eight warps has a period of 32 cycles between successive instructions for the same warp" due to ($4*8=32$ where 8 is due to round-robin (i.e. interleaved execution) ) may be due to *only one dispatch unit* to schedule the instructions.
@@ -8890,7 +8905,15 @@ See [this](#notice)
   - modularity -> pass a group as an explicit *parameter* -> explicitly tell *what* to `__syncthreads();`
   - TODO "statically sized group"
   - ["parallel_Scan"](#parallel_Scan)
-    Also see [parprefix] which is part of [this](https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda)
+    Also see [parprefix] which is part of [this](https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda) and also original [paper][ScanPrimitives] by [COD_RISCV_2nd_A_appendix] B-58
+    - [ScanPrimitives]
+      - [this](https://developer.nvidia.com/gpugems/gpugems2/part-iv-general-purpose-computation-gpus-primer/chapter-36-stream-reduction) -> [this](http://cva.stanford.edu/classes/cs99s/papers/hillis-steele-data-parallel-algorithms.pdf)
+      - scan definition
+        i.e. multi levels of loops
+        > The *multipass* technique to perform a running sum is called a scan
+        > This can be used to the algorithm's advantage in *another pass*, where the stream sums itself with records indexed *two values to the left* and saves the result to a new stream. Now each record in the new stream effectively has added the number of null records at *zero, one, two, and three* records to its left, because the record two items to the left in the previous stream *already added the third item in the first pass*.
+    - [Blelloch](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf) in [COD_RISCV_2nd_A_appendix] B-60
+      - TODO "FIGURE 1.8" has the data dependency.
     - p6 should be ~~`d := 0` to begin from `x_1`~~ $k\ge 2^{d-1}$.
     - Why use double buffer:
       > The results of one warp will be *overwritten* by threads in another warp.
@@ -8995,6 +9018,7 @@ See [this](#notice)
       - TODO also see [1](https://forums.developer.nvidia.com/t/warp-divergence-in-independent-thread-scheduling/188557) [2](https://forums.developer.nvidia.com/t/does-the-new-independent-thread-scheduling-give-better-performance/111499)
       p13
       > GPU Processing Clusters (GPCs), Texture Processing Clusters (TPCs), Streaming Multiprocessors (SMs), 
+      The TPC also "texture/processor cluster (TPC)" in [COD_RISCV_2nd_A_appendix] B-46
       See Figure 4,5,10,11,12,13,
       
       Figure 5 implies SIMT in warp scheduler.
@@ -9128,7 +9152,11 @@ See [this](#notice)
   - > Noninteger coordinates invoke a bilinear weighted interpolation of the four closest values (for a 2D texture) before the result is returned to the program.
     So plus [0.5](https://forums.developer.nvidia.com/t/when-is-cudareadmodenormalizedfloat-cudareadmodeelementtype/29404/2), also [see](https://www.reedbeta.com/blog/texture-gathers-and-coordinate-precision/)
 - some types of [casts](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#operand-size-exceeding-instruction-type-size-relaxed-type-checking-rules-destination-operands)
-- ROP see [Tesla_ARCHITECTURE] Figure 1
+- ROP (raster operation processor) see [Tesla_ARCHITECTURE] Figure 1
+  Also [see](https://en.wikipedia.org/wiki/Render_output_unit)
+  > The pixel pipelines take pixel (each pixel is a dimensionless point) and texel information and process it, via specific matrix and vector operations, *into a final pixel or depth value*; this process is called rasterization
+  And [also](https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems/gpugems_ch28.html)
+  > raster operations (often called the ROP), is responsible for reading and writing *depth and stencil*, doing the depth and stencil comparisons, reading and writing *color*, and doing alpha blending and testing. As you can see, much of the ROP workload taxes the available *frame-buffer bandwidth*.
 - B-42 
   - storage formats depends on the [implementation](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html) although 16-bit may be [preferred](https://en.wikipedia.org/wiki/IEEE_754#Binary).
     > A floating-point storage format specifies how a floating-point format is *stored in memory*. The IEEE standard defines the formats, but it leaves to implementors the choice of storage formats.
@@ -9137,6 +9165,7 @@ See [this](#notice)
 - [pineiro2005]
   - says why use $log_2$ 
     because binary floating.
+    and its range size is 1 so easier to interpolate.
   - See Fig. 1
     To use Quadratic Interpolator, it must be only used in one **finite range**.
     - here "Square root" should both $X\in (1,2)$.
@@ -9740,6 +9769,9 @@ Device 0: "NVIDIA GeForce GTX 1650"
 deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 12.2, CUDA Runtime Version = 12.2, NumDevs = 1, Device0 = NVIDIA GeForce GTX 1650
 Result = PASS
 ```
+- B-49
+  > provides 1024 scalar 32-bit registers for up to 96 threads
+  Above 65536 regs/1024 threads -> 64 regs/thread
 ##### TODO
 - [Occupancy Calculator](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator) from [this](https://stackoverflow.com/a/9986071/21294350)
 ##### [Scalable_CUDA]
@@ -11916,7 +11948,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [booth1951]:../references/papers/SD_Radix_Multiplier/booth1951.pdf
 [Generalized_Multibit_Recoding]:../references/papers/SD_Radix_Multiplier/Generalized_Multibit_Recoding.pdf
 [Digital_Computer_Arithmetic]:../references/papers/SD_Radix_Multiplier/Digital_Computer_Arithmetic.pdf
-[pineiro2005]:../references/papers/pineiro2005.pdf
+[pineiro2005]:../CUDA/doc/papers/pineiro2005.pdf
 [Radix_8_Multiplier]:../references/papers/SD_Radix_Multiplier/A_Radix-8_Multiplier_Unit_Design_for_Specific_Purp.pdf
 [fast_hybrid_multiplier]:../references/papers/SD_Radix_Multiplier/a-fast-hybrid-multiplier-combining-booth-and-wallacedadda-algori.pdf
 [partially_rounded]:../references/papers/partially-rounded-smallorder-approximations-for-accurate-hardwar.pdf
@@ -12008,6 +12040,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [improving_gpu_oversubscription_performance]:https://developer.nvidia.com/blog/improving-gpu-memory-oversubscription-performance/
 [warp_aggregation]:https://developer.nvidia.com/blog/cuda-pro-tip-optimized-filtering-warp-aggregated-atomics/
 [gpu_shared_mem]:https://developer.nvidia.com/blog/using-shared-memory-cuda-cc/
+[cuda_reduction]:https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/
 
 [GPU_list]:https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 
@@ -12015,6 +12048,8 @@ Dump of assembler code for function _Z6kernelPfi:
 [Warp_Vote]:https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=__activemask#warp-vote-functions
 [brief_CUDA_API]:https://icl.utk.edu/~mgates3/docs/cuda.html_node
 [cuda_addressing]:https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#addresses-as-operands
+[Turing_Whitepaper]:../CUDA/doc/whitepapers/NVIDIA-Turing-Architecture-Whitepaper.pdf
+[parprefix]:../CUDA/doc/papers/parprefix.pdf
 
 <!-- cppreference -->
 [memory_order_Explanation]:https://en.cppreference.com/w/cpp/atomic/memory_order#Constants

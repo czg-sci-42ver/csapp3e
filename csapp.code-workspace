@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "../../../../../var/lib/dkms/AMDPowerProfiler/10.0"
+		},
+		{
+			"path": "../../../../../home/czg/cuda-samples"
 		}
 	],
 	"settings": {
