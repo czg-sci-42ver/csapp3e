@@ -180,6 +180,21 @@
   - [full subtractor](https://www.geeksforgeeks.org/full-subtractor-in-digital-logic/) similar to full adder, here with borrow.
 - `(RSQRT*)` in x86 error [$1.5 ∗ 2^{−12}$](https://www.felixcloutier.com/x86/rsqrtps)
   while in cuda, error is [0/1 ulp](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#id125) (i.e. $2^{-52}*2^{exponent}$ for IEEE binary64 )
+- > although this has improved in the latest Penryn CPU family with its *faster 4-bit divider*.
+  See [intel_SOM] p916 Or the referenced [one][intel_SOM_248966_016] from [this](https://en.wikichip.org/wiki/File:intel-ref-248966-016.pdf?page=7) by [COD_RISCV_2nd_A_appendix] B-70.
+  - Also see p964
+    > Radix-1024 floating point divider
+#### radix-16 divider
+it may be more easier for the later radix-16 multipler.
+- [ATKINS_radix] from the [pattent](https://patentimages.storage.googleapis.com/cf/af/6f/2c6e86d325192f/US5023827.pdf) by googling "radix-16 divider quotient selection".
+  - from "RANGE RESTRICTIONS", it is similar to the common radix-10 division in [14_High_RadixDividers] p6.
+    - [14_High_RadixDividers] is from "radix divisor example" [google image](https://www.google.com/search?newwindow=1&q=radix+divisor+example&tbm=isch&source=univ&fir=ZAn1L4h0J60__M%252CV_DphMSS0WSqgM%252C_%253BHMS8VTWGEJaEgM%252CRlvp52rv7K8o_M%252C_%253B1k3xfPNgs2pmOM%252CDexzdsejYBHYKM%252C_%253B6BJoW9ovp9v8vM%252ChPIaNBvTkj0WKM%252C_%253BpbXpAvm3H7mruM%252C24ps1mm5NwPo5M%252C_%253BrxT1DG6eunSP8M%252CfcTkPN4X7OeqCM%252C_%253BA5q1MICoZPNT8M%252C4QcJAYr1jvLtAM%252C_%253BGacV6zW3ymDymM%252CrqxP3R1fKGnVRM%252C_%253BxTjohTXl3vrHoM%252C4QcJAYr1jvLtAM%252C_%253BgKNkABuLSgi0IM%252ChPIaNBvTkj0WKM%252C_&usg=AI4_-kRHHLUpfke5Kje1eAdjnK2gelxn9Q&sa=X&ved=2ahUKEwjD-t2sldGAAxWqg_0HHfT2Ag8Q7Al6BAgfEEU&biw=1231&bih=641&dpr=1.5) and then [this](https://www.researchgate.net/figure/Examples-of-high-radix-division-with-integer-and-fractional-operands_fig1_262836257)
+    But here take negative quotient in account. Compare p8 and p12 in [14_High_RadixDividers] where the latter has negative x-axis value.
+    - Also [see](https://www.jucs.org/jucs_1_1/high_radix_division_with/Fenwick_P.html)
+    - From p17 in [14_High_RadixDividers], although $p_0$ is dividend, but it may need to be converted to at the **same radix point** with the divisor.
+    - TODO here $k$ may be $\frac{1}{2}$ because radix-4 table the max absolute is 2 which is 
+      $\frac{1}{2}*4$.
+    - TODO read book "Computer Arithmetic: Algorithms and Hardware Designs".
 #### CUBLAS
 - SGEMM -> [`cublasGemmEx`](https://docs.nvidia.com/cuda/cublas/index.html#cublasgemmex)
 # Computer Graphics books
@@ -209,6 +224,8 @@
 [gpusort_ipdps09]:../CUDA/doc/papers/gpusort-ipdps09.pdf
 [Ble93]:../CUDA/doc/papers/Ble93.pdf
 [ScanPrimitives]:../CUDA/doc/papers/ScanPrimitives.pdf
+[ATKINS_radix]:../references/papers/radix_divisor/ATKINS_radix.pdf
+[14_High_RadixDividers]:../references/papers/radix_divisor/14-High-RadixDividers.pdf
 
 <!-- FMA -->
 [2012_03_bfpfma]:../references/papers/2012_03_bfpfma.pdf
@@ -222,3 +239,6 @@
 
 <!-- cuda -->
 [parprefix]:../CUDA/doc/papers/parprefix.pdf
+
+[intel_SOM]:../references/x64_ISA_manual_intel/intel_Software-Optimization-Manual.pdf
+[intel_SOM_248966_016]:../references/x64_ISA_manual_intel/intel-ref-248966-016.pdf

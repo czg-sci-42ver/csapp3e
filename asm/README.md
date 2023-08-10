@@ -4703,7 +4703,12 @@ B[k][j] B[k][j] ...
 - p427 [Newton–Raphson division](https://en.wikipedia.org/wiki/Newton%27s_method#Multiplicative_inverses_of_numbers_and_power_series) 
   more [intuitive](https://wethestudy.com/mathematics/newton-raphson-method-how-calculators-work/) where different pink lines represent different approximation cycles.
   First [see](https://en.wikipedia.org/wiki/Newton's_method#Description) to get the basic idea.
-  - [COD_RISCV_2nd_A_appendix] 
+  - Also see [COD_RISCV_2nd_A_appendix] B-70 -> [intel_SOM] p480
+    1. here $1/N*(1-E)$ get the error which is less than 
+      $2^{-11}$ because `rcp(N)` "approxi-mately *11*-bit precision."
+    2. then similarly $1/N*(1-E^2 )$ -> 22-bit precision.
+    - relations with "Newton–Raphson method": `X_0*(1+1-N*X_0 )` -> `X_0*(2-N*X_0 )` correspond to $x_n*(2-ax_n)$
+      more specifically, it is to find "the zero of $f(x)=\frac{1}{x}-a$" when $a=N$.
 - p448
   - [exceptions or interrupts](https://www.microcontrollertips.com/exceptions-traps-and-interrupts-whats-the-difference-faq/) 
     - this is different from how csapp defined them:
