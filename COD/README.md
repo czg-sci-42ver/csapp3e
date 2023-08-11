@@ -67,10 +67,11 @@
         Also [codes](https://prideout.net/clip-planes)
     - setup
       - [edge equation](http://groups.csail.mit.edu/graphics/classes/6.837/F98/Lecture7/triangles.html)
+    - [rasterizer](https://computergraphics.stackexchange.com/questions/4062/why-do-gpus-still-have-rasterizers#comment5403_4062) says why is is not programmable -> fixed-function.
     - [zcull](https://en.wikipedia.org/wiki/Z-buffering)
       > In the end, the z-buffer will allow correct reproduction of the usual depth perception: a close object *hides* one further away. This is called z-culling.
 - pixel [vs](https://stackoverflow.com/a/45373885/21294350) fragment
-- Supersampling and Multisampling
+- [Supersampling](https://en.wikipedia.org/wiki/Supersampling) and Multisampling
   See [this](https://mynameismjp.wordpress.com/2012/10/24/msaa-overview/) from [this](https://hero.handmade.network/forums/code-discussion/t/973-difference_between_supersampling_and_multisampling#5500)
   - Oversampling
     > Oversampling is the process of sampling a signal at some rate that’s *higher* than our intended final output, and then *reconstructing* and resampling the signal again at the output sample rate.
@@ -78,12 +79,16 @@
     > we can observe that aliasing of triangle visibility function (AKA geometric aliasing) only occurs at the *edges* of rasterized triangles.
     > Where MSAA begins to differ from supersampling is when the pixel shader is executed. In the standard MSAA case, the pixel shader is *not executed for each* subsample.
   - [Also](https://forum.beyond3d.com/threads/dumb-question-msaa-vs-ssaa-what-is-the-big-differences.18849/#post-451925)
+  - B-77 [related](https://en.wikipedia.org/wiki/Spatial_anti-aliasing#Super_sampling_/_full-scene_anti-aliasing) with FSAA (full-scene anti-aliasing)
 - GDDR3 [vs](https://superuser.com/a/860811/1658455) DDR3
   > Graphics cards *move a lot of data around* and its needs aren’t the same as that of the processor. Because of this, graphics cards need memory that is much *faster* than what the processor actually needs. GDDR3 fulfills this need but at a much higher cost.
+  > The main reason why GDDR3 is much faster is its ability to do a read and a write *within the same cycle*.
 - SGEMM is included in [BLAS3](https://www.netlib.org/blas/#_level_3)
 - FIGURE B.7.3,4 -> ["Figure 6"](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2008/EECS-2008-49.pdf)
 - in-place FFT: [codes](https://developer.apple.com/documentation/accelerate/fast_fourier_transforms/in-place_functions_for_1d_real_fft), [description](https://dspguru.com/dsp/faqs/fft/)
 - [FSB](https://www.cpu-upgrade.com/mb-MSI/G31M3-F_(FSB_1600).html)
+#### CUBLAS
+- SGEMM -> [`cublasGemmEx`](https://docs.nvidia.com/cuda/cublas/index.html#cublasgemmex)
 ### B.8
 - TODO [conjugate gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method#Derivation_as_a_direct_method)
 - ["unstructured sparsity (aka random sparsity) patterns"](https://towardsdatascience.com/speeding-up-deep-learning-inference-via-unstructured-sparsity-c87e3137cebc)
@@ -184,6 +189,45 @@
   See [intel_SOM] p916 Or the referenced [one][intel_SOM_248966_016] from [this](https://en.wikichip.org/wiki/File:intel-ref-248966-016.pdf?page=7) by [COD_RISCV_2nd_A_appendix] B-70.
   - Also see p964
     > Radix-1024 floating point divider
+- > the *limitations in register capacity* lead to many MOV instructions
+  implies GPU is the load/store architecture.
+### B.9
+- Fallacy
+  - 1
+    - > address memory independently. 
+      independent page table, which is also said in one nvidia blog.
+    - Also see [asm_doc] "GPU_CPU_thread_diff" and "SIMD_VS_SIMT".
+    - > Execution is more efficient if individual thread load/store memory accesses can be *coalesced* into block accesses, as well. However, thisis *not strictly necessary*.
+      This is also said in one nvidia blog.
+  - 2
+    - > so the Moore’s law rate can clearly be *exceeded* by *spending more* for larger chips with more transistors.
+    - > The most challenging rate limiter appears to be the memory system, but *competitive innovation* is advancing that rapidly too.
+      maybe see [asm_doc] NVLink
+    - "data compression" -> video.
+  - 3
+    - TODO [pros-and-cons-of-hlsl-vs-glsl-vs-cg](https://gamedev.stackexchange.com/questions/4234/what-are-the-pros-and-cons-of-hlsl-vs-glsl-vs-cg)
+      mainly depends on the platforms, the cards, OpenGL/Direct3D compatibility, etc.
+    - TODO what is the true differences between the Turing machine and the Push down automata.
+      [definition_1](https://chortle.ccsu.edu/StructuredC/Chap01/struct01_5.html)
+      > The mathematical model for a Turing machine includes an *unlimited* amount of memory and *no limit* on how long a computation can take (as long as it finishes in a finite amount of time.)
+      maybe means it can *simulate* one unlimited resource machine.
+      Also [this](https://qr.ae/pyxWGO)
+      > The turning Machine has Infinite tape length and storage, PDA has *limited(stack)*.
+      
+      [This](https://shaunak-mahajan19.medium.com/pushdown-automata-vs-turing-machine-fa1607ddcfef#:~:text=Pushdown%20Automata%20is%20not%20Deterministic,position%20on%20the%20infinite%20tape.)
+      > A Pushdown Automata can access *only top of the stack* as it works on the Last In First Out(LIFO) concept where as the Turing Machine can access *any position on the infinite tape*.
+      See the [example](https://en.wikipedia.org/wiki/Turing_machine#%22State%22_diagrams)
+      - diff Pushdown Automata vs the finite-state machine.
+        plus the *stack*.
+    - TODO "indexed arithmetic representation (lookup tables for colors)"
+      [lookup tables for colors](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color)
+- Pitfall
+  Maybe wrong on some conditions (TODO maybe this is the differences between pitfalls and fallacies)
+  > So, the pitfall is that for the “just use more threads” strategy to work for covering latency, you have to have enough threads, and the threads have to be well-behaved *in terms of locality* of memory access.
+  - 2
+    - > the concurrent operations of copy-in, copy-out and computation
+      > This model is useful for any data stream that can be processed *as it arrives.*
+      TODO this is similar to one pattern of the CPU.
 #### radix-16 divider
 it may be more easier for the later radix-16 multipler.
 - [ATKINS_radix] from the [pattent](https://patentimages.storage.googleapis.com/cf/af/6f/2c6e86d325192f/US5023827.pdf) by googling "radix-16 divider quotient selection".
@@ -194,11 +238,59 @@ it may be more easier for the later radix-16 multipler.
     - From p17 in [14_High_RadixDividers], although $p_0$ is dividend, but it may need to be converted to at the **same radix point** with the divisor.
     - TODO here $k$ may be $\frac{1}{2}$ because radix-4 table the max absolute is 2 which is 
       $\frac{1}{2}*4$.
-    - TODO read book "Computer Arithmetic: Algorithms and Hardware Designs".
-#### CUBLAS
-- SGEMM -> [`cublasGemmEx`](https://docs.nvidia.com/cuda/cublas/index.html#cublasgemmex)
+### B.10
+- [multitexturing](http://what-when-how.com/opengl-programming-guide/multitexturing-texture-mapping-opengl-programming/)
+- unified processor GPU definition
+  > *unified* processor GPU in 2005, allowing vertex and pixel shaders to *execute on the same* processor.
+- B-78 
+  - says about what the vertex shader and many other shaders do.
+  - > ... Combined with a pixel shader workload that is usually compute-limited,
+    says reasons of divergence between the CPU and GPU development.
+  - TODO more about fixed-function stages.
+- ~~TODO how realized~~ maybe by running other threads when some are stalled.
+  > higher operating frequency than standard-cell methodologies had allowed
+  [standard-cell methodologies](https://en.wikipedia.org/wiki/Standard_cell#:~:text=Standard%2Dcell%20methodology%20is%20an,(dielectric%20has%20been%20removed).) means encapsulation.
+- > this favored designing one processor
+  because then the clock is unified.
+- [clipping](https://stackoverflow.com/questions/6243411/clipping-polygon-against-rectangle) to a rectangle shape
+- [speed binning](https://en.wikipedia.org/wiki/Product_binning) and packaging
+- > applications  using task parallelism must be rewritten frequently
+  because tasks are more difficult to be [independent](https://en.wikipedia.org/wiki/Task_parallelism).
+  > task parallelism is distinguished by running many *different tasks* at the same time on the *same data*.[1] A *common* type of task parallelism is *pipelining*, which consists of moving a single set of data through a series of separate tasks where each task can execute *independently* of the others.
+  B-81
+  >encourages the use of many-fold data parallelism and thread parallelism, which *readily* scales to thousands of parallel  threads  on  many  processors. 
+- "fine-grained and coarse-grained parallelism" See [asm_doc] GPU_fine_grained.
+## C
+- microprogram
+  - See [this](https://www.geeksforgeeks.org/computer-organization-hardwired-vs-micro-programmed-control-unit/) figures
+    - TODO [Vertical Micro-programmed](https://www.geeksforgeeks.org/difference-between-horizontal-and-vertical-micro-programmed-control-unit/)
+      > It allows a low degree of parallelism i.e., the degree of parallelism is *either 0 or 1*.
+- "FIGURE C.2.2" is based on "FIGURE C.2.1" where the ~~opcode~~ "Funct field" must be *valid*.
+  - a
+    - The 1st line should be `X 1`.
+  - > a signal and its complement as inputs to an AND gate to *generate 0*.
+    This constant 0 functions like one latch which will keep the state 0.
+- > For example, the encoding 11 for ALUOp always generates a don’t care in the output.
+  because the `11` is not one valid ALUOp code. See [asm_doc] "truth_table_hardware".
+  > it may not completely describe the logic function.
+  So has the above statement where not take the *invalid conditions* in account.
+- FIGURE C.2.4
+  - here `X` can be *anything*, so `sw` can get `RegDst` by AND of all NOT inputs.
+### C.3. This has been almost learnt in the before verilog code.
+- `state9` may mean "start".
+- "logical sum" -> OR.
+- See [asm_doc] "A-15" 
+  where row -> AND gate input. 
+  column -> AND gate output.
+  > each row corresponds to *one of the $2^n$ unique input* combinations, and a set of *columns indicates which outputs* are active for that input combination
+- "deal with these exceptions and interrupts opcodes in Section 4.9."
+  See "FIGURE 4.67".
 # Computer Graphics books
 - [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3) vs "[11]" referenced in [pineiro2005]
+# logic design book
+- "Computer Arithmetic: Algorithms and Hardware Designs" from [14_High_RadixDividers]
+  Also C-20
+  > the references for books on logic design, see Appendix A.
 
 ---
 
@@ -242,3 +334,5 @@ it may be more easier for the later radix-16 multipler.
 
 [intel_SOM]:../references/x64_ISA_manual_intel/intel_Software-Optimization-Manual.pdf
 [intel_SOM_248966_016]:../references/x64_ISA_manual_intel/intel-ref-248966-016.pdf
+
+[asm_doc]:../asm/README.md

@@ -1,5 +1,6 @@
-This doc records all csapp contents and COD contents until B-43
-Since it is too large to be rendered, newer contents [see](../COD/README.md).
+1. This doc records all csapp contents and COD contents until B-43
+  Since it is too large to be rendered, newer contents [see](../COD/README.md).
+2. Not rename the downloaded paper name totally without keeping the original paper name substring.
 # what to learn
 - See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) ([i.e.](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/)) for what to learn.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800) 
@@ -36,7 +37,7 @@ Since it is too large to be rendered, newer contents [see](../COD/README.md).
 ## TODO
 - why [glibc](https://stackoverflow.com/questions/57650895/why-does-glibcs-strlen-need-to-be-so-complicated-to-run-quickly) defined strlen somewhat complicated. 1. at least for alignment. In ['glibc-2.37'](https://github.com/bminor/glibc/blob/glibc-2.37/string/strlen.c), it is same as the Q&A shows. but later [changed](https://github.com/bminor/glibc/commit/350d8d13661a863e6b189f02d876fa265fe71302#diff-dcfbf226df3ebab574846a48fc7f2f69d6aa1bde910adcc24065d80597691e73)
   - better view sourceware [code repo](https://sourceware.org/git/?p=glibc.git;a=blob;f=string/strlen.c;hb=HEAD)
-- what is the differences between fallacy and pitfalls in [COD_RISC_V_Orig].
+- ~~what is the differences between fallacy and pitfalls in [COD_RISC_V_Orig].~~
 - try [hyperdbg](https://hyperdbg.github.io/commands-map/) which not supports amd now and support [hypervisor](https://docs.hyperdbg.org/getting-started/faq).
 ## regex
 - positive lookahead ["?="](https://stackoverflow.com/a/2973495/21294350)
@@ -3336,7 +3337,7 @@ __readdir (DIR *dirp)
 ### p1049
 - most `while(1)` is related with state machine.
 ### Figure 12.14
-- p1030: although thread has its own stack area but all thread stacks are resided in ‘stack area of the virtual address space’, so can be **shared** by pointer.
+- p1030: although thread has its own stack area but all thread stacks are resided in 'stack area of the virtual address space', so can be **shared** by pointer.
 ```cpp
 /*
 here `connfd` is located in main thread stack and `&connfd` is same for all peer threads, so results in race condition.
@@ -4732,9 +4733,11 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
 - p500 ALUop [implemented p5](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) in `opcode` (different from [this p41](https://passlab.github.io/CSE564/notes/lecture08_RISCV_Impl.pdf))
   - TODO relation with actual instruction [binary](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#add)
   - how related [hardware p12 (based on truth table)][truth_table] implemented <a id="truth_table_hardware"></a>
+    - [truth_table] p4 says about definitions of ALUop.
+      - Also see [COD_RISCV_2nd_A_appendix] FIGURE 4.12.
     - the whole [ALU	control](https://cs.wellesley.edu/~cs240/f14/lectures/18-control.pdf)	signals including `NOR`
     - TODO how Function code in p6 above defined
-    - [this p4 (COD also says in appendix p1191)](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALUop"></a>
+    - [this p4 (COD also says in appendix p1191 / A-35 (notice these two aren't same))](https://ece.uwaterloo.ca/~cgebotys/NEW/ECE222/4.Processor.pdf) how ALU control are encoded, so NOR: `~(a|b)=(~a)&(~b)` <a id="ALUop"></a>
       "FIGURE A.5.12" implies "FIGURE A.5.13"
       
 - 'FIGURE 4.49','FIGURE 4.52 '
@@ -6005,7 +6008,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - TODO here [jalr](https://stackoverflow.com/questions/53036468/what-is-the-definition-of-jal-in-risc-v-and-how-does-one-use-it) maybe just indirect, not return always
 #### [registers](https://en.wikichip.org/wiki/risc-v/registers),see this more [specific](https://msyksphinz-self.github.io/riscv-isadoc/html/regs.html) which is from manual chapter 25
 - [global](https://five-embeddev.com/quickref/global_pointer.html) pointer function like base pointer related with 'Global variables'
-- [thread pointer](https://www.indes.com/embedded/en/news/2020/12/450_Code_size__Closing_the_gap_between_RISC-V_and_Arm_for_embedded_applications/) (see link 'second global base','the model for the thread pointer') only used in 'thread-local' (thread [share](https://stackoverflow.com/questions/1762418/what-resources-are-shared-between-threads) (also see csapp)) 
+- [thread pointer](https://www.indes.com/embedded/en/news/2020/12/450_Code_size__Closing_the_gap_between_RISC-V_and_Arm_for_embedded_applications/) (see link 'second global base','the model for the thread pointer') only used in 'thread-local' (thread [share](https://stackoverflow.com/questions/1762418/what-resources-are-shared-between-threads) (also see csapp p1022))
+  > but threads share all *segments* except the stack.
+  > however the memory in other thread stacks is still accessible and in theory you could hold a *pointer* to memory in some other thread's *local stack frame*
 - [alternate link register](https://stackoverflow.com/questions/44556354/jal-what-is-the-alternate-link-register-x5-for) ('clobber the link register') used in [Millicode](https://en.wikipedia.org/wiki/Millicode) with [prologue and epilogue](https://en.wikipedia.org/wiki/Function_prologue_and_epilogue)
   - pdf link [1](https://escholarship.org/uc/item/7zj0b3m7#page=59) or [2](https://news.ycombinator.com/item?id=19165301)
 - here [saved](https://stackoverflow.com/questions/64545005/which-registers-are-saved-and-not-saved-in-risc-v) (similar to x86-64 design) is related with **callee**
@@ -7800,8 +7805,23 @@ This "controversial" is due to "von Neumann" refused to use floating.
   - See ROM [categories](https://www.electrical4u.com/read-only-memory/)
   - TODO ROM [logic](https://www.javatpoint.com/rom)
 - A-15
-  - here ROM just map the whole table instead of reusing *gate* logics. -> "fully decoded".
+  - here ROM just map the whole table instead of reusing *gate* logics. -> "*fully* decoded".
+    This is the differences from PLA. Also see C-19
+    > The reason that so much of the ROM is wasted is that the ROM implements the *complete* truth table
     "contain more entries" -> at least all $0$ outputs.
+      - Also see C-20
+        > the size of a PLA cell will be only *slightly larger* than the size of a bit in a ROM
+
+        PLA can be [same](https://tams-www.informatik.uni-hamburg.de/applets/hades/webdemos/42-programmable/10-pla/pla.html) as ROM or not by using [MOS in "Ultra Large-Scale Integration Design"](https://www.sciencedirect.com/topics/computer-science/programmable-logic-array).
+        ![](https://ars.els-cdn.com/content/image/3-s2.0-B0122274105007961-gr19.gif)
+
+      - Also [FPLA](https://electronics.stackexchange.com/a/15737/341985)
+    - Notice: ROM has [no internal registers](https://learn.adafruit.com/digital-circuits-5-memories/read-only-memory) like RAM where we use the resistor controlling the output when turnon by the diode to be `0` and then invert it to be `1`.
+      and the decoder only enables one *row*.
+      then [COD_RISCV_2nd_A_appendix] C-16
+      > each row corresponds to one of the $2^n$ unique input combinations,
+      - But from C-19, it may also be able to be similar ot DRAM by using row and column addressing.
+        > 0001 to find the row and 100011 to find the column)
     - 8 entries -> 8 rows in A-14.
     - 3 bits wide -> 3 outputs.
     - Also see [this](https://madpcb.com/glossary/logic-device/) where 
@@ -8184,6 +8204,11 @@ something like "The programming model scales transparently to large numbers of p
   - other abbr see [this](https://people.cs.pitt.edu/~melhem/courses/3580p/gpu.pdf) or [Tesla_ARCHITECTURE]
   - "geometry controller" is related with "recirculation" in "FIGURE B.2.4" to *reuse* the SM. Also see B-47
     > directing all primitive and vertex attribute and topology *flow* in the TPC.
+    
+    Also see B-79
+    > physically a recirculating path that visits these processors *three times*,
+    This implies 
+    > the three programmable graphics stages are mapped to an array of *unified processors*;
 - [Cg and HLSL](https://en.wikipedia.org/wiki/Cg_(programming_language)) are same thing. Also [see](https://forum.unity.com/threads/i-dont-know-the-difference-between-cg-and-hlsl-in-my-custom-shader-noob.1169453/#post-7495772)
 #### Directx 10 (2023 newest is 11)
 better view 11 doc which is referenced in 10 (like "Input-Assembler Stage" in 18)
@@ -8279,7 +8304,7 @@ See [this](#notice)
 - check [SM count](https://superuser.com/a/198309/1658455)
   SP is same as [CUDA core](https://www.cgdirector.com/cuda-cores-vs-stream-processors/#:~:text=Stream%20Processors%20and%20CUDA%20Cores,use%20their%20own%20unique%20architecture.) also see ["500 CUDA Cores and the other had 500 Stream Processors ... distinctive way"](https://qr.ae/pyc1fu)
 - [Dedicated/Shared GPU Memory](https://superuser.com/a/1763829/1658455)
-- "GPU thread has its own private registers ..." is similar to the CPU counterpart. The former's "private per-thread memory" corresponds to "stack" in csapp p1029 instead of the latter shared virtual memory.
+- "GPU thread has its own private registers ..." is similar to the CPU counterpart "general-purpose register values.". The former's "private per-thread memory" corresponds to "stack" in csapp p1029 instead of the latter shared virtual memory. <a id="GPU_CPU_thread_diff"></a>
 - Register File is said before with [verilog](http://cs.middlesexcc.edu/~schatz/csc264/handouts/mips.datapath.html)
   physically they are based on SRAM with [2 more MOSs](https://en.wikipedia.org/wiki/Register_file#Array) to offer *more ports* while [SRAM](https://en.wikipedia.org/wiki/Static_random-access_memory#Design) use only one port by $BL$/$\overline{BL}$.
   - TODO "Write bit lines may be *braided*", "This optimization increases the speed of the write."
@@ -8959,8 +8984,20 @@ See [this](#notice)
       > the warp executes each branch path taken, *disabling* threads that are not on that path.
       >  a warp scheduler *selects a warp that has threads ready* to execute its next instruction (the *active* threads of the warp) and issues the instruction to *those threads*.
       implies above *inactive* thread.
-      > A key difference is that SIMD vector organizations expose the *SIMD width* to the software, whereas SIMT instructions specify the execution and branching behavior of *a single thread*.
-      the former highlights the *data* parallel by "width" while the latter is targetted at the thread.
+      - SIMD vs SIMT, also [see](#SIMD_VS_SIMT)
+        > A key difference is that SIMD vector organizations expose the *SIMD width* to the software, whereas SIMT instructions specify the execution and branching behavior of *a single thread*.
+        the former highlights the *data* parallel by "width" while the latter is targetted at the thread.
+
+        Also see [COD_RISCV_2nd_A_appendix] B-72.
+        > Although a group of threads (e.g., a warp of 32 threads) executes more efficiently when the *PCs* for the threads *are the same*, this is not necessary. So, the multiprocessors are not purely SIMD.
+        This implies SIMD is in one thread which must be synchronized.
+        > The thread execution model is *MIMD with barrier synchronization* and SIMT optimizations.
+        This implies "SI" in "SIMT" is only the *first* single instruction of the target warp. (This has been said elsewhere in this doc.)
+        > In a purely SIMD vector architecture, memory/register accesses for different threads must be *aligned in a regular* vector pattern. A GPU has no such restriction for register or memory accesses; however, execution is more efficient if warps of threads *access local blocks* of data.
+        This means SIMD -> adjacent address access while warps not necessary.
+
+        Also see [COD_RISCV_2nd_A_appendix] B-75 and this [paper](https://www.eecis.udel.edu/~cavazos/cisc879/papers/a3-han.pdf) from the [SO](https://stackoverflow.com/questions/76798409/does-conditional-evaluation-at-the-alu-always-imply-no-branch-divergence) (TODO the renamed paper name in this repo)
+        > but *only one instruction* from any thread at a time
       > In particular, any warp-synchronous code (such as synchronization-free, *intra-warp reductions*) should be revisited to ensure compatibility
       here `intra-warp` -> between warps, which can guessed ["A warp shuffle is about inter-thread communication"](https://stackoverflow.com/a/76123988/21294350) and ["intra-warp synchronization"](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#independent-thread-scheduling)
       TODO synchronization-free
@@ -9486,7 +9523,7 @@ Google:
         /*0038*/                   RED.E.ADD.F64.RN [R2], R4;
     ```
     Here [`.RN`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#rounding-modifiers-floating-point-rounding-modifiers) in [`RED`](https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#id10) (i.e. [`red`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-red)).
-    on my turing machine, `RED.E.ADD.F64.RN.STRONG.GPU [UR4], R2 ;` is shown. Here [`.gpu`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id61) and ["strong" maybe](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id60)
+    on my Turing architecture GPU machine, `RED.E.ADD.F64.RN.STRONG.GPU [UR4], R2 ;` is shown. Here [`.gpu`](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id61) and ["strong" maybe](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#id60)
     - memory fence
       [This](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#release-and-acquire-patterns) said well about release and acquire.
       >  The release pattern makes *prior* operations from the current thread1 *visible* to some operations from *other threads*. The acquire pattern makes some operations from *other threads* *visible* to later operations from the current thread.
@@ -9674,7 +9711,7 @@ Google:
 - [denormal](https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number#comment10285814_8341395) -> subnormal.
 - All SFU see the paper [areaefficient_multifunction]
 - SIMT is more like [MIMD](https://www.geeksforgeeks.org/difference-between-simd-and-mimd) (here SIMT with same I)
-- SIMD is [not](https://stackoverflow.com/a/59624515/21294350) Multi-threading
+- SIMD is [not](https://stackoverflow.com/a/59624515/21294350) Multi-threading <a id="SIMD_VS_SIMT"></a>
   Also see SO [tag](https://stackoverflow.com/questions/59623054/difference-between-simd-and-multi-threading#comment105418662_59623054)
   > you can have *multiple chefs* (multi-threading or multi-processing) who are all slicing their green beans *efficiently* (SIMD).
   > If I make an analogy with cooking a meal, then SIMD is like *lining up* all your green beans and slicing them in *one go*. The single instruction is "slice", the multiple, repeated data are the beans. In fact, lining things up ("memory *alignment*") is an important aspect of SIMD.
@@ -9686,8 +9723,8 @@ Google:
   
   ~~TODO~~ how "Fast barrier synchronization" -> [this](#fast_barrier)
   > The overhead of CPU–GPU interaction and data transfers is minimized by using *DMA* block-transfer engines and *fast interconnects*
-  - "both fine-grained and coarse-grained operations"
-    View "FIGURE 6.5", the coarse means independent between blocks, while the former is based on threads.
+  - "both fine-grained and coarse-grained operations" <a id="GPU_fine_grained"></a>
+    View "FIGURE 6.5", the coarse means independent between *blocks*, while the former is based on threads.
     the former -> branches in one kernel.
     the latter -> different kernels. 
 - notice same "instruction stream" but not exactly same instructions executed due to branches. 
