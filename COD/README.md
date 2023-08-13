@@ -1,3 +1,5 @@
+# miscs
+- [mingw-w64](https://stackoverflow.com/a/25582293/21294350)
 # appendix
 ## B
 ### CUDA
@@ -285,12 +287,221 @@ it may be more easier for the later radix-16 multipler.
   > each row corresponds to *one of the $2^n$ unique input* combinations, and a set of *columns indicates which outputs* are active for that input combination
 - "deal with these exceptions and interrupts opcodes in Section 4.9."
   See "FIGURE 4.67".
+### C.4
+- 692 vs 4.3 K
+  because the latter has one factor $2^{10}$
+- here designing opcodes by choosing shared set bit location in "related opcodes".
+  > in choosing the opcodes, the architect can provide additional opportunities by choosing *related opcodes* for instructions that are likely to *share states* in the control.
+- > can *replace the two* truth table entries that test whether the input is lw or sw by a *single test on this bit*;
+  means same as
+  > This renumbering allows us to combine the two truth table entries in part (o) of Figure C.3.4 and replace them with a single entry, eliminating one term in the control unit
+  here "eliminating one term" only applies to PLA because ROM always depends on the state *bit number* instead of state nums.
+- FIGURE C.4.6
+  [microcode](https://en.wikipedia.org/wiki/Microcode) corresponds to uop
+  and "microprogram counter" stores state number,
+  "microcode memory" defines how the state are converted to the next state. (i.e. similar to "instructions for the datapath.")
+### C.5
+- `IR` is the instruction register.
+- From FIGURE e4.5.6, "write result into IR (and the MDR)." may be wrong.
+- From "FIGURE C.5.1", the microcode functions as one *medium* to the lower hardware implementation.
+  > This process is essentially the same as the process of translating an *assembly* language program into machine instructions: the *fields* of the assembly language or microprogram instruction are translated
+- These two sentences say about what to do when *default*.
+  > Control lines that are not set, which correspond to actions, are 0 by default. Multiplexor control lines are set to 0 if the output matters. 
+  > If a multiplexor control line is not explicitly set, its output is a don’t care and is not used.
+- [Microinstruction](https://www.tutorialspoint.com/what-is-the-format-of-microinstruction-in-computer-architecture) format is similar to assembly.
+  And different architecture counterparts are different.
+  See [this](https://www.ecs.csun.edu/~cputnam/Comp546/Stallings-Appendices/20-Microprogrammed.pdf) p36 for Horizontal or Vertical format differences, p41,44 for more differences  <a id="Horizontal_Vertical_format"></a>
+- > first write the *complete microprogram* in a *symbolic notation* and then measure *how* control lines are *set* in each microinstruction.
+  ~~dynamic circuit with variable "control line" field.~~
+  Different "microprogram" has different circuits.
+- C-31 
+  - "encoding" store 3 bits instead of 8.
+    > if *no more than one* of eight lines is set *simultaneously* in the *same* microinstruction, then this subset of control lines can be encoded into a 3-bit field
+    > control lines may be encoded together if they are *only occasionally set in the same* microinstruction; *two* microinstructions instead of one are then required when *both* must be set.
+    Here two because the *decoder* can only select one control line.
+  - format field
+    - disables "any combination of operations" in one microinstruction.
+      So [above](#Horizontal_Vertical_format) [also](https://www.geeksforgeeks.org/difference-between-horizontal-and-vertical-micro-programmed-control-unit/)
+      - Also see [program example](https://inst.eecs.berkeley.edu/~cs150/fa05/CLD_Supplement/chapter12/chapter12.doc5.html)
+      - "maximally encoded" -> cause less bits -> vertical
+- C-32
+  - choices between different implementations.
+## D
+- > with large amounts of microcode, which made *single chip and pipelined implementations* more challenging
+  because microcode are constant to be saved in the chip and pipeline ~~needs to split instruction instead of ~~ is controlled by the microcode and microcode defines the pipeline complexity.
+- See [asm_doc] "ISA_virtualization".
+### D.2
+#### general
+- [SP vs LR](https://stackoverflow.com/a/8236974/21294350)
+- [Global Pointer Register](https://www.intel.com/content/www/us/en/docs/programmable/683282/current/global-pointer-register.html) -> global data.
+- [jump register](https://stackoverflow.com/a/32305904/21294350) is chosen manually.
+- > destination and two source fields are sometimes scrambled
+  i.e. replaced by constant or others.
+- > extended opcode field (or function field) and immediate field sometimes overlap or are identical.
+  This means [field overlap](https://stackoverflow.com/questions/39427092/risc-v-immediate-encoding-variants) instead of field overlap in one specific instruction.
+  > maximize overlap with the other formats andwith each other.
+- [delay slot](https://en.wikipedia.org/wiki/Delay_slot#Load_delay_slot) related with delayed branches is to function as *stall*.
+  Also [see](https://stackoverflow.com/a/59044726/21294350)
+- > the hardware need not go through the *register read pipeline* stage for return jumps.
+  Only *general-purpose registers* are considered in the register read pipeline.
+- "FIGURE D.25" says "FIGURE D.3" `B,H,W,D` meaning.
+- [Saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic#Modern_use) make overflow not cycle. See [asm_doc] "modular_overflow".
+  > aturation causes significantly less distortion to the sound than *wrap-around*
+  The *cycle back* in modular arithmetic -> wrap-around.
+  Also see D-27
+  > Saturation means that when a calculation overflows the result is set to the *largest* positive number or most negative number, rather than a *modulo* calculation as in two’s complement arithmetic.
+- FIGURE D.26
+  - ["Bit insert"](https://developer.arm.com/documentation/ddi0596/2020-12/SIMD-FP-Instructions/BIT--Bitwise-Insert-if-True-) is similar to the predicated instructions.
+  - TODO 
+    - green highlights.
+      Most of them are similar to CUDA PTX or intrinsic functions.
+    - [`splat`](https://reviews.llvm.org/D45683)
+- FIGURE D.29
+  - TODO [DEC Floating-point](https://stackoverflow.com/questions/64760137/how-to-display-dec-floating-point-format-given-32-bits-in-ieee-standard)
+#### ARM
+- D-5 PC [relation](https://developer.arm.com/documentation/dui0473/m/overview-of-the-arm-architecture/general-purpose-registers) with GPR
+  >  the ability to write the PC as a GPR
+  - it also says
+    > The C and C++ compilers always use SP as the stack pointer. Use of SP as a general purpose register is *discouraged*.
+    > When using the --*use_frame_pointer* option with armcc, do *not* use R11 as a general-purpose register.
+- newer [armv9](https://en.wikipedia.org/wiki/ARM_architecture_family#Armv9) and [detailed](https://www.arm.com/company/news/2021/03/arms-answer-to-the-future-of-ai-armv9-architecture) highlighting SVE2 (ML,DSP) and "Confidential Compute Architecture".
+- FIGURE D.7
+  - ARM
+    - > Exclusive operations: three register fields
+      i.e. 4 registers with [XOR](https://developer.arm.com/documentation/ddi0602/2021-12/SIMD-FP-Instructions/EOR3--Three-way-Exclusive-OR-).
+    - [Logical immediates](https://kddnewton.com/2022/08/11/aarch64-bitmask-immediates.html#bitmask-immediates)
+- ["reverse bytes"](https://developer.arm.com/documentation/dui0802/b/A32-and-T32-Instructions/REV--REV16--REVSH--and-RBIT) order.
+  - [Special data processing](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/Thumb-Instruction-Set-Encoding/16-bit-Thumb-instruction-encoding/Special-data-instructions-and-branch-and-exchange?lang=en)
+- [load pair](https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Memory-access-instructions/Non-temporal-load-and-store-pair) need `dsb nshld` where `nshld` may counterpart of `ld` with [`nshst`](https://developer.arm.com/documentation/dui0489/c/arm-and-thumb-instructions/miscellaneous-instructions/dmb--dsb--and-isb#id4692266_contents) to avoid reorder of the memory order.
+  - [application](https://stackoverflow.com/a/54131812/21294350)
+  - From [this][ARMv8_ISA_doc] `data2 = Mem[address+dbytes, dbytes, AccType_VECSTREAM];` they are adjacent pairs.
+    Also [see compiler doc][ARM_compiler]
+- TODO ST meaning in [`TST`](https://developer.arm.com/documentation/dui0068/b/ARM-Instruction-Reference/Conditional-execution).
+- [why](https://stackoverflow.com/a/22169950/21294350) conditional execution is dropped.
+  > redicated execution of instructions does *not offer sufficient benefit*
+  only small subset keeps "conditional execution".
+  > This set has been shown to be beneficial in situations where conditional branches *predict poorly*, or are otherwise inefficient.
+  > Trading Conditional Execution for *More Registers*
+- FIGURE D.22
+  - [`ADR`](https://developer.arm.com/documentation/ddi0596/2021-12/SVE-Instructions/ADR--Compute-vector-address-?lang=en)
+    From `Elem[result, e, esize] = addr + (offset * mbytes);`, it is similar to Scaled-index addressing
+    `for e = 0 to elements-1` implies vector.
+  - TODO why define Bit field clear shifted [`BIC`](https://developer.arm.com/documentation/ddi0597/2023-06/Base-Instructions/BIC--BICS--register---Bitwise-Bit-Clear--register--)
+  - Signed bit field move [`SBFIZ`](https://devblogs.microsoft.com/oldnewthing/20220803-00/?p=106941)
+  - [`CBNZ`](https://developer.arm.com/documentation/ddi0596/2021-12/Base-Instructions/CBNZ--Compare-and-Branch-on-Nonzero-?lang=en) provides one *hint* "indicating this is not a call or return."
+- TODO 
+  - [Adjacent add](https://stackoverflow.com/a/39421552/21294350)
+  - [Dot product add](https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/exploring-the-arm-dot-product-instructions) 
+    [`SDOT`](https://developer.arm.com/documentation/ddi0596/2020-12/SIMD-FP-Instructions/SDOT--vector---Dot-Product-signed-arithmetic--vector--)
+  - How [`SASX`](https://developer.arm.com/documentation/ddi0597/2020-12/Base-Instructions/SASX--Signed-Add-and-Subtract-with-Exchange-) used in real applications. (See 'Operation').
+- [`FCMLA`](https://developer.arm.com/documentation/ddi0596/2020-12/SIMD-FP-Instructions/FCMLA--Floating-point-Complex-Multiply-Accumulate-) seems only take regular "Argand diagram" of "the second source register" in account, i.e. "0, 90, 180, or 270 degrees.".
+#### POWER
+- [bit field manipulation](https://devblogs.microsoft.com/oldnewthing/20210609-00/?p=105293)
+- POWER [vector](https://www.princeton.edu/~rblee/ELE572Papers/AltivecPerm.pdf) operations
+- TODO why POWER has no [atomic](https://stackoverflow.com/questions/61356289/atomic-operations-in-power-other-than-ll-sc) from FIGURE D.9.
+- [summary overflow](https://devblogs.microsoft.com/oldnewthing/20180807-00/?p=99435#:~:text=The%20summary%20overflow%20bit%20accumulates,the%20carry%20bit%20in%20xer%20.) can be used as one overflow.
+  > This lets you perform a *series* of arithmetic operations and then test a single bit at the end to see if an overflow occurred anywhere *along the way*.
+  - it also says "condition registers" `cr#` which can be manipulated by `crand`, etc.
+- whether Count Register decrements depends on the implementation.
+  [`bc`](https://math-atlas.sourceforge.net/devel/assembly/ppc_isa.pdf) instruction -> decrement.
+  while [`bctrl`](https://stackoverflow.com/a/40010609/21294350) not.
+  > The counter register is often used for loops (hence the name) but *is also* very useful for *indirect branches*.
+  Also see D-24.
+  > Tests of the value of the count register in a branch instruction will *automatically decrement* the count register.
+  > *Either register* can hold a target address of a conditional branch
+- [`BPERMD`](https://www.ibm.com/docs/en/xl-fortran-linux/16.1.1?topic=extension-bpermdmask-source) just *select* bits.
+  > If byte i of MASK is less than 64, the permuted bit i is *set to the bit of source* *specified* by byte i of MASK;
+- [`DRAN`][POWER3_doc_2]
+- [`CMPB`][POWER3_doc_1]
+- "Branch Target Address register" -> Link Register by [this](https://www.ibm.com/docs/en/aix/7.1?topic=processor-branch-instructions).
+- TODO [branch history rolling buffer](https://www.ibm.com/docs/ssw_aix_71/p_bostechref/pm_enable_bhrb.html)
+- `BCCTR` and [`BCLR`](https://www.ibm.com/docs/en/aix/7.2?topic=set-bclr-bcr-branch-conditional-link-register-instruction)
+#### MIPS
+- MIPS usage is [smaller](https://stackoverflow.com/a/2653951/21294350)
+- `LDL` see [MIPS_doc] p262
+- TODO read [MIPS_doc] Table 3.4 and Table 3.5 for op in `CACHE`.
+- See FIGURE D.3 for indexed addressing mode.
+- [`Q15`](https://dsp.stackexchange.com/a/10707) meaning from [this](https://dsp.stackexchange.com/questions/66513/q-format-doubts#comment134966_66513)
+- [Hi-Lo register](https://devblogs.microsoft.com/oldnewthing/20180404-00/?p=98435) (from [this](https://stackoverflow.com/a/2320233/21294350)) is similar to how x86 solves with higher bit-width data.
+#### SPARC
+- FIGURE D.12
+  - > sets the condition codes using r0 as the destination.
+    See [this](https://stackoverflow.com/a/19130966/21294350) which is same as risc-v reasons
+    > R0 is hard-wired to a value of zero, and can be used as the target register for any instruction whose result is to be *discarded*.
+- ["circular buffer"](https://en.wikipedia.org/wiki/Circular_buffer) implies (Also see the [figure](https://en.wikipedia.org/wiki/Register_window))
+  > The *knee* of the cost-performance curve seems to be six to eight banks
+  because of the bank number limit.
+  Also see the [figure](http://mercury.pr.erau.edu/~siewerts/cs332/code/PLP_3e_CD/data/chapters/8c_rgwin.pdf).
+- from [SPARC_doc] p245, `SAVE` and `RESTORE` are just similar to `ret` in x86 where the former changes one specific register and the latter changes the `rsp` stack pointer register.
+- "register renaming" (See [asm_doc] "Register_renaming") make efficient usage of logical registers, then
+  > The danger of register windows is that the *larger number of registers* could slow down the clock rate
+  may probably not happen.
+- See [SPARC_doc] Table 22 for different instructions.
+- ["multi-word arithmetic" p9](https://www.cs.princeton.edu/courses/archive/spr03/cs217/lectures/Branching.pdf)
+- ["tagged data type"](https://pages.cs.wisc.edu/~fischer/cs701.f05/sparc.htm#:~:text=SPARC%20supports%20integer%20data%20types,indicate%20the%20type%20of%20object.)
+  > tagged word format in which the *2 least significant* bits serve as flags to indicate the type of object.
+- ["paired data like LISP" by `pairlis`](https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node153.html)
+#### RISC-V
+- FIGURE D.12
+  - from risc-v [beq](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#beq)
+    the compare and branch are synthesized -> "Number of condition code bits" none.
+    - "Basic compare instructions" `FCMP` [riscv_spec] 71
+    - only compare -> FIGURE D.10 [`slti`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#slti).
+- > has specified that the “P” extension will support packed integer SIMD *using the floating point registers*
+  From the new [riscv_spec] p121, it has been dropped.
+#### cadence (Tensilica) Xtensa
+- > Tensilica is the only other major architecture in use today employs them
+  This means Xtensa architecture. [See](https://www.cadence.com/content/dam/cadence-www/global/en_US/documents/tools/ip/tensilica-ip/isa-summary.pdf)
+#### Multimedia
+#### 8086
+- Opcode I/O -> I/O address [in the opcode](https://csiflabs.cs.ucdavis.edu/~ssdavis/50/8086%20Opcodes.pdf).
 # Computer Graphics books
 - [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3) vs "[11]" referenced in [pineiro2005]
 # logic design book
 - "Computer Arithmetic: Algorithms and Hardware Designs" from [14_High_RadixDividers]
   Also C-20
   > the references for books on logic design, see Appendix A.
+# [learn_self]
+> Study all nine subjects below, in *roughly the presented order*, using either the suggested textbook or video lecture series, but *ideally both*. Aim for *100-200 hours* of study of each topic, then *revisit favorites throughout your career*
+- Programming
+  - > but also to those who missed beneficial concepts and *programming models* while first learning to code.
+  - > We recommend working through at least the *first three* chapters of SICP and doing the exercises
+  - > Why? Because SICP is unique in its ability—at least potentially—to *alter your fundamental beliefs* about computers and programming. Not everybody will experience this.
+  - > this guide is NOT designed for those who are entirely new to programming.
+  - [reddit](https://www.reddit.com/r/learnprogramming/wiki/faq/#wiki_getting_started)
+    - [courses](http://www.infocobuild.com/education/audio-video-courses/computer-science/computer-science.html)
+    - [projects](https://github.com/practical-tutorials/project-based-learning#cc)
+      [Also](https://www.reddit.com/r/learnprogramming/wiki/faq/#wiki_where_can_i_find_practice_exercises_and_project_ideas.3F)
+    - [inspiration](https://www.reddit.com/r/learnprogramming/wiki/faq/#wiki_i_can.27t_come_up_with_any_cool_new_ideas_for_a_project._am_i_simply_lacking_in_creativity.3F_how_do_other_programmers_become_inspired.3F)
+      > if you're interested in politics you could try analyzing voting pools and trends, if you're interested in music you could try writing a digital soundboard
+      > Or, perhaps try googling "home automation tutorial" for more *physical solutions*.
+    - [github collection](https://github.com/collections)
+    - self-learning
+      - [1](https://matt.might.net/articles/what-cs-majors-should-know/) which contains the book list.
+      - [2](https://functionalcs.github.io/curriculum/#org0806978) similar to above
+- Computer Architecture
+  - TODO The Elements of Computing Systems
+    But it uses HDL.
+    > In particular, two very important concepts in modern computer architectures are pipelining and memory hierarchy, but both are mostly absent from the text.
+  - Reread COD with [CS61C](https://cs61c.org/su23/)
+## compiler
+- [dragon book](https://www.eecg.toronto.edu/~jzhu/csc467/csc467.html)
+# cs61c from [learn_self]
+Most of labs are redundant after doing the csapp exercises.
+[2020](https://github.com/PKUFlyingPig/CS61C-summer20)
+## projects
+- TODO 1 [game](https://cs61c.org/su23/projects/proj1/)
+- 2 is mainly to write the [assembly codes](https://cs61c.org/su23/projects/proj2/part-b/)
+- 3 is just not using verilog to implement one cpu. This can be ignored if having learnt the verilog version.
+  But the 3 is more detailed about every instructions.
+  - [This](https://cs61c.org/su23/projects/proj3/testing/) is similar to how use gtkwave and verilog `printf` to debug.
+- [multiplexer](https://inst.eecs.berkeley.edu/~cs61c/resources/blocks.pdf) and Subtractor with carry-propagate adder which is also said in [COD_RISCV_2nd_A_appendix].
+  This is from [this](https://cs61c.org/su23/resources/)
+## labs
+- 5,6 is to draw the circuits which has been included in the [COD_RISCV_2nd_A_appendix] verilog codes.
+- 8
+  - [`critical`](https://cs61c.org/su23/labs/lab08/#critical)
+- TODO 9 [OpenMPI](https://cs61c.org/su23/labs/lab09/)
 
 ---
 
@@ -336,3 +547,23 @@ it may be more easier for the later radix-16 multipler.
 [intel_SOM_248966_016]:../references/x64_ISA_manual_intel/intel-ref-248966-016.pdf
 
 [asm_doc]:../asm/README.md
+
+[learn_self]:https://teachyourselfcs.com/
+
+<!-- riscv -->
+[riscv_spec]:../references/other_resources/RISC-V/riscv-spec-20191213.pdf
+[riscv_privileged]:../references/other_resources/RISC-V/riscv-privileged-20211203.pdf
+[riscv_V_ext]:../references/other_resources/RISC-V/riscv-v-spec-1.0-rc2.pdf
+
+<!-- MIPS -->
+[MIPS_doc]:../references/other_resources/COD/MIPS/MIPS_Architecture_MIPS64_InstructionSet_AFP_P_MD00087_06.05.pdf
+
+[SPARC_doc]:../references/other_resources/COD/SPARC/SPARC_document.pdf
+
+<!-- ARM -->
+[ARMv8_ISA_doc]:https://developer.arm.com/documentation/ddi0596/2021-12/SIMD-FP-Instructions/LDNP--SIMD-FP---Load-Pair-of-SIMD-FP-registers--with-Non-temporal-hint-?lang=en
+[ARM_compiler]:https://developer.arm.com/documentation/dui0801/h/A64-Data-Transfer-Instructions/LDNP
+
+<!-- POWER3 -->
+[POWER3_doc_1]:https://www.ibm.com/docs/en/xl-fortran-linux/16.1.1?topic=extension-bpermdmask-source
+[POWER3_doc_2]:https://www.ibm.com/docs/en/aix/7.2?topic=d-drand48-erand48-jrand48-lcong48-lrand48-mrand48-nrand48-seed48-srand48-subroutine

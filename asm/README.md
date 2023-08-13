@@ -3,7 +3,9 @@
 2. Not rename the downloaded paper name totally without keeping the original paper name substring.
 # what to learn
 - See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) ([i.e.](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/)) for what to learn.
-  - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800) 
+  [Also](http://catalog.mit.edu/subjects/6/)
+  - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
+- also [this](https://github.com/pkuflyingpig/cs-self-learning/)
 # standards
 - [c++](https://www.iso-9899.info/wiki/The_Standard)
   [9899:2011](https://www.iso-9899.info/n1570.html)
@@ -4496,6 +4498,8 @@ $ cat .gitignore
   - p396~398 UNIX make C popular, and Sun failure make Oak never heard, but Netscape make Java (descendant of Oak) known with its browser 
 - [frame pointer ‘the base of the stack frame’](https://twilco.github.io/riscv-from-scratch/2019/07/28/riscv-from-scratch-4.html)  like `$rbp`
 #### p360 ARMv7 vs v8, TODO see [linux foundation](https://events.static.linuxfound.org/sites/events/files/slides/KoreaLinuxForum-2014.pdf) or [simplified](https://qr.ae/pyrWZp)
+their diffs also [see](https://www.chipestimate.com/ARM-and-Broadcom-Extend-Relationship-with-ARMv7-and-ARMv8-Architecture-Licenses/Arm/news/19448#:~:text=The%20ARMv7%20architecture%20is%20the,execution%20with%2032%2Dbit%20execution.)
+> The ARMv8 architecture is the first ARM architecture that includes *64*-bit execution
 - [conditional execution field](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/ARM-Instruction-Set-Encoding/ARM-instruction-set-encoding/The-condition-code-field?lang=en)
 - loading [constant](https://community.arm.com/arm-community-blogs/b/architectures-and-processors-blog/posts/how-to-load-constants-in-assembly-for-arm-architecture)
 - instruction [encoding](https://developer.arm.com/documentation/ddi0406/c/Application-Level-Architecture/ARM-Instruction-Set-Encoding/ARM-instruction-set-encoding?lang=en)
@@ -4806,6 +4810,9 @@ Most of time, the latter two are thought as [same](https://users.cs.utah.edu/~bo
   - renaming function (这里是 '功能' 而不是 函数 ) (also googling ‘renaming function cpu architecture’) based on p566 'The function of each of six control signals'
     - also see ['register alias table' p38](https://courses.cs.washington.edu/courses/cse471/07sp/lectures/Lecture4.pdf)
 - (un)conditional branch prediction and (in)direct [relation](https://stackoverflow.com/questions/21787457/branch-target-prediction-in-conjunction-with-branch-prediction) from [this](https://stackoverflow.com/questions/28006386/how-can-unconditional-branches-be-predicted-with-a-2-bit-predictor#comment44493696_28006386)
+  - static branch prediction
+    > In static prediction, all decisions are made at *compile time*
+    > A more advanced form of static prediction presumes that *backward* branches will be *taken* and that *forward* branches will *not*.
 - p639
   - [Indirect predictor](https://developer.arm.com/documentation/ddi0488/c/BABEHAJJ) 'only provides the address' while [hybrid predictor](https://en.wikipedia.org/wiki/Branch_predictor#Hybrid_predictor) 'predictor still predicts the *direction*' with True or false ...
     - implementation
@@ -5299,7 +5306,12 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - overhead is determined by 1. whether 'OS-intensive' 2. 'ISA' emulation overhead.
   - TODO [Orthogonal Architecture](https://info.support.huawei.com/info-finder/encyclopedia/en/Orthogonal+Architecture.html), 
   - how 'allows the VM to execute *directly* on the hardware'.[see](https://embeddedinn.xyz/articles/tutorial/exploring_virtualization_in_riscv_machines/). Maybe mainly because other ISA not allow *trap* with some instructions, see [p22](../references/other_resources/RISC-V/EECS-2016-1.pdf)
-  - why x86 not '*classical* virtualization',[see 'the inability to trap on some privileged'](https://en.wikipedia.org/wiki/Hardware-assisted_virtualization)
+  - why x86 not '*classical* virtualization',[see 'the inability to trap on some privileged'](https://en.wikipedia.org/wiki/Hardware-assisted_virtualization) <a id="ISA_virtualization"></a>
+    Also [this](https://www.usenix.org/legacy/publications/library/proceedings/osdi02/tech/full_papers/xxdiscards/whitaker_html/node8.html)
+    > x86 virtual machine monitors must use a combination of complex binary rewriting and *memory protection* techniques to *virtualize these instructions*
+    The virtualization just needs some *intermediate* instructions between user and kernel mode to function as hypervisor.
+    > Denali adds several *virtual registers* to the x86 register file, to *expose system information*
+    > Virtual registers also provide a lightweight communication mechanism between virtual machines and the *kernel*.
 - p825
   - [Difference](https://www.geeksforgeeks.org/difference-between-paging-and-segmentation/) Between Paging and Segmentation
     - 1. '*compiler* is accountable' 2.[external](https://www.geeksforgeeks.org/difference-between-internal-and-external-fragmentation/) fragmentation ...
@@ -5506,6 +5518,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - ['finer-grain'](https://www.geeksforgeeks.org/difference-between-fine-grained-and-coarse-grained-simd-architecture/) just means more '*subdivided* into various parts' as its literal meaning.
       - p3 execution environment interface (EEI)
         - [ABI vs API](https://en.wikipedia.org/wiki/Application_binary_interface) Here 'interface' is similar to communication. ABI defines how instruction should communicate with hardware ('hardware-dependent format' because [calling convention](https://en.wikipedia.org/wiki/X86_calling_conventions#Register_preservation) related with *caller/callee-saved* regs). API 
+          - callee-saved / caller-saved: Also [see](https://cs61c.org/su23/projects/proj2/calling-convention/)
           - 'deal with an ABI ... in a mix of programming languages' because compiler changed (at least language may differ in whether column-major or row-major).
           - 'system call stubs' beacuse dynamic loading and PLT and here [*stub*](https://en.wikipedia.org/wiki/Method_stub#Method_Stub_Overview) is 'yet-to-be-developed code'
           - 'Sizes,' like fetch instruction size.
@@ -6016,7 +6029,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - here [saved](https://stackoverflow.com/questions/64545005/which-registers-are-saved-and-not-saved-in-risc-v) (similar to x86-64 design) is related with **callee**
 #### manual interpretation
 - p21 jalr still use multiple of 2 bytes by [&∼1](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jalr), 
-  - `r` means register.
+  - `r` means *register*.
   - 'error checking' because of dropping the least-significant bit which will jump to one non-instruction location.
   - 'the lowest 2 KiB or highest 2 KiB' -> -2^11 byte ~ 2^11-1 byte = -2KiB(2^10 bytes) ...
   - when in `while` loop, `jal` 
@@ -6454,6 +6467,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - ["Register renaming"](https://en.wikipedia.org/wiki/Register_renaming) -> <a id="Register_renaming"></a>
     1. mapping from "logical registers" to *physical* registers.
     2. just using *another logical* register. (This is compiler-based)
+      > This restriction is eliminated by *changing the names* of some of the registers:
       In [this](https://en.wikipedia.org/wiki/Register_renaming#Data_hazards), WAR where R use "old value" which may in one register and W writes with "the new value".
       Just use [more registers](https://www.d.umn.edu/~gshute/arch/register-renaming.html#:~:text=Register%20renaming%20is%20a%20form,in%20the%20instruction%20set%20architecture.) to avoid the data dependency.
   - "different implementations of the same instruction set" just see amd and intel differences / different implementations of riscv.
@@ -6896,6 +6910,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   sw: `MemRead` is 0, and see p278 why `MemtoReg` is 0.
   282.e6 [MDR "contains a *copy* of the value in the memory location" and "act *independently* without being affected"](https://en.wikipedia.org/wiki/Memory_buffer_register)
   "the other signal" (i.e. ALUOp1) first inverse and "flip the order" just mux from `1 0` to `0 1`.
+  - Notice: in pipeline, MDR also exists by reg `MEMWBValue` in the E.13.4.
 - [ ] 282.e20
   False
 - [ ] 295
@@ -7266,6 +7281,9 @@ Most of docs here are separate pdfs because [COD_RISC_V_2nd] don't have correspo
 ### 2
 - "Regular-memory" in p2 should be Register-memory.
 - "Thumb-2" and "Thumb" [diff](https://stackoverflow.com/a/71378041/21294350)
+  Also see [this](https://stackoverflow.com/questions/28669905/what-is-the-difference-between-the-arm-thumb-and-thumb-2-instruction-encodings#comment129630926_28670713) where no 'Thumb2' mode.
+  > the "Thumb-2" aspect of them is that they *can have 4-byte* encodings
+  > introducing a whole new assembly syntax (UAL, "*Unified* Assembly Language") which replaced the previous separate ARM and Thumb syntaxes and allowed writing code once
 - "hardware" may be [targeted](https://retrocomputing.stackexchange.com/a/8886) at specific languages "ARM processors have *hardware JVM* support". -> ["High-Level-Language Computer Architectures"](https://en.wikipedia.org/wiki/High-level_language_computer_architecture#:~:text=A%20high%2Dlevel%20language%20computer,being%20dictated%20by%20hardware%20considerations.)
 - TODO [emulation](https://news.ycombinator.com/item?id=4108557)  of  the  AM  6502?
 - [LR-parsing](https://en.wikipedia.org/wiki/LR_parser) just see [bison](#bison) and [MIPS_COD]
@@ -7806,6 +7824,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   - TODO ROM [logic](https://www.javatpoint.com/rom)
 - A-15
   - here ROM just map the whole table instead of reusing *gate* logics. -> "*fully* decoded".
+    > The number of bits in *each addressable entry* is equal to the *number of output bits* and is sometimes called the width of the ROM.
     This is the differences from PLA. Also see C-19
     > The reason that so much of the ROM is wasted is that the ROM implements the *complete* truth table
     "contain more entries" -> at least all $0$ outputs.
@@ -9290,7 +9309,8 @@ Google:
     See this 
     - [underflow](https://en.wikipedia.org/wiki/Arithmetic_underflow) means "negative overflow"
       like $1 \underbrace{\ldots 1}_\text{(n-1) 1s}+1\underbrace{0\ldots 0}_\text{(n-1) 0s} = (1)0\underbrace{1\ldots}_\text{(n-1) 1s}$ where "(1)" means underflow.
-    - > arithmetic modulo n is a system of addition (and subtraction) in which *overflow and underflow* cause you to "cycle back" to a valu from 0 to n−1.
+    - Also [see](https://math.stackexchange.com/a/1920795/1059606) <a id="modular_overflow"></a>
+      > arithmetic modulo n is a system of addition (and subtraction) in which *overflow and underflow* cause you to "*cycle back*" to a valu from 0 to n−1.
       *overflow and underflow* implies modular arithmetic
   - > Such *correction operations* as envisaged above are *highly undesirable*, and it is natural to inquire whether any process exists whereby multiplica-tion can be performed in a *uniform manner* without the necessity of any special devices to examine the signs of the interacting numbers.
   - TODO 
@@ -9715,6 +9735,8 @@ Google:
   Also see SO [tag](https://stackoverflow.com/questions/59623054/difference-between-simd-and-multi-threading#comment105418662_59623054)
   > you can have *multiple chefs* (multi-threading or multi-processing) who are all slicing their green beans *efficiently* (SIMD).
   > If I make an analogy with cooking a meal, then SIMD is like *lining up* all your green beans and slicing them in *one go*. The single instruction is "slice", the multiple, repeated data are the beans. In fact, lining things up ("memory *alignment*") is an important aspect of SIMD.
+  - Also see D-26
+    > arithmetic and logical operations done in parallel on all the items *in a register*
 - [edge condition](https://en.wikipedia.org/wiki/Edge_case)
 - ["fine-grained parallel"](https://dl.acm.org/doi/fullHtml/10.1145/1365490.1365500) due to two-level.
   > Coarse-grained thread blocks map *naturally* to separate processor *cores*, while fine-grained threads map to *multiple-thread* contexts, vector operations, and pipelined loops *in each core*. 
@@ -11583,9 +11605,17 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 - also try [this](https://diveintosystems.org/book/C4-Binary/byte_order.html)
 - pitch for [padding](https://stackoverflow.com/a/16119944/21294350)
   since unit is byte, so [`char*`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1g32bd7a39135594788a542ae72217775c)
+## OSTEP
+It is used by [1](https://oslab.kaist.ac.kr/ostepslides/?ckattempt=1) and [ossu](https://github.com/ossu/computer-science/tree/master/coursepages/ostep)
+### link failure to retry
+- [1](https://pdos.csail.mit.edu/6.828/2018/readings/i386.pdf) [2](https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf)
+### links
+- [homework](https://github.com/xxyzz/ostep-hw) and [original](https://github.com/remzi-arpacidusseau/ostep-homework/tree/master/vm-mechanism)
+- xv6 [codes](https://github.com/palladian1/xv6-annotated) [pdf](https://github.com/fanweng/MIT-6.828-OS-Engineering/blob/master/resources/xv6-source-rev11.pdf)
+  - TODO [open](https://pdos.csail.mit.edu/6.828/2018/schedule.html)
 # Algorithms and Data Structures
 - ["solving around 100 random leetcode"](https://teachyourselfcs.com/#algorithms)
-## Discrete Mathematics 
+## Discrete Mathematics
 - see [1](https://qr.ae/pyWj8a) or [2](https://qr.ae/pyWjGR).
   Also [math stackexchange](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics) (ignore the [1st ans](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics#comment2598012_1535))
 - 黑皮书 使用 
@@ -11594,7 +11624,10 @@ see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cn
 - Or try [this](https://csci.williams.edu/discrete-mathematics-preparation/)
 # C++
 - not to read c++ primer plus both [1](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list) and [2](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list), [3](https://qr.ae/pyWjiD)
-
+## whether to learn C or operating system first
+- [not](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk46hug/?utm_source=share&utm_medium=web2x&context=3) to learn C before C++, because [1](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk4uwu6/?utm_source=share&utm_medium=web2x&context=3)
+  Also [this](https://stackoverflow.com/a/145098/21294350) which says about their differences from [this](https://stackoverflow.com/a/598555/21294350).
+  - [books](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk47rv8/?utm_source=share&utm_medium=web2x&context=3)
 # computer graphic
 ## tutorial
 - [3dgep](https://www.3dgep.com/category/math/)
@@ -11673,6 +11706,7 @@ Notice [OPENGL compatibility](https://forums.developer.nvidia.com/t/how-to-write
   Better [see](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=cg#tiled-partition) referenced [here](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html)
 - [math](https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__INTRINSIC__INT.html)
 - [brief_CUDA_API]
+- [driver](https://docs.nvidia.com/cuda/cuda-driver-api/stream-sync-behavior.html#stream-sync-behavior)
 ## `cuda-gdb`
 - need to be in kernel to view the [GPU assembly codes](https://developer.download.nvidia.com/GTC/PDF/1062_Satoor.pdf).
 ```bash
