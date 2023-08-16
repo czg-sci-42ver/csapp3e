@@ -747,6 +747,25 @@ it may be more easier for the later radix-16 multipler.
 - FIGURE D.54
   - Notice the [order](https://stackoverflow.com/q/54136371/21294350) of `lw` and `sw`.
 - [visual instruction](https://www3.ntu.edu.sg/home/smitha/fyp_gerald/sltInstruction.html)
+### D.5
+TODO reread all green highlighted words with the corresponding context.
+- 370-XA [vs](http://www.beagle-ears.com/lars/engineer/comphist/ibm360.htm) 370
+  > addresses were extended from 24 bits to 31 bits
+- [ISA](http://www.simotime.com/asmins01.htm#BCTR)
+- [RX format](https://www.ibm.com/docs/en/zos/2.1.0?topic=instructions-rx-format) ~~-> "Based with scaled indexed and displacement" in D-34~~ here just sum up without multiply.
+  Also see [`BAL`](http://www.simotime.com/asmins01.htm#BAL)
+  - ~~TODO~~ how [RS format](https://www.ibm.com/docs/en/zos/2.1.0?topic=instructions-rs-format) is used.
+    See [`BXH`](http://www.simotime.com/asmins01.htm#BXH)
+  - ["SI format"](https://www.ibm.com/docs/en/zos/2.1.0?topic=instructions-si-format) can be guessed from the above -> jump to "base+displacement" based on the "immediate" IF using branch.
+    See [`XI`](http://www.simotime.com/asmins01.htm#XI)
+  - See `AP` and `CLC` for different length formats with "SS format".
+    - TODO [`CP`](http://www.simotime.com/asmins01.htm#CP) is "arithmetic comparison" which *may* compare the whole number instead of comparing string which only compares the substring like " logical" ones if there are differences.
+- [`IC`][IBM_370_ISA] just replace one part of the register while `STC` store at one address.
+  - TODO how [`EX`](http://www.simotime.com/asmins01.htm#EX) "modified".
+- maybe `AH` and [`AL`](http://www.simotime.com/asmins01.htm#AL) diff based on how they change the condition codes. (i.e. what "logical" means)
+- TODO 
+  - [`SLA`](http://www.simotime.com/asmins01.htm#SLA) diff `SLDA`
+  - [`TR`](http://www.simotime.com/asmins01.htm#TR): "The address is calculated from x2+d2" means b2+d2?
 # Computer Graphics books
 - [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3) vs "[11]" referenced in [pineiro2005]
 # logic design book
@@ -920,3 +939,6 @@ Most of labs are redundant after doing the csapp exercises.
 [osdev_x86_reg]:https://wiki.osdev.org/CPU_Registers_x86-64
 
 [vax_doc]:../references/other_resources/COD/VAX/vax.pdf
+[IBM_370_ISA]:http://www.simotime.com/asmins01.htm#IC
+[IBM_370_ISA_example]:http://www.simotime.com/simoi370.htm#I@AL
+[IBM_full_docs]:https://www.ibm.com/docs/en/zvm/7.3?topic=instructions-system370-io
