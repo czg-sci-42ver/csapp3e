@@ -222,7 +222,7 @@ main:
 ## stackoverflow Q to ask
 # resources
 ## categories
-- [registers](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture) [or](https://wiki.osdev.org/CPU_Registers_x86-64) 
+- [registers](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture) [or][osdev_x86_reg] 
 - [online opcode](https://www.felixcloutier.com/x86/push.html) or [pdf p615][intel_64] or [this](http://ref.x86asm.net/coder64.html)
 - how to [interpret](https://stackoverflow.com/questions/28664856/how-to-interpret-x86-opcode-map) opcode
 - gdb [rc tutorial](https://sourceware.org/gdb/onlinedocs/gdb/Process-Record-and-Replay.html) or [target](https://sourceware.org/gdb/onlinedocs/gdb/Target-Commands.html#Target-Commands) in [this](https://sourceware.org/gdb/onlinedocs/gdb/index.html#SEC_Contents)
@@ -634,7 +634,7 @@ printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
 ## miscs
 - [SMP](https://en.wikipedia.org/wiki/Symmetric_multiprocessing) and [AMP](https://en.wikipedia.org/wiki/Asymmetric_multiprocessing), also [see](https://github.com/rr-debugger/rr/issues/3531) <a id="SMP"></a>
 ## memory
-- currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3` where "segmented memory model" is mostly used by old cpus.
+- currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3` where "segmented memory model" is mostly used by old cpus. <a id="flat_memory_model"></a>
   Notice: In [COD_RISC_V_Orig] p469, the total size of "16 bits of segment to the existing 16-bit" is same as "unsegmented 32-bit address space", but their physical implementation is different, at least the former memory only needs to search 16-bit range while the latter needs to 32-bit. See [this](https://en.wikipedia.org/wiki/Flat_memory_model#x86_segmented_memory_model) and Segmentation with *paging* just means using [page table](https://en.wikipedia.org/wiki/Memory_segmentation#Segmentation_with_paging) <a id="Segmentation"></a>
   - Internal Fragmentation is caused by being used by process. [whereas](https://www.tutorialspoint.com/difference-between-internal-fragmentation-and-external-fragmentation#:~:text=Internal%20Fragmentation%20occurs%20when%20a,removed%20from%20the%20main%20memory.&text=Best%20Fit%20Block%20Search%20is,the%20solution%20for%20external%20fragmentation.) External Fragmentation is cauesd by small unused spaces between used spaces.
   - [secondary](https://en.wikipedia.org/wiki/Computer_data_storage) memory
@@ -1939,6 +1939,8 @@ pwndbg> telescope 0x7fffffffe0d8 0xff
 9a:04d0│      0x7fffffffe5a8 ◂— 'FGBG=0;15'
 ```
 [pdf p249][intel_64] -> `67h` -> addr32 prefix here `e8` -> rel , no mem op(erand)
+See [intel_64] p526 about `67h` (This is not the "REX" prefix) <a id="x86_addr_prefix"></a>
+>  the prefix selects the *non-default* size.
 ```bash
 # here addr32 no use https://stackoverflow.com/questions/72892152/whats-addr32-in-assembly-means
    0x00007ffff7dc7ec7 <+199>:   67 e8 53 7d 0c 00       addr32 call 0x7ffff7e8fc20 <__stack_chk_fail>
@@ -2274,7 +2276,7 @@ $5 = 0x7fffffffdea0
 pwndbg> p 0x7fffffffdea8-(0x7fffffffdd60+0x140)
 $6 = 0x8
 ```
-### use `rep movsq` to realize `memcpy`
+### use `rep movsq` to realize `memcpy` <a id="rep_x86_prefix"></a>
 ```bash
 $ cat 12.34_self_test.s | grep ':81' -A 10
 # 12.34_self_test.c:81:     memcpy(arg_mat, mat1,sizeof(arg_mat));
@@ -2910,7 +2912,7 @@ $ cat seta_setg_custom.s
 $ gcc seta_setg_custom.s -o seta_setg_custom.o -g;record_pwngdb seta_setg_custom.o -ex 'start'
 ```
 ## `rep ret`
-- [pdf p144](../references/amd_opt.pdf) -> branch [prediction](https://en.wikipedia.org/wiki/Branch_predictor#Next_line_prediction) related with cpu design
+- [pdf p144][Opteron_amd_opt] -> branch [prediction](https://en.wikipedia.org/wiki/Branch_predictor#Next_line_prediction) related with cpu design
   - in new cpu, this is [no needed](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean), (only old `gcc` [generate](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean#comment52568460_20526918) this instruction, clang [not](https://repzret.org/p/repzret/))
 ## `&&` [label](https://stackoverflow.com/questions/1777990/is-it-possible-to-store-the-address-of-a-label-in-a-variable-and-use-goto-to-jum) address
 ## book problem notes
@@ -5852,6 +5854,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - 3.2.4
         - `CALL`
           - call gate which is [similar](https://en.wikipedia.org/wiki/Call_gate_(Intel)#Format_of_call_gate_descriptor) to other gates has been replaced by [SYSCALL](https://en.wikipedia.org/wiki/Call_gate_(Intel)#Modern_use)
+            Although
+            > Call gates are more flexible ... changing from an *arbitrary* privilege level to an arbitrary (*albeit higher or equal*) privilege level
+            - more detailed, `Dpl` is 
+              > Call gates transfer control from *lower privilege* code to higher privilege code. The gate DPL is used to *determine what privilege levels* have access to the gate.
+              > *Task* gates are *not used*, to the best of my knowledge, as kernels usually want *extra work* done when task switching.
+              > Interrupt & trap gates, together with task gates, are known as the *Interrupt Descriptor Table*. They work the same as call gates, *except the transfer of parameters*, from one privilege stack to another. One difference is that interrupt gates *clear the IF* bit in EFLAGS, while trap gates do not.
+              Set the [gate type](https://stackoverflow.com/a/3442352/21294350).
             - similar to , when the call gate and task gate are not used, their infos are probably saved in the *kernel stack* just as csapp says. Also [see](#TSS)
             - when using "the call gate and task gate", the *stack* is still used with each task by "A task uses a different stack for every privilege level" and "saves procedure linking information to the stack".
         - `JMP`
@@ -6220,6 +6229,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
       - [_mm256_blendv_epi8](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/mm256-blendv-epi8.html) TODO epi meaning; 8->[8-bit](https://www.felixcloutier.com/x86/pblendvb#vpblendvb--vex-256-encoded-version-) transfer unit.
         - here [/is4](https://www.felixcloutier.com/x86/pblendvb#instruction-operand-encoding) also see intel doc p600
           - in 64-bit, ymm index use 4bit see p603. So see p538 'VEX.W' as 'REX.W' and p533 how REX use which will change `ModRM`,etc.
+            This controls the operand size, also [intel_64] p1775 and p532.
+            - Also see [intel_64] p526
+              Not to be confused with "operand-size override prefix" `66H`.
             - VEX.vvvv p541
           - TODO see practical usage of `VSIB` p545
       - here just to avoid branch prediction by calculating similar conditions as *vector*.
@@ -7345,7 +7357,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   2. compatibility with current instruction fotmat "provide 1-operand instructions".
     Also, from [this](https://stackoverflow.com/a/51488870/21294350), it is to increase the data bandwidth if with a [flat register file](https://arcb.csc.ncsu.edu/~mueller/cluster/ps3/SDK3.0/docs/accessibility/sdkpt/flatreg_gloss.html).
     > provides explicit *banking* to reduce register port count ... providing three *read ports* to each file would allow all pairs of one FP ... compared with a five read ports with *single* register file
-- why 80-bit is used and ~~dropped by history~~ (`st0` FP stack register still exists).
+- why 80-bit is used and ~~dropped by history~~ (`st0` FP stack register still exists). <a id="fp_stack"></a>
   See [this](https://stackoverflow.com/a/52175510/21294350) which says 80-bit is one "separate chip".
   And [this](https://stackoverflow.com/questions/26444243/why-does-the-80x87-instruction-set-use-a-stack-based-design#comment41548734_26447672) says the compiler not support well 80-bit and caused it unused now.
   - better see [this](https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format) which referenced paper says:
@@ -11997,6 +12009,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [SOG_17h]:../references/AMD/SwOpt/17h/55723_SOG_3.01_PUB.pdf
 [17h_A0h]:../references/AMD/PPR/17_A0/57243-A0-PUB_3.00.pdf
 [17h_18h]:../references/AMD/PPR/17_18/55570-B1-3.16_PUB_NRV.pdf
+[Opteron_amd_opt]:../references/AMD/Opteron_amd_opt.pdf
 
 <!-- wikichip -->
 [wikichip_cpuid]:https://en.wikichip.org/wiki/amd/cpuid
@@ -12135,3 +12148,6 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- miscs -->
 [Booth_Algorithm]:https://www.massey.ac.nz/~mjjohnso/notes/59304/l5.html
+
+<!-- osdev -->
+[osdev_x86_reg]:https://wiki.osdev.org/CPU_Registers_x86-64
