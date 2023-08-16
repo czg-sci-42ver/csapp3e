@@ -766,6 +766,49 @@ TODO reread all green highlighted words with the corresponding context.
 - TODO 
   - [`SLA`](http://www.simotime.com/asmins01.htm#SLA) diff `SLDA`
   - [`TR`](http://www.simotime.com/asmins01.htm#TR): "The address is calculated from x2+d2" means b2+d2?
+### D.6
+- See [CAAQA] M.4 instead of L.4
+- [accumulator-based computers](https://srimanthtenneti.medium.com/accumulator-based-cpu-design-ec07171f3e9a#:~:text=Accumulator%20Based%20CPUs,as%20one%20of%20the%20inputs.) only has one output port.
+- [Drum memory](https://en.wikipedia.org/wiki/Drum_memory)
+  > It could be considered the *precursor to the hard disk drive* (HDD), but in the form of a drum (cylinder) rather than a flat disk.
+- intel FPU stack can be thought as the ["stack architecture"](http://fpgacpu.ca/stack/index.html#:~:text=By%20%22stack%20architecture%22%2C%20I,faster%20access%20than%20register%20files.).
+  > These stacks typically make only their *top-most or top two* elements accessible, granting faster access than register files.
+- Imperative programming vs [declarative programming](https://en.wikipedia.org/wiki/Declarative_programming)
+  where the former "describing its control flow" while the latter doesn't.
+  > that expresses the logic of a computation without describing its control flow.
+  > Common declarative languages include those of *database query languages*
+- [activation record](https://www.geeksforgeeks.org/access-links-and-control-links/) just like local stack.
+- > The stack architecture yielded good code density,
+  > added *hardware-managed* activation records
+  [because](https://electronics.stackexchange.com/a/4124/341985) somewhat like
+  > Code density also affects performance; if your loops are *longer* because the code is *not dense*
+- > frequency-encoded instruction formats
+  [means](https://dl.acm.org/doi/pdf/10.1145/359361.359454)
+  > carefully optimized depends primarily upon its *projected frequency of usage*
+  i.e. optimized based on the usage frequency.
+- > the VAX designers tried to optimize code size
+  See [COD_RISCV_2nd_A_appendix] D-51
+  > *three lengths* of addresses for displacement addressing: 8-bit, 16-bit, and 32-bit
+  >  The second difference is that to reduce code size the add instruction *specifies the number* of unique operands; 
+- > Bhandarkar and Clark [1991] gave a quantitative analysis of the disadvan-tages of the VAX versus a RISC computer
+  See [COD_RISCV_2nd_A_appendix] D-66 FIGURE D.57.
+  > Hennessy published an explanation of the RISC performance advan-tage and traced its roots to *a substantially lower CPI*—under 2 for a RISC processor and over 10 for a VAX-11/780 (though not with identical workloads)
+- [ECL](https://ethw.org/Rise_and_Fall_of_Minicomputers) minicomputer
+  TODO see TTL
+  - ECL [inverter](https://www.allaboutcircuits.com/technical-articles/the-basics-of-emitter-coupled-logic-ECL-inverter-buffer/) example
+    here emitter voltage $V_{Q1}$ is *shared*,
+    then differences between two [$V_{GE}/V_{IN}$](https://www.electronics-tutorials.ws/power/insulated-gate-bipolar-transistor.html) controls the different behaviors.
+- From [CAAQA] p1367, the 2 authors of [COD_RISCV_2nd_A_appendix] is *MIPS and RISC-I architects*.
+- TODO based on the verilog design, see VII. in [this](https://www.computer.org/csdl/journal/tc/1984/12/01676395/13rRUyuego1)
+- p1369 at least from "orthogonal" -> "efficient instruction encoding".
+- > translate from CISC to RISC inter-nally
+  RISC i.e. uop in x86.
+  > overcome by the enormous volume and the ability to dedicate IC processing lines specifically to this product. 
+  enormous volume ->  sufficient revenue -> dedicate IC processing lines *specifically*
+- [this](https://courses.cs.washington.edu/courses/csep548/06au/readings/ia-64.pdf) says x86 relations with RISC.
+  > This approach is more efficient than a hardware-managed register file because *a compiler can tell* when the program no longer needs the contents of a specific register. 
+  > The 32 static registers (r0 to r31) are managed in much the *same* way as registers in a standard *RISC* architecture
+  So needs push and pop registers to stack when calling procedures. 
 # Computer Graphics books
 - [this](https://www.reddit.com/r/C_Programming/comments/lbkb9h/comment/glv0ruc/?utm_source=share&utm_medium=web2x&context=3) vs "[11]" referenced in [pineiro2005]
 # logic design book
@@ -942,3 +985,5 @@ Most of labs are redundant after doing the csapp exercises.
 [IBM_370_ISA]:http://www.simotime.com/asmins01.htm#IC
 [IBM_370_ISA_example]:http://www.simotime.com/simoi370.htm#I@AL
 [IBM_full_docs]:https://www.ibm.com/docs/en/zvm/7.3?topic=instructions-system370-io
+
+[CAAQA]:../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf

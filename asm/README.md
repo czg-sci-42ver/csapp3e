@@ -4469,7 +4469,7 @@ $ cat .gitignore
 - thought as [bible](https://passlab.github.io/CSE564/resources/#textbook)
 - exercise [solution](https://www.studocu.com/ko/document/konkuk-university/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B5%AC%EC%A1%B0/computerorganizaion-design-5th-solution/9639022)
   - [appendix A][appendix_A_exercise_ans] <a id="appendix_A_exercise_ans"></a>
-- more detailed see [CAAQA](../references/other_resources/CAAQA/Computer_Architecture_A_Quantitative_App.pdf)
+- more detailed see [CAAQA][CAAQA]
 - TODO all ' Self-Study' in better pdf rendering
 - MIPS [register](https://en.wikibooks.org/wiki/MIPS_Assembly/Register_File)
   - instruction [set](https://edumips64.readthedocs.io/en/latest/instructions.html)
@@ -11965,7 +11965,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [slow_mem]:../references/other_resources/COD/references/memory_consistency/slow-memory-weakening-consistency-to-enhance-concurrency-in-dist.pdf
 [memory_models]:https://www.cs.utexas.edu/~bornholt/post/memory-models.html
 [herlihy]:../references/other_resources/COD/references/memory_consistency/AC_SC/p463-herlihy.pdf
-[CAAQA]:Computer_Architecture_Sixth_Edition_A_Qu.pdf
+[CAAQA]:../references/other_resources/CAAQA/Computer_Architecture_Sixth_Edition_A_Qu.pdf
 [Misra_1985]:../references/other_resources/COD/references/memory_consistency/Misra_1985.pdf
 [Lamport_1985]:../references/other_resources/COD/references/memory_consistency/interprocess.pdf
 [CSG280]:../references/other_resources/COD/references/memory_consistency/document_CSG280.pdf
