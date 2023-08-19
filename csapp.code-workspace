@@ -1,13 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "../CSAPP-3e-Solutions"
-		},
-		{
 			"path": "."
-		},
-		{
-			"path": "../../../../../home/czg/matrix-matrix-multiply"
 		},
 		{
 			"path": "../automatic_command/arch_linux_init"
@@ -17,18 +11,6 @@
 		},
 		{
 			"path": "../automatic_command"
-		},
-		{
-			"path": "../../../../../home/czg/radare2"
-		},
-		{
-			"path": "../../../../../home/czg/.local/share/fcitx5/rime"
-		},
-		{
-			"path": "../../../../../var/lib/dkms/AMDPowerProfiler/10.0"
-		},
-		{
-			"path": "../../../../../home/czg/cuda-samples"
 		}
 	],
 	"settings": {

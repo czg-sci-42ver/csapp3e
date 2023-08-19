@@ -86,3 +86,4 @@ main
 !*.svg
 *.bk
 !SO_QA/
+!Operating_System/
