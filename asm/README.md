@@ -272,8 +272,8 @@ $ g++ -fPIE -no-pie -fgnu-tm test_got.c -o test_got
   - TODO see kernel code related with above gist.
 - [cache,memory,register](https://www.geeksforgeeks.org/difference-between-cache-memory-and-register/)
   - why no [two](https://www.quora.com/Why-can%E2%80%99t-two-operands-both-be-memory-operands-in-assembly-language) memory operand (related with cache) [also](https://stackoverflow.com/questions/14510280/why-cant-mov-have-both-operands-as-memory-locations)
-## registers
-- r9 save parameter and [rax](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/x64-architecture) save return [pdf p7](../references/x64_cheatsheet.pdf) [save order](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+## registers order
+- r9 save parameter and [rax](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/x64-architecture) save return [pdf p7](../references/x64_cheatsheet.pdf) [save order](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html) by searching "x86 call register parameters".
 - whether [callee pdf p26](../references/abi.pdf)
 ### [r9,etc.,Caller-saved registers](https://stackoverflow.com/questions/9268586/what-are-callee-and-caller-saved-registers)
 - according to [this](https://web.stanford.edu/class/archive/cs/cs107/cs107.1174/guide_x86-64.html), although it said `Caller-saved`， but it doesn't mean **must to save**
@@ -5522,7 +5522,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - [ABI vs API](https://en.wikipedia.org/wiki/Application_binary_interface) Here 'interface' is similar to communication. ABI defines how instruction should communicate with hardware ('hardware-dependent format' because [calling convention](https://en.wikipedia.org/wiki/X86_calling_conventions#Register_preservation) related with *caller/callee-saved* regs). API 
           - callee-saved / caller-saved: Also [see](https://cs61c.org/su23/projects/proj2/calling-convention/)
           - 'deal with an ABI ... in a mix of programming languages' because compiler changed (at least language may differ in whether column-major or row-major).
-          - 'system call stubs' beacuse dynamic loading and PLT and here [*stub*](https://en.wikipedia.org/wiki/Method_stub#Method_Stub_Overview) is 'yet-to-be-developed code'
+          - 'system call stubs' beacuse dynamic loading and PLT and here [*stub*](https://en.wikipedia.org/wiki/Method_stub#Method_Stub_Overview) is 'yet-to-be-developed code /  simulate the behavior'
+            ```java
+            function ThermometerRead(Source insideOrOutside)
+                return 28
+            end function
+            ```
+            here directly returning `28` is obviously invalid.
           - 'Sizes,' like fetch instruction size.
           - 'direct system calls' vs 'procedure calls to system call'. see [figure](https://www.8bitavenue.com/difference-between-system-call-procedure-call-and-function-call/)
           - [API](https://en.wikipedia.org/wiki/API) 'offering a *service* to'. One example of API specification is `man 2 open`.

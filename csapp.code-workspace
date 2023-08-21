@@ -11,6 +11,21 @@
 		},
 		{
 			"path": "../automatic_command"
+		},
+		{
+			"path": "../../../../../home/czg/ostep-code"
+		},
+		{
+			"path": "../../../../../home/czg/ostep-projects"
+		},
+		{
+			"path": "../../../../../home/czg/ostep-hw"
+		},
+		{
+			"path": "../../../../../home/czg/xv6-public"
+		},
+		{
+			"path": "../../../../../home/czg/ostep-homework"
 		}
 	],
 	"settings": {
