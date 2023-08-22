@@ -25,7 +25,7 @@
     1. `mmap`
     2. always "segments".
   2. diff between minicomputer and PC.
-# Virtualization
+# Virtualization part 1 scheduling
 ## Processes
 - [`struct proc`](https://github.com/torvalds/linux/blob/aa9ea98cca3a56869df1dc6347f3e3bfe0c01f44/include/linux/sched.h#L738) in linux from [this](https://unix.stackexchange.com/questions/80038/what-is-the-structure-of-a-linux-process)
 - ["Process Control Block"](https://en.wikipedia.org/wiki/Process_control_block#:~:text=A%20process%20control%20block%20(PCB,the%20information%20about%20a%20process.) -> `struct proc` in xv6.
@@ -168,6 +168,9 @@ $ uname -r
 ```
   - And CFS may be [deprecated](https://unix.stackexchange.com/a/127113/568529) in the future.
     - related [Clear Linux](https://www.phoronix.com/review/adl-linux516-windows/2)
+## summary
+- MLFQ like SJF because the former has *higher priority* for shorter jobs. See "Example 2: Along Came A Short Job"
+  like round-robin because in 8.6 rule 2.
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
@@ -298,9 +301,90 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   See the comments
 - `struct proc`
   - `chan` meaning.
+- read about [`alltraps`](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md)
+- weird installation with `qemu-full-8.0.3-1`.
+  ```bash
+  [czg ~/xv6-public]$ make TOOLPREFIX=i386-elf- qemu-nox
+  Booting from Hard Disk..QEMU: Terminated # this is an endless loop
+  ```
+  - Most of instruction guides are similar to [this](https://www.assistedcoding.eu/2017/11/06/install-vx6-operating-system/).
+  - fixed
+    use `git clean -f -x` to remove all generated files.
+    Then (Notice both the `CPU` and the `TOOLPREFIX` can't be ignored.)
+    ```bash
+    $ cat ~/No_Werror.patch 
+      diff --git a/Makefile b/Makefile
+      index 09d790c..aead744 100644
+      --- a/Makefile
+      +++ b/Makefile
+      @@ -29,7 +29,7 @@ OBJS = \
+              vm.o\
+       
+       # Cross-compiling (e.g., on Mac OS X)
+      -# TOOLPREFIX = i386-jos-elf
+      +TOOLPREFIX = i386-elf-
+       
+       # Using native tools (e.g., on X86 Linux)
+       #TOOLPREFIX = 
+      @@ -76,7 +76,7 @@ AS = $(TOOLPREFIX)gas
+       LD = $(TOOLPREFIX)ld
+       OBJCOPY = $(TOOLPREFIX)objcopy
+       OBJDUMP = $(TOOLPREFIX)objdump
+      -CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
+      +CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
+       CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+       ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
+       # FreeBSD ld wants ``elf_i386_fbsd''
+      @@ -217,7 +217,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
+              then echo "-gdb tcp::$(GDBPORT)"; \
+              else echo "-s -p $(GDBPORT)"; fi)
+       ifndef CPUS
+      -CPUS := 2
+      +CPUS := 1
+       endif
+       QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
+    $ make qemu-nox
+    ```
+### scheduling-xv6-lottery
+- this has no `tests` dir, so no tests offered by the instructor.
+### getreadcount
+- just
+  ```bash
+  [czg ~/xv6-public]$ git apply readcount_mod.patch # remove `Werror` based on readcount.patch
+  $ diff *.patch                                                       
+    --- readcount_mod.patch 2023-08-22 20:36:20.590593632 +0800
+    +++ readcount.patch     2023-08-22 20:36:25.077241409 +0800
+    @@ -7,19 +7,10 @@
+      
+      # Cross-compiling (e.g., on Mac OS X)
+     -# TOOLPREFIX = i386-jos-elf
+    -+TOOLPREFIX =
+    ++TOOLPREFIX = x86_64-elf-
+      
+      # Using native tools (e.g., on X86 Linux)
+      #TOOLPREFIX = 
+    -@@ -76,7 +76,7 @@ AS = $(TOOLPREFIX)gas
+    - LD = $(TOOLPREFIX)ld
+    - OBJCOPY = $(TOOLPREFIX)objcopy
+    - OBJDUMP = $(TOOLPREFIX)objdump
+    --CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
+    -+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
+    - CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+    - ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
+    - # FreeBSD ld wants ``elf_i386_fbsd''
+     @@ -178,6 +178,7 @@ UPROGS=\
+            _rm\
+            _sh\
+  $ mkdir ~/ostep-projects/initial-xv6/src
+  $ cp ~/xv6-public/* ~/ostep-projects/initial-xv6/src
+  $ ./test-getreadcount.sh
+  ```
 ## shell and lottery
 - shell related chapters
   - 5,
+  - TODO
+    - try using processes to implement parallel.
+  - [POSIX.1‐2017](https://pubs.opengroup.org/onlinepubs/9699919799.2018edition/)
 - lottery
   - 9
 # TODO after reading the algorithm book
@@ -308,6 +392,9 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
 - reread this chapter green highlights.
+
+# TODO
+- read the Multi-CPU Scheduling after "Concurrency".
 
 ---
 
