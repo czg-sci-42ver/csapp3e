@@ -360,6 +360,23 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   - TODO read after "20:40".
 ### scheduling-xv6-lottery
 - this has no `tests` dir, so no tests offered by the instructor.
+- this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8) has no cc
+  most of this is similar to the [doc][background_md].
+- TODO
+  - why `ps.c` is in `EXTRA`. This is not explained in [xv6_book].
+  - "Linear congruential generator".
+    This is a very *fair* random generator. See `plot.py` generated figure although some orders may change in one cycle, e.g., sometimes "30,20,10" while sometimes "20,10,30".
+- `ticks` just means "cycles" from [xv6_book]
+- This project is mainly add 2 syscall which function same as the original `~/ostep-code/cpu-sched-lottery/lottery.c`.
+- The 
+  ```bash
+  $ source tests/1.run
+  XV6_TEST_OUTPUT pid: 4, parent: 3, tickets:30, ticks: 0
+  XV6_TEST_OUTPUT pid: 5, parent: 3, tickets:20, ticks: 0
+  XV6_TEST_OUTPUT pid: 6, parent: 3, tickets:10, ticks: 0
+  ```
+  implies the `settickets(30);` first called in the `test_1.c`.\
+- More infos See `~/ostep-hw/projects/scheduling-xv6-lottery/scheduling-xv6-lottery_comment.patch` and `~/ostep-hw/projects/scheduling-xv6-lottery/scheduling-xv6-lottery.patch`.
 ### getreadcount
 - just
   ```bash
@@ -427,3 +444,4 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 [Introduction_to_Computing_Systems_book]:./Introduction_to_Computing_Systems/Introduction_to_Computing_Systems.pdf
 [ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw
 [background_md]:https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md
+[xv6_book]:https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf
