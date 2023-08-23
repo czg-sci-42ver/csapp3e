@@ -370,7 +370,7 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - TODO
   - why `ps.c` is in `EXTRA`. This is not explained in [xv6_book].
   - "Linear congruential generator".
-    This is a very *fair* random generator. See `plot.py` generated figure although some orders may change in one cycle, e.g., sometimes "30,20,10" while sometimes "20,10,30".
+    This is a ~~very~~ somewhat not *fair* random generator because it *doesn't show the differences* between ticket number. See `plot.py` generated figure although some orders may change in one cycle, e.g., sometimes "30,20,10" while sometimes "20,10,30".
 - `ticks` just means "cycles" from [xv6_book]
 - This project is mainly add 2 syscall which function same as the original `~/ostep-code/cpu-sched-lottery/lottery.c`.
 - The 
