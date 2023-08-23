@@ -345,6 +345,19 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
        QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
     $ make qemu-nox
     ```
+### Codes
+- based on this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8)
+  1. "17:45" the `UPROGS` can be without leading `_`
+    This can be also seen from the code:
+    ```c
+    if(argv[i][0] == '_')
+      ++argv[i];
+    ```
+    This is compiled by `_%: %.o $(ULIB)`.
+  2. The `$(OBJS)` [implicit rules](https://www.gnu.org/software/make/manual/html_node/Using-Implicit.html) compile the object files.
+  3. [`-Ttext`](https://stackoverflow.com/a/34627664/21294350)
+  4. `./mkfs fs.img README _cat _echo _forktest _grep _init _kill _ln _ls _test_1 _test_2 _mkdir _rm _sh _stressfs _test_readcount _usertests _wc _zombie ` will make the `test_1` executable in the `fs.img`.
+  - TODO read after "20:40".
 ### scheduling-xv6-lottery
 - this has no `tests` dir, so no tests offered by the instructor.
 ### getreadcount
@@ -379,6 +392,19 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   $ cp ~/xv6-public/* ~/ostep-projects/initial-xv6/src
   $ ./test-getreadcount.sh
   ```
+  Or use the `~/ostep-projects/initial-xv6/init_xv6.sh`.
+- Run `./test-getreadcount.sh`
+  1. "doing one-time pre-test (use -s to suppress)" will use the `pre` file to generate the `Makefile.test`.
+- How to create one new syscall
+  1. obviously "MAkefile".
+  2. update the definitions by "defs.h".
+  3. update `main` in "main.c" with some *init* functions.
+    - like use `init_readcount_lock` to init lock.
+  4. update "syscall.c/h" by [this][background_md]
+  5. update the syscall definitions with "sysfile.c" by [this](https://github.com/remzi-arpacidusseau/ostep-projects/blob/435fd356859b2bba933f5ef19671515e08467513/initial-xv6-tracer/README.md?plain=1#L70)
+  6. "user.h" is used in `test1.c`.
+  7. "usys.S" also by [background_md]
+- `lk->cpu = 0;` implies better using the `CPU=1` parameter.
 ## shell and lottery
 - shell related chapters
   - 5,
@@ -400,3 +426,4 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 
 [Introduction_to_Computing_Systems_book]:./Introduction_to_Computing_Systems/Introduction_to_Computing_Systems.pdf
 [ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw
+[background_md]:https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md
