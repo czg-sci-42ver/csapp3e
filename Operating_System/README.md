@@ -395,6 +395,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   by `def.h`, `user.h` and `pstat.h`.
 - > Good examples of how to pass arguments into the kernel are found in existing system calls
   `argint`, etc.
+- `ps` works
+  - TODO `ticks` meaning.
 ### getreadcount
 - just
   ```bash
