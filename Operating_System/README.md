@@ -296,6 +296,11 @@ See [this doc](https://github.com/czg-sci-42ver/ostep-hw/blob/master/9/README.md
 try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Explanations.md) for better understanding
 - Linker Relocate Stabs
   - here [`N_SLINE`](https://sourceware.org/gdb/current/onlinedocs/stabs.html/Line-Numbers.html) should not be relocated as [`N_RBRAC`](https://sourceware.org/gdb/current/onlinedocs/stabs.html/Block-Structure.html).
+- expect
+  - [`expect`](https://www.geeksforgeeks.org/expect-command-in-linux-with-examples/) is to expect input
+    From `man expect`
+    > waits  until  one  of  the  patterns  matches the output of a spawned process
+    So when launching the `qemu`, the `expect "init: starting sh\r"` will wait until it outputs this message and then it goes forward.
 ### questions
 - ~~why does new `xv6` with less "struct context" registers?~~
   See the comments
@@ -377,6 +382,19 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   ```
   implies the `settickets(30);` first called in the `test_1.c`.\
 - More infos See `~/ostep-hw/projects/scheduling-xv6-lottery/scheduling-xv6-lottery_comment.patch` and `~/ostep-hw/projects/scheduling-xv6-lottery/scheduling-xv6-lottery.patch`.
+#### tests ( here only simple tests)
+- > You'll need two new system calls
+  we have met this need
+- > Most of the code for the scheduler is quite localized and can be found in proc.c
+  `scheduler` is in it and we have added many self-defined functions.
+- > You'll need to assign tickets to a process when it is created
+  `p->tickets = 1;`
+- > You'll also need to figure out how to generate random numbers in the kernel
+  See above "Linear congruential generator"
+- > Finally, you'll need to understand how to fill in the structure pstat in the kernel
+  by `def.h`, `user.h` and `pstat.h`.
+- > Good examples of how to pass arguments into the kernel are found in existing system calls
+  `argint`, etc.
 ### getreadcount
 - just
   ```bash
