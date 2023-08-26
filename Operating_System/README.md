@@ -1,6 +1,7 @@
 - See [Online notes](https://www.josehu.com/assets/file/ostep-note/operating-systems-ostep.html#advancedrelated-topics)
 # How to read this book
 - > While it’s generally good to trust this book, remember too that the authors have *opinions*; those opinions may *not (always) be as widely shared as you might think.*
+- read the not understanded introduction parts of each chapter after reading the whole chapter.
 # Introduction
 - p30
   - turn off address-space randomization temporarily based on [this](https://gcc.gnu.org/wiki/Randomization) and [this](https://www.tecmint.com/change-modify-linux-kernel-runtime-parameters/)
@@ -25,7 +26,9 @@
     1. `mmap`
     2. always "segments".
   2. diff between minicomputer and PC.
-# Virtualization part 1 scheduling
+# Virtualization part 1 virtualizing CPU
+> The kernel does so by setting up a *trap table at boot* time.
+- "direct execution" is to minimize the overhead of OS when running one program.
 ## Processes
 - [`struct proc`](https://github.com/torvalds/linux/blob/aa9ea98cca3a56869df1dc6347f3e3bfe0c01f44/include/linux/sched.h#L738) in linux from [this](https://unix.stackexchange.com/questions/80038/what-is-the-structure-of-a-linux-process)
 - ["Process Control Block"](https://en.wikipedia.org/wiki/Process_control_block#:~:text=A%20process%20control%20block%20(PCB,the%20information%20about%20a%20process.) -> `struct proc` in xv6.
@@ -116,7 +119,7 @@
 - > LRU attains worst-case performance for some cyclic-sequential work-loads.
   i.e. ~~the cycle may be not the LRU cycle, but ~~ the oldest will always be used in one *fixed frequency*.
 - why [start at zero](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html)
-  1. why use one `<` and `<=`
+  1. why use one `<` and one `<=` instead of two `<`/`<=`.
      > The observation that conventions a) and b) have the advantage that the *difference between the bounds* as mentioned *equals the length* of the subsequence is valid.
      > in either convention two subsequences are *adjacent* means that the upper bound of the one *equals* the lower bound of the other.
   2. why not use `<...<=`
@@ -171,10 +174,293 @@ $ uname -r
 ## summary
 - MLFQ like SJF because the former has *higher priority* for shorter jobs. See "Example 2: Along Came A Short Job"
   like round-robin because in 8.6 rule 2.
+# Virtualization part 2 virtualizing the memory
+## Address Spaces
+- [time sharing](https://www.codingninjas.com/studio/library/multiprogramming-vs-time-sharing-operating-system) -> many users instead of many processes like multiprogramming.
+  > However, time-sharing refers to the usage of a computing facility by multiple *users* who desire to use it at the same time.
+- See [asm_md] "Batch processing".
+  It implies
+  > long (and hence ineffec-tive) program-debug cycles.
+- memory address [space with threads](https://juniway.github.io/Operating-System/os-share-data-threads/)
+- > Some modern OS’s take iso-lation even further, by *walling off* pieces of the OS from other pieces of the OS. Such microkernels [BH70, R+89, S+03] thus may provide *greater reliability* than typical monolithic kernel designs.
+  See [this figure](https://en.wikipedia.org/wiki/Microkernel) for "walling off".
+  And this for why [more secure](https://www.geeksforgeeks.org/microkernel-in-operating-systems/) -> "greater reliability".
+## Memory API
+- robust and reliable software
+  the former is 
+  > Robustness is inexact and *subjective*. It *cannot be measured* or proven, and it cannot be automated (beyond a few static analysis tricks). It is equally the concern of software developers, who must provide it, and stakeholders, *whose experiences* of the software system *define* it.
+- TODO
+  - `man 3 malloc` meaning of "private memory allocator".
+  - how `free` gets the size. [See](https://github.com/bminor/glibc/blob/4290aed05135ae4c0272006442d147f2155e70d7/malloc/malloc.c#L3346)
+    Also [see](https://stackoverflow.com/a/851976/21294350)
+    and this related with [header](https://stackoverflow.com/a/3083006/21294350)
+- > In fact, you don’t really need to even do this, as the *C library*, which all C programs link with by default, has the code for malloc() inside of it
+  ```bash
+  $ gcc --print-file-name=libc.a # https://stackoverflow.com/a/36103882/21294350
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.1.1/../../../../lib/libc.a
+  $ nm $(gcc --print-file-name=libc.a) | grep malloc # https://stackoverflow.com/questions/11927459/what-standard-library-function-does-libc-a-contain#comment15885241_11927459
+  ...
+  ```
+  - > adding the header just lets the compiler check whether you are *calling malloc() correctly*
+    header usage.
+- [compile-time operator](https://en.cppreference.com/w/c/language/operator_precedence) includes `sizeof`.
+- `sizeof` functions not same with stack and heap.
+  > However, when we use sizeof() in the next line, it returns *a small value*, such as 4 (on 32-bit machines) or 8 (on 64-bit machines).
+  > there is enough *static* information for the compiler to know that *40 bytes* have been allocated.
+  - with str maybe works 
+    or not (TODO)
+    > Using sizeof() may lead to trouble here.
+    ```bash
+    $ gdb ~/matrix-matrix-multiply/build/debug_block/dgemm_10
+    >>> set $a="sdasd"
+    >>> p sizeof($a)
+    $2 = 0x6
+    ```
+- `strcpy` needs aforehand allocation which can be seen `man strcpy` "EXAMPLES".
+  it also shows why we prefer `strlen` to `sizeof` because of only one ending `NULL` when using `strcat`.
+- [dangling pointer](https://www.geeksforgeeks.org/dangling-void-null-wild-pointers/) can be seen as sometimes valid while *sometimes* not.
+  the link also says wild -> uninitialized pointer.
+  - they [both](https://en.wikipedia.org/wiki/Dangling_pointer#:~:text=Dangling%20pointers%20and%20wild%20pointers,resolve%20to%20a%20valid%20destination.) point to one invalid destination.
+  - the link also says about `NULL` and `void*` pointer.
+- it isn't allowed to write to one freed memory.
+  ```bash
+  $ gcc memory-user.c -o memory-user.o -DDANGLING_POINTER
+  $ ./memory-user.o 2 1                                  
+  pid: 17229
+  zsh: segmentation fault (core dumped)  ./memory-user.o 2 1
+  ```
+  TODO why
+  > or overwrite valid memory
+  - Notice: `free` depends on the [compiler implementation](https://stackoverflow.com/a/2558777/21294350).
+- from [this](https://www.geeksforgeeks.org/swap-space-management-in-operating-system/)
+  anonymous memory region implies swap space.
+- ~~TODO~~ where the book says disadvantages of "linked list". See [ostep_book] p106 "Red-Black Trees".
+  reread after the algorithm.
+  - why "A SIDE : D ATA STRUCTURE — THE F REE L IST" not use the "Red-Black Trees".
+    maybe here is just *boolean* list -> not many things to compare.
+- "Figure 15.3" is mainly related with `trap` and the status word.
+- Notice here hardware support is just the base not the whole.
+  > Of course, the hardware alone cannot virtualize memory, as it just pro-vides the *low-level mechanism* for doing so efficiently. The OS must get involved *at key points* to set up the hardware so that the correct trans-lations take place;
+  See corresponding chapter pdf p9.
+## Address Translation
+- > Thus, the OS, with a little hardware support, tries its best to get out of the way of the running program
+  from the part 1, it uses `trap`. See [ostep_book] p75.
+  Also it uses when switching contexts.
+  > are saved to and restored from (by the hardware) when *transitioning into* and out of the kernel.
+- hardware-based address translation
+  > keeping track of which locations are *free* and which are *in use*
+  is also said in COD and csapp.
+- > almost any *well-defined interface can be interposed upon*, to add new functionality or improve some other aspect of the system
+  see csapp "wrapper".
+- dynamic vs static
+  > Because this relocation of the address *happens at runtime*
+- > initialize process table
+  with `xv6`, it just runs `initlock(&ptable.lock, "ptable");`.
+- > In this chapter, we have extended the concept of limited direct exe-cution with a specific mechanism used in virtual memory, known as ad-dress translation.
+  - > and the other the bounds (sometimes called a limit register)
+    po Here "limited" -> protection in "address translation"
+  - > performed by the hardware to redirect application memory references to their actual locations in memory.
+    "direct execution" -> can use the *whole* address space without thinking too much about the physical memory.
+## Segmentation
+- From the example above the 16.2, it explains why we separate the *offset* and the segment.
+  because it is better for address translation.
+- > a seg-ment can be *4KB*, and thus the correct negative offset is 3KB minus 4KB which equals -1KB.
+  Notice this is not shown in "Figure 16.1".
+- > the first valid byte is actually 28KB *minus 1*.
+  Maybe because `0xfff` is always less than the limit `4KB` by `1`.
+- > Supporting many segments requires even further hardware support,
+  the "hardware support" is only to accelerate. It doesn't influence the function.
+- > and thus utilize main memory more effectively.
+  TODO maybe prefetching?
+- > A fringe benefit arises too: code sharing.
+  because segments are not limited inside one "address space" as the older "base and bounds" method.
+- > The second and perhaps more important problem is that segmentation still *isn’t flexible enough* to support our fully generalized, sparse address space.
+  This may mean that the segment size isn't large enough.
+## Free Space
+- > the free space gets chopped into *little pieces* of different sizes and is thus *fragmented*
+  fragmentation terminology.
+- > internal fragmentation (because the waste occurs inside the allocated unit)
+  internal fragmentation terminology
+- the p3 footnote
+  > it is generally *difficult to determine all references* (pointers) to that region
+  says why the "compaction of free space" is not reasonable.
+  - [strongly-typed](https://en.wikipedia.org/wiki/Strong_and_weak_typing) languages
+    > Generally, a strongly typed language has *stricter typing rules at compile* time, which implies that errors and exceptions are more likely to happen during compilation.
+    So "JAVA" may need more infos to track the memory -> 
+    > enable compaction as a technique to combat fragmentation.
+- magic number in malloc
+  > a magic number to provide additional *integrity checking*, and other information.
+  TODO [this](https://www.cliffsnotes.com/tutors-problems/Information-Security/51292857-Sometimes-referred-to-as-Magic-Numbers-different-types-of-files/) need VIP.
+  1. maybe to [avoid overflow](https://www.cs.usfca.edu/~benson/cs326/pintos/pintos/src/threads/malloc.c).
+  2. mark [the state](https://en.wikipedia.org/wiki/Magic_number_(programming)#Debug_values).
+    [This](https://stackoverflow.com/a/47885/21294350) says the same which is about "integrity checking".
+    >  whether the magic number matches the expected value as a san-ity check
+- `MAP_ANON|MAP_PRIVATE` is to initialize 0 and use the "copy-on-write" to avoid waste of the memory with the *private* property.
+- Basic Strategies
+  - > Thus, we will *not describe a “best” approach*, but rather talk about some basics and discuss their pros and cons.
+    these Strategies has their *specific* application ranges.
+  - > Worst fit tries to thus *leave big chunks free* instead of lots of small chunks that can arise from a best-fit approach
+    ~~maybe because "best-fit" will split.~~
+    ~~Also it implies "Worst Fit" not splits.~~
+    See "Examples".
+  - > how the allocator manages the free list’s *order becomes an issue*.
+    ~~because when change the ~~
+    > keeping the list ordered by the address of the free space, *coalescing becomes easier*, and fragmentation tends to be reduced.
+    because no needs to search for the candidates for "coalesce".
+  - performance
+    Best/Worst Fit search time `O(n)`
+    First/Next Fit search time `O(1)`
+- [slab allocator](https://www.kernel.org/doc/gorman/html/understand/understand011.html)
+  > Each cache maintains blocks of contiguous pages in memory called *slabs* which are *carved up into small chunks* for the data structures and objects the cache manages.
+  its pros
+  1. > The better utilisation of hardware cache by aligning objects to the *L1 or L2 caches*.
+    > Slab coloring is a scheme which attempts to have objects in different slabs use *different lines* in the cache. By placing objects at a *different starting offset* within the slab, it is likely that objects will use different lines in the CPU cache helping ensure that objects from the same slab cache will *be unlikely to flush each other*. With this scheme, space that would *otherwise be wasted* fulfills a new function.
+    it implicitly helps the internal fragmentation.
+  2. > The caching of commonly used objects so that the system *does not waste time allocating, initialising and destroying* objects.
+    > When an object is freed, it is *left in its initialised* state so that object *allocation will be quick*.
+  - codes related
+    [`gfporder`](https://elixir.bootlin.com/linux/latest/source/include/linux/slab_def.h#L29) which means 
+    > the hardware also needs to know *which way the segment grows*
+  - implementation
+    something like `size-64(DMA)` will allocate one region with each object of 64 bytes (TODO) fixed size .
+  - large stabs [vs](https://en.wikipedia.org/wiki/Slab_allocation#Slab_sizes) small slabs
+    from [this](https://people.eecs.berkeley.edu/~kubitron/courses/cs194-24-S14/hand-outs/bonwick_slab.pdf)
+    the former
+    > The required slab and bufctl data structures come from *their own (small-object!) caches*.
+- "binary buddy allocator" is related with the [binary tree](https://www.geeksforgeeks.org/buddy-system-memory-allocation-technique/).
+  Also see [asm_md] "Buddy systems"
+  - TODO why 
+    > This recursive coa-lescing process *continues up the tree*, either restoring the entire free space or stopping when a buddy is found to be in use.
+    maybe better.
+    Maybe due to
+    > think carefully enough, you’ll see that the address of each buddy pair *only differs by a single bit*;
+- [B+00]
+  - Blowup
+    - > we reduce $u_i$ by at most (1-f)S but reduce $a_i$ by S 
+      here `(1-f)S` because the $u_i$ is probably scattered among these superblocks, so there is probably some superblock whose usage proportion is less than `(1-f)S`
+    - > blowup is the increase in memory consumption caused when a concurrent allocator reclaims memory freed by the pro-gram but *fails to use* it to satisfy future memory requests.
+      So 
+      > This free does not cause heap 1 to *cross the emptiness threshold*, but the next free (of x9) does. Hoard then *moves the completely-free superblock* from heap 1 to the *global heap*.
+  - False Sharing
+    - > Re-leased superblocks are guaranteed to be at least f empty, so the opportunity for false sharing of lines in each superblock is reduced
+      the "f empty" is based on the above "move" to avoid the "Blowup".
+      Here global heap is the *shared* heap.
+    - > the allocator may then *passively induce* false sharing after a free by *letting each processor reuse* pieces it freed, which can then lead to false sharing.
+      i.e. passive false sharing needs the future `malloc` to cause the real false sharing.
+  - > We show that worst-case synchronization for the growing phases is in-versely proportional to the superblock size and the empty fraction
+    because when "superblock size" increases, superblock number is less -> less synchronization
+    then when empty fraction `f` increases, `1-f` is less, so less frequent to move the block to the global heap which may cause synchronization overheads due to "acquisition of the global heap *lock*".
+  - > Each malloc and each free will be *serialized*.
+    > This slowdown is not desirable but it is *scalable* as it does *not grow with the number* of processors
+    scalability -> can scale with parallel
+    So the paper uses the somewhat independent *Per-processor Heap*.
+## Paging
+- paging vs segmentation
+  - > the simplicity of free-space management
+    because it doesn't need coalesce (obviously paging can't do that).
+  - > we won’t, for example, make assump-tions about the direction the heap and stack grow and how they are used.
+    because the map is different from the segmentation which is continuous.
+    While paging is one discrete map based on the page table.
+  - See "Summary".
+    "enabling the sparse use" this is both supported with segmentation and paging.
+  - they [don't conflict](https://qr.ae/py6LEx)
+    > Paging, on the other hand, is *not a substitute* for segmentation. Its main use is to *swap* memory out easily to devices that have a higher storage capacity than the available RAM.
+    > Segmentation doesn't help you with upper segment boundaries, as segmentation normally *only has one upper bound*
+- > the OS and hardware must combine to translate it into a meaningful physical address
+  OS needs to switch the process with their own page tables. (at least *update* page tables)
+  hardware use specific circuit to accelerate the process like TLB. (at least *store* page tables)
+- ["sparse address space"](https://gateoverflow.in/20962/why-large-hole-between-stack-heap-part-virtual-address-space#:~:text=Virtual%20address%20spaces%20that%20include,link%20libraries%20during%20program%20execution%20%22.)
+  > Virtual address spaces that include *holes* are known as sparse address spaces.
+- PTE [contents](https://wiki.osdev.org/Paging)
+  See the [figure](https://wiki.osdev.org/File:Paging_Structure.gif)
+  - TODO po "Page Directory" entry specifies the property of the page table, while "Page Table" entry specifies the 4K page block.
+    See `PTE = AccessMemory(PTEAddr)`.
+  - "protection bit" -> `R/W`
+  - ~~TODO~~ where is no the "valid bit" in x86.
+    See "A SIDE : W HY N O V ALID BIT ?", it is manipulated by the OS instead of the hardware.
+  - PAT see [intel_64] "Table 12-10" p3470.
+  - > G, or 'Global' tells the processor *not to invalidate the TLB entry* corresponding to the page upon a MOV to CR3 instruction. Bit 7 (PGE) in CR4 must be set to enable *global pages*.
+    keep some entry cached persistently.
+  - Needs [`PSE-36`](https://en.wikipedia.org/wiki/PSE-36#Activation_and_use) to use the "4-MiB aligned" when `PS=1`.
+- p8 
+  TODO should be `movl (21), %eax`
+- `40000` -> 40K ->VPN=39.
+- "Figure 18.7" shows 5 points each iteration in the topmost subgraph.
+## TLB
+- `TLB_Insert(VPN, PTE.PFN, PTE.ProtectBits)` where `PTE.ProtectBits` is included implies "TLB Hit" must be *Valid*.
+- > Finally, once the TLB is up-dated, the hardware *retries* the instruction;
+  Notice the retry -> reuse.
+- `round(100/16)` -> "VPN=06".
+- > Any large cache by definition is slow,
+  because of [the distance](https://qr.ae/py60kb).
+- > the hardware would “walk” the page table
+  not totally walk, just extract the corresponding `VPN` related page table `PTEAddr = PTBR + (VPN * sizeof(PTE))`.
+- [PCID](https://en.wikipedia.org/wiki/Control_register#CR3) in CR3 when `PCIDE=1` is related with "kernel page-table isolation (KPTI)".
+  > which allow retaining TLB entries for multiple linear-address spaces, with *only those that match the current PCID* being used for address translation
+  > rely heavily on performance-impacting TLB flushes and benefit greatly from hardware-enabled *selective* TLB entry management such as PCID
+  - when `PCIDE=0` See [intel_64] p3121 "Table 4-12" which is related with PAT.
+  - Notice `M–1:12` when `M<=52` make the `32` bits in the wikipedia figure available.
+- microcode -> [COD_md] "corresponds to uop".
+- > not to cause an infinite chain
+  i.e. infinite miss in the handler self.
+- Notice p8 the differences between "other bits" in "page table" and "TLB".
+- > P1 maps this page into the 10th page of its address space,
+  > as a trans-lation could *end up in any of these locations* (in hardware terms, the TLB is known as a fully-associative cache)
+  i.e. it may map from vaddr to paddr or the other direction.
+### 19.7 A Real TLB Entry
+- How `ASID` uses [less bits](https://stackoverflow.com/a/52880865/21294350) than  `PID`
+  > First, the ASID space is used more efficiently since mostly *dormant processes do not unnecessarily consume* ASIDs. Second, all the currently allocated ASIDs are stored in the same data structure, which could be made small enough to *fit within a few cache lines*. In this way, finding new ASIDs can be done *efficiently*.
+  > ASIDs are allocated to processes *dynamically* at the time when they need to execute.
+  Notice intel use 12 bits for the former instead of 8.
+- > over n + 1 pages with a TLB of size n;
+  the `+1` will always miss because of it is accessed after the *whole loop* when using the LRU.
+- ["Global" bit][x86_paging]
+  is to control [share](https://en.wikipedia.org/wiki/Control_register#CR4) and [flush](http://www.rcollins.org/articles/2mpages/2MPages.html) of the PTEs.
+  Also see [intel_64] p3144 although it doesn't explain the "global" meaning.
+  - [linear address](https://stackoverflow.com/a/62998232/21294350)
+    here "Logical Address" may be something like `cs:0xab`.
+    > Logical Addresses -> Virtual Addresses -> Physikal Addresses
+    where `->` means convert.
+    the 1st step implies segmentation, 2nd step implies paging.
+  - > We see a global bit (G), which is used for pages that are globally-shared among processes. Thus, if the global bit is set, the ASID is *ignored*.
+    x86 global bit is similar to MIPS.
+- Coherence bits See [H93_MIPS_R4000] p114
+  they are similar to [x86][x86_paging] `PAT,PCD`, etc.
+- > RAM isn’t always RAM.
+  because it may incur *TLB miss overheads* -> "as quickly as another" not works.
+- > A wired register can be set by the OS to tell the hardware how many slots of the TLB to reserve for the OS
+  it is similar to `wire` in verilog, i.e. the register contents are *fixed*.
+  > where a TLB miss would be problematic (e.g., in the TLB miss handler).
+  i.e. store the related infos about the "TLB miss handler".
+- "Summary" says
+  1. why use "larger page sizes" -> because TLB storage can be used more efficiently.
+- See [asm_md] "virtually-indexed"
+  physically-indexed cache is similar to use the physical addr to index the location in the page table. So needs "address translation ... before".
+- [Interaction_Between_Caching_Translation_Protection]
+  See [asm_md] "Homonyms and Synonyms"
+  - [Homonyms](https://stackoverflow.com/a/76982064/21294350)
+  - "3.1 Synonym avoidance" corresponds to this [method][geeksforgeeks_aliasing].
+  - "3.2 A single global address-space" separate the mapping of the cache and the page table.
+  - > ASIDs *handle the homonym* problem by transforming it into a synonym prob-lem.
+    in the same address space, the V/V cache is determined. So no ["Same VA corresponds to several PAs"][Homonym_Synonym].
+    And the ASID makes the same VA in different address spaces different.
+  - [Homonym_Synonym]
+    - > multiple mappings of a frame *within an address space*
+    - ~~TODO~~ maybe TLB allows different VPNs -> same PFN.
+      See the above [geeksforgeeks_aliasing] two different `mmap`.
+      Here the cache size determines whether aliasing occurs.
+  - TODO read after "3.3 Reverse maps".
+  - "Physically-indexed, virtually-tagged cache" is similar to "Virtually-indexed" ones.
+    They both have the synonym problem due to the multiple mapping of the TLBs. 
+  - "Physically-indexed, physically-tagged" can avoid the "synonyms"
+    because "Figure 5" `PFN` will select the *unique* cache address to cache the physical address.
+    Also [see](https://stackoverflow.com/a/76982064/21294350)
+  - So intel uses [VIPT](https://stackoverflow.com/a/22571006/21294350), reasons are similar to the above and the book
+    > Because of this potential problem, people have looked into all sorts of clever ways to access caches with virtual addresses, thus *avoiding the expensive step of translation* in the case of a cache hit
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
-- such as spawn() [B+19](https://www.microsoft.com/en-us/research/uploads/prod/2019/04/fork-hotos19.pdf)
+- such as spawn() [B+19]
   - From `man posix_spawn`
     > The  posix_spawn()  and  posix_spawnp() functions provide the functionality of a combined fork(2) and exec(3), with some optional *housekeeping* steps in the child process before the exec(3)
     housekeeping just means like in the book
@@ -183,6 +469,9 @@ $ uname -r
 - [LM+89] maybe old book is better.
   > The later versions of this book, while more up to date, *don’t quite match the beauty of this one.*
 - Bouron [B+18] -> CFS.
+- [N+07] which is related with "a *system* that automatically corrects heap-based memory errors".
+- [S15]
+- [CP78]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -195,7 +484,8 @@ $ uname -r
 - TODO 
   - meaning of "using the -c flag computes the answers for you"
 - `-c` in `./process-run.py -l 3:0 -L 5 -c` will compute the answer of the homeworks.
-## C4
+## Virtualization part 1
+### C4
 1. just as the README shows
 2. 4 CPUs -> 1 I/O
 3. yes
@@ -204,7 +494,7 @@ $ uname -r
 6. obviously not.
 7. better than 6.
 `-I IO_RUN_IMMEDIATE -S SWITCH_ON_IO` is the better option.
-## C5
+### C5
 1. trivial
 2. trivial
   try `./fork.py -s 10 -a 100 -f 100 -c -F` and `./fork.py -s 10 -a 100 -f 0.01 -c -F`, compare.
@@ -214,13 +504,13 @@ $ uname -r
     when using `exit`.
     See [ostep_hw]
     > but orders are not.
-### Codes
+#### Codes
 1. Maybe [this](https://en.wikipedia.org/wiki/Exec_(system_call)#C_language_prototypes)
   > The *base* of each is exec (execute), followed by one or more letters:
   Just to mix these bases.
   Also [see](https://stackoverflow.com/a/37558902/21294350)
 1. is included in 3.
-## C7 (C6 only has codes without the simulation homework)
+### C7 (C6 only has codes without the simulation homework)
 1. obviously same
 2. same as 1.
 3. similar to the book example.
@@ -230,7 +520,7 @@ $ uname -r
   This implies "job length" means the time length.
 1. longer; the longest time slice as the longest one length of the workloads.
   See [this](https://github.com/czg-sci-42ver/ostep-hw/blob/master/7/README.md) for correct answer of 7 where `(n - 1) * jt`.
-## C8
+### C8
 - introduction 
   - `ioFreq`
     > it begins by running Job 0 for 7 ms until Job 0 issues an I/O
@@ -275,7 +565,7 @@ $ uname -r
   [ time 32 ] IO_DONE by JOB 1
   [ time 32 ] Run JOB 1 at PRIORITY 0 [ TICKS 9 ALLOT 1 TIME 38 (of 50) ]
   ```
-## C9
+### C9
 See [this doc](https://github.com/czg-sci-42ver/ostep-hw/blob/master/9/README.md)
 1. `./lottery.py -j 3 -s 0` by changing `-s 1`, etc.
 2. search `Run 0` in `./lottery.py -l 10:1,10:100 -s 0 -c`
@@ -286,9 +576,123 @@ See [this doc](https://github.com/czg-sci-42ver/ostep-hw/blob/master/9/README.md
 3. almost fair; 
 4. `$ ./lottery.py -l 10:100,10:100 -s 2 -c -q 10` -> always fair.
   This is wrong.
-5. The above doc is purely by python with using `random` and `wpass`.
+1. The above doc is purely by python with using `random` and `wpass`.
   the random property of lottery causes it not to achieve 1 while the stride will always *interleave*.
   samller quantum size allows interleave -> more fair.
+## Virtualization part 2
+### C13
+1. not totally match by substracting `free` column number in `free` because of some overheads.
+2. not totally match. `[heap]` size is `132` when `./memory-user.o 100 100`.
+  - maybe better than "a linked list" because it can allocate one block of data instead of one when adding one node to the list.
+- here [`vdso`](https://en.wikipedia.org/wiki/VDSO) is to avoid overhead of context switches from the user mode to the kernel mode.
+  - others like [`vsyscall`](https://stackoverflow.com/a/19942352/21294350) is similar.
+    > just a function which reads the time saved into vsyscal
+  - `vvar` stores the [kernel data](https://lwn.net/Articles/615809/) (referenced [here](https://stackoverflow.com/questions/42730260/unable-to-access-contents-of-a-vvar-memory-region-in-gdb))
+    > The Linux vDSO implementation on x86_64 offers four of these *virtual system calls*: *__vdso_clock_gettime*(), __vdso_gettimeofday(), __vdso_time(), and __vdso_getcpu().
+    > If you look at the code of the four *virtual system calls*, you'll notice that three of them fetch the kernel data they need *from a vvar variable* called vsyscall_gtod_data of type struct vsyscall_gtod_data.
+- TODO `valgrind` failed in the infinite loop
+```bash
+$ valgrind ls
+$ uname -r
+6.4.11-arch2-1
+$ valgrind --version
+valgrind-3.21.0
+```
+### C15
+from [this](https://github.com/czg-sci-42ver/ostep-homework/blob/master/vm-mechanism/README.md), how the stack and heap are located in the address space is just defined manually. This is also said in the chapter summary footnotes.
+1. `python ./relocation.py -s 1 -n 10 -l 100 -b 16285 -a 1k -p 32k -c`
+### C16
+from the homework python script `paddr = nbase1 + (vaddr - asize)`, the offset should be based on the address space instead of the *limit*.
+  So `0x1254-(512-(0x00000322&0x1ff))` in python -> `4470`
+  ```bash
+  $ python segmentation.py -c
+  ...
+  Virtual Address Trace
+    VA  0: 0x0000020b (decimal:  523) --> SEGMENTATION VIOLATION (SEG1)
+    VA  1: 0x0000019e (decimal:  414) --> VALID in SEG0: 0x00001c88 (decimal: 7304)
+    VA  2: 0x00000322 (decimal:  802) --> VALID in SEG1: 0x00001176 (decimal: 4470)
+    VA  3: 0x00000136 (decimal:  310) --> VALID in SEG0: 0x00001c20 (decimal: 7200)
+    VA  4: 0x000001e8 (decimal:  488) --> SEGMENTATION VIOLATION (SEG0)
+  ```
+  - Notice here `0x0000020b` should be also in SEG1 because of the topbit.
+    ```bash
+    $ ipython
+    [ins] In [14]: 512-(523&0x1ff) < 450
+    Out[14]: False
+    ```
+  - the positive just plus.
+    `0x00001aea+414` -> `7304`
+1. [x] similar to the above.
+2. [ ] `-A` is based on `vaddr` by `for vstr in addrList:`.
+3. [x] `./segmentation.py -a 16 -p 128 -A 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 -b 0 -l 2 -B 32 -L 2 -c`
+  here `-B` can be tweaked to `-B 64` or others.
+1. [x] `./segmentation.py -a 160 -p 1280 -A 74,75,76,84,85,86 -b 0 -l 75 -B 32 -L 75 -c`
+  set the limit where `75=160*90%/2`.
+  - po the [ostep_hw] maybe wrong.
+1. [x] similar to 4, limit -> 0.
+### C17
+- the `-H 4 -a 4` make the 1st `1008`
+  here not coalesced
+  ```bash
+  $ ./malloc.py -S 100 -b 1000 -H 4 -a 4 -l ADDRSORT -p BEST -n 5 -c
+  ptr[0] = Alloc(3) returned 1004 (searched 1 elements)
+  Free List [ Size 1 ]: [ addr:1008 sz:92 ]
+
+  Free(ptr[0])
+  returned 0
+  Free List [ Size 2 ]: [ addr:1000 sz:8 ][ addr:1008 sz:92 ]
+
+  ptr[1] = Alloc(5) returned 1012 (searched 2 elements)
+  Free List [ Size 2 ]: [ addr:1000 sz:8 ][ addr:1020 sz:80 ]
+
+  Free(ptr[1])
+  returned 0
+  Free List [ Size 3 ]: [ addr:1000 sz:8 ][ addr:1008 sz:12 ][ addr:1020 sz:80 ]
+
+  ptr[2] = Alloc(8) returned 1012 (searched 3 elements)
+  Free List [ Size 2 ]: [ addr:1000 sz:8 ][ addr:1020 sz:80 ]
+  ```
+1. similar to above but not with the alignment.
+2. More fragments because the *small* fragment is *skipped*.
+3. time.
+  `time ./malloc.py -n 10 -H 0 -p FIRST -s 0 -c` about half of `time ./malloc.py -n 10 -H 0 -p WORST -s 0 -c`
+4. although `time ./malloc.py -n 10 -H 0 -p WORST -s 0 -l SIZESORT- -c` not takes less time (because of the sorting overheads.), it should take less time on the real machine.
+5. not matters because it only cares about the free property instead of the size or the addr of each one.
+  Why `./malloc.py -n 1000 -r 30 -c -l SIZESORT+ -p BEST -C -s 0` is less efficient.
+  because the python script simulation is not real which can't coalesce *adjacent addresses*.
+  See the [ostep_homework] script comment.
+7. See 5.
+  All without `-C` will generate the fragments.
+### C18
+- `./paging-linear-translate.py -v`
+  ```bash
+  $ ./paging-linear-translate.py -v
+  Virtual Address Trace
+    VA 0x00003229 (decimal:    12841) --> PA or invalid address?
+    VA 0x00001369 (decimal:     4969) --> PA or invalid address?
+    VA 0x00001e80 (decimal:     7808) --> PA or invalid address?
+    VA 0x00002556 (decimal:     9558) --> PA or invalid address?
+    VA 0x00003a1e (decimal:    14878) --> PA or invalid address?
+  ```
+  1. [x]`0x00003229` here the high bit of `229` is 0 -> in the range
+  2. [ ] `0x00003a1e` ... 1 -> not in the range -> invalid. Wrong
+  3. [x] others in the 1,2 obviously invalid because of the page table `[       1]  0x00000000`.
+1. `1m/1k=1024` -> entry number size.
+  because the cost increases when "use *big* pages in general".
+  See the [ostep_hw]
+2. See the introduction example.
+3. See [ostep_hw] where the page size influences the overhead
+  too small -> access too frequent
+  too big -> See 1.
+4. See [ostep_hw]
+  where `0` is related and 
+  the size relation between address space, page size and phys mem.
+### C19
+4. TODO always weird curve `python ./plot.py 10 10000000 --single_cpu`.
+5. So `-O0`.
+6. [`pthread_setaffinity_np`](https://stackoverflow.com/a/32657755/21294350) and [`sched_getcpu`](https://www.nas.nasa.gov/hecc/support/kb/processthread-pinning-overview_259.html#:~:text=Pinning%2C%20the%20binding%20of%20a,percentage%20of%20local%20memory%20accesses.) (They are the top results of "pinning a thread")
+  weird curve.
+
 ## TODO
 - read "APUE".
 # Projects
@@ -451,6 +855,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - lottery
   - 9
 # TODO after reading the algorithm book
+[W+95]
+- > balanced bi-nary trees, splay trees, or partially-ordered trees
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -458,10 +864,40 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 
 # TODO
 - read the Multi-CPU Scheduling after "Concurrency".
+# OSTEP 1.01 chpaters in the [ostep_book]
+Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book-chapters), it seems that 1.01 is not issued all at one time but with many discrete times.
+- chapter 6,19,23,26,28,40,
+# miscs
+- [LinuxForums.org](https://en.wikipedia.org/wiki/LinuxForums.org) has been shutdown which is [shown here](https://stackoverflow.com/questions/851958/where-do-malloc-and-free-store-allocated-sizes-and-addresses#comment660519_851958).
+## the English grammar
+- [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
+  just care about the answer is enough without caring the questions "do" or "don't".
+- when ["the"](https://www.englishteachermelanie.com/grammar-when-not-to-use-the-definite-article/#:~:text=Articles%20are%20not%20used%20before,I%20live%20in%20Canada.) not needed.
+  > Things in general
+  So in the [ostep_book]
+  > this pro-cess’s address space has been placed *in memory*
 
 ---
 
+<!-- ostep related -->
 [Introduction_to_Computing_Systems_book]:./Introduction_to_Computing_Systems/Introduction_to_Computing_Systems.pdf
 [ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw
+[ostep_book]:./Operating_Systems_Three_Easy_Pieces_by_R.pdf
 [background_md]:https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md
+[ostep_homework]:https://github.com/czg-sci-42ver/ostep-homework/blob/master/vm-freespace/README.md
+
 [xv6_book]:https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf
+[asm_md]:../asm/README.md
+[COD_md]:../COD/README.md
+
+<!-- paper -->
+[Decay_Usage]:./Ostep_papers/Decay_Usage.pdf
+[B+19]:./Ostep_papers/fork-hotos19.pdf
+[B+00]:./Ostep_papers/asplos-2000.pdf
+
+[intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
+[H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
+
+[x86_paging]:https://wiki.osdev.org/Paging#Page_Directory
+[Homonym_Synonym]:http://www.cse.unsw.edu.au/~cs9242/02/lectures/03-cache/node8.html
+[geeksforgeeks_aliasing]:https://www.geeksforgeeks.org/virtually-indexed-physically-tagged-vipt-cache/

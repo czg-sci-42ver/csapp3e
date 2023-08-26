@@ -637,6 +637,14 @@ printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
 - currently although using paged memory, but has been [abstracted](https://superuser.com/questions/318804/understanding-flat-memory-model-and-segmented-memory-model) to be flat, so just using [near](https://stackoverflow.com/questions/46187337/how-can-the-processor-discern-a-far-return-from-a-near-return) return `C3` where "segmented memory model" is mostly used by old cpus. <a id="flat_memory_model"></a>
   Notice: In [COD_RISC_V_Orig] p469, the total size of "16 bits of segment to the existing 16-bit" is same as "unsegmented 32-bit address space", but their physical implementation is different, at least the former memory only needs to search 16-bit range while the latter needs to 32-bit. See [this](https://en.wikipedia.org/wiki/Flat_memory_model#x86_segmented_memory_model) and Segmentation with *paging* just means using [page table](https://en.wikipedia.org/wiki/Memory_segmentation#Segmentation_with_paging) <a id="Segmentation"></a>
   - Internal Fragmentation is caused by being used by process. [whereas](https://www.tutorialspoint.com/difference-between-internal-fragmentation-and-external-fragmentation#:~:text=Internal%20Fragmentation%20occurs%20when%20a,removed%20from%20the%20main%20memory.&text=Best%20Fit%20Block%20Search%20is,the%20solution%20for%20external%20fragmentation.) External Fragmentation is cauesd by small unused spaces between used spaces.
+    This is also said [here](https://www.baeldung.com/cs/internal-vs-external-fragmentation-paging)
+    > We already know paging divides programs into *fixed-size pages*.
+    - Based on the baeldung blog, the former can be [solved](https://en.wikipedia.org/wiki/Fragmentation_(computing)) somewhat by
+      > The "best fit" algorithm chooses the *smallest hole that is big enough*.
+      So the process can use the space *more efficiently*.
+    - Based on the baeldung blog, the latter can be solved by [Compaction](https://www.geeksforgeeks.org/compaction-in-operating-system/) (i.e. move the unused ones *together*).
+      multi-level page table can connect them in some way.
+      This what [ostep_vm_segmentation] "Figure 16.6" does and this is also said in p9. 
   - [secondary](https://en.wikipedia.org/wiki/Computer_data_storage) memory
   - paging [diffs with](https://www.tutorialspoint.com/difference-between-paging-and-segmentation) segmentation 
   - [pdf p72][intel_64] Real-Address Mode Model -> 'Real mode' in x86
@@ -2462,8 +2470,13 @@ LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ```
 ### vmmap(pwndbg)
 - anon -> [Anonymous mappings](https://stackoverflow.com/questions/13024087/what-are-memory-mapped-page-and-anonymous-page)
+  > The *most common* use of anonymous private mappings is the *heap and stack* segments of a process.
+  > Since memory mapped in using Anonymous mappings is guaranteed to be zero filled ... expect/require zero filled regions of memory to use mmap(2) in this way *instead of the malloc(2) + memset(2)* combo.
   - ‘not backed by a file’,'/dev/zero','there isn't a file specified.' -> just means: not related with one file, also see csapp index
   - 'heap and stack','guaranteed to be zero filled', 'POSIX shared memory' [with](https://www.geeksforgeeks.org/posix-shared-memory-api/) `mmap`
+  - `MAP_PRIVATE`
+    > Create  a  private *copy-on-write* mapping. Updates to the mapping are *not visible* to other processes mapping the same file, and are not carried through to the un‐derlying file.
+    See "Figure 9.30" it is similar to `MAP_SHARED` but it is `private` -> copy-on-write.
 ### notice
 - `up` and `down` to change frame not change process context, at least most fo registers [unchanged](https://stackoverflow.com/questions/62697912/can-gdb-false-recreate-frames-registers)
 - temporarily header demangle no use, although [old version with specific language](https://sourceware.org/pipermail/gdb-patches/2020-July/170823.html) works
@@ -3916,7 +3929,16 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - [high-water mark](https://stackoverflow.com/questions/45489405/what-are-high-and-low-water-marks-in-bit-streaming)
 - [thrashing](https://www.techopedia.com/definition/4766/thrashing) or csapp p887
 - [(void *) -1](https://stackoverflow.com/questions/38550401/significance-of-void-1)
-- [Buddy systems p2](http://www.cs.cmu.edu/afs/cs/academic/class/15213-s01/lectures/class15.4up.pdf)
+- [Buddy systems p2](http://www.cs.cmu.edu/afs/cs/academic/class/15213-s01/lectures/class15.4up.pdf). Btter see [the example](https://en.wikipedia.org/wiki/Buddy_memory_allocation#Example).
+  The p3 says the "Tradeoffs" which says the pros and cons.
+  1. faster to allocate. 
+  2. See the pdf.
+  3. > the buddy memory system has little external fragmentation
+    because they are all adjacent $2^i$ blocks.
+    - From [ostep_vm_segmentation]
+      > no matter how smart the algorithm, external fragmentation will still exist;
+      This can be deliberate by freeing one *very small* block, then all subsequent request blocks are bigger than that.
+  Notice this is similar to the [ostep_hw] `14/vector.h`.
   - [fragmentation](https://www.geeksforgeeks.org/buddy-system-memory-allocation-technique/)
 - [mmap](https://www.clear.rice.edu/comp321/html/laboratories/lab10/)
 - address order [Explicit Free List](https://courses.cs.washington.edu/courses/cse351/10sp/lectures/15-memallocation.pdf) and [video](https://www.youtube.com/watch?v=rhLk2lf6QXA)
@@ -6190,6 +6212,14 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - ~~TODO here should be 'the same place in the cache' which implies alias (see [above](#alias)) instead of ' two different places in the cache' (just origianal eight-way index has one redundant bit, so conflict miss.)~~
   - ~~TODO 'four-way set associative' need more infos. Because if with the same info as 6700, then four-way needs 7bit index while 6bit will select only half.~~ See [this](https://stackoverflow.com/questions/76530296/what-is-the-relation-between-set-associative-and-cache-aliasing) <a id="Virtual_Address_Aliasing"></a>
     - [Homonyms and Synonyms (aliases)](http://www.cse.unsw.edu.au/~cs9242/02/lectures/03-cache/node8.html) (this can also say VIPT alias problem.)
+      See [this](https://www.geeksforgeeks.org/virtually-indexed-physically-tagged-vipt-cache/) for the more intuitive explanation and [this][Interaction_Between_Caching_Translation_Protection].
+      - Here virtual address has 2 functions, 1st to locate the cache and 2nd to locate the page table.
+        So See "Example demonstrating Aliasing:" 1st figure.
+        - different TLBs in different address spaces will translate the *different* VPN to the *same* PFN.
+        - Notice the "Page Offset" must be same for all virtual addresses.
+          Then -> the same physical address.
+        - the different VPN -> different cache index -> different locations of cache.
+      - TODO [see](https://stackoverflow.com/questions/46588219/virtually-indexed-physically-tagged-cache-synonym)
     - also see page-coloring [with p18](https://www.inf.ed.ac.uk/teaching/courses/car/Notes/2016-17/lecture09-virtual_memory.pdf) VI-PT caches 
       - Also see [this](https://www.intel.com/content/www/us/en/docs/programmable/683836/current/virtual-address-aliasing.html) although it doesn't say about 'VI-PT' but it implies the virtual *index* to be make same physical address be placed in different cache location.
         - kw: '*untranslated* bits of the page offset'; 'bits *beyond* the page offset (bits 12 and up) are used to select the cache line' (So `0x1000` and `0x2000` can map to same physical address because their *page offset* are same.); 'virtually-indexed and physically-tagged'
@@ -7419,7 +7449,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   [CP-67](https://en.wikipedia.org/wiki/CP-67#:~:text=CP%2D67%20is%20the%20control,customized%20S%2F360%2D40.) is the [VMM](#VMM).
   TODO See [development process](https://en.wikipedia.org/wiki/VM_(operating_system)) of VM in IBM including VM/370 and z/VM.
 - Batch processing is just based on processing *one batch* each time ("run the next until the batch was complete").
-  In [multitasking](https://en.wikipedia.org/wiki/Computer_multitasking) used by [Time-sharing](https://en.wikipedia.org/wiki/Time-sharing#Time-sharing) "New tasks can *interrupt* already started ones before they finish" while Batch processing can't ([Multiprogramming](https://en.wikipedia.org/wiki/Computer_multitasking#Multiprogramming) is similar, "the context of this program was stored away"). This implies "interactive".
+  In [multitasking](https://en.wikipedia.org/wiki/Computer_multitasking) used by [Time-sharing](https://en.wikipedia.org/wiki/Time-sharing#Time-sharing) "New tasks can *interrupt* already started ones before they finish" while Batch processing can't ([Multiprogramming](https://en.wikipedia.org/wiki/Computer_multitasking#Multiprogramming) is similar to multitasking, "the context of this program was stored away"). This implies "interactive".
 
 - TODO 
   read "The Mythical Man Month"
@@ -12157,3 +12187,8 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- osdev -->
 [osdev_x86_reg]:https://wiki.osdev.org/CPU_Registers_x86-64
+
+<!-- ostep -->
+[ostep_vm_segmentation]:../Operating_System/ostep_new_version_chapter/Virtualization_part_2/vm-segmentation.pdf
+[ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw/blob/master/15/README.md
+[Interaction_Between_Caching_Translation_Protection]:../Operating_System/Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
