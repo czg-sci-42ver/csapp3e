@@ -2,6 +2,7 @@
 # How to read this book
 - > While it’s generally good to trust this book, remember too that the authors have *opinions*; those opinions may *not (always) be as widely shared as you might think.*
 - read the not understanded introduction parts of each chapter after reading the whole chapter.
+- Many things of the book has been said in csapp and COD.
 # Introduction
 - p30
   - turn off address-space randomization temporarily based on [this](https://gcc.gnu.org/wiki/Randomization) and [this](https://www.tecmint.com/change-modify-linux-kernel-runtime-parameters/)
@@ -366,12 +367,13 @@ $ uname -r
   - they [don't conflict](https://qr.ae/py6LEx)
     > Paging, on the other hand, is *not a substitute* for segmentation. Its main use is to *swap* memory out easily to devices that have a higher storage capacity than the available RAM.
     > Segmentation doesn't help you with upper segment boundaries, as segmentation normally *only has one upper bound*
+    - Also see [mapping_logical_addr](#mapping_logical_addr)
 - > the OS and hardware must combine to translate it into a meaningful physical address
   OS needs to switch the process with their own page tables. (at least *update* page tables)
   hardware use specific circuit to accelerate the process like TLB. (at least *store* page tables)
 - ["sparse address space"](https://gateoverflow.in/20962/why-large-hole-between-stack-heap-part-virtual-address-space#:~:text=Virtual%20address%20spaces%20that%20include,link%20libraries%20during%20program%20execution%20%22.)
   > Virtual address spaces that include *holes* are known as sparse address spaces.
-- PTE [contents](https://wiki.osdev.org/Paging)
+- PTE [contents][x86_paging]
   See the [figure](https://wiki.osdev.org/File:Paging_Structure.gif)
   - TODO po "Page Directory" entry specifies the property of the page table, while "Page Table" entry specifies the 4K page block.
     See `PTE = AccessMemory(PTEAddr)`.
@@ -420,7 +422,8 @@ $ uname -r
   - [linear address](https://stackoverflow.com/a/62998232/21294350)
     here "Logical Address" may be something like `cs:0xab`.
     > Logical Addresses -> Virtual Addresses -> Physikal Addresses
-    where `->` means convert.
+    where `->` means convert. <a id="mapping_logical_addr"></a>
+    - Also see "Figure 20.1".
     the 1st step implies segmentation, 2nd step implies paging.
   - > We see a global bit (G), which is used for pages that are globally-shared among processes. Thus, if the global bit is set, the ASID is *ignored*.
     x86 global bit is similar to MIPS.
@@ -432,10 +435,10 @@ $ uname -r
   it is similar to `wire` in verilog, i.e. the register contents are *fixed*.
   > where a TLB miss would be problematic (e.g., in the TLB miss handler).
   i.e. store the related infos about the "TLB miss handler".
-- "Summary" says
-  1. why use "larger page sizes" -> because TLB storage can be used more efficiently.
+### "Summary" says
+1. why use "larger page sizes" -> because TLB storage can be used more efficiently.
 - See [asm_md] "virtually-indexed"
-  physically-indexed cache is similar to use the physical addr to index the location in the page table. So needs "address translation ... before".
+  physically-indexed cache is similar to use the physical addr to index the location in the page table. So needs "address translation has to take place before".
 - [Interaction_Between_Caching_Translation_Protection]
   See [asm_md] "Homonyms and Synonyms"
   - [Homonyms](https://stackoverflow.com/a/76982064/21294350)
@@ -457,6 +460,139 @@ $ uname -r
     Also [see](https://stackoverflow.com/a/76982064/21294350)
   - So intel uses [VIPT](https://stackoverflow.com/a/22571006/21294350), reasons are similar to the above and the book
     > Because of this potential problem, people have looked into all sorts of clever ways to access caches with virtual addresses, thus *avoiding the expensive step of translation* in the case of a cache hit
+## Smaller Tables
+- ["linear page table"](https://users.cs.duke.edu/~narten/110/nachos/main/node8.html) is similar to segmentation implementation by spliting the address into *two parts*.
+- > our page table is 4MB in size
+  > with 4KB (212 byte) pages and a *4-byte* page-table entry.
+  ~~See "Figure 19.2". Here size is not the page table which stores the mappings, instead it is the *data stored in the memory* corresponding to the page table.~~
+  TODO it seems to be 8 bytes by "Figure 19.4".
+  > Finally, some of the *64 bits* are unused (shaded gray in the diagram).
+- > The bounds register is used to indicate the end of the page table
+  *bounds* in segmentation can limit the *unused* space.
+- > our hybrid approach realizes a *significant memory savings* compared to the linear page table
+  > As you can see from the picture, most of the page table is unused, *full of invalid entries*. What a *waste*!
+- > seg-mentation is *not quite as flexible* as we would like, as it assumes a *certain usage pattern* of the address space
+  i.e. continuous.
+  So 
+  > Thus, finding free space for them in memory is *more complicated*.
+  because it *can't connect* the discrete pages to offer bigger space like original paging.
+  - "multi-level page table" can solve this problem because its inherent mapping property.
+    > the OS can *simply grab the next free page* when it needs to allocate or grow a page
+    From "Figure 20.3", it just *coalesces* the invalid pages.
+    - Compared with "page directory", it just has more *nest levels* of page tables.
+      So 
+      > *each portion* of the page table *fits neatly* within a page
+      i.e. have mapping to different "portions of the page table" -> somewhat solving the *internal fragmentation*.
+- > each page can hold 16 PTEs.
+  here means that the *whole PTE mappings* of the 16KB address space needs another 16 PTEs to *store* them.
+  -> "per page of the page table".
+  - [page directory](https://en.wikipedia.org/wiki/Page_table#Multilevel_page_tables)
+    here "16 PTEs." -> PTE number of the page directory.
+    - just think it as one *directory* filled with page ~~mappings~~ tables. (See the encoding of the VPN).
+- > T IP : B E WARY O F C OMPLEXITY
+  i.e. tuned for specific hardwares.
+- `PTEAddr = (PDE.PFN << SHIFT) + (PTIndex * sizeof(PTE))`
+  the `SHIFT = bit_number(PTIndex)` -> 4
+  which is to avoid the overlap of the address when addition.
+- the goal of "multi-level page tables"
+  > our goal of making *every piece* of the multi-level page table *fit into a page* vanishes.
+- "Figure 20.6" is two-level.
+- "inverted page tables"
+  not has "per process"  overheads and limited the size to the *physical* property.
+- > With a hundred active processes (not uncommon on a modern system), we will be *allocating hundreds of megabytes* of memory just for page tables
+  > the bigger the table, the faster a TLB miss can be serviced
+  po here the "faster" may mean that less TLB misses because TLB translation number is smaller.
+## Mechanisms
+- > such as a Flash-based SSD.
+  See [asm_md] "flash_diff_dram" for why FLASH is slower than DRAM.
+- "A SIDE : S WAPPING T ERMINOLOGY AND O THER T HINGS"
+  > it is *odd* that we call what is definitely a *legal* access (to a page mapped into the virtual address space of a process, but simply not in physical memory at the time) a *“fault”* at all;
+  So not be too stuck in the terminology.
+  - > which is raise an *exception*, and the OS takes over from there
+    the trap handler implies “fault”.
+    > known as a page-fault handler
+- > how to issue I/Os to the disk
+  may be a little beyond the CPU ability.
+- `PTE.DiskAddr`
+  See [x86_paging]
+  > This means the *contents of the PTE or PDE* can be used to indicate a *location* of the page saved on mass storage and to quickly load it.
+- > the algorithm would instead simply check if there are *any* free pages available.
+  po should be "at least LW pages".
+- > it would inform the background paging thread that free pages are needed;
+  i.e. process switch (background is directly saved when start without running much).
+## Policies
+- > Given that main memory holds some subset of all the pages in the system, it can rightly be viewed as a cache for virtual memory pages in the system.
+  virtual memory
+  L1 cache -> main mem
+  L2 cache -> disk or other variants like SSD, RAID.
+- > Note you always pay the cost of accessing the data in memory; when you miss, however, you must *additionally* pay the cost of fetching the data from disk.
+  This may differ from the original CPU L1,L2 cache (depends on how L1,L2 implemented)
+  where either L1 or L2 is taken in account.
+- > Assuming the cost of accessing memory (TM ) is around 100 nanoseconds
+  TODO here maybe take the whole 10 times in account.
+- > AMAT is 10.1 microseconds,
+  Notice the [differences](https://convertlive.com/u/convert/nanoseconds/to/milliseconds) between "millisecond" and "microsecond".
+  $0.01ms+100ns=0.0101ms=10.1us$ (here ms -> millisecond, so $1ms=1e+6ns$)
+- "T IP : C OMPARING AGAINST O PTIMAL I S USEFUL"
+  says about the usage of the *unrealistic* policy.
+- `85.7%` should be `6/8=-0.75` if "ignore the first miss to a given page".
+  ~~take the condition that 2rd access may be same as 1st access, so the denominator only minus one.
+  then `6/10`~~
+- queue 
+  See [Introduction_to_Computing_Systems_book] p294 where the front is the oldest member.
+  -> here "tail".
+- `36.4%` -> `4/11`
+- [BNS69](https://dl.acm.org/doi/pdf/10.1145/363011.363155)
+  here 4 pages
+  4 misses -> h,h,
+  -> m (2,3,4,5)
+  -> m (3,4,5,1)
+  -> 2,3,4 (all misses because of evicting exactly the next page to access) (1,2,3,4) 
+  -> m
+  Also see [this](#Belady_Anomaly)
+- TODO ["LRU stack"](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=4a58e3066f12bb86d7aef2776e9d8a2a4e4daf3e) in [M+70]
+  > a cache of size N + 1 naturally *includes the contents* of a cache of size N .
+  See the above paper "Figure 4"
+  TODO why LRU has the stack property.
+  - maybe because of the LRU *memorability*.
+    > *stateless* policies such as Random or FIFO
+- "Figure 22.3" -> total reference number is 11.
+- > As we did with scheduling policy, to improve our guess at the future, we once again *lean on the past* and use history as our guide.
+  MLFQ use the history to update the *priority*.
+- [D70]
+  > Informally, locality means that during any interval of execution, a program *favors a subset* of its pages, and this set of favored pages *changes membership slowly*
+  "prin-ciple of locality"
+- > If each miss is very costly (not uncommon), then even a small increase in hit rate (reduction in miss rate) can make a huge difference on performance
+  because here miss time takes *the most* of the whole time, so if the miss rate decreases a little, then the whole time will decrease a lot.
+  for example, $t_{miss}=0.8*t_{whole}$, then if miss rate decrease 
+  $0.2$ -> $t_{whole}$ decreases 
+  $0.16*t_{whole}$
+  while if $t_{miss}=0.1*t_{whole}$ -> 
+  $0.02*t_{whole}$
+- > Contrast this to FIFO, where the FIFO list of pages is only accessed when a page is evicted (by removing the first-in page) or when a new page is added to the list (to the last-in side).
+  i.e. not update at each access.
+- "a circular list" in p12 is similar to the list in "Figure 22.5".
+- ["scan resistance"](https://misfra.me/2017/01/03/caching-and-crashing-in-lm2/)
+  not make the cache too messy.
+  > This approach is scan resistant because a single, full collection scan *won’t destroy* the cache. 
+  > lm2 uses *probability to insert* elements into the cache.
+  This is similar to random.
+  > Scan resistance is about *keeping the cache “good”* when faced with large scans. A scan will access lots of elements, but many will *not be accessed again*.
+- > no matter how good your replacement algorithm was, if you were performing frequent re-placements, your system became unbearably slow.
+  i.e. *even one paging may dominate* the time when added to the memory access time.
+- [SS10]
+  - [slides](https://www.usenix.org/legacy/event/atc10/tech/slides/saxena.pdf)
+    - > *Disk‐based* write caches for *streamed* I/O
+      which will decrease the pressure of the FLASH.
+  - ~~TODO~~ how to solve with "wearout"
+    See "5.3.2 Wear Management"
+    - > uniformly skipping 1 in 100 dirty pages for write back
+      This may be due to *overwrite*, so some write-back *may be no use* if no others use this result.
+    - [zero-page sharing](https://lwn.net/Articles/517465/)
+      > One zero-filled page looks a lot like another, so there is little value in making too many of them.
+    - Page Sampling
+      > skipping dirty pages for write-back leads to more fre-quent page faults, because younger clean pages must be evicted.
+  - kw: Discard, 
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
@@ -472,6 +608,8 @@ $ uname -r
 - [N+07] which is related with "a *system* that automatically corrects heap-based memory errors".
 - [S15]
 - [CP78]
+- [N+02]
+- [W+21]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -692,7 +830,84 @@ from the homework python script `paddr = nbase1 + (vaddr - asize)`, the offset s
 5. So `-O0`.
 6. [`pthread_setaffinity_np`](https://stackoverflow.com/a/32657755/21294350) and [`sched_getcpu`](https://www.nas.nasa.gov/hecc/support/kb/processthread-pinning-overview_259.html#:~:text=Pinning%2C%20the%20binding%20of%20a,percentage%20of%20local%20memory%20accesses.) (They are the top results of "pinning a thread")
   weird curve.
-
+TODO use [cpuid](https://unix.stackexchange.com/a/113595/568529) which is [not part of msr-tools](https://stackoverflow.com/a/72107145/21294350) to check TLB.
+Also [see](https://unix.stackexchange.com/a/746813/568529).
+### C20
+```python
+def get_contents(page,index):
+  contents = hex(page>>((32-index-1)*2*4)&0xff)
+  num = int(contents,0x10) & 0x7f
+  return contents,num
+pde_page = 0x83fee0da7fd47febbe9ed5ade4ac90d692d8c1f89fe1ede9a1e8c7c2a9d1dbff
+vaddr = 0x611c
+pde_index = vaddr >>10&0x1f
+pte_index = vaddr >>5&0x1f
+offset = vaddr & 0x1f
+pde_contents = hex(pde_page>>((32-pde_index-1)*2*4)&0xff)
+pde_pfn = -1
+if (int(pde_contents,16) & 0x80): pde_pfn = int(pde_contents,16) & 0x7f
+if pde_pfn != -1:
+  # this needs dynamic changes
+  pte_page = 0x7f7f7f7f7f7f7f7fb57f9d7f7f7f7f7f7f7f7f7f7f7f7f7f7f7ff6b17f7f7f7f
+  pte_contents,pte_pfn = get_contents(pte_page,pte_index)
+paddr = (pte_pfn << 5) | offset
+"""
+From `memoryDump` and `getValue` the physical memory just *consists of pages*. 
+"""
+# continues the above. get the physical memory data
+physical_offset = paddr & 0x1f
+physical_page = paddr >> 5
+physical_page_mem = 0x0f0c18090e121c0f081713071c1e191b09161b150e030d121c1d0e1a08181100
+mem_contents,ignore_num = get_contents(physical_page_mem,physical_offset)
+mem_contents
+```
+notice `ptPtr   = (pde & 0x7f)` implies the topbit -> valid bit
+1. still one.
+2. 3 for 2-level.
+3. "lots of cache hits" if cache is bigger than the TLB.
+### Ç21
+1. See `id,us` changes.
+2. Yes.
+  ```bash
+  $ vmstat 1
+  ...
+    1  0      0 5518196  46572 5016832    0    0     0     0  968 1510  1  1 99  0  0
+    2  0      0 5202048  46572 5016832    0    0     0     0 1358 2035  1  2 97  0  0
+    2  0      0 4467352  46572 5016832    0    0     0     0 1595 1696  7  2 91  0  0
+  $ ipython
+  [ins] In [3]: (5518196-4467352)/1024
+   Out[3]: 1026.21484375
+  ```
+  - > swpd (the amount of virtual memory used)
+    should be swap. So -> `0`
+3. Just similar.
+  They are all swapped out in the 1st loop.
+  - TODO
+    How highmem related with ["maximum size of virtual memory"](https://docs.kernel.org/mm/highmem.html)
+    > High memory (highmem) is used when the size of physical memory *approaches or exceeds* the maximum size of virtual memory.
+    Since from the [kernel `/proc` doc](https://www.kernel.org/doc/html/latest/filesystems/proc.html?highlight=memfree) which is from [this](https://lore.kernel.org/linux-mm/YmmenecCDr6kGvUj@cmpxchg.org/)
+    > Highmem areas are for use by *userspace* programs, or for the pagecache.
+    - This means same as [this](https://unix.stackexchange.com/a/5151/568529)
+  - [`sudo swapoff -a && sudo swapon -a`](https://askubuntu.com/questions/1357/how-to-empty-swap-if-there-is-free-ram) clear swap.
+4. "CPU utilization" only changed by the process count. (i.e. `./mem 10000` or `./mem 100` both use `us=7`)
+  `bo` is almost same as `so`, but sometimes bigger when taking other operations than swap in account.
+5. both conditions (bigger or smaller than physical) will take longer at the 1st loop
+  while much shorter afterwards.
+  - `performance` is similar with `6680.47 MB/s` without swapping by `./mem 10000` and `6977.95 MB/s` with swapping by `./mem 100`.
+    loop0: `2612.17 MB/s` vs `4257.87 MB/s`
+6. not to arbitrarily run like `./mem 19000` which may close all programs to allocate ...
+7. > How close can you get to in-memory performance
+  From 5, it seems that the SSD performs almost same as the memory.
+  Maybe due to the *cache*. -> This also explains why the 1st loop always takes longer.
+### Ç22
+`./paging-policy.py -C 4 -a 1,2,3,4,1,2,5,1,2,3,4,5 -c` explains "Belady’s Anomaly" <a id="Belady_Anomaly"></a>
+2. as the book says, just enough to *hold all* accesses.
+  `UNOPT` is opposite of `OPT` which replace the nearest access (This is weird just as its name shows).
+  - From `addrList.append(n)` -> `addrList` stores the addresses to access.
+  - From `if count == cachesize:` -> `count` stores cache filled size.
+    - So `memory[pageIndex]` stores the current cache states.
+  - `whenReferenced = futureIdx` -> stores the *duplicate* index with current *contents in the cache* in the future.
+    - `whenReferenced < minReplace` implies replace the *nearest* instead furthest future index.
 ## TODO
 - read "APUE".
 # Projects
@@ -857,6 +1072,9 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
+- > a hash table is often built over the base structure to speed up lookups.
+  >  page tables are *just data structures*. You can do lots of crazy things with data structures, making them smaller or bigger, making them slower or faster.
+  > What *new struc-tures* can you come up with? What problems do they solve?
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -864,6 +1082,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 
 # TODO
 - read the Multi-CPU Scheduling after "Concurrency".
+- use `valgrind` with chapter 14,22 homework.
+  - read [SN05]
 # OSTEP 1.01 chpaters in the [ostep_book]
 Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book-chapters), it seems that 1.01 is not issued all at one time but with many discrete times.
 - chapter 6,19,23,26,28,40,
@@ -876,6 +1096,11 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
   > Things in general
   So in the [ostep_book]
   > this pro-cess’s address space has been placed *in memory*
+- "You’re welcome" -> [welcome](https://english.stackexchange.com/a/152945) your help or others.
+- > peeking into the future, if it were possible, does a much better job of replacement.
+  [subjunctive mood](https://www.scribbr.com/verbs/subjunctive-mood/#:~:text=The%20subjunctive%20mood%20is%20a,types%20of%20subjunctive%20verb%20forms.)
+  > The past subjunctive is typically used to refer to past or *present* actions or situations.
+  - TODO here "infinitive form" ~~isn't same as "to be"~~ is the ["Bare infinitive"](https://www.grammarly.com/blog/infinitives/) which may function as "adjective"/noun.
 
 ---
 
@@ -894,6 +1119,7 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [Decay_Usage]:./Ostep_papers/Decay_Usage.pdf
 [B+19]:./Ostep_papers/fork-hotos19.pdf
 [B+00]:./Ostep_papers/asplos-2000.pdf
+[SS10]:./Ostep_papers/Saxena.pdf
 
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf

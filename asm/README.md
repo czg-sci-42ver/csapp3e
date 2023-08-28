@@ -3865,7 +3865,9 @@ vcvtsi2ss %edi, %xmm1, %xmm2
     - Here reading MOSFET is by ["Electric-field screening" -> "*damping* of electric fields caused by the presence of *mobile charge carriers*"](https://www.chemeurope.com/en/encyclopedia/Electric_field_screening.html#:~:text=Screening%20is%20the%20damping%20of,and%20conduction%20electrons%20in%20metals.) (here the $FG=V_{T2}$ will damp the electric field 
     so that "the channel *does not conduct* at the $V_{I}$")
     - ~~TODO~~ [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM 
-      Just see the above, but notice Flash is just one special EEPROM and it only has structural similarity with DRAM because of `WL` and `BL` but how they store bit is totally different where the latter uses capacitor and the former uses "*Floating-gate* MOSFET".
+      Just see the above, but notice Flash is just one special EEPROM and it only has structural similarity with DRAM because of `WL` and `BL` but how they store bit is totally different where the latter uses capacitor and the former uses "*Floating-gate* MOSFET". <a id="flash_diff_dram"></a>
+      - This implies why Flash is [slower](https://qr.ae/py3C3i) than DRAM.
+        > And the force an electron *through an isolator* idea of the Flash’s MOSFET *floating gate* is just slower than both.
 
       Notice: floating gate "solving the traditional *endurance* roblem" because of "utilizing an *oxide* less than 2001 thick *between* a floating poly gate and an $N^+$ region" (more detailedly, it is *surrounded* by oxide) (This is also said somewhere in wikipedia which is temporarily forgotten the location)
 
@@ -3928,6 +3930,8 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - [mm_struct (recommended linux reference doc)](https://docs.huihoo.com/doxygen/linux/kernel/3.7/mm__types_8h_source.html#l00348) 
 - [high-water mark](https://stackoverflow.com/questions/45489405/what-are-high-and-low-water-marks-in-bit-streaming)
 - [thrashing](https://www.techopedia.com/definition/4766/thrashing) or csapp p887
+  > It occurs when the virtual memory of a computer is rapidly *exchanging data for data on hard disk*, to the exclusion of most application-level processing.
+  po "to the exclusion" means able to process.
 - [(void *) -1](https://stackoverflow.com/questions/38550401/significance-of-void-1)
 - [Buddy systems p2](http://www.cs.cmu.edu/afs/cs/academic/class/15213-s01/lectures/class15.4up.pdf). Btter see [the example](https://en.wikipedia.org/wiki/Buddy_memory_allocation#Example).
   The p3 says the "Tradeoffs" which says the pros and cons.
@@ -8227,7 +8231,7 @@ something like "The programming model scales transparently to large numbers of p
 - [chipset](https://en.wikipedia.org/wiki/Chipset#Computers) is just one *interface* between cpu and I/O,etc.
 - compare [ISA](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) and [PCI](https://en.wikipedia.org/wiki/Industry_Standard_Architecture#:~:text=Industry%20Standard%20Architecture%20(ISA)%20is,ISA) based on the right card.
 - [framebuffer](https://en.wikipedia.org/wiki/Linux_framebuffer#) is one software abstraction. [See the kernel doc "doesn't need to know anything about the low-level (hardware *register*) stuff."](https://docs.kernel.org/fb/framebuffer.html#introduction) 
-  - kw: "containing a *current* video frame ... *only the Linux kernel*'s own basic facilities" which is separate from the *user space*.
+  - kw: "containing a *current* video frame ... using *only the Linux kernel*'s own basic facilities" which is separate from the *user space*.
   - TODO 
     - how [applied](https://en.wikipedia.org/wiki/Linux_framebuffer#Applications)
     - [read](https://www.kernel.org/doc/html/v6.5-rc3/fb/)
@@ -8548,6 +8552,7 @@ See [this](#notice)
     Also see [vs](https://forums.developer.nvidia.com/t/difference-between-cudamallocmanaged-and-cudamallochost/208479/2) [`cudaMallocHost`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gd5c991beb38e2b8419f50285707ae87e) where "pinned memory" [p6](https://engineering.purdue.edu/~smidkiff/ece563/NVidiaGPUTeachingToolkit/Mod14DataXfer/Mod14DataXfer.pdf) means [same](https://saturncloud.io/blog/cuda-and-pinned-page-locked-memory-not-page-locked-at-all/#:~:text=Page%2Dlocked%20memory%20is%20a,about%20the%20overhead%20of%20paging.) as page-locked memory.
     kw: "moves the resident location of an allocation to the processor that needs it. Pinned memory *does not*"
     - [improving_gpu_oversubscription_performance]
+      here "oversubscription" means *demand too much* memory.
       - Sequential access analysis
         1. Impact of the access pattern
            > Here, the block stride access pattern achieves higher memory bandwidth *due to the page fault traffic* that this pattern generates.
