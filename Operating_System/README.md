@@ -1054,6 +1054,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
     From `man expect`
     > waits  until  one  of  the  patterns  matches the output of a spawned process
     So when launching the `qemu`, the `expect "init: starting sh\r"` will wait until it outputs this message and then it goes forward.
+- miscs with git
+  - [`git clean -f -x -d`](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/How-to-use-the-git-clean-command) remove untracked directories and files.
 ### questions
 - ~~why does new `xv6` with less "struct context" registers?~~
   See the comments
@@ -1116,6 +1118,13 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   3. [`-Ttext`](https://stackoverflow.com/a/34627664/21294350)
   4. `./mkfs fs.img README _cat _echo _forktest _grep _init _kill _ln _ls _test_1 _test_2 _mkdir _rm _sh _stressfs _test_readcount _usertests _wc _zombie ` will make the `test_1` executable in the `fs.img`.
   - TODO read after "20:40".
+- [`traps.h`](https://github.com/czg-sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) defines the error code.
+- `argint` or `argptr` See `syscall.c`.
+  - From `(uint)i+size` the `size` corresponds to size of `n`th parameter.
+- `P2V` is [specific](https://stackoverflow.com/questions/50073792/whats-the-mechanism-behind-p2v-v2p-macro-in-xv6) to the xv6 memory space. 
+  See the figure.
+- here assume page table bits same as [x86](https://pekopeko11.sakura.ne.jp/unix_v6/xv6-book/en/Page_tables.html).
+- How `write` [works](https://stackoverflow.com/questions/49971604/how-does-xv6-write-to-the-terminal).
 ### scheduling-xv6-lottery
 - this has no `tests` dir, so no tests offered by the instructor.
 - this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8) has no cc
@@ -1195,6 +1204,59 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   6. "user.h" is used in `test1.c`.
   7. "usys.S" also by [background_md]
 - `lk->cpu = 0;` implies better using the `CPU=1` parameter.
+### vm-xv6-intro
+- `test2.c` is the [`null`](https://github.com/czg-sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) program.
+  So
+  > Thus, if you dereference a null pointer, you will not see an exception (as you might expect)
+  may be not that case.
+- `i386-elf-gas` not exists
+  So
+  ```diff
+  -AS = $(TOOLPREFIX)gas
+  +AS = $(TOOLPREFIX)as  
+  ```
+  However, it is not used in `Makefile`.
+- TODO
+  - `alloc` meaning in `walkpgdir(curproc->pgdir, a, 0)`.
+- why `sz = PGSIZE;`
+  othewise with `sz = 0`
+  ```bash
+  test 1: passed
+  test 2: 2.out incorrect
+    what results should be found in file: tests/2.out
+    what results produced by your program: tests-out/2.out
+    compare the two using diff, cmp, or related tools to debug, e.g.:
+    prompt> diff tests/2.out tests-out/2.out
+    See tests/2.run for what is being run
+  [czg ~/ostep-projects/vm-xv6-intro]$ diff tests/2.out tests-out/2.out
+  --- tests/2.out 2023-08-29 16:29:01.942459722 +0800
+  +++ tests-out/2.out     2023-08-29 16:39:30.146201478 +0800
+  @@ -1 +1 @@
+  -pid 3 test_2: trap 14 err 4 on cpu 0 eip 0x1000 addr 0x0--kill proc
+  +pid 3 test_2: trap 6 err 0 on cpu 0 eip 0x1005 addr 0x0--kill proc
+  ```
+  - because
+    > If you change xv6 to *make the first page invalid*, clearly the entry point will have to be somewhere else (e.g., the next page, or 0x1000)
+    So also `|| (uint)i < PGSIZE`
+    - This is achieved by `$(LD) $(LDFLAGS) -N -e main -Ttext 0x1000 -o $@ $^`.
+  - when `0` is in `sz` -> "trap 6" illegal because of NULL.
+    while not, -> "page fault".
+- Here we define the functions in `vm.c`.
+#### tests
+```bash
+[~/xv6-public]$ grep -r -w "pipewrite" . # get code infos.
+```
+1. TODO
+  why due to `sz = PGSIZE;`
+3. 
+  - here `stdout` [->](https://unix.stackexchange.com/questions/597623/what-does-it-mean-when-a-file-descriptor-is-a-link-to-a-pipe) `FD_PIPE`.
+    ```bash
+    $ ls -l /proc/3272/fd/1 
+     l-wx------ 1 czg czg 64 Aug 29 17:58 /proc/3272/fd/1 -> 'pipe:[42661]'
+    ```
+  - TODO how `p->data[p->nwrite++ % PIPESIZE] = addr[i];` return `-1`.
+5. Here `*(int *)4096` will always init the same value.
+6. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
 ## shell and lottery
 - shell related chapters
   - 5,
