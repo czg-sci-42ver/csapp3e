@@ -7501,6 +7501,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   - ["cycle-accurate"](https://news.ycombinator.com/item?id=13052487#13053150)
 - [Putnam_2016]one specific [reconfigurable fabric](http://www.cs.cmu.edu/~phoenix/reconfigurable.html) (结构) is FPGA.
 ## chapter 6 in COD RISCV 2nd
+here cloud means "throuth web".
 - p520
   - multiprocessor is [not](https://www.javatpoint.com/multiprocessor-and-multicore-system-in-operating-system#:~:text=A%20multicore%20contains%20multiple%20cores,capable%20of%20running%20many%20programs.) multicore.
   - job is similar to program where the latter [contains](https://superuser.com/questions/1661789/whats-the-difference-between-a-program-process-job-service-daemon-script) process and the former [contains](https://www.geeksforgeeks.org/difference-between-job-task-and-process/) tasks. And the book "task-level parallelism or process-level parallelism " implies their equivalence.

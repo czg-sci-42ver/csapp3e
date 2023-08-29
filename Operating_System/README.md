@@ -235,6 +235,7 @@ $ uname -r
   - Notice: `free` depends on the [compiler implementation](https://stackoverflow.com/a/2558777/21294350).
 - from [this](https://www.geeksforgeeks.org/swap-space-management-in-operating-system/)
   anonymous memory region implies swap space.
+  > heap and stack pages that comprise each process (sometimes called anonymous memory, because there is no named file underneath of it, *but rather swap space*)
 - ~~TODO~~ where the book says disadvantages of "linked list". See [ostep_book] p106 "Red-Black Trees".
   reread after the algorithm.
   - why "A SIDE : D ATA STRUCTURE — THE F REE L IST" not use the "Red-Black Trees".
@@ -373,6 +374,8 @@ $ uname -r
   hardware use specific circuit to accelerate the process like TLB. (at least *store* page tables)
 - ["sparse address space"](https://gateoverflow.in/20962/why-large-hole-between-stack-heap-part-virtual-address-space#:~:text=Virtual%20address%20spaces%20that%20include,link%20libraries%20during%20program%20execution%20%22.)
   > Virtual address spaces that include *holes* are known as sparse address spaces.
+  means same as the book
+  > The biggest potential cost is internal fragmentation, i.e., a page that is large but *sparsely used*.
 - PTE [contents][x86_paging]
   See the [figure](https://wiki.osdev.org/File:Paging_Structure.gif)
   - TODO po "Page Directory" entry specifies the property of the page table, while "Page Table" entry specifies the 4K page block.
@@ -397,7 +400,7 @@ $ uname -r
   because of [the distance](https://qr.ae/py60kb).
 - > the hardware would “walk” the page table
   not totally walk, just extract the corresponding `VPN` related page table `PTEAddr = PTBR + (VPN * sizeof(PTE))`.
-- [PCID](https://en.wikipedia.org/wiki/Control_register#CR3) in CR3 when `PCIDE=1` is related with "kernel page-table isolation (KPTI)".
+- [PCID](https://en.wikipedia.org/wiki/Control_register#CR3) in CR3 when `PCIDE=1` is related with ["kernel page-table isolation (KPTI)"](https://en.wikipedia.org/wiki/Kernel_page-table_isolation).
   > which allow retaining TLB entries for multiple linear-address spaces, with *only those that match the current PCID* being used for address translation
   > rely heavily on performance-impacting TLB flushes and benefit greatly from hardware-enabled *selective* TLB entry management such as PCID
   - when `PCIDE=0` See [intel_64] p3121 "Table 4-12" which is related with PAT.
@@ -593,6 +596,134 @@ $ uname -r
     - Page Sampling
       > skipping dirty pages for write-back leads to more fre-quent page faults, because younger clean pages must be evicted.
   - kw: Discard, 
+## Complete Virtual Memory Systems
+- > Second, the OS reduces memory pressure even further by placing user page tables (for P0 and P1, thus two per process) in kernel virtual mem-ory.
+  > The upper-half of the address space is known as *system space (S)*, although *only half* of it is used.
+  The purpose may be to ~~reduce the context switch overheads and ~~ use the unused kernel space.
+- > however, the hardware may first have to consult the *system page table*
+  > the hardware can learn the address of *the page of the page table*, and then finally learn the address of the desired memory access.
+  See chapter 20, it is just similar to the 2-level page table where the page directory is the "system page table" here.
+  "the page of the page table" -> page which *points to* the starting entry of the page table.
+  system page table -> process page table -> translation of the VA (virtual address).
+- here "A Real Address Space" is not related with x86 real mode.
+- > it is easy to copy data from that pointer to its own structures. The OS is naturally written and compiled, *without worry of where* the data it is accessing comes from. 
+  because they are in the same address space where the *virtual address* (i.e. used in the original C program) can be directly used.
+- > If in contrast the kernel were *located entirely in physical memory*, it would be quite hard to do things like swap pages of the page table to disk
+  the difficulty is that *translation* from virtual to physical, and then use the *difficult to use* physical addresses.
+  See [this](https://stackoverflow.com/questions/72951878/os-how-does-kernel-virtual-memory-help-in-making-swap-pages-of-the-page-table-e#comment128947345_72963711)
+  > If kernel code exists entirely in physical memory, it *cannot understand the virtual* address and has to translate it into physical address,
+  - problem:
+    1. "not contiguous in physical memory"
+    2. > Even with our many tricks to reduce the size of page tables, it is still possible, however, that they *may be too big to fit into memory all at once*. Thus, some systems place such page tables in kernel *virtual* memory,
+  - extra step:
+    1. > ... and ensure the data is actually in RAM itself.
+      This maybe doesn't use the page table property to check the valid/present.
+    - Notice due to Spectre
+      > One avenue to increasing kernel protection was thus to *remove as much* of the kernel address space from each user process
+      So not all necessary kernel space is in the process virtual space.
+- > With this construction (now used widely), the kernel appears almost *as a library* to applications, albeit a protected one.
+  important
+- > the OS does not want user applications *reading* or writing OS data or code.
+  TODO from `vmmap` in `pwngdb`, it seems `r` is always allowed.
+- "demand zeroing" -> zero when demand (more specifically used like writing).
+  > at this point, the OS does the needed work of *finding a physical page*, zeroing it, and mapping it into the process’s address space
+  > it puts an entry in the page table that marks the page inaccessible.
+  i.e. when adding one page, it is just one *nonsense entry*.
+  "finding a physical page" -> [demand paging](https://en.wikipedia.org/wiki/Demand_paging)
+  Also see chapter 23 p14.
+  - > us-ing memory-mapping of *the /dev/zero device*
+    notice the *unique* source zero page.
+- "copy-on-write" shows why virtual address is valuable.
+  because the duplicate mapping in *different address spaces* to the same physical address from different VAs.
+- From the `man 3 exec`
+  > The exec() family of functions replaces the current process image with a new process image
+  it ~~means same as~~ [implies](https://stackoverflow.com/a/36705730/21294350)
+  > *over-written* by a subsequent call to exec()
+  - here (Also [see "A process image is really the same as a *process*."](https://stackoverflow.com/a/36706241/21294350))
+    > When I'm concerned about a process image, I'm pretty much concerned with the stuff that comes from the *executable file*
+    So image with the loader must contains the address infos.
+    > Much of the time, when I'm concerned about address space, I just want to know whether some particular *address* is valid for that process
+- ["Kernel Stack"](https://www.baeldung.com/linux/kernel-stack-and-user-space-stack) is used when syscall which is similar to the normal stack.
+- why DMA needs [contiguous physical memory](https://stackoverflow.com/a/56850126/21294350)
+  > I/O devices that can only work with continuous ranges are built that way in order to *simplify the design* of the device
+  This says why split into "kernel virtual address" and "kernel logical address".
+- 32-bit -> 4GB
+  So 
+  > enable the kernel to address more than (roughly) 1 GB of memory
+  > because the kernel is not confined to only the last 1 GB of the virtual address space
+  po just means the "kernel virtual addresses" can offer 1GB more based on the user space.
+- "Virtual memory" at least (advantages)
+  1. allows more space than physical
+  2. sharing.
+  based on [this](https://stackoverflow.com/a/19349645/21294350)
+  1. allow *same* addresses from different processes.
+  2. isolation / protection.
+    > a memory error in one program (for example, reading a bad pointer) could *destroy* memory being used by *the other process*
+  3. protection (similar to 4 which reads/writes the physical address *directly*)
+  4. decrease paging overheads (isolation)
+  5. Memory-mapped I/O
+  After all, this make *the OS can manipulate* these addresses from many places.
+  - So
+    > Virtual memory makes it easy to program systems
+    because it doesn't need to care about other programs or devices.
+- > 4-KB page size
+  [See `getconf PAGESIZE`](https://stackoverflow.com/a/12672012/21294350)
+- > However, fewer page-table entries is not the driving force behind huge pages; rather, it’s better TLB behavior
+  po "fewer page-table entries" will cause the "better TLB behavior".
+- [B+13]
+  > map contiguous virtual memory regions directly to *contiguous physical* memory
+  to help with the conditions
+  >  data-base buffer pools
+- >  there is a shorter TLB-miss path
+  because table level is less.
+  > allocation can be quite fast (in certain scenarios)
+  TODO maybe not allocate once instead of many times for smaller blocks.
+- mmap [diff](https://stackoverflow.com/a/21311462/21294350) shmget
+  TODO 
+  - diff [madvise](https://stackoverflow.com/questions/30470972/using-mmap-and-madvise-for-huge-pages)
+    - > In this way, most applications would be unaffected (and continue to use only 4-KB pages;
+      maybe the former is specific to one process while the latter is specific to one address.
+  - [examples](https://rigtorp.se/hugepages/)
+- > Overhead of allocation can also be bad (in some other cases).
+  [See](https://lwn.net/Articles/839737/)
+  > In Song's patch set, this work is *deferred to a workqueue* so that the necessary pages can be allocated in a relatively relaxed setting. This work adds some *compute-time overhead* to both the allocation and freeing of huge pages;
+- ["page cache"](https://en.wikipedia.org/wiki/Page_cache) is cache for the swap space.
+  > The operating system keeps a page cache in *otherwise unused portions of the main memory (RAM)*
+- ["Userland"](https://unix.stackexchange.com/questions/137820/whats-the-difference-of-the-userland-vs-the-kernel) means *user space* programs.
+- > The strcpy() function does not stop *until it sees a zero*
+  So [this](https://web.ecs.syr.edu/~wedu/seed/Book/book_sample_buffer.pdf) can cause buffer overflow
+- similar XD bit -> [Execute Disable Bit](https://www.intel.com/content/www/us/en/support/articles/000005771/processors.html)
+- [Return-to-libc](https://en.wikipedia.org/wiki/Return-to-libc_attack) attack
+  > A "return-to-libc" attack is a computer security attack usually *starting with a buffer overflow* in which a subroutine *return address* on a call stack is replaced by an address of a subroutine that is *already present in the process executable memory*
+  > Although the attacker could make the code return anywhere, *libc is the most likely target*, as it is almost always linked to the program, and it *provides useful calls* for an attacker (such as the system function used to *execute shell* commands).
+  i.e. libc is always in the address space and it can help running many useful instructions.
+  So program may be preferred to be redirected there.
+- > Spectre is considered the more problematic of the two.
+  [because](https://portswigger.net/daily-swig/meltdown-and-spectre-one-year-on-feared-cpu-slowdown-never-really-materialized#:~:text=Meltdown%20was%20largely%20restricted%20to,makers%2C%20including%20AMD%20and%20ARM.)
+  > Meltdown was *largely restricted to Intel* processors. Spectre – which is harder to exploit but potentially even more damaging – impacted a *much wider range* of processor makers, including AMD and ARM.
+- > Structures like the *multi-level table* are perfect in this sense; they only create table space when the user needs a portion of the address space, and thus there is *little waste.*
+  just more segments than what the "base and bounds register" can offer which make the *internal fragmentation* less frequent.
+### two problems
+1. no reference bit!
+2. memory hogs
+- From "22.8 Approximating LRU", the "reference bit" can be *multiple bits*.
+- "E MULATING R EFERENCE B ITS"
+  just from pair "protection,reference" -> "reference,reserved".
+- [second-chance lists](https://inst.eecs.berkeley.edu/~cs162/sp21/static/lectures/16.pdf)
+  here both "clean-page free list and dirty-page list" are second-chance lists
+  They are just somewhat *buffers*.
+  - [cs162](https://inst.eecs.berkeley.edu/~cs162/sp21/)
+  - > Split memory in two: Active list (RW), SC list (Invalid)
+    just same as "segment" meaning in ["seg-mented FIFO" p2 right "into two segments"](https://dl.acm.org/doi/pdf/10.1145/1010629.805473)
+  - for 1st problem, LRU helps
+    2nd, the buffer may help
+- > The bigger these global second-chance lists are, the closer the segmented FIFO algorithm performs to LRU
+  because it make *reusing the swapped-out* page available.
+- "clustering." may help 2nd but not 1st.
+- [`pdflush`](http://books.gigatux.nl/mirror/kerneldevelopment/0672327201/ch15lev1sec4.html) -> Dirty Page FLUSH.
+- "2Q replacement algorithm" is still similar to the buffer.
+  This solves with the specific problem before "*cyclic* large-file access"
+  > but notably handles the case where a cyclic large-file access occurs by *confining the pages of that cyclic access to the inactive* list
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
@@ -610,6 +741,9 @@ $ uname -r
 - [CP78]
 - [N+02]
 - [W+21]
+- [C03] for why DEC's demise
+  [C93]
+- [LL82]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -1084,6 +1218,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - read the Multi-CPU Scheduling after "Concurrency".
 - use `valgrind` with chapter 14,22 homework.
   - read [SN05]
+## related with security
+- > lets the attacker inject arbitrary data into the target’s address space.
 # OSTEP 1.01 chpaters in the [ostep_book]
 Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book-chapters), it seems that 1.01 is not issued all at one time but with many discrete times.
 - chapter 6,19,23,26,28,40,
@@ -1120,6 +1256,8 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [B+19]:./Ostep_papers/fork-hotos19.pdf
 [B+00]:./Ostep_papers/asplos-2000.pdf
 [SS10]:./Ostep_papers/Saxena.pdf
+[Interaction_Between_Caching_Translation_Protection]:./Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
+[B+13]:./Ostep_papers/isca13_direct_segment.pdf
 
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
