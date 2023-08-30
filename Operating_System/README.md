@@ -724,6 +724,41 @@ $ uname -r
 - "2Q replacement algorithm" is still similar to the buffer.
   This solves with the specific problem before "*cyclic* large-file access"
   > but notably handles the case where a cyclic large-file access occurs by *confining the pages of that cyclic access to the inactive* list
+# Concurrency
+## Introduction
+- > the OS can promote the illusion that *many virtual CPUs exist* when in fact there is only one physical CPU (or a few). This basic technique, known as *time sharing* of the CPU
+  here assumes conventionally, one physical CPU runs one process sequentially.
+- > Perhaps another way to think of this is that each thread is very much like a separate process, *except for one difference*: they share the same address space and thus can access the same data.
+  process vs thread.
+- > the exception being in pro-grams that make heavy use of recursion).
+  This implies why CUDA recommends to use *one loop each thread* instead of the whole loop.
+- > web servers, database management ... make use of threads in their implementations.
+  because they are I/O-intensive.
+- > The process-context switching takes more time and is done by the operating system whereas thread-context switching takes less time and does *not require an operating system call*.
+  So thread highly [depends](https://medium.com/javarevisited/process-and-thread-context-switching-do-you-know-the-difference-updated-8fd93877dff6) on the hardware.
+  So
+  > the *CPU scheduler* can switch to other threads.
+- > in either of the cases mentioned above
+  1. *split* the work and schedule directly to different threads.
+    This is similar to CUDA does.
+    (The scheduling is more static.)
+  2. overlap the I/O (The scheduling is more dynamic.)
+    po where maybe some background thread is running.
+- share data [between processes](https://stackoverflow.com/a/7108031/21294350)
+  is similar to thread
+  > However, threads *share an address space* and thus make it easy to share data
+  > Processes are a more sound choice for *logically separate* tasks where little sharing
+- Although the CPU scheduler makes the threads in one core not totally parallel but [very fast swapping](https://stackoverflow.com/a/24646546/21294350).
+  [multiple cores](https://stackoverflow.com/a/71005116/21294350) with different physical schedulers *can be totally parallel*.
+- `pthread_join` [blocks](https://stackoverflow.com/questions/30733684/blocking-in-pthread-join).
+- > executing this code can result in a race con-dition, we call this code a *critical section*.
+  this is a bit different from the critical path which cares about *time*.
+- Transaction processing -> [atomicity](https://en.wikipedia.org/wiki/Transaction_processing#Atomicity).
+- ["atomic compare-and-swap"](https://en.wikipedia.org/wiki/Copy-on-write#Examples) in Copy-on-write (COW).
+  - in "journal" it just use the history where each unit is based on one block which *can't be splitted* due to atomicity.
+    > The changes are thus said to be atomic (*not divisible*) in that they either succeed (succeeded originally or are replayed completely during recovery), or are *not replayed at all* (are skipped because they had *not yet been completely written* to the journal before the crash occurred).
+### TODO
+- [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
@@ -744,6 +779,7 @@ $ uname -r
 - [C03] for why DEC's demise
   [C93]
 - [LL82]
+- [D68]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
