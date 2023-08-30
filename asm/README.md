@@ -7565,7 +7565,7 @@ here cloud means "throuth web".
 - i7 6700 [vs](https://cpu.userbenchmark.com/Compare/Intel-Core-i7-960-vs-Intel-Core-i7-6700/m778vs3515) i7 960
 - p539 reduction same to  [this](#Reduction_verilog) and [this](#reduction)
   "half" ... "a quarter" are just same as [reduction_nvidia](#reduction_nvidia)
-- in `linux`, `cc` (UNIX C compiler) and `gcc` are same although their inodes are different.
+- in `linux`, `cc` (UNIX C compiler) and `gcc` are same although their inodes are different. <a id="cc_vs_gcc"></a>
   ```bash
   $ diff /usr/bin/cc /usr/bin/gcc
   $ ls -ai /usr/bin/gcc /usr/bin/cc
@@ -11672,6 +11672,7 @@ It is used by [1](https://oslab.kaist.ac.kr/ostepslides/?ckattempt=1) and [ossu]
 # Algorithms and Data Structures
 Amazon [best seller](https://www.amazon.com/Best-Sellers-Computer-Algorithms/zgbs/books/491298) where 
 Thomas H. Cormen's book [CRLS](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) is 1st but teachyourselfcs says that it "a little too proof-heavy".
+Also see [this](https://www.amazon.com/Algorithm-Design-Manual-Computer-Science/dp/3030542556) where CRLS also 1st.
 - ["solving around 100 random leetcode"](https://teachyourselfcs.com/#algorithms)
 ## Discrete Mathematics
 Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zgbs/books/13913) where Rosen's book is 3rd but the 1st and 2nd is not totally about Discrete Mathematics.
@@ -11683,6 +11684,7 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
 - Or try [this](https://csci.williams.edu/discrete-mathematics-preparation/)
 # C++
 16th in [best seller](https://www.amazon.com/Best-Sellers-C++-Programming/zgbs/digital-text/8288738011) maybe mainly due to the primer property.
+Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanley-B-Lippman/dp/0321714113#detailBulletsWrapper_feature_div) where maybe lists the *historical highest* rank.
 - not to read c++ primer plus both [1](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list) and [2](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list), [3](https://qr.ae/pyWjiD)
 ## whether to learn C or operating system first
 - [not](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk46hug/?utm_source=share&utm_medium=web2x&context=3) to learn C before C++, because [1](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk4uwu6/?utm_source=share&utm_medium=web2x&context=3)
@@ -11692,6 +11694,9 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
 although Amazon best seller is ["Designing Data-Intensive Applications"](https://www.amazon.com/Best-Sellers-Computer-Databases/zgbs/digital-text/156117011) but teachyourselfcs puts it in "Distributed Systems".
 # computer networking
 Amazon best seller seems to have [no relation](https://www.amazon.com/Best-Sellers-Computer-Networks/zgbs/books/3747) with networking.
+ignore [1](https://www.amazon.com/Networking-Dummies-Doug-Lowe/dp/1119648505/ref=zg_bs_g_3747_sccl_20/136-4911125-4000556?psc=1) which may focus on the application instead of theory and [2](https://www.amazon.com/Guide-Networking-Essentials-MindTap-Course/dp/0357118286/ref=zg_bs_g_3747_sccl_21/136-4911125-4000556?psc=1) which is offered by Cengage (maybe not good)
+just [top-down book](https://www.quora.com/What-are-the-best-undergraduate-textbooks-on-computer-networks)
+- Also related with [security](https://www.reddit.com/r/netsecstudents/comments/kwq51v/comment/gj7qc79/?utm_source=share&utm_medium=web2x&context=3)
 # computer graphic
 ## tutorial
 - [3dgep](https://www.3dgep.com/category/math/)

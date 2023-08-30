@@ -3,6 +3,10 @@
 - > While it’s generally good to trust this book, remember too that the authors have *opinions*; those opinions may *not (always) be as widely shared as you might think.*
 - read the not understanded introduction parts of each chapter after reading the whole chapter.
 - Many things of the book has been said in csapp and COD.
+## also applies to other books
+- > Well, hopefully those using this book actually do look at this part *earlier*, all throughout the course.
+  So better read the *appendix when reading* the book.
+- > always look for *O’Reilly books* on topics you are interested in; they are almost always of high quality.
 # Introduction
 - p30
   - turn off address-space randomization temporarily based on [this](https://gcc.gnu.org/wiki/Randomization) and [this](https://www.tecmint.com/change-modify-linux-kernel-runtime-parameters/)
@@ -137,6 +141,8 @@
   > For example, if we *divide* 10,000 by each of those ticket values, we obtain the *following stride values* for A, B, and C: 100, 200, and 40.
   > At this point, the algorithm will pick *the lowest pass* value
   the "divide" implies above "twice" relation.
+- Figure 7.7 "Round Robin" implies fair.
+  > More generally, any policy (such as RR) that is *fair*, i.e., that evenly di-vides the CPU among active processes on a small time scale, will perform *poorly on metrics such as turnaround* time.
 - "ticket currency" is just change the ticket value unit which is similar to RMB to dollar *exchange rate*.
 - > this can be challenging to do correctly;
   whether random number is random is based on the distribution which is [not documented](https://stackoverflow.com/a/48454214/21294350).
@@ -759,6 +765,113 @@ $ uname -r
     > The changes are thus said to be atomic (*not divisible*) in that they either succeed (succeeded originally or are replayed completely during recovery), or are *not replayed at all* (are skipped because they had *not yet been completely written* to the journal before the crash occurred).
 ### TODO
 - [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
+# appendix
+## book recommendation
+- "Debugging with GDB: The GNU Source-Level Debugger" 10th is offered [officially](https://sourceware.org/gdb/current/onlinedocs/gdb.html/) when [12th](https://www.amazon.com/Debugging-GDB-GNU-Source-Level-Debugger/dp/1680921436#:~:text=gdb%20can%20do%20four%20main,when%20your%20program%20has%20stopped.) is available.
+## labs
+### Tutorial
+- [signature](https://en.wikipedia.org/wiki/Type_signature) of the C routine
+  just similar to *declaration*.
+  Also see [`main`](https://stackoverflow.com/a/2108208/21294350)
+- > and the last of which is null.
+  null (notice this is *somewhat buggy* code because access `*argv[1]` will fault. It is just for representation) and then maybe env.
+  ```bash
+  $ gcc argv.c -o argv.out;./argv.out
+  hello, world
+  argv[1]:(null)
+  argv[2]:BEMENU_BACKEND=wayland
+  ```
+  - > it is stored in the status vari-able
+    ```bash
+    $ echo $?
+    0 # check return
+    ```
+- See [asm_md] "cc_vs_gcc".
+- [com-piler driver](https://stackoverflow.com/a/58392562/21294350)
+- [check](https://unix.stackexchange.com/a/77783/568529) `cc1` by `gcc -print-prog-name=cc1`
+- > the OS will set argc and argv properly
+  just see the shell project (which is also in csapp).
+- `-lm` -> libm.a
+```bash
+$ cat /usr/lib/libm.a 
+/* GNU ld script
+*/
+OUTPUT_FORMAT(elf64-x86-64)
+GROUP ( /usr/lib/libm-2.38.a /usr/lib/libmvec.a )
+$ sudo find / -name "libimvec.a"                                                   
+find: ‘/proc/1475/task/1475/net’: Invalid argument
+find: ‘/proc/1475/net’: Invalid argument
+```
+  TODO where is `/usr/lib/libmvec.a`.
+  - Maybe `gcc` just use the `libm.so` instead of `libm.a`
+  - [examine](https://stackoverflow.com/a/34796/21294350) so file
+  - [`AS_NEEDED`](https://sourceware.org/binutils/docs/ld/File-Commands.html#index-AS_005fNEEDED_0028files_0029) avoids loading "ELF shared libraries".
+    ```bash
+    $ cat /usr/lib/libm.so  
+    /* GNU ld script
+    */
+    OUTPUT_FORMAT(elf64-x86-64)
+    GROUP ( /usr/lib/libm.so.6  AS_NEEDED ( /usr/lib/libmvec.so.1 ) )
+    ```
+- `-lm` [defaults](https://stackoverflow.com/a/49038236/21294350) `libm.so`
+  ```bash
+  $ ldd argv.out 
+    linux-vdso.so.1 (0x00007fff20bee000)
+    /usr/lib/liblua5.4.so (0x00007fbddd050000)
+    libm.so.6 => /usr/lib/libm.so.6 (0x00007fbddcf3f000)
+    libc.so.6 => /usr/lib/libc.so.6 (0x00007fbddcc00000)
+    /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007fbddd09d000)
+  ```
+- [directly](https://stackoverflow.com/a/6578558/21294350) using `libm.a`
+  ```bash
+  $ gcc argv_math.c -o argv.out -Wl,-Bstatic -lm -v;./argv.out # from above, libm.a lack something -> fault
+  ...
+  /usr/bin/ld: cannot find -lgcc_s: No such file or directory
+  /usr/bin/ld: cannot find -lgcc_s: No such file or directory
+  ...
+  ```
+- > Note that the -I flag should go on a compile line, and the -L flag on the link line.
+  ~~TODO meaning?~~
+  `gcc argv_math.c -o argv.out -Wl,-Bdynamic -lm -v -L. -I.;./argv.out` works
+  - > this line is often called the “link line”
+    i.e. one *specific* command line to link.
+  - > By compiling each *individually*, you can save time by only re-compiling those files that *have changed* during your editing
+    This is important.
+    > hw.c has been modified more recently than hw.o has been created, make will know that hw.o is *out of date* and should be generated anew
+    So better *separate* object files compilation. <a id="separate_object"></a>
+- [why](https://retrocomputing.stackexchange.com/a/20293) `make` use `tab` indentation
+  just the original author flavor.
+  - now accept [overloading](https://stackoverflow.com/a/21920142/21294350) this convention from [this](https://stackoverflow.com/questions/2131213/can-you-make-valid-makefiles-without-tab-characters)
+    [usage](https://www.gnu.org/software/make/manual/html_node/Special-Variables.html)
+- notice here "command" implies user shell command like `zsh/bash`.
+- [`$(SRCS:.c=.o)`](https://stackoverflow.com/a/26133509/21294350) 
+- `makedepend` may be [not reliable](https://en.wikipedia.org/wiki/Makedepend#Usage).
+  > so the output may be incorrect.
+- `man 3type void` to check types in C.
+- [`echo '' | cpp --include "sys/time.h" | less`](https://stackoverflow.com/questions/65538395/how-to-retrieve-the-real-definition-of-a-type-variable-macro-etc-from-the-c-l#comment115871689_65538595) or `echo "#include <sys/time.h>" | gcc -E - | less`.
+  To get the `struct timeval` definition.
+- TODO try [emacs](https://www.reddit.com/r/emacs/comments/9hen7z/what_are_the_benefits_of_emacs_over_vim/) where org support [direct conversion to latex](https://orgmode.org/features.html).
+  > Emacs ain't just an editor.
+  `Meta-x info` -> vim `:! info`.
+### Systems Projects
+- > We also use the Moss tool [M94] to look for this kind of *“sharing”*.
+- > compresses the output via gzip
+  by compressing *duplicate characters*.
+- > Memory-allocation Library
+  this has been done in csapp.
+### xv6
+- > how a context switch takes place
+  by `swtch(&(c->scheduler), p->context);`
+  and patch can skip the loop by [something](https://github.com/czg-sci-42ver/ostep-hw/blob/3c63eee8e7517c1069e04636f99bb63d05c7c334/projects/scheduling-xv6-lottery/scheduling-xv6-lottery_comment.patch#L216C8-L216C30) before switching to select which to switch.
+- TODO
+  - > how to make processes *return a proper error code* when exiting, and to be able to *access that error* code through the wait() system call.
+  - > returns the translated physical address
+    this seems not to be included in the [README.md](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/vm-xv6-intro/README.md)
+  - "H.4" and "H.5" has not been included
+### miscs tips
+- > don’t turn on optimization (-O); *though this may work*, it may also lead to confusion during debugging.
+  `-g` not with `-O`.
+- Above "separate_object".
 # papers to read
 - Hints for Computer Systems Design
 - read Stevens and Rago [SR05]
