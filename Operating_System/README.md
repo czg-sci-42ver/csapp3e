@@ -3,6 +3,8 @@
 - > While it’s generally good to trust this book, remember too that the authors have *opinions*; those opinions may *not (always) be as widely shared as you might think.*
 - read the not understanded introduction parts of each chapter after reading the whole chapter.
 - Many things of the book has been said in csapp and COD.
+- read this book "Javascript: The Good Parts".
+- posix related docs better see [opengroup_doc] which is more detailed than `man`
 ## also applies to other books
 - > Well, hopefully those using this book actually do look at this part *earlier*, all throughout the course.
   So better read the *appendix when reading* the book.
@@ -31,6 +33,17 @@
     1. `mmap`
     2. always "segments".
   2. diff between minicomputer and PC.
+# valgrind
+## miscs
+- naming
+  val -> [valid](https://en.wikipedia.org/wiki/Valgrind)
+  hel -> [hell](https://inheritance.fandom.com/wiki/Helgrind#:~:text=for%20the%20peak.-,Etymology,means%20%22gates%20of%20death%22.)?
+  - TODO
+    - `WRK` in mutex_lock_WRK linux
+## helgrind
+- TODO
+  - > This approximate information consists of two stacks, and the earlier access is guaranteed to have occurred *somewhere between* program points denoted by the two stacks.
+    meaning
 # Virtualization part 1 virtualizing CPU
 > The kernel does so by setting up a *trap table at boot* time.
 - "direct execution" is to minimize the overhead of OS when running one program.
@@ -763,8 +776,151 @@ $ uname -r
 - ["atomic compare-and-swap"](https://en.wikipedia.org/wiki/Copy-on-write#Examples) in Copy-on-write (COW).
   - in "journal" it just use the history where each unit is based on one block which *can't be splitted* due to atomicity.
     > The changes are thus said to be atomic (*not divisible*) in that they either succeed (succeeded originally or are replayed completely during recovery), or are *not replayed at all* (are skipped because they had *not yet been completely written* to the journal before the crash occurred).
+- > when an interrupt occurs, either the instruction has not run at all, or it has run to completion;
+  This is ensured by hardware at least [in x86](https://stackoverflow.com/a/55186668/21294350). See [intel_64] p3196.
+- Here "Dijkstra" also works out ["Dijkstra's algorithm"](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
+- TODO How inode is encoded.
+  maybe can be thought as one [pointer](https://unix.stackexchange.com/a/106871/568529) which points to some [structures](https://www.kernel.org/doc/html/latest/filesystems/ext4/inodes.html?highlight=inode) like `i_flags`.
+  > inodes point to blocks on disk
+- [Allocation Bitmap](https://www.ntfs.com/exfat-allocation-bitmap.htm)
+## API
+- [`void *(*start_routine)(void *)`](https://stackoverflow.com/questions/1352426/why-does-start-routine-for-pthread-create-return-void-and-take-void)
+  here the 2nd `void *` -> `void *restrict arg`
+  - restrict is to avoid ["pointer aliasing"](https://stackoverflow.com/a/745877/21294350) (said in csapp) from [this](https://stackoverflow.com/a/6688127/21294350)
+    Also see [this](https://en.cppreference.com/w/c/language/restrict)
+    > is the same as any of the objects read through *q
+  - the 1st is used by `pthread_exit` which return to the parent thread which may call `pthread_join`
+    from `man pthread_exit`
+    > available to another thread in the same process that *calls pthread_join(3)*
+- `pthread_t` can be [redefined](https://github.com/JoakimSoderberg/pthreads-win32/blob/master/pthread.h) like (from [this](https://stackoverflow.com/a/33285994/21294350))
+  ```c
+  typedef struct {
+    void * p;                   /* Pointer to actual object */
+    unsigned int x;             /* Extra information - reuse count etc */
+  } ptw32_handle_t;
+  ```
+  although in the header ( This is said in COD and csapp *the data type doesn't matter* for the CPU because they are binary.)
+  ```bash
+  $ declare -f search_C_header # expand the aliases and then print the func def
+  search_C_header () {
+          echo "#include <$1>" | gcc -march=znver2 -pipe -E - | grep --color=always $2 -A $3
+  }
+  $ search_C_header pthread.h pthread_t 0           
+  typedef unsigned long int pthread_t;
+  ```
+  - ~~The above means same as~~
+    ~~> Second, if we are just passing in a single value (e.g., a long long int), we *don’t have to package it up* as an argument.~~
+- `pthread_setschedparam` -> "scheduling priority of the thread".
+- [why](https://stackoverflow.com/a/11560129/21294350) use `void` and `void *`
+  1. `void` -> "no parameters"
+    So not use it as *generic*.
+  2. "store/pass pointers around *without actually using* them"
+  3. > mark a value as deliberately *unused*
+  - `void *` -> [generic and backward compatibility](https://stackoverflow.com/a/1025692/21294350)
+    po this may help the compiler and programmer because *everything can be generic* which can be casted to anything. But something like `int *` may be ambiguous whether real `int *` or generic.
+    - as book says
+      > pass in any type of argument
+      > Because the routine can *return anything*, it is defined to return a pointer to void
+    - abstract data types (ADTs)
+- > a pointer to the return value
+  here return type of `pthread_create` is `void*`, so `void**` in `pthread_join(pthread_t thread, void **retval)`.
+- > changes the value of the passed in argument
+  See `man` 
+  > If the target thread was canceled, then *PTHREAD_CANCELED is placed in the location* pointed to by retval.
+- > If retval is not NULL, then pthread_join() copies the *exit status* of the target thread (i.e., the value that the target thread *supplied to pthread_exit(3)*) into the  lo‐cation pointed to by retval.
+  From `man pthread_exit`
+  > using the function's *return value*  as the thread's exit status.
+  So `void *` in `void *(*start_routine)(void *)` -> `void *retval` in `void pthread_exit(void *retval)`, (i.e. exit status of `pthread_exit`) -> `*(void ** retval)` (i.e. type `void *`) in `pthread_join(pthread_t thread, void **retval)`.
+- p5 footnote -> `-Wreturn-local-addr`.
+- `pthread_mutex_t` [type](https://stackoverflow.com/a/30585409/21294350)
+  See the [source codes](https://sourceware.org/pub/pthreads-win32/dll-latest/include/pthread.h) `PTHREAD_RECURSIVE_MUTEX_INITIALIZER`, etc.
+- > Both of these versions should generally be avoided;
+  because they may cause the *race condition*.
+- [Why is memory split up into stack and heap?](https://stackoverflow.com/questions/8173353/why-is-memory-split-up-into-stack-and-heap)
+  - [1](https://stackoverflow.com/a/7124033/21294350)
+    heap is more tunable than the stack.
+  - [2](https://stackoverflow.com/a/80113/21294350)
+    > The stack is always reserved in a *LIFO* (last in first out) ... This makes it really *simple to keep track* of the stack
+    > Unlike the stack, there's *no enforced pattern* to the allocation and deallocation of blocks from the heap ... there are many *custom heap allocators* available to tune heap performance for different usage patterns.
+
+    > Each thread gets a stack, while there's typically only one heap for the application (although it isn't uncommon to have multiple heaps for different types of allocation).
+    - multiple heap may be just [allocate *multiple heap blocks*](https://stackoverflow.com/a/19984988/21294350) where each block can function as one small independent heap.
+      > you could just *free the entire heap* you allocated and you don't need to bother with freeing all the object allocated there.
+      > then you could allocate all the nodes in a *smaller dedicated heap* and the app will gain performance because there will be *less cache misses*
+    > The size of the stack is set when a *thread* is created. The size of the heap is set on *application* startup, but can grow as space is needed (the allocator *requests more memory from the operating system*).
+    So has stack overflow, but not heap overflow (while has the memory leak due to the heap deallocation failure)
+    And stack -> thread while heap -> application.
+    > Another performance hit for the heap is that the heap, being mostly a *global resource*, typically has to be *multi-threading safe*, i.e. each allocation and deallocation needs to be - typically - synchronized with "all" other heap accesses in the program.
+- `man pthread_cond_wait`
+  > if another thread is able to acquire the mutex after the *about-to-block* thread has *released it*
+  So it will release the `mutex` and then wait until `cond` is signaled.
+  - `pthread_mutexattr_setrobust`
+    is to solve the *special* condition
+    > the behavior of the mutex when the owning thread *dies without unlocking* the mutex
+    where `PTHREAD_MUTEX_STALLED`
+    > the mutex *remains* locked afterwards
+    while `PTHREAD_MUTEX_ROBUST`
+    > return EOWNERDEAD to indicate that the original owner no longer exists and the mutex is in an *inconsistent* state.
+    > If the next owner unlocks the mutex using pthread_mutex_unlock(3) *before making it consistent*, the mutex will be *permanently unusable* and any subsequent attempts to lock it using pthread_mutex_lock(3) will fail with the error *ENOTRECOVERABLE*
+    - `pthread_mutex_consistent`
+      > It is the *application's responsibility to ensure that the shared data has been restored* to a consistent state before calling pthread_mutex_consistent().
+      So maybe it will do the *left unfinished work* of the dead thread.
+  - > Upon successful return, the mutex shall *have been locked* and shall be *owned by the calling* thread
+    So p7 `while (ready == 0) Pthread_cond_wait(&cond, &lock);` can recall `Pthread_cond_wait` to release the `mutex`.
+    - This is also said in p8.
+  - here two `lock` is to [control the order](https://stackoverflow.com/a/4567919/21294350) between `signal` and `wait`.
+- `pthread_cond_init`
+- > Either way works, but we usually use the dynamic (latter) method.
+  why dynamic is prefered? (Maybe to avoid accident pass the stack address?)
+  - [because](https://stackoverflow.com/a/15925014/21294350) 
+    > you're supposed to initialize a *statically* allocated mutex i.e. it is going to *live until the application ends*, at which point it will be *destroyed by the system*, presumably that's what the author meant. That applies to mutex/cond variables that is *dynamically initialized as well*, the system will clean those up as well.
+    So `pthread_mutex_destroy` may be not one must just like `free` if you know your program will *not last very long*.
+    - From the [codes](https://github1s.com/bminor/glibc/blob/master/nptl/pthread_mutex_destroy.c#L39) `atomic_store_relaxed (&(mutex->__data.__kind), -1);`, it is to set the *invalid* state.
+    Also the *static property* that the variable last *until the program ends* may not be preferred because that's not highly tuneable.
+    - the mutex must be [static](https://stackoverflow.com/a/20617227/21294350) or in the heap which can be *accessed globally*.
+- > It is safer thus to view waking up as a hint that something might have changed, rather than an absolute fact.
+  because `pthread_cond_wait` in [opengroup_doc]
+  > When using condition variables there is always a *Boolean predicate involving shared variables associated with each condition* wait that is true if the thread should proceed. Spurious wakeups from the pthread_cond_timedwait() or pthread_cond_wait() functions may occur. Since the return from pthread_cond_timedwait() or pthread_cond_wait() *does not imply anything about the value of this predicate*, the predicate should be re-evaluated upon such return.
+  maybe due to *reordering*.
+  - here `Boolean predicate` is check whether shared variables `ready` has changed by `while (ready == 0)`
+    they are associated due to `ready = 1; Pthread_cond_signal(&cond);` in the other thread.
+- [X+10]
+  - ["interlocked operations"](https://www.gamedeveloper.com/programming/programming-multi-threaded-architectures-interlocked-operations) are just atomic operations.
+    TODO so what is "*interlocked* or nested goto loops"
+  - source code -> patch -> bugzilla.
+  - ad hoc synchroniza-tion problems
+    1. > Ad hoc synchronization can easily introduce *deadlocks* or hangs
+      This is also shown in csapp (i.e. one infinite endless loop between threads without progressing).
+      See Figure 3,2 bold texts. 
+      - "Figure 8" solves this problem
+      - This is the book example problem
+        where `while (ready == 0); // spin` may *hold the mutex* forever which cause the another thread *deadlock* then it can't update `ready = 1` and also make the former thread *deadlock*.
+      - The main issue is that the mutex *can't be unlocked* if not using something like `pthread_cond_wait`.
+    2. > an ad hoc synchroniza-tion fails to guarantee an expected order
+      because it doesn't synchronize at all with just the *scheduler controls the order*.
+      it is implied by
+      > have prob-lems interacting with modern hardware’s *weak memory consistency model*
+    3. > ad hoc synchronizations can also introduce performance issues
+      just avoid *too quick* spin by "Figure 6".
+  - "loop invariant hoisting" see [asm_md]
+    here
+    > avoid such optimizations on sync variables
+    just ensures "loop invariant" is not the bare invariant.
+  - > need to use wrapping vari-able accesses with function calls
+    This is just [tricking](https://wiki.sei.cmu.edu/confluence/display/c/DCL17-C.+Beware+of+miscompiled+volatile-qualified+variables) the *current* compiler by forcing using one *seemingly abundant function* to wrap.
+- `-pthread` or `-lpthread` can be ignored because of `--enable-threads=posix` in `gcc ... -v`.
+- > no other thread can (easily) access it
+  This may be wrong (Also implied in the ostep).
+  > otherwise some locale that is globally accessible.
+  See csapp, we can deliberately pass one stack address to access.
+  But obviously the stack will be *automatically invalid* when exiting from one thread (This is error-prone).
+- 
 ### TODO
 - [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
+- what is the [usage](https://stackoverflow.com/a/52240195/21294350) of `SDT probes`
+  which can be [shown](https://www.ece.villanova.edu/VECR/doc/gdb/Static-Probe-Points.html) in `gdb`
+- > First, it performs poorly in many cases (*spinning for a long time* just wastes CPU cycles).
+  But it seems that `ROS` intro doc use this frequently.
 # appendix
 ## book recommendation
 - "Debugging with GDB: The GNU Source-Level Debugger" 10th is offered [officially](https://sourceware.org/gdb/current/onlinedocs/gdb.html/) when [12th](https://www.amazon.com/Debugging-GDB-GNU-Source-Level-Debugger/dp/1680921436#:~:text=gdb%20can%20do%20four%20main,when%20your%20program%20has%20stopped.) is available.
@@ -893,6 +1049,8 @@ find: ‘/proc/1475/net’: Invalid argument
   [C93]
 - [LL82]
 - [D68]
+- [B89, B97, B+96, K+96]
+  they are all old before 2000.
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -1019,6 +1177,27 @@ $ uname -r
 $ valgrind --version
 valgrind-3.21.0
 ```
+### C14
+2. [`kill -l `](https://stackoverflow.com/a/29383998/21294350) to check the signal number and `man 7 signal` to get the detailed infos.
+  - Use [`/bin/kill -L`](https://forums.gentoo.org/viewtopic-p-7533822.html?sid=caddea015137c286957f10ee0fcdeaa2#7533822) to get the table which is also shown in `man kill` NOTES.
+3. `Address 0x0 is not stack'd, malloc'd or (recently) free'd`
+4. here `total heap usage: 2 allocs, 1 frees, 1,028 bytes allocated` is due to [`printf`](https://stackoverflow.com/questions/74019895/valgrind-many-allocated-bytes#comment130694195_74019895)
+  where `--run-libc-freeres=no` avoids free when `exit` which will run after the `main`.
+  > Memcheck therefore tries to run __gnu_cxx::__freeres *at exit*.
+  Also see [asm_md] "Still reachable".
+  - related with [OSX](https://stackoverflow.com/a/29810040/21294350).
+    > The issue with standard streams (*stdout, stderr*), is one normally doesn't close them, as a result this buffer will normally never be freed.
+    > This is a *fixed sized* buffer which is not going to grow in size, so it is *not a "leak"* as such.
+5. ~~`Address 0x4bf91d0 is 224 bytes inside an unallocated block of size 4,194,032 in arena "client"`~~
+  ~~implies VA -> physical address.~~
+  See [ostep_hw], this has excessed too much
+  with `data[25]=0;`, the error output may be more understandable.
+8. TODO <a id="algorithm_1"></a>
+  maybe linked list creation is faster because of no `malloc` overheads.
+  - [perf table](https://en.wikipedia.org/wiki/Dynamic_array#Performance)
+    here "insert" at "Beginning/Middle" is `O(n)` because of the array property.
+    - TODO "amortized"?
+      "Excess space"
 ### C15
 from [this](https://github.com/czg-sci-42ver/ostep-homework/blob/master/vm-mechanism/README.md), how the stack and heap are located in the address space is just defined manually. This is also said in the chapter summary footnotes.
 1. `python ./relocation.py -s 1 -n 10 -l 100 -b 16285 -a 1k -p 32k -c`
@@ -1191,6 +1370,54 @@ notice `ptPtr   = (pde & 0x7f)` implies the topbit -> valid bit
     - So `memory[pageIndex]` stores the current cache states.
   - `whenReferenced = futureIdx` -> stores the *duplicate* index with current *contents in the cache* in the future.
     - `whenReferenced < minReplace` implies replace the *nearest* instead furthest future index.
+## Concurrency
+### C26
+- [HLT](https://www.felixcloutier.com/x86/hlt.html) [resume](https://en.wikipedia.org/wiki/HLT_(x86_instruction))
+  > execute a HLT instruction to cut power usage *until the next hardware interrupt*.
+- [`.main`](https://stackoverflow.com/a/20830684/21294350)
+- Use `-R` in `./x86.py -p looping-race-nolock.s -t 2 -a bx=1 -M 2000 -i 2 -c -R ax` to check the register.
+3. No because they don't share anything.
+4. `./x86.py -p looping-race-nolock.s -t 1 -M 2000 -c -R ax,bx` all regs init 0.
+6. obviously matters.
+  when the critical section is not interrupted (i.e. two `mov` in one thread are not interrupted).
+  - > before get reset.
+    means "get interrupted" in the README.md in [ostep_hw]
+8 is same as 7. (TODO this is not same as [ostep_hw])
+9. `ax` not changed which just differentiates between threads.
+10. originally not efficiently.
+  just needs thread 1 to init memory.
+### C27
+3. maybe threads wait for each other to unlock.
+4. the `helgrind` offers the solution implicitly which is also said in csapp.
+  > Thread #3: lock order "0x10C060 before 0x10C0A0" violated
+  i.e. keep the acquire order same among threads.
+```bash
+$ for i in $(seq 1 1 10000);do echo $i;./main-deadlock;done
+...
+# maybe stuck somewhere
+117
+
+```
+5. obviously not because it conforms to the above solution somewhat.
+  TODO Should be "No.Yes."
+```bash
+$ for i in $(seq 1 1 10000);do echo $i;./main-deadlock-global;done
+...
+10000
+```
+6. > Why is this code inefficient?
+  TODO maybe it is unable to schedule by doing something more useful when the `main` keeps checking the unnecessary `while (done == 0)`.
+  - Notice this is not totally same as [X+10] "Figure 3,2" where it will acquire lock before doing the work.
+  - TODO does `Pthread_cond_wait` avoid above "unnecessary loop".
+7. TODO Here only one write. So despite data race, it will always function right.
+```bash
+$ for i in $(seq 1 1 10000);do echo $i;./main-signal;done
+...
+10000
+this should print first
+this should print last
+```
+8. based on 7, just performance.
 ## TODO
 - read "APUE".
 # Projects
@@ -1397,15 +1624,15 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 ```
 1. TODO
   why due to `sz = PGSIZE;`
-3. 
+1. 
   - here `stdout` [->](https://unix.stackexchange.com/questions/597623/what-does-it-mean-when-a-file-descriptor-is-a-link-to-a-pipe) `FD_PIPE`.
     ```bash
     $ ls -l /proc/3272/fd/1 
      l-wx------ 1 czg czg 64 Aug 29 17:58 /proc/3272/fd/1 -> 'pipe:[42661]'
     ```
   - TODO how `p->data[p->nwrite++ % PIPESIZE] = addr[i];` return `-1`.
-5. Here `*(int *)4096` will always init the same value.
-6. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
+2. Here `*(int *)4096` will always init the same value.
+3. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
 ## shell and lottery
 - shell related chapters
   - 5,
@@ -1420,6 +1647,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - > a hash table is often built over the base structure to speed up lookups.
   >  page tables are *just data structures*. You can do lots of crazy things with data structures, making them smaller or bigger, making them slower or faster.
   > What *new struc-tures* can you come up with? What problems do they solve?
+- concurrent B-tree
+- [This](#algorithm_1)
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -1469,6 +1698,7 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [SS10]:./Ostep_papers/Saxena.pdf
 [Interaction_Between_Caching_Translation_Protection]:./Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
 [B+13]:./Ostep_papers/isca13_direct_segment.pdf
+[X+10]:./Ostep_papers/Xiong.pdf
 
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
@@ -1476,3 +1706,5 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [x86_paging]:https://wiki.osdev.org/Paging#Page_Directory
 [Homonym_Synonym]:http://www.cse.unsw.edu.au/~cs9242/02/lectures/03-cache/node8.html
 [geeksforgeeks_aliasing]:https://www.geeksforgeeks.org/virtually-indexed-physically-tagged-vipt-cache/
+
+[opengroup_doc]:https://pubs.opengroup.org/onlinepubs/9699919799/

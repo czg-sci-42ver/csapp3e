@@ -4611,6 +4611,10 @@ from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4
   - CompareExchange,Load-Linked/Store-Conditional, and Compare-And-Swap [compare](https://stackoverflow.com/questions/7069986/compare-and-swap-atomic-operation-vs-load-link-store-conditional-operation)
     - kw(keyword): 'except that', '"ABA" problem', 'implemented in terms of', 'though the limited amount'
     - [live-lock 'Difference between Deadlock, Starvation ('some processes *never* getting serviced') , and Livelock: '](https://www.geeksforgeeks.org/deadlock-starvation-and-livelock/) (where two process swap locks but not 'do some work',also [see](https://stackoverflow.com/a/1162847/21294350)) which is related with program, maybe not directly related with lock only.
+      - From the codes
+        Livelock swaps `l1` and `l2` but no `/// do some work` done (i.e. lock).
+        > involved in a livelock constantly *keep on changing with regard to one another*, none progressing
+        while the Deadlock ends in an infinite loop.
 - p277 why inlining increased the cache miss rate.
   - highly [recommended](https://isocpp.org/wiki/faq/inline-functions#inline-and-perf) answer from [this](https://stackoverflow.com/questions/33705825/how-do-inline-functions-increase-memory-cache-miss-and-why-is-it-bad-compared-to)
     - here says 'cache misses' is that reference too many memory ('span across multiple lines of the memory cache') that caused thrashing (which also may caused by 'increase the size of the binary executable')
@@ -6599,7 +6603,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - "no definitions (changes) of the operands" because the dest regs are all different.
   1~6 move out of the loop except for `lw r5, 0(r4)` where `r4` is changed ~~in the loop body~~ with `i` ("Hence, this statement is *not loop invariant*.").
 
-  "induction variable elimination" -> `slli r5, r4, 2` (where `lw r4, i`) to `addi r4, r4, 4` (where `r4` is inited as `save[i]` in the first block in FIGURE e2.15.5)
+  "induction variable elimination" -> `slli r5, r4, 2` (where `lw r4, i`) to `addi r4, r4, 4` (where `r4` is inited as `save[i]` in the first block in FIGURE e2.15.5) <a id="induction_variable_elimination"></a>
+  - Also see [this](https://www.javatpoint.com/loop-optimization#:~:text=Induction%20variable%20elimination%20is%20used,space%20and%20run%20time%20performance.) where we just avoids the too much multiplications.
 - "the variable k and the variable i actually refer to *the same memory location*" is also said in csapp.
   This is just "aliasing".
 - erratum
@@ -8427,8 +8432,11 @@ See [this](#notice)
         `counter >= num_zeros` implies `cond_for_all=0` `num_zeros` times, then `__all ( cond )` implies only **all** `cond=1` will `=1`, otherwise `0` -> `else`.
 
         Then after `num_zeros` times, `__any ( cond )` implies only when **all** `cond=0` will `=0`,otherwise `1` -> `if`.
-      3. Branch distribution is similar to [Loop-invariant code motion](https://en.wikipedia.org/wiki/Loop-invariant_code_motion) which is also said [above](#loop_invariant_optimization) (all compiler [optimization](https://en.wikipedia.org/wiki/Optimizing_compiler#Specific_techniques))
+      3. Branch distribution is similar to [Loop-invariant code motion / loop invariant hoisting](https://en.wikipedia.org/wiki/Loop-invariant_code_motion) which is also said [above](#loop_invariant_optimization) (all compiler [optimization](https://en.wikipedia.org/wiki/Optimizing_compiler#Specific_techniques))
         "reduce the level of paral-lelism" maybe because *not fused* muladd because mul is moved out of the conditional block.
+        - TODO what does 
+          > If the code used do {} while *in the first place*, the whole guarding process is not needed, as the loop body is guaranteed to execute at least once.
+          mean? Does it assume that `if` is executed before to "guarante to execute at least once".
     - ["dynamic instruction"](https://stackoverflow.com/a/13458277/21294350)
       just means not fixed instruction which is implied by *condition*.
     - kw: “cold” path
