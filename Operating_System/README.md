@@ -697,7 +697,7 @@ $ uname -r
   because table level is less.
   > allocation can be quite fast (in certain scenarios)
   TODO maybe not allocate once instead of many times for smaller blocks.
-- mmap [diff](https://stackoverflow.com/a/21311462/21294350) shmget
+- mmap [diff](https://stackoverflow.com/a/21311462/21294350) `shmget`
   TODO 
   - diff [madvise](https://stackoverflow.com/questions/30470972/using-mmap-and-madvise-for-huge-pages)
     - > In this way, most applications would be unaffected (and continue to use only 4-KB pages;
@@ -887,6 +887,8 @@ $ uname -r
 - [X+10]
   - ["interlocked operations"](https://www.gamedeveloper.com/programming/programming-multi-threaded-architectures-interlocked-operations) are just atomic operations.
     TODO so what is "*interlocked* or nested goto loops"
+    - This means [lock-free](https://www.1024cores.net/home/lock-free-algorithms/introduction) from [this](https://stackoverflow.com/questions/2528969/lock-free-multi-threading-is-for-real-threading-experts#comment24239144_2528969)
+      po it just *encapsulates the lock inside*.
   - source code -> patch -> bugzilla.
   - ad hoc synchroniza-tion problems
     1. > Ad hoc synchronization can easily introduce *deadlocks* or hangs
@@ -914,13 +916,318 @@ $ uname -r
   > otherwise some locale that is globally accessible.
   See csapp, we can deliberately pass one stack address to access.
   But obviously the stack will be *automatically invalid* when exiting from one thread (This is error-prone).
-- 
-### TODO
+## locks
+This is mainly about atomic instructions which has been discussed in [COD_md].
+- [why use](https://stackoverflow.com/questions/2821263/lock-a-mutex-multiple-times-in-the-same-thread#comment2861220_2821263) `PTHREAD_MUTEX_RECURSIVE`
+  from [doc](https://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutexattr_settype.html) it just allow multiple locks done when lock *isn't released at all*. 
+  > A thread attempting to *relock* this mutex *without first unlocking* it will succeed in locking the mutex
+  - TODO ~~"before another thread can acquire the mutex" seems to conflict with "relock".~~
+  - > Multiple locks of this mutex require the *same number of unlocks* to release the mutex before *another thread* can acquire the mutex.
+    Recursive Lock (Mutex) [vs](https://stackoverflow.com/a/189778/21294350) Non-Recursive Lock 
+    > non-recursive mutexes, there is *no sense of ownership* and any thread can *usually release the mutex* no matter which thread originally took the mutex.
+    This means same as `man pthread_mutex_lock`
+    > the mutex is currently *owned by the calling thread*
+    - So it has
+      > the mutex shall maintain the concept of a *lock count*
+    - It is related with *recursion* where the deadlock is avoided because it knows *all* the unlock will be called all after calling *all* `lock`.
+      > Otherwise after the first recursion, there will be instant deadlock because the lock *cannot be acquired a second time*.
+      > and that's why non-recursive mutexes *deadlock if the same thread locks twice without a free*
+      > they will be freed assuming *proper RAII* and the process terminates gracefully
+    - This also implies [why use](https://stackoverflow.com/a/9305970/21294350) `pthread_mutex_trylock`
+    - [Notice](https://en.wikipedia.org/wiki/Reentrant_mutex) from [this](https://stackoverflow.com/a/26656022/21294350)
+      > because the final m.lock() will succeed *without blocking*.
+      Although [this](https://stackoverflow.com/a/50138902/21294350)
+      > a different thread attempts to acquire that mutex which *gets blocked* because it's held by a different
+  - We can use helgrind to understated it.
+    ```bash
+    $ gcc MUTEX_RECURSIVE.c -DMUTEX_DEFAULT -o MUTEX_RECURSIVE.out
+    ...
+    ==92634== Thread #1: Attempt to re-lock a non-recursive lock I already hold
+    $ gcc MUTEX_RECURSIVE.c -o MUTEX_RECURSIVE.out                
+    [czg /mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/Concurrency]$ valgrind --tool=helgrind ./MUTEX_RECURSIVE.out -s
+    ==92697== Helgrind, a thread error detector
+    ==92697== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+    ==92697== Using Valgrind-3.21.0 and LibVEX; rerun with -h for copyright info
+    ==92697== Command: ./MUTEX_RECURSIVE.out -s
+    ==92697== 
+    3628800
+    ==92697== 
+    ==92697== Use --history-level=approx or =none to gain increased speed, at
+    ==92697== the cost of reduced accuracy of conflicting-access information
+    ==92697== For lists of detected and suppressed errors, rerun with: -s
+    ==92697== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+    $ ipython -c "import math;math.factorial(10)"
+    Out[1]: 3628800
+    ```
+- > the state of the lock is simply changed to *free*
+  means same as `man pthread_mutex_lock`
+  > When the lock count *reaches zero*, the mutex shall become available for other threads to acquire.
+- "coarse-grained locking" is not same as [COD_RISCV_2nd_A_appendix] "Coarse-grained multithreading".
+  but the basic idea is similar.
+- > hardware primitives have been added to the instruction sets
+  ISA is closely related with the hardware.
+  - [`lock`](https://stackoverflow.com/questions/980999/what-does-multicore-assembly-language-look-like) just use simple `mov`, etc., to implement. See "ARM minimal runnable baremetal example".
+- intel atomic by prefix `LOCK`. See [intel_64] p149 and [also](https://stackoverflow.com/questions/1527305/disable-hardware-software-interrupts#comment126115840_1527305)
+  - but it is [not recommended p8](https://www.cs.unc.edu/~porter/courses/comp530/f16/slides/locking.pdf)
+  - more detailed about "atomic read-modify-write" see [COD_RISCV_2nd_A_appendix].
+- > By *turn-ing off interrupts* (using some kind of special hardware instruction)
+  [`sti`](https://stackoverflow.com/a/1581729/21294350). The single instruction ensures the atomicity somewhat.
+  - Notice [intel_64] p762, `cti` will *not disable all interrupts*.
+- interrupt flag [only to one CPU](https://en.wikipedia.org/wiki/Interrupt_flag#Multiprocessor_Considerations)
+- > turning off interrupts for extended periods of time can *lead to interrupts becoming lost*,
+  This depends on how the hardware is [implemented](https://www.embeddedrelated.com/showthread/comp.arch.embedded/272867-1.php).
+  > The interrupt controller will have *lots of interrupt flags*, but generate a few general interrupts of different priorities.
+  > For example, the interrupt controller might not have flags for all the different sources (UART, SPI, Timers, etc.), but have *a single flag* and an "interrupt number" register which holds the number or vector of source of the interrupt
+  - TODO but [this](https://stackoverflow.com/a/31493261/21294350) "interrupts do not get lost".
+- From [this](https://web.stanford.edu/class/cs111/spring22/lectures/threads/) "changing the thread currently running on a core" <a id="whether_thread_real_concurrent"></a>
+  > e.g. execute one thread while the other is *waiting on a cache miss*
+  the core *can't actually totally simultaneously* run multiple threads in one core. See CUDA architecture [image](https://fabiensanglard.net/cuda/tesla2.svg) or TURING from [this](https://fabiensanglard.net/cuda/) where register file may be not totally shared (After all, The GPU architecture changes more frequently than CPU. See [asm_md] and [COD_md])
+  - So 
+    > where the thread that the waiter is waiting for cannot even run (at least, until a context switch oc-curs)!
+    the spin will *continue until* the context switch which is somewhat a waste.
+  - Also see
+    > each of those threads will spin for the duration of a *time slice* before giving up the CPU, a waste of CPU cycles.
+  - So
+    > The problem gets worse with N threads contending for a lock; *N − 1* time slices may be wasted in a similar manner
+    maybe we can run *more threads than the physical threads*, and let the scheduler give us *illusion* that they are concurrent.
+    i.e. [ostep_book] section 1 virtualization.
+  - After all, even the hardware has *independent threads in different cores*
+    > Even if you have four cores and four working threads, your process and it threads will constantly be being *switched out* for other *processes and threads*
+    The OS maybe [can't schedule concurrently to all cores](https://stackoverflow.com/questions/3126154/multithreading-what-is-the-point-of-more-threads-than-cores/3126400#3126400). Although maybe they are left running insied the hardware when switching out.
+    - TODO
+      > you might if it's running *real-time*, if you're using a realtime OS 
+- `new = TestAndSet(old_ptr,new)` will does [`xchg`](https://www.felixcloutier.com/x86/xchg)
+- p7
+  here `turn` will be only valid in one thread (because of instruction atomicity) -> mutex.
+  > assuming they are atomic with respect to each other, which was true on early hardware
+  But the `spin` is still the problem.
+  - when one `unlock`, the `&&` with `flag[1-self] == 1` will exit the `while`.
+  - > algorithms like the ones above don’t work on mod-ern hardware (due to **relaxed memory consistency models**)
+    because the `while` and `turn = 1 - self;` may be reordered.
+    - TODO how the final solution avoids this problem.
+      - at least `TestAndSet` avoids the loadstore reorder.
+- the `Set` in `TestAndSet` obviously solves the interrupt problem in "Figure 28.2".
+  - The key is that it offers *atomicity* (imply mutex), So it can function as one lock.
+- > as a thread spinning on a CPU will never relinquish it
+  as section 1 says, it has no interrupt, etc., to let the OS take control.
+- "Figure 28.5"
+  `LoadLinked` hides the set of link bit, See [MIPS_DOC] p319.
+  - although the book
+    > if it fails, the value at ptr is not updated and *0 is returned*.
+    while in [MIPS_DOC] p320
+    > The success or failure of the SC is *indicated in the target register* of the store.
+    i.e. `r3=0?`
+- > If the same people had twice as much time
+  because
+  > go back, *rewrite*, and make the code as clear and con-cise as possible.
+  So they
+  > produce as good of a system in *half the code*.
+- > Once a thread is assigned its ticket value, it will be *scheduled at some point* in the future
+  because of the `FetchAndAdd` atomic property, each thread will get one *unique* `myturn`.
+  And then `unlock` will schedule them ~~evenly~~ sequentially -> "FIFO service" in [MS91].
+- main problem with "priority inversion" is 
+  > T1 only runs when T2 is not able to do so
+  where T2 *can't be switched out*.
+- > If T2 starts to run, it will have higher priority than T1, and thus it will run.
+  ~~maybe due to the scheduler which schedules T2 *instead of* T3 although priority of T3 is higher than T2 after T1 released.~~
+  This is due to T2 [doesn't acquire the lock](https://en.wikipedia.org/wiki/Priority_inversion) which is implied by "Just *avoiding* the use of spin locks".
+  > M being higher in priority than L, preempts L (since M does *not depend on R*),
+  -> priority *inversion*
+  - T3 -(blocked due to spinlock)> T1 -(blocked due to priority)> T2
+  - Here [M15](https://mjtsai.com/blog/2015/12/16/osspinlock-is-unsafe/) only says about the existence of problems on MACOS, but not detailed about definition of "priority inversion".
+  - above means same as [R97](https://www.cs.unc.edu/~anderson/teach/comp790/papers/mars_pathfinder_long_version.html)
+    > The higher priority bc_dist task was blocked by the much lower priority ASI/MET task that was holding a shared resource. The ASI/MET task had acquired this resource and then been *preempted by several of the medium* priority tasks.
+    This ends up
+    > declared the error that initiated the *reset*.
+  - solved by 
+    1. [Priority inheritance](https://en.wikipedia.org/wiki/Priority_inheritance)
+       > With priority inheritance, L will execute its critical section at H's high priority whenever H is blocked on the shared resource. As a result, M will be *unable to preempt L* and will be blocked.
+    2. > A last solution is simplest: ensure all threads have the same priority.
+
+      ~~although no inversion, but deadlock seems to be *still* there.~~
+      So the scheduler can *switch normally*.
+    3. > avoid us-ing spin locks
+- [OS's](https://www.reddit.com/r/asklinguistics/comments/hj66gp/comment/fwkhoax/?utm_source=share&utm_medium=web2x&context=3) although [this](https://www.techtarget.com/whatis/feature/Which-is-correct-OSs-OSes-or-OSs)
+### "28.14 Using Queues"
+- maybe same as the "ticket lock" because of FIFO.
+- `m->guard` ensures the atomicity of operations done in `lock` and `unlock`.
+  `m->flag` controls the queue.
+  - > (just a few instructions inside the lock and unlock code, instead of the user-defined critical section)
+    - here `m->guard = 0` is called at the end both in `lock` and `unlock`
+      So no spinlock.
+    - and `m->flag` and `(un)park` function as the original mutex. See "Figure 28.3".
+    - Here `m->guard = 0;` before `park()` 
+      because the thread has done the *critical section before `park()`* and now its sleep can be interrupted *without influencing the correctness*.
+      - > What would happen if the release of the guard lock came after the park()
+        If not before, `m->guard` won't be released.
+- > might be interrupted while acquiring or releasing the lock
+  i.e. interrupted when `beq` after the atomic `TestAndSet`.
+- > just pass the lock directly from the thread releasing the lock to the next thread acquiring it
+  i.e. the unparked thread continues after its original `park`.
+  not return from interrupt to `PC` like other interrupts but to `PC+4` if park instruction is 4 bytes where `PC=PC(park)`.
+- > perceived race condition
+  i.e. the thread process *order* may matter.
+  - > wakeup/waiting race.
+    due to the unatomicity of `queue_add(m->q, gettid()); ... park();`
+    if `queue_add(m->q, gettid());` -> `unpark(queue_remove(m->q));` -> `park();` <a id="bad_queue"></a>
+    then the added queue member is *no use at all* because `unpark` -> `park();` 
+    instead of the expected `park();` -> `unpark`.
+    - means same as
+      > another thread calls unpark before park is actually called
+    - > take precautions to atomically release the lock and de-queue the running thread
+      TODO this seems to not solve with the above queue [problem](#bad_queue).
+### 28.15 Different OS, Different Support
+- [XSI](https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap02.html)
+- futex [futex_example]
+  - [`IPC_CREAT | 0666`](https://stackoverflow.com/a/49718138/21294350) more detailed see [`man 2 shmget`](https://man7.org/linux/man-pages/man2/shmget.2.html) (from [this](https://stackoverflow.com/questions/40380327/what-is-the-use-of-ipc-creat-0666-flag-in-shmget-function-in-c#comment91515155_40380327)) and `man 2 shmctl`
+  - TODO [`CLOCK_REALTIME`](https://stackoverflow.com/a/3527632/21294350) may be influence by [timezone](https://smallbusiness.chron.com/change-system-date-time-linux-79090.html)
+  - relation with `lock`
+    > It then may pass the *lock's flag* as a futex *word*
+    > The *uaddr* argument points to the futex word
+  - example 1 `wait_on_futex_value`
+    Notice: here still has the spinlock.
+    - `int futex_rc = futex(futex_addr, FUTEX_WAIT, val, NULL, NULL, 0);` will always return error if `*futex_addr` not set to `val`
+      > If the futex value  does  *not  match val*, then the call fails *immediately with the error EAGAIN*.
+      Then `while (1)` spinlock.
+    - > if so, then sleeps waiting for a FUTEX_WAKE operation on the futex word.
+      and the blog
+      > The waiting is efficient - the waiters are suspended by the kernel and are *only scheduled anew* when there's a wake-up signal.
+      This makes the scheduler more efficient because of no time slice limit, i.e. it can switch immediately after sleep and 
+    - > if the other thread executed a FUTEX_WAKE operation (or similar wake-up) *after the value change* and before this FU‐TEX_WAIT operation, then the calling thread will observe the value change and will not start to sleep.
+      because `FU‐TEX_WAIT` is not one signle atomic instruction, it may have the above similar [behavior](#bad_queue), So the **re**observation of "the value" is important.
+  - example 2 "Using a futex to implement a simple mutex"
+    - `cmpxchg`: 
+      [`atomic_compare_exchange_strong`](https://en.cppreference.com/w/cpp/atomic/atomic_compare_exchange)
+      > Otherwise, loads the actual value pointed to by obj *into *expected* (performs load operation)
+      - So if comparison with `expected` succeeds, 
+        `cmpxchg` *return* `*ep` which is original input `expected`
+        `atom -> desired`.
+        - otherwise, *return* `atom`.
+      - summary of `ret = cmpxchg(std::atomic<int>* atom, int expected, int desired)`:
+        1. comparsion equal (`*atom=expected`)
+          `ret=expected,*atom=desired` i.e. `ret=0` for `cmpxchg(&atom_, 0, 1)`.
+        2. unequal
+          `ret=*atom!=expected` i.e. `ret!=0` for `cmpxchg(&atom_, 0, 1)`.
+        From above `ret=*old_atom`
+      - then 1st thread go outside `if (c != 0)`
+        NOTICE: here `thread` is count `lock` call instead of the real thread counts.
+        here `*atom_=1` means
+        > 1:  acquired with no waiters
+        - 2nd `if (c == 2 || cmpxchg(&atom_, 1, 2) != 0)` fails but due to short-circuiting boolean, 
+        `atom_ -> 2` and `cmpxchg(&atom_, 1, 2) != 0` will only succeed when `*atom_=0` which seems to Only
+        work when `atom_.store(0)`.
+          - here `atom_ -> 2`
+            > >1: acquired, possibly with waiters
+            then it will enter sleep because of `*atom_=2`
+          - `atom_.fetch_sub(1)` will make `atom_=0` if originally `1`
+            - otherwise (i.e. here `atom_=2`), `atom_.store(0)` to make it reinitialized.
+              then `FUTEX_WAKE` to wakeup the waiting thread.
+              - `0, 0, 0` in `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` due to
+                > The arguments timeout, uaddr2, and val3 are ignored.
+            - Then `c = cmpxchg(&atom_, 0, 2)` will work
+              Although it may do more work when no other threads are waiting,
+              but if using `c = cmpxchg(&atom_, 0, 1)`, then `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` won't run when other threads are waiting by `syscall(SYS_futex, (int*)&atom_, FUTEX_WAIT, 2, 0, 0, 0);`. So incorrectness.
+              ~~here `2` because `int c = cmpxchg(&atom_, 0, 1);` will set `atom_` to `1`, so~~
+              ~~`c = cmpxchg(&atom_, 0, 1)` is also fine.~~
+              - it also updates `*atom_` to `2` to make subsequent `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` available.
+        - 3rd ~~is same as above 2nd~~
+          ~~due to `int c = cmpxchg(&atom_, 0, 1);` where `c=,*atom)=1` for `*atom_!=0`~~
+          when the above 2 not exits
+          `int c = cmpxchg(&atom_, 0, 1);` will make `c=*atom_=2`, then "shortcut checks" and `syscall(SYS_futex, (int*)&atom_, FUTEX_WAIT, 2, 0, 0, 0);`.
+        - above 3rd all same as 3rd.
+        - dequeue 
+          - before 2 threads
+            Here "thread_{n-1}" is just one assumption.
+            `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` -(exit one "thread_n")> `c = cmpxchg(&atom_, 0, 2)` -("thread_{n-1}" exit lock and into critical section; update `*atom_` to 2)> `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` due to `*atom_=2` -> ... loop as before.
+          - same as above, but here at last `atom_.store(0);` restore to init which won't be modified by `c = cmpxchg(&atom_, 0, 2)` and `syscall(SYS_futex, (int*)&atom_, FUTEX_WAKE, 1, 0, 0, 0);` wakeup nothing (i.e. return `0`).
+      - TODO
+        [1](https://github.com/eliben/code-for-blog/blob/master/2018/futex-basics/mutex-using-futex.cpp)
+        > (a) the mutex was in fact unlocked (by an intervening thread).
+  - [relation](https://news.ycombinator.com/item?id=30276144) with mutex (i.e. lock)
+    > Since it's not a lock, *the value of the flag is not guaranteed* to be certain value when futex() returns.
+    not 0 or 1 definitely, So above 0,1,2.
+    - [Also](https://qr.ae/pyE9Nu) see
+      > it is a basic synchronization primitive which is *used to construct complicated synchronization constructs* like mutex, condition variables,
+  - [why](https://www.collabora.com/news-and-blog/blog/2022/02/08/landing-a-new-syscall-part-what-is-futex/#:~:text=Futex%3A%20fast%20userspace%20mutex,design%20feature%20of%20the%20futex.) use it
+    > doing syscalls requires *expensive context switches*
+    So above use `shmat` to bring into the "the address space of the calling process".
+    > Most of the time, it *doesn't need the kernel*, so we have less context switch and can have a lightweight mutex implementation.
+    - it offers one example without the waiting queue but just the lock.
+- > more in-kernel functionality
+  TODO does it mean that [futex_example]
+  > a queue the *kernel manages* for userspace convenience.
+  i.e. "per-futex in-kernel queue" in the [ostep_book].
+- Figure 28.10
+  - > First make sure the futex value ...
+    because the scheduler may interrupt the `mutex_lock` in thread_2 after the 2rd `atomic_bit_test_set (mutex, 31) == 0` and then `atomic_add_zero (mutex, 0x80000000)` in thread_1.
+    So we need to retest `v = *mutex;`
+  - `lowlevellock.h` in glibc-2.9 which is [issued in 2008](https://sourceware.org/glibc/wiki/Glibc%20Timeline) [github](https://github.com/bminor/glibc/blob/glibc-2.9/nptl/lowlevellock.h) or [bootlin](https://elixir.bootlin.com/glibc/glibc-2.9/source/nptl/lowlevellock.h) (the following based on bootlin to explain)
+    - `lll_futex_timed_wait`
+      - TODO
+        ~~- `__to` meaning~~
+        - [`__typeof`](https://github1s.com/bminor/glibc/blob/glibc-2.9/nptl/sysdeps/unix/sysv/linux/x86_64/lowlevellock.h#L208)
+      - [`__asm`](https://stackoverflow.com/questions/3323445/what-is-the-difference-between-asm-asm-and-asm#comment72722149_3323445) is similar to `asm`
+      - `"0" (SYS_futex)` [meaning](https://stackoverflow.com/a/57485860/21294350) and [doc](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Input-Operands)
+        > The resulting asm will print the *same register name twice*, for both %0 and %1
+        here `SYS_futex` is also stored in `a` register like `rax` same as`__status`.
+      - `register` for [Local Variables](https://gcc.gnu.org/onlinedocs/gcc/Local-Register-Variables.html)
+      - [`asmSymbolicName`](https://stackoverflow.com/a/32132496/21294350) is to help human understanding.
+      - `__status;` just [ignore](https://stackoverflow.com/a/45576794/21294350) it.
+      - `"r11"` in [Clobbers](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Clobbers-and-Scratch-Registers-1) are just in the potential modified register list.
+        - [`"cx"`](https://stackoverflow.com/a/7215151/21294350) -> [this](https://github.com/gcc-mirror/gcc/blob/80907b03c8e72cdcd597f1359fda21163ec22107/gcc/config/i386/i386.h#L1978)
+      - after all, it just calls the `man futex` function with [`FUTEX_WAIT|FUTEX_PRIVATE_FLAG`](https://elixir.bootlin.com/glibc/glibc-2.9/source/nptl/sysdeps/unix/sysv/linux/x86_64/lowlevellock.h#L63) although `LLL_SHARED` seeems to be conflict with `FUTEX_PRIVATE_FLAG`
+        > It tells the kernel that the futex is process-private and *not shared with another process*
+        [See](https://github.com/bminor/glibc/blob/d2123d68275acc0f061e73d5f86ca504e0d5a344/sysdeps/nptl/lowlevellock.h#L46C29-L46C52)
+      - [newer version](https://github1s.com/bminor/glibc/blob/master/sysdeps/nptl/lowlevellock.h#L94-L95) is similar to this [example][futex_example]
+        - `atomic_compare_and_exchange_bool_acq` -> [`! __sync_bool_compare_and_swap (mem, oldval, newval)`](https://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html)
+          - return `0` if equal otherwise 1.
+          - This ret same as the `cmpxchg(&atom_, 0, 1)` from the perspective of boolean.
+        - [`__lll_lock_wait`](https://github1s.com/bminor/glibc/blob/master/nptl/lowlevellock.c#L40-L41) just use the different ~~flags~~ options from `__lll_lock_wait_private`
+          - [`__atomic_exchange_n`](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html#index-_005f_005fatomic_005fexchange_005fn)
+          - `atomic_exchange_acquire (futex, 2) != 0` is same as `cmpxchg(&atom_, 1, 2) != 0` but the former doesn't care about whether it is 1 
+            because 
+            1. `atomic_load_relaxed (futex) == 2` has excluded `futex=2`
+            2. `__glibc_unlikely (atomic_compare_and_exchange_bool_acq (__futex, 1, 0)))` has excluded `futex=0`.
+            3. `futex` can be only 0,1,2 from the `lowlevellock.h` -> it must be `1`.
+          - TODO `__NR_futex` meanging which depends on the syscall cfg similar to xv6.
+          - [`__builtin_constant_p`](https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-_005f_005fbuiltin_005fconstant_005fp)
+        - [`## __VA_ARGS__`](https://stackoverflow.com/a/52891776/21294350) Also [see](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html)
+        - diff with glibc-2.9
+          it doesn't count but just *let the kernel manipulate* the waiting queue.
+          - the count implies ["two-phase lock"](https://en.wikipedia.org/wiki/Two-phase_locking#Two-phase_locking)
+            - IMO it is more like "Figure 28.9" instead of "Figure 28.10" where only uses `while` to avoid spurious wakeup.
+              This is implied in the book
+              > The Linux lock above is a form of such a lock, but it *only spins once*;
+              - the "Figure 28.9" has "Queues" -> count
+                and `while (TestAndSet(&m->guard, 1) == 1)` spining to get the lock to sleep or get the flag.
+              - > spin in a loop for a *fixed amount of time before* using futex support to sleep.
+                maybe avoid the frequent *context switch overheads*.
+              - > where combining two good ideas
+                i.e. spin and sleep & wakeup.
+              - > including the hard-ware environment, number of threads, and other workload details.
+                threads on different cores are probably not influenced by context switches on one CPU.
+                workload vs sleep & wakeup overhead, i.e. whether the former can amortize the latter.
+            - TODO Here in the book both phases are related with `acquire` while the above wikipedia are one for acquire and the other for release.
+          - TODO [M82](https://www.smecc.org/The%20Architecture%20%20of%20the%20Burroughs%20B-5000.htm)
+### 16 two-phase lock
+- here "spinning" may refer to "futex_wait (mutex, v)" which sleeps waiting for the wakeup.
+- Also above "two-phase lock"
+## TODO
+### API
 - [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
-- what is the [usage](https://stackoverflow.com/a/52240195/21294350) of `SDT probes`
+- what is the [usage](https://stackoverflow.com/a/52240195/21294350) of `SDT probes` which is related wtih `LIBC_PROBE`
   which can be [shown](https://www.ece.villanova.edu/VECR/doc/gdb/Static-Probe-Points.html) in `gdb`
 - > First, it performs poorly in many cases (*spinning for a long time* just wastes CPU cycles).
   But it seems that `ROS` intro doc use this frequently.
+### locks
+- > Hardware support alone cannot solve the problem
+  maybe because
+  > what to do when a context switch occurs in a critical section
+  context switch is controlled by OS, so it needs OS to handle problems caused by "context switch".
+- po "atomic exchange" may be implemented in the hardware by *Enable bit*.
+  - Or as [COD_RISCV_2nd_A_appendix] says, use one specific instruction [`LL/SC`](https://stackoverflow.com/a/14761049/21294350) which *can't be interrupted*
+  - imply ["bypass the store buffer"](https://stackoverflow.com/a/43837970/21294350) which references [this](https://yarchive.net/comp/linux/store_buffer.html).
+  - Also related with [MESI](https://stackoverflow.com/a/25350342/21294350) to make *visible*.
 # appendix
 ## book recommendation
 - "Debugging with GDB: The GNU Source-Level Debugger" 10th is offered [officially](https://sourceware.org/gdb/current/onlinedocs/gdb.html/) when [12th](https://www.amazon.com/Debugging-GDB-GNU-Source-Level-Debugger/dp/1680921436#:~:text=gdb%20can%20do%20four%20main,when%20your%20program%20has%20stopped.) is available.
@@ -1051,6 +1358,7 @@ find: ‘/proc/1475/net’: Invalid argument
 - [D68]
 - [B89, B97, B+96, K+96]
   they are all old before 2000.
+- [D+13]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -1178,21 +1486,21 @@ $ valgrind --version
 valgrind-3.21.0
 ```
 ### C14
-2. [`kill -l `](https://stackoverflow.com/a/29383998/21294350) to check the signal number and `man 7 signal` to get the detailed infos.
+1. [`kill -l `](https://stackoverflow.com/a/29383998/21294350) to check the signal number and `man 7 signal` to get the detailed infos.
   - Use [`/bin/kill -L`](https://forums.gentoo.org/viewtopic-p-7533822.html?sid=caddea015137c286957f10ee0fcdeaa2#7533822) to get the table which is also shown in `man kill` NOTES.
-3. `Address 0x0 is not stack'd, malloc'd or (recently) free'd`
-4. here `total heap usage: 2 allocs, 1 frees, 1,028 bytes allocated` is due to [`printf`](https://stackoverflow.com/questions/74019895/valgrind-many-allocated-bytes#comment130694195_74019895)
+2. `Address 0x0 is not stack'd, malloc'd or (recently) free'd`
+3. here `total heap usage: 2 allocs, 1 frees, 1,028 bytes allocated` is due to [`printf`](https://stackoverflow.com/questions/74019895/valgrind-many-allocated-bytes#comment130694195_74019895)
   where `--run-libc-freeres=no` avoids free when `exit` which will run after the `main`.
   > Memcheck therefore tries to run __gnu_cxx::__freeres *at exit*.
   Also see [asm_md] "Still reachable".
   - related with [OSX](https://stackoverflow.com/a/29810040/21294350).
     > The issue with standard streams (*stdout, stderr*), is one normally doesn't close them, as a result this buffer will normally never be freed.
     > This is a *fixed sized* buffer which is not going to grow in size, so it is *not a "leak"* as such.
-5. ~~`Address 0x4bf91d0 is 224 bytes inside an unallocated block of size 4,194,032 in arena "client"`~~
+1. ~~`Address 0x4bf91d0 is 224 bytes inside an unallocated block of size 4,194,032 in arena "client"`~~
   ~~implies VA -> physical address.~~
   See [ostep_hw], this has excessed too much
   with `data[25]=0;`, the error output may be more understandable.
-8. TODO <a id="algorithm_1"></a>
+1. TODO <a id="algorithm_1"></a>
   maybe linked list creation is faster because of no `malloc` overheads.
   - [perf table](https://en.wikipedia.org/wiki/Dynamic_array#Performance)
     here "insert" at "Beginning/Middle" is `O(n)` because of the array property.
@@ -1418,6 +1726,59 @@ this should print first
 this should print last
 ```
 8. based on 7, just performance.
+### C28
+1. here `sub  $1, %bx` changes the thread private register, so not in the critical section.
+2. `./x86.py -p flag.s -M flag -c -R ax,bx`
+3. `./x86.py -p flag.s -M flag,count -c -R ax,bx -a bx=2,bx=2`
+4. 
+```bash
+$ ./x86.py -p flag.s -M flag,count -c -R ax,bx -a bx=3,bx=3 -i 4 # this may cause weird interleave
+    0     1       0     3                            1001 test $0, %ax
+    0     1       1     3   ------ Interrupt ------  ------ Interrupt ------  
+    0     1       1     2   1008 sub  $1, %bx
+    0     1       1     2   1009 test $0, %bx
+    0     1       1     2   1010 jgt .top
+    0     1       0     2   1000 mov  flag, %ax
+    0     1       0     3   ------ Interrupt ------  ------ Interrupt ------  
+    0     1       0     3                            1002 jne  .acquire
+    1     1       0     3                            1003 mov  $1, flag
+    1     1       1     3                            1004 mov  count, %ax
+    1     1       2     3                            1005 add  $1, %ax
+    1     1       0     2   ------ Interrupt ------  ------ Interrupt ------  
+    1     1       0     2   1001 test $0, %ax
+    1     1       0     2   1002 jne  .acquire
+    1     1       0     2   1003 mov  $1, flag
+    1     1       1     2   1004 mov  count, %ax
+    1     1       2     3   ------ Interrupt ------  ------ Interrupt ------  
+```
+here `.acquire` is *splitted* which causes both threads run `mov  $1, flag`.
+`./x86.py -p flag.s -M flag,count -c -R ax,bx -a bx=3,bx=3 -i 8` works by makeing the lock and "critical section" as the whole entity.
+- TODO math proof what number with `-i` works.
+5. `xchg` ensures the `flag/mutex` is changed with just one instruction.
+6. always work. `./x86.py -p test-and-set.s -M mutex,count -R ax,bx -c -a bx=10,bx=10 -i 1`
+   Yes due to the loop of `.acquire`
+   The `count` is `20`
+7. `./x86.py -p test-and-set.s -M mutex,count -R ax,bx -c -a bx=10,bx=10 -P 0011` no abundant interrupts at the end.
+  "Fairness" depends on the scheduler.
+8. `turn == 1 - self` in "Peterson’s algorithm" must make one thread spin because of `self` is *unique* in each thread while in the former examples, `flag` is always tested with `0`.
+  - `jne .fini` implements the "short-circuiting".
+  - `./x86.py -p peterson.s -M flag,count -R ax,bx -c -a bx=1,bx=0 -i 1`
+    here after "critical section" no loop occurs. So `count` should be `2`.
+  - here `turn = 1 - self;` or `turn = self;` all are fine becasue the mutex is implemented with `turn == 1 - self`. See "peterson_mod.s".
+9. 
+10. similar to 7 where the atomic property ensures the correctness.
+11. same as "Figure 28.7".
+12. obviously yes.
+13. same as 12
+14. `yield` only works more efficiently when interrupt cycle is large so that the thread can yield the CPU before the schedule ends.
+```bash
+$ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
+505
+[czg ~/ostep-homework/threads-locks]$ ./x86.py -p test-and-set.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
+554
+```
+15. avoid one more `xchg %ax, mutex     # atomic swap of 1 and mutex` sometimes.
+  "avoid unnecessary writing." especially when writing to mem.
 ## TODO
 - read "APUE".
 # Projects
@@ -1677,6 +2038,8 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
   [subjunctive mood](https://www.scribbr.com/verbs/subjunctive-mood/#:~:text=The%20subjunctive%20mood%20is%20a,types%20of%20subjunctive%20verb%20forms.)
   > The past subjunctive is typically used to refer to past or *present* actions or situations.
   - TODO here "infinitive form" ~~isn't same as "to be"~~ is the ["Bare infinitive"](https://www.grammarly.com/blog/infinitives/) which may function as "adjective"/noun.
+- From [this](https://dictionary.cambridge.org/us/grammar/british-grammar/other-others-the-other-or-another), "another" can replace "The other".
+  > Another means *‘one more’* or ‘an additional or extra’, or ‘an alternative or different’.
 
 ---
 
@@ -1699,6 +2062,7 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [Interaction_Between_Caching_Translation_Protection]:./Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
 [B+13]:./Ostep_papers/isca13_direct_segment.pdf
 [X+10]:./Ostep_papers/Xiong.pdf
+[MS91]:./Ostep_papers/R06-scalable-synchronization-1991.pdf
 
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
@@ -1708,3 +2072,11 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [geeksforgeeks_aliasing]:https://www.geeksforgeeks.org/virtually-indexed-physically-tagged-vipt-cache/
 
 [opengroup_doc]:https://pubs.opengroup.org/onlinepubs/9699919799/
+
+[COD_RISCV_2nd_A_appendix]:../references/other_resources/COD/COD_RISCV_2nd_A_appendix.pdf
+[MIPS_DOC]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
+
+<!-- blog -->
+[futex_example]:https://eli.thegreenplace.net/2018/basics-of-futexes/
+
+[x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html

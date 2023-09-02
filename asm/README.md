@@ -6761,7 +6761,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
         - ["OS fingerprinting"](https://www.firewalls.com/blog/security-terms/os-fingerprinting/) -> analyzing data packets
         - [`=/+`](https://gcc.gnu.org/onlinedocs/gcc/Modifiers.html)in `asm`
           - `"a"` means [`eax`](https://www.felixcloutier.com/documents/gcc-asm.html#examples) but not [addr](https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html#index-other-register-constraints).
-            Also see [x86 "The a register."](https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html)
+            Also see [x86 "The a register."][x86_asm_Constraints]
           - [`%0`](https://www.felixcloutier.com/documents/gcc-asm.html#constraints) is probably the *output* because of its *order*.
         - [`CLFLUSH`](https://www.felixcloutier.com/x86/clflush) only flush one *specific addr*.
       - The main idea of attack is
@@ -12221,3 +12221,5 @@ Dump of assembler code for function _Z6kernelPfi:
 [ostep_vm_segmentation]:../Operating_System/ostep_new_version_chapter/Virtualization_part_2/vm-segmentation.pdf
 [ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw/blob/master/15/README.md
 [Interaction_Between_Caching_Translation_Protection]:../Operating_System/Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
+
+[x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html
