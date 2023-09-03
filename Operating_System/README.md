@@ -1828,14 +1828,90 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
   "avoid unnecessary writing." especially when writing to mem.
 ### C29
 [Benchmark_IA_64]
-- "Register Overwriting" can be solved in C6
+- problem list
+  1. "Register Overwriting" can be solved in C6
+  2. OoO by `LFENCE` or `cpuid`, etc
+    however the latter is [not preferred](https://stackoverflow.com/a/12634857/21294350) due to
+    > since virtual machine platforms often trap and *emulate* the cpuid instruction
+    Also see [intel_64] p3294 footnote 7
+  4. See [cflush_rdstc_check_overhead].
+- appendix code
+  - `spurious` only applies when
+    > It is a useful index in case we are evaluating a function whose *complexity is increasing* along the external loop: a more complex function has to take more cycles to be executed; if the minimum measured value is *smaller* than the one measured on the ensemble for the *less complex* function, there is something wrong
+    - It is related with [Ergodic](https://en.wikipedia.org/wiki/Ergodic_process) (i.e. each test doesn't influence each other).
+      - This is one *expected property of benchmarking self* because it is called many times.
+- problems with the calculation of time of *benchmarking self*.
+  - > that he cannot benchmark functions whose execution is shorter than 139 clock
+    i.e. *benchmarking overhead can't be ignored* in this case.
+  - "the variance of the variances" tests "ergodic" of each *ensemble loop* (i.e. `for (i =0; i<SIZE_OF_STAT; i++) ` loop).
+- `RDTSCP`
+  - > It *cannot, however, guarantee* that  for optimization purposes  the CPU *will not execute,   before the RDTSCP call*, instructions that, in the source code, are *placed after the   RDTSCP function* call itself.
+    So better `RDTSCP,lfence`. See the figure in p16
+  - "3.2.1"
+    - here `RDTSCP` *avoids the overhead of `CPUID`* and also imply the serializing.
+      But due to substraction, only the last `CPUID` matters which avoid external influences from functions outside the `RDTSC` block.
+    - > since there is a *logical dependency* between RDTSCP and the register edx and eax
+      this is the data hazard (if reordered, stall is implied) which is said in [asm_md] csapp and COD.
+    - > the other can introduce a variance in terms of clock cycles that is too high to guarantee an acceptable measurement resolution.
+      maybe the `CPUID` latency is highly variable to *ensure serializing* although its original goal is just getting the CPU infos.
+  - > the total variance (the *average* of the variances in each row);
+    it is `tot_var/BOUND_OF_LOOP` of `tot_var` in the appendix code
+  - > the standard error on the measure is 1,414 cycles 
+    i.e. `1.414` instead `,`.
+- Alternative Method
+  - See [intel_64] p3294 by [`mov`](https://www.felixcloutier.com/x86/mov-1) doc
+    where "*Privileged* serializing instructions" implies
+    > not as good as the one presented in Section 3.2.1
+    - both `CR8` not serializing and `CR1`, etc., reserved in *x86-64* is [manual designed](https://stackoverflow.com/a/61067408/21294350) without many detailed reasons.
+      - Notice x86 registers -> [32-bit](https://wiki.osdev.org/Talk:CPU_Registers_x86-64) which are different from x86-64. Also [see](https://superuser.com/a/96854/1658455)
+- from [intel_64] p3283 and 3294, "serializing instructions" seems to include `mfence` property.
+  > *Reads or writes* cannot be *reordered* with I/O instructions, locked instructions, or serializing instructions.
+  > Like the I/O instructions, locked instructions, the LOCK prefix, and serializing instructions *force stronger ordering*
+  - Also [see](https://stackoverflow.com/questions/50480511/what-does-serializing-operation-mean-in-the-sfence-documentation#comment87986374_50480511) related with "the store buffer"
+    > the processor waits until *all previous instructions have been completed* and all *buffered writes have been drained* to memory before executing the serializing instruction.
+    - Also see `mfence` [doc](https://www.felixcloutier.com/x86/mfence)
+      "serializing instructions" care about "all previous instructions" instead of only instructions related with memory and "serializing instructions" (implied by "stronger ordering").
+      > *Nothing can pass* a serializing instruction and a serializing instruction *cannot pass* any other instruction (read, write, instruction fetch, or  I/O).
+      here pass means reorder.
+      - po just SC (Sequential	Consistency).
+  - > because the results of *speculatively executed instructions are discarded*
+    So
+    > *prefetching* the destination of a branch instruction ... instruction execution is *not deterministically serialized when a branch instruction* is executed.
+    because "prefetching destination of a branch instruction" is executed earlier.
+  - > The processor does not write back the contents of modified data in its data cache to external memory
+    so "drained to memory" -> drain to cache which may be to memory.
+  - [intel_64] p3345 [PML4](https://wiki.osdev.org/CPU_Registers_x86-64#CR3) is why
+    > the next instruction is fetched *using the translation tables* that correspond to the new value of CR3
+- "3.2.3" is probably wrong.
+  1. here `mov %%rax, %%cr0\n\t` functions same as `CPUID\n\t` before 2rd `RDTSC` in the appendix code.
+  2. it doesn't have ending `CPUID` which avoids reordering across the 2rd `RDTSC`
+    because above "cannot pass" property.
+- 3.3.1
+  - here 
+    1. "total number of spurious min values is zero"
+      means the *deviation in each ensemble* in one iteration of j-loop is very *small*.
+      So that the min number in each ensemble is *strictly* increasing.
+    2. "the total variance"
+    3. > meet real-time constraints 
+      because "real-time" implies not caring average but caring about each time.
+    4. > the variance of the minimum values is completely meaningless
+      because complexity is increasing
+      This also implies why using the two-level loop. (See "Summary" steps)
+  - > minimum variation in the code complexity that *can be revealed*
+    i.e. instruction number with variation of 1 *may not be differentiated* maybe due to parallelism.
+
+---
+
+related with [Benchmark_IA_64] but more focus on `rdstc` self
 - IA-64 can [use IA-32](https://stackoverflow.com/a/40689914/21294350)
-- [amd specific](https://stackoverflow.com/questions/51844886/is-lfence-serializing-on-amd-processors)
+- [amd specific](https://stackoverflow.com/questions/51844886/is-lfence-serializing-on-amd-processors) and related with `LFENCE`
   - TODO "rev_17h_guide_tmp_no_17h_60h.pdf" has no `LFENCE` description.
   - based on the patches updated with MSR in the kernel and the AMD doc
-    - based on [this patch](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/arch/x86/kernel/cpu/bugs.c?h=v4.15.10#n263) from [bbs](https://stackoverflow.com/review/suggested-edits/34938249), my CPU is 17H family and can use the above feature. This is also said [here](https://stackoverflow.com/a/12634857/21294350)
+    - based on [this patch](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/arch/x86/kernel/cpu/bugs.c?h=v4.15.10#n263) from [bbs](https://stackoverflow.com/review/suggested-edits/34938249), my CPU is 17H family and can use the above feature which is also said [here](https://stackoverflow.com/a/12634857/21294350)
       ```bash
       $ journalctl -b > /tmp/test.txt
+      $ cat /tmp/test.txt | grep -i "LFENCE"
+      # nothing
       ```
     - Also see [`rdstc` doc][intel_rdstc] where `LFENCE` can control although it originally [control](https://www.felixcloutier.com/x86/lfence) "load operations"
       > Specifically, LFENCE does not execute *until all prior instructions* have completed locally, and no later instruction begins execution *until LFENCE completes*.
@@ -1844,12 +1920,17 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
       - > data can be brought into the caches speculatively just before, during, or after the execution of an LFENCE instruction.
         `LFENCE` doesn't influence the cache order.
       - > stores are globally visible
-        implies [cflush_rdstc] `sfence`.
+        implies [cflush_rdstc_check_overhead] `sfence`.
     - [`mfence`](https://stackoverflow.com/a/46123600/21294350) avoids storeLoad reorder which has been said in [asm_md].
-      So although [this](https://hadibrais.wordpress.com/2019/02/26/the-significance-of-the-x86-sfence-instruction/#:~:text=The%20LFENCE%2C%20SFENCE%2C%20and%20serializing,can%20serialize%20CLFLUSH%20is%20MFENCE.) said `SFENCE` is ok for intel but `mfence` is [better][cflush_rdstc].
+      So although [this](https://hadibrais.wordpress.com/2019/02/26/the-significance-of-the-x86-sfence-instruction/#:~:text=The%20LFENCE%2C%20SFENCE%2C%20and%20serializing,can%20serialize%20CLFLUSH%20is%20MFENCE.) said `SFENCE` is ok for intel but `mfence` is [better][cflush_rdstc_check_overhead].
       >  software can insert an SFENCE instruction between CFLUSHOPT and that operation.
       - TODO
         > However, on most Intel processors, mfence is *cheaper* than lfence.
+      - > doesn't prevent the core from "hiding" the stores from MESI
+        the hiding is due to store buffer,
+        So `sfence` doesn't "flush the store buffer" while `mfence` can.
+        > It effectively flushes the store buffer before proceeding.
+        - notice the AMD and intel implements [differently](https://stackoverflow.com/questions/50480511/what-does-serializing-operation-mean-in-the-sfence-documentation#comment96156889_50500786).
     - `C001_1029` [detailed](https://lore.kernel.org/lkml/20170425114541.8267-1-dvlasenk@redhat.com/) from [this](https://hadibrais.wordpress.com/2018/05/14/the-significance-of-the-x86-lfence-instruction/)
     - [Why isn't](https://stackoverflow.com/a/12065803/21294350) RDTSC a serializing instruction? 
       > it seems that they *decided* to keep it non-serializing, which is OK for *general-purpose* time measurements
@@ -1897,62 +1978,61 @@ Leaf     Subleaf    EAX            EBX            ECX            EDX
 $  ipython -c "bin(0x178bfbff)[-19]"
 Out[1]: '0' # not support clflush
 ```
-  - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
   - notice [newer gcc](https://stackoverflow.com/a/14737642/21294350) default std is `gnu17` by `info gcc`.
 1. this has been asked before.
   See C19 where we prefer `clock_gettime` than `gettimeofday` because of precision.
   See C6 for `rdtsc`
-2. 
-   - Here `threadID % NUMCPUS` is to make each CPU can run one specific thread which has been said before that the CPU can only schedule one thread in the core each time.
-     - more specifically, here `j % i` just based on 16 threads instead of 8 CPU cores.
-   - > Does this number impact your measurements at all
-      not too much because "32 threads" still works when only 16 physical threads available.
-    - [reasons](https://stackoverflow.com/a/154138/21294350) for `do { ... } while (0)` in `#define`
-      is to avoid expansion error when used in `if` with *semicolon after* or similar.
-      where `f(corge), g(corge)` or `if(1){...}else` also work.
-    - On my machine, "1024 threshold" is the best among all thresholds.
-    - Same as the [README](https://github.com/czg-sci-42ver/ostep-hw/blob/master/29/README.md), contrary to the book, `Approximate` is worse maybe due to the data size isn't large enough.
-      their call nums are similar. So obviously the overheads may be *too high compared with acquiring the lock*.
-      - So
-        > A *rough* version of an approximate counter
-        ?  
-      ```bash
-      $ gprof ./approximate_counter_comparison.out 
-       Flat profile:
+1. 
+- Here `threadID % NUMCPUS` is to make each CPU can run one specific thread which has been said before that the CPU can only schedule one thread in the core each time.
+- more specifically, here `j % i` just based on 16 threads instead of 8 CPU cores.
+- > Does this number impact your measurements at all
+not too much because "32 threads" still works when only 16 physical threads available.
+- [reasons](https://stackoverflow.com/a/154138/21294350) for `do { ... } while (0)` in `#define`
+is to avoid expansion error when used in `if` with *semicolon after* or similar.
+where `f(corge), g(corge)` or `if(1){...}else` also work.
+- On my machine, "1024 threshold" is the best among all thresholds.
+- Same as the [README](https://github.com/czg-sci-42ver/ostep-hw/blob/master/29/README.md), contrary to the book, `Approximate` is worse maybe due to the data size isn't large enough.
+their call nums are similar. So obviously the overheads may be *too high compared with acquiring the lock*.
+- So
+  > A *rough* version of an approximate counter
+  ?  
+```bash
+$ gprof ./approximate_counter_comparison.out 
+ Flat profile:
 
-       Each sample counts as 0.01 seconds.
-         %   cumulative   self              self     total           
-        time   seconds   seconds    calls  ms/call  ms/call  name    
-        85.83      3.36     3.36 116660721     0.00     0.00  update
-        13.32      3.88     0.52                             thread_function
-         0.51      3.90     0.02       16     1.25     1.25  get
-         0.51      3.92     0.02                             _init
-         0.00      3.92     0.00       16     0.00     0.00  init
-      $ gprof ./simple_counter_comparison.out 
-       Flat profile:
+ Each sample counts as 0.01 seconds.
+   %   cumulative   self              self     total           
+  time   seconds   seconds    calls  ms/call  ms/call  name    
+  85.83      3.36     3.36 116660721     0.00     0.00  update
+  13.32      3.88     0.52                             thread_function
+   0.51      3.90     0.02       16     1.25     1.25  get
+   0.51      3.92     0.02                             _init
+   0.00      3.92     0.00       16     0.00     0.00  init
+$ gprof ./simple_counter_comparison.out 
+ Flat profile:
 
-       Each sample counts as 0.01 seconds.
-         %   cumulative   self              self     total           
-        time   seconds   seconds    calls  ms/call  ms/call  name    
-        69.43      1.49     1.49 119974919     0.00     0.00  increment
-        21.90      1.96     0.47                             thread_function
-         5.59      2.08     0.12                             _init
-         3.26      2.15     0.07       16     4.38     4.38  get
-         0.00      2.15     0.00       16     0.00     0.00  init
-      ```
-    - with `./approximate_counter_check_threashold.out`, the fastest is nearly `1.413304` while `./simple_counter_comparison.out` is `0.675848`.
-      ```bash
-      $ cat Makefile
-      ...
-          # from csapp_global.pdf p599; -pg doesn't help inside the function
-       approximate_counter_comparison.out: approximate_counter.c
-               $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DONE_THRESHOLD -DONE_MILLION=${LARGE_NUM}
-       approximate_counter_check_threashold.out: approximate_counter.c
-               $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DCOMPARE_THRESHOLD
-      ...
-       simple_counter_comparison.out: simple_concurrent_counter.c thread_helper.h
-               $(CC) -o $@ $< $(CFLAGS) $(OSFLAG) -DUSE_ONCE_MANY_THREADS -DONE_MILLION=${LARGE_NUM}
-      ```
+ Each sample counts as 0.01 seconds.
+   %   cumulative   self              self     total           
+  time   seconds   seconds    calls  ms/call  ms/call  name    
+  69.43      1.49     1.49 119974919     0.00     0.00  increment
+  21.90      1.96     0.47                             thread_function
+   5.59      2.08     0.12                             _init
+   3.26      2.15     0.07       16     4.38     4.38  get
+   0.00      2.15     0.00       16     0.00     0.00  init
+```
+- with `./approximate_counter_check_threashold.out`, the fastest is nearly `1.413304` while `./simple_counter_comparison.out` is `0.675848`.
+```bash
+$ cat Makefile
+...
+    # from csapp_global.pdf p599; -pg doesn't help inside the function
+ approximate_counter_comparison.out: approximate_counter.c
+         $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DONE_THRESHOLD -DONE_MILLION=${LARGE_NUM}
+ approximate_counter_check_threashold.out: approximate_counter.c
+         $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DCOMPARE_THRESHOLD
+...
+ simple_counter_comparison.out: simple_concurrent_counter.c thread_helper.h
+         $(CC) -o $@ $< $(CFLAGS) $(OSFLAG) -DUSE_ONCE_MANY_THREADS -DONE_MILLION=${LARGE_NUM}
+```
 3. Same as the book says, maybe not.
 4. 
 ## TODO
@@ -2194,7 +2274,9 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
 - reread this chapter green highlights.
-
+# TODO after reading the compiler book
+- C6 1.c `preempt`, etc.
+- TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
 # TODO
 - read the Multi-CPU Scheduling after "Concurrency".
 - use `valgrind` with chapter 14,22 homework.
@@ -2262,10 +2344,12 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html
 
 <!-- SO -->
-[cflush_rdstc]:https://stackoverflow.com/a/51830976/21294350
+[cflush_rdstc_check_overhead]:https://stackoverflow.com/a/51830976/21294350
 [detailed_get_cycle]:https://stackoverflow.com/a/51907627/21294350
 
 <!-- intel doc -->
 [intel_rdstc]:https://www.felixcloutier.com/x86/rdtsc
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [Benchmark_IA_64]:../references/x64_ISA_manual_intel/ia-32-ia-64-benchmark-code-execution-paper.pdf
+
+[osdev_x86_64_reg]:https://wiki.osdev.org/CPU_Registers_x86-64
