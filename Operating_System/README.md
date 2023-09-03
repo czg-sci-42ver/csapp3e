@@ -1212,6 +1212,53 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
 ### 16 two-phase lock
 - here "spinning" may refer to "futex_wait (mutex, v)" which sleeps waiting for the wakeup.
 - Also above "two-phase lock"
+## Lock-based Concurrent Data Structures
+- see [asm_md] for "thread safe".
+- ["monitor"](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage) same as the before "Figure 28.9" where uses signal to wakeup.
+  Notice from [this](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Solving_the_bounded_producer/consumer_problem), "monitor" is not one primitive but one which the programmer can manually ~~tune~~ design.
+  - the 2rd link is the detailed implementation of 1st.
+  - > a monitor is a synchronization construct that allows threads to have both mutual exclusion and the ability to wait (block) for a certain condition to become false. 
+    this is trivial by just using `m` and `cv`
+    > Monitors also have a mechanism for signaling other threads that their condition has been met. 
+    `signal(cv2); // Or: broadcast(cv2);`
+    > A monitor consists of a mutex (lock) object and condition variables. A condition variable is essentially a container of threads that are waiting for a certain condition. 
+    implied by `wait(m, cv);`. "move this thread to cv's //			// wait-queue so that it will be notified"
+    > Monitors provide a mechanism for threads to *temporarily give up* exclusive access in order to wait for some condition to be met, before regaining exclusive access and resuming their task.
+    "// release(m) 		// Atomically release lock "m" so other"
+  - above wikipedia references [BH73](https://en.wikipedia.org/wiki/Monitor_(synchronization)#cite_note-:0-1)
+- `counter_t *c` should be unique to every thread and `NUMCPUS=thread_num_per_CPU`.
+- `pwndbg` source code references [this](https://github.com/giampaolo/psutil/pull/1727#issuecomment-707624964) which recommends `cat /sys/devices/system/cpu/cpu0/topology/core_cpus_list` to get thread_id relation instead of [`cat /sys/devices/system/cpu/cpu0/topology/thread_siblings_list`](https://stackoverflow.com/a/7812183/21294350).
+  ~~This implies using `threadID % NUMCPUS;` to get thread_id in the core.~~
+- "List_Insert" inserts *before* the list.
+- "Figure 29.8" avoids using `pthread_mutex_unlock(&L->lock)` in conditional statement `if ...`
+- [S+11]
+  - From "Table 2", here just the higher failure probability will incur *higher probability* that "Aborting a process, inconsistent file-system state, and unusable file system" occur.
+  - See "2.3.1 Summary" for "code paths" relation 
+    > *propagate the error up* to the appropriate error-handling location
+    So the *shorter code path* will be *safer*.
+  - modified `List_Insert` similar to "Figure 2" but the latter will 
+    > transparently *redirected to use the pre-allocated* chunks
+  - `List_Lookup` is not related with memory allocation. So no relation with the paper.
+    It just *avoids frequent call to kernel*.
+    > decreases the chances of accidentally introducing bugs (such as forget-ting to unlock before returning)
+  - > assuming that malloc() itself is thread-safe
+    important property to move outside the critical section.
+- > you instead add *a lock per node* of the list
+  just similar to 
+  > numerous local physical counters, *one per CPU core*
+- > first grabs the next node’s lock and then releases the current node’s lock
+  the order is important to *continue traversing* to avoid exiting too early.
+- `queue` add `tail` based on the `list`
+- "Figure 29.9"
+  - here `Queue_Dequeue` can be similar to `Figure 29.8` by using `rv=-1;goto label` but needs to skip `free(tmp);`.
+  - at least `Queue_Enqueue` and `Queue_Dequeue` can be parallel
+    > to enable concurrency of enqueue and dequeue operations.
+    but multiple `Queue_Dequeue`s can't except that these operations are combined TODO.
+  - > Because of the dummy node, enqueuers never have to access Head, and dequeuers never have to access Tail, thus avoiding deadlock problems that might arise from processes trying to acquire the locks in different order
+    just means same as the book *two different locks*.
+    >  allows more concurrency by keeping a *dummy node at the head* (dequeue end) of a singly linked list
+    the "dummy" is based on "list". See "Figure 29.8" where *only one* end node exists.
+    - "compare-and- swap " is read-modify-write. So it avoids [ABA](https://en.wikipedia.org/wiki/ABA_problem)
 ## TODO
 ### API
 - [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
@@ -1779,6 +1826,135 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
 ```
 15. avoid one more `xchg %ax, mutex     # atomic swap of 1 and mutex` sometimes.
   "avoid unnecessary writing." especially when writing to mem.
+### C29
+[Benchmark_IA_64]
+- "Register Overwriting" can be solved in C6
+- IA-64 can [use IA-32](https://stackoverflow.com/a/40689914/21294350)
+- [amd specific](https://stackoverflow.com/questions/51844886/is-lfence-serializing-on-amd-processors)
+  - TODO "rev_17h_guide_tmp_no_17h_60h.pdf" has no `LFENCE` description.
+  - based on the patches updated with MSR in the kernel and the AMD doc
+    - based on [this patch](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/arch/x86/kernel/cpu/bugs.c?h=v4.15.10#n263) from [bbs](https://stackoverflow.com/review/suggested-edits/34938249), my CPU is 17H family and can use the above feature. This is also said [here](https://stackoverflow.com/a/12634857/21294350)
+      ```bash
+      $ journalctl -b > /tmp/test.txt
+      ```
+    - Also see [`rdstc` doc][intel_rdstc] where `LFENCE` can control although it originally [control](https://www.felixcloutier.com/x86/lfence) "load operations"
+      > Specifically, LFENCE does not execute *until all prior instructions* have completed locally, and no later instruction begins execution *until LFENCE completes*.
+      This implies `rdstc`
+      > executed only after all previous instructions have executed
+      - > data can be brought into the caches speculatively just before, during, or after the execution of an LFENCE instruction.
+        `LFENCE` doesn't influence the cache order.
+      - > stores are globally visible
+        implies [cflush_rdstc] `sfence`.
+    - [`mfence`](https://stackoverflow.com/a/46123600/21294350) avoids storeLoad reorder which has been said in [asm_md].
+      So although [this](https://hadibrais.wordpress.com/2019/02/26/the-significance-of-the-x86-sfence-instruction/#:~:text=The%20LFENCE%2C%20SFENCE%2C%20and%20serializing,can%20serialize%20CLFLUSH%20is%20MFENCE.) said `SFENCE` is ok for intel but `mfence` is [better][cflush_rdstc].
+      >  software can insert an SFENCE instruction between CFLUSHOPT and that operation.
+      - TODO
+        > However, on most Intel processors, mfence is *cheaper* than lfence.
+    - `C001_1029` [detailed](https://lore.kernel.org/lkml/20170425114541.8267-1-dvlasenk@redhat.com/) from [this](https://hadibrais.wordpress.com/2018/05/14/the-significance-of-the-x86-lfence-instruction/)
+    - [Why isn't](https://stackoverflow.com/a/12065803/21294350) RDTSC a serializing instruction? 
+      > it seems that they *decided* to keep it non-serializing, which is OK for *general-purpose* time measurements
+      to help reorder in some conditions.
+      - RDTSCP
+        1. > *unsynced* TSCs across cores
+          Also shown [here][detailed_get_cycle]
+          > This is why rdtscp produces a core-ID as an extra output, so you can detect when start/end times come *from different clocks*
+          where how [`__rdtscp`](https://learn.microsoft.com/en-us/cpp/intrinsics/rdtscp?view=msvc-170) implements `TSC_AUX` depends on the machine [and](https://stackoverflow.com/a/22369725/21294350)
+          > OS should write core id into IA32_TSC_AUX
+        2. same as `lfence; rdtsc` which also shown in the [intel doc](https://www.felixcloutier.com/x86/rdtscp)
+          > wait until all previous instructions have executed and all previous loads are globally visible
+          which is also shown in the bullet 1 in [intel_rdstc].
+          - > The RDTSC instruction is not a serializing instruction. ... The following items may guide software *seeking to order executions* of RDTSC:
+            imply [detailed_get_cycle] which also references 
+            > using *lfence (or cpuid)* to improve repeatability of rdtsc and control exactly which instructions are / aren't in the timed interval by *blocking out-of-order execution*
+    - [TSC](https://en.wikipedia.org/wiki/Time_Stamp_Counter)
+    - [`__builtin_ia32_rdtscp`](https://www.spinics.net/lists/gcchelp/msg52804.html) see the [Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_rdtsc&ig_expand=5351) because of x86 specific instruction.
+      - Also ~~[see](https://patchwork.ozlabs.org/project/gcc/patch/CAMe9rOpJbem4tnkdDX0NwpyMMLLzcakaij120aNCDXsW=wjRww@mail.gmail.com/#2658058)~~
+        The above link seems [not to be applied](https://github.com/gcc-mirror/gcc/blob/master/gcc/config/i386/ia32intrin.h#L112)
+      - [`#pragma intrinsic`](https://stackoverflow.com/a/5723581/21294350) tells the compiler to use "faster assembly instructions" which *depends on the architecture* [instead of inline functions](https://learn.microsoft.com/en-us/cpp/preprocessor/intrinsic?view=msvc-170&redirectedfrom=MSDN) on some architectures.
+- [avoid compiler reorder](https://stackoverflow.com/a/9030194/21294350) by `: "memory"`
+- `CLFLUSHOPT` [vs](https://community.intel.com/t5/Software-Tuning-Performance/My-summary-of-clflush-and-clflushopt/td-p/1093920) `CLFLUSH`
+  - > Neither of these is likely to become public in any useful detail....
+    :)
+  1. > a store buffer *only needs to be flushed* if it holds data from the *same cache line*
+  2. (3) Write operations to *different* addresses
+  3. (1) CLFLUSH operations to different addresses, (2) CLFLUSHOPT operations to different addresses
+    which is same as [this](https://en.wikichip.org/wiki/x86/persistent_memory_extensions#Overview) to keep "Persistent Memory" which TODO maybe similar to consistency.
+    - TODO NVM
+- [check](https://stackoverflow.com/a/6577896/21294350) `clflush` inspired by [this](https://stackoverflow.com/questions/51818655/clflush-to-invalidate-cache-line-via-c-function/51830976#comment120428630_51818806)
+```bash
+# https://stackoverflow.com/questions/51818655/clflush-to-invalidate-cache-line-via-c-function/51830976#comment120428630_51818806
+[/mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/miscs] $ gcc clflush_test_availability.c -o clflush_test_availability.out
+took 116 ticks
+took 87 ticks
+flush: took 58 ticks
+took 87 ticks
+took 87 ticks
+# notice the result may differ largely each time but flush time is always same as the before one or the next one
+$ sudo cpuid                     
+Leaf     Subleaf    EAX            EBX            ECX            EDX            
+00000000 00000000:  00000010 ....  68747541 Auth  444d4163 cAMD  69746e65 enti
+00000001 00000000:  00860f01 ....  00100800 ....  7ed8320b .2.~  178bfbff ....
+$  ipython -c "bin(0x178bfbff)[-19]"
+Out[1]: '0' # not support clflush
+```
+  - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
+  - notice [newer gcc](https://stackoverflow.com/a/14737642/21294350) default std is `gnu17` by `info gcc`.
+1. this has been asked before.
+  See C19 where we prefer `clock_gettime` than `gettimeofday` because of precision.
+  See C6 for `rdtsc`
+2. 
+   - Here `threadID % NUMCPUS` is to make each CPU can run one specific thread which has been said before that the CPU can only schedule one thread in the core each time.
+     - more specifically, here `j % i` just based on 16 threads instead of 8 CPU cores.
+   - > Does this number impact your measurements at all
+      not too much because "32 threads" still works when only 16 physical threads available.
+    - [reasons](https://stackoverflow.com/a/154138/21294350) for `do { ... } while (0)` in `#define`
+      is to avoid expansion error when used in `if` with *semicolon after* or similar.
+      where `f(corge), g(corge)` or `if(1){...}else` also work.
+    - On my machine, "1024 threshold" is the best among all thresholds.
+    - Same as the [README](https://github.com/czg-sci-42ver/ostep-hw/blob/master/29/README.md), contrary to the book, `Approximate` is worse maybe due to the data size isn't large enough.
+      their call nums are similar. So obviously the overheads may be *too high compared with acquiring the lock*.
+      - So
+        > A *rough* version of an approximate counter
+        ?  
+      ```bash
+      $ gprof ./approximate_counter_comparison.out 
+       Flat profile:
+
+       Each sample counts as 0.01 seconds.
+         %   cumulative   self              self     total           
+        time   seconds   seconds    calls  ms/call  ms/call  name    
+        85.83      3.36     3.36 116660721     0.00     0.00  update
+        13.32      3.88     0.52                             thread_function
+         0.51      3.90     0.02       16     1.25     1.25  get
+         0.51      3.92     0.02                             _init
+         0.00      3.92     0.00       16     0.00     0.00  init
+      $ gprof ./simple_counter_comparison.out 
+       Flat profile:
+
+       Each sample counts as 0.01 seconds.
+         %   cumulative   self              self     total           
+        time   seconds   seconds    calls  ms/call  ms/call  name    
+        69.43      1.49     1.49 119974919     0.00     0.00  increment
+        21.90      1.96     0.47                             thread_function
+         5.59      2.08     0.12                             _init
+         3.26      2.15     0.07       16     4.38     4.38  get
+         0.00      2.15     0.00       16     0.00     0.00  init
+      ```
+    - with `./approximate_counter_check_threashold.out`, the fastest is nearly `1.413304` while `./simple_counter_comparison.out` is `0.675848`.
+      ```bash
+      $ cat Makefile
+      ...
+          # from csapp_global.pdf p599; -pg doesn't help inside the function
+       approximate_counter_comparison.out: approximate_counter.c
+               $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DONE_THRESHOLD -DONE_MILLION=${LARGE_NUM}
+       approximate_counter_check_threashold.out: approximate_counter.c
+               $(CC) -o $@ $^ $(CFLAGS) -lm $(OSFLAG) -DCOMPARE_THRESHOLD
+      ...
+       simple_counter_comparison.out: simple_concurrent_counter.c thread_helper.h
+               $(CC) -o $@ $< $(CFLAGS) $(OSFLAG) -DUSE_ONCE_MANY_THREADS -DONE_MILLION=${LARGE_NUM}
+      ```
+3. Same as the book says, maybe not.
+4. 
 ## TODO
 - read "APUE".
 # Projects
@@ -2010,6 +2186,10 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   > What *new struc-tures* can you come up with? What problems do they solve?
 - concurrent B-tree
 - [This](#algorithm_1)
+- > lookup, delete, and so forth
+  with Linked Lists.
+- > hash table that does not resize; a little more work is required to *handle resizing*
+- >  (such as B-trees); for this knowledge, a database class is your best bet.
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -2063,8 +2243,8 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [B+13]:./Ostep_papers/isca13_direct_segment.pdf
 [X+10]:./Ostep_papers/Xiong.pdf
 [MS91]:./Ostep_papers/R06-scalable-synchronization-1991.pdf
+[S+11]:./Ostep_papers/Sundararaman.pdf
 
-[intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
 [x86_paging]:https://wiki.osdev.org/Paging#Page_Directory
@@ -2080,3 +2260,12 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [futex_example]:https://eli.thegreenplace.net/2018/basics-of-futexes/
 
 [x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html
+
+<!-- SO -->
+[cflush_rdstc]:https://stackoverflow.com/a/51830976/21294350
+[detailed_get_cycle]:https://stackoverflow.com/a/51907627/21294350
+
+<!-- intel doc -->
+[intel_rdstc]:https://www.felixcloutier.com/x86/rdtsc
+[intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
+[Benchmark_IA_64]:../references/x64_ISA_manual_intel/ia-32-ia-64-benchmark-code-execution-paper.pdf
