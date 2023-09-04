@@ -2041,7 +2041,10 @@ $ cat Makefile
          $(CC) -o $@ $< $(CFLAGS) $(OSFLAG) -DUSE_ONCE_MANY_THREADS -DONE_MILLION=${LARGE_NUM}
 ```
 3. Same as the book says, maybe not.
-4. 
+4. with `PROGRAM=standard_list.out;for i in $(./${PROGRAM} 10 16 0 | awk '/threads/{print $5}');do echo -n $i,;done;echo -e -n "\n"` to get output data list.
+  Here, lock overheads can be amortized by the thread main body.
+  So Yes when threads num increases.
+5. TODO try using c++ implement to solve the weird one-entry memory leak in `btree.c`.
 ## TODO
 - read "APUE".
 # Projects
@@ -2293,8 +2296,35 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 # OSTEP 1.01 chpaters in the [ostep_book]
 Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book-chapters), it seems that 1.01 is not issued all at one time but with many discrete times.
 - chapter 6,19,23,26,28,40,
+# manage dynamic allocation
+- whether free is only known [for the OS](https://stackoverflow.com/a/13218840/21294350).
+- TODO [trace](https://stackoverflow.com/a/61084515/21294350) memory address
+## valgrind
+- `"conditional jump or move depends on uninitialized value(s)"` means something [aren't inited](https://stackoverflow.com/a/2612524/21294350).
+  try
+```bash
+$ alias valgrind_l 
+valgrind_l=$'valgrind --leak-check=full --show-leak-kinds=all -s --track-origins=yes --trace-children=yes --track-fds=yes\t--run-libc-freeres=no --run-cxx-freeres=no --show-reachable=yes'
+```
+- [`4 bytes inside a block of size 8 free'd`](https://stackoverflow.com/a/18886984/21294350)
+  > accessing memory that has *just been freed*.
+- heap can be in the [`anon` region](https://stackoverflow.com/a/49215754/21294350).
+  > Any memory can become heap. Diagrams showing a heap area are *pedagogical, rather than real*.
+for example the following [anon_7ffff0000] can be also used for heap if requesting too much space for dynamic allocation.
+```bash
+    0x555555559000     0x55555587b000 rw-p   322000      0 [heap]
+    0x7ffff0000000     0x7ffff0021000 rw-p    21000      0 [anon_7ffff0000]
+    0x7ffff0021000     0x7ffff4000000 ---p  3fdf000      0 [anon_7ffff0021]
+...
+```
 # miscs
 - [LinuxForums.org](https://en.wikipedia.org/wiki/LinuxForums.org) has been shutdown which is [shown here](https://stackoverflow.com/questions/851958/where-do-malloc-and-free-store-allocated-sizes-and-addresses#comment660519_851958).
+## awk
+- use single-quotes instead of double by `man`.
+  > The awk program specified in the command line is most easily specified within single-quotes
+  - escape single-quotes [needs](https://stackoverflow.com/questions/9899001/how-to-escape-a-single-quote-inside-awk#comment12630340_9899594)
+    > The ' character *closes* the opening ' shell string literal.
+- use [pipe command](https://stackoverflow.com/a/15337502/21294350)
 ## vim
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## the English grammar
