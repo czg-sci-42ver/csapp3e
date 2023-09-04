@@ -1864,7 +1864,8 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
     > not as good as the one presented in Section 3.2.1
     - both `CR8` not serializing and `CR1`, etc., reserved in *x86-64* is [manual designed](https://stackoverflow.com/a/61067408/21294350) without many detailed reasons.
       - Notice x86 registers -> [32-bit](https://wiki.osdev.org/Talk:CPU_Registers_x86-64) which are different from x86-64. Also [see](https://superuser.com/a/96854/1658455)
-- from [intel_64] p3283 and 3294, "serializing instructions" seems to include `mfence` property.
+- serializing instructions
+  from [intel_64] p3283 and 3294, "serializing instructions" seems to include `mfence` property.
   > *Reads or writes* cannot be *reordered* with I/O instructions, locked instructions, or serializing instructions.
   > Like the I/O instructions, locked instructions, the LOCK prefix, and serializing instructions *force stronger ordering*
   - Also [see](https://stackoverflow.com/questions/50480511/what-does-serializing-operation-mean-in-the-sfence-documentation#comment87986374_50480511) related with "the store buffer"
@@ -1874,6 +1875,10 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
       > *Nothing can pass* a serializing instruction and a serializing instruction *cannot pass* any other instruction (read, write, instruction fetch, or  I/O).
       here pass means reorder.
       - po just SC (Sequential	Consistency).
+  - [amd_64] p137
+    - "flush" -> ["discard" p9](https://courses.cs.washington.edu/courses/cse378/09wi/lectures/lec13.pdf)
+      which similar to [`CLFLUSH`](https://www.felixcloutier.com/x86/clflush) to Invalidate cache line but the latter will *flush to memory* ("written back to memory") and the former just discards.
+    - p659,
   - > because the results of *speculatively executed instructions are discarded*
     So
     > *prefetching* the destination of a branch instruction ... instruction execution is *not deterministically serialized when a branch instruction* is executed.
@@ -1982,7 +1987,9 @@ Out[1]: '0' # not support clflush
 1. this has been asked before.
   See C19 where we prefer `clock_gettime` than `gettimeofday` because of precision.
   See C6 for `rdtsc`
-1. 
+2. here `sizeof(pthread_mutex_t): 40` which comforms to the alignment of 8 bytes. See [amd_64]
+  > aligned 64-byte region of WC memory type
+  maybe it can be controlled see [amd_64] p1162 "Number of bytes fetched".
 - Here `threadID % NUMCPUS` is to make each CPU can run one specific thread which has been said before that the CPU can only schedule one thread in the core each time.
 - more specifically, here `j % i` just based on 16 threads instead of 8 CPU cores.
 - > Does this number impact your measurements at all
@@ -2288,6 +2295,8 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 - chapter 6,19,23,26,28,40,
 # miscs
 - [LinuxForums.org](https://en.wikipedia.org/wiki/LinuxForums.org) has been shutdown which is [shown here](https://stackoverflow.com/questions/851958/where-do-malloc-and-free-store-allocated-sizes-and-addresses#comment660519_851958).
+## vim
+- [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## the English grammar
 - [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
   just care about the answer is enough without caring the questions "do" or "don't".
@@ -2351,5 +2360,7 @@ Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book
 [intel_rdstc]:https://www.felixcloutier.com/x86/rdtsc
 [intel_64]:../references/x64_ISA_manual_intel/intel_64.pdf
 [Benchmark_IA_64]:../references/x64_ISA_manual_intel/ia-32-ia-64-benchmark-code-execution-paper.pdf
+
+[amd_64]:../references/AMD/amd64.pdf
 
 [osdev_x86_64_reg]:https://wiki.osdev.org/CPU_Registers_x86-64

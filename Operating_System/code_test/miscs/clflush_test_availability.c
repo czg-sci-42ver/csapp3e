@@ -11,7 +11,10 @@ static inline void clflush(volatile void *p)
 static inline uint64_t rdtsc()
 {
     unsigned long a, d;
-    asm volatile ("rdtsc" : "=a" (a), "=d" (d));
+	asm volatile ("lfence;rdtsc;lfence" : "=a" (a), "=d" (d)::"memory");
+    // asm volatile ("lfence\n\t"
+	// 		"rdtsc\n\t"
+	// 		"lfence\n\t" : "=a" (a), "=d" (d)::"memory");
     return a | ((uint64_t)d << 32);
 }
 
