@@ -2044,7 +2044,44 @@ $ cat Makefile
 4. with `PROGRAM=standard_list.out;for i in $(./${PROGRAM} 10 16 0 | awk '/threads/{print $5}');do echo -n $i,;done;echo -e -n "\n"` to get output data list.
   Here, lock overheads can be amortized by the thread main body.
   So Yes when threads num increases.
-5. TODO try using c++ implement to solve the weird one-entry memory leak in `btree.c`.
+5. ~~TODO~~ try using c++ implement to solve the weird one-entry memory leak in `btree.c`.
+- Use 
+```bash
+####################
+# https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-simple inspired by https://stackoverflow.com/a/38253367/21294350
+# in the new terminal
+#####
+# 1. monitor: https://sourceware.org/gdb/onlinedocs/gdb/Server.html
+#####
+# allow restarting valgrind by using extended-remote by https://stackoverflow.com/a/346019/21294350. and https://electronics.stackexchange.com/a/28515/341985
+$ gdb -nx ./btree_1.out -ex 'set remote exec-file ./btree_1.out' -ex 'set sysroot /' -ex 'target extended-remote | vgdb --multi --vargs -q' -ex 'start' -ex 's' -ex 'r'
+#####
+# notice both pwngdb and dashboard has some small errors when rendering the extended-remote
+# and pwngdb even can't run with the normal mode just like how it with rr.
+#####
+#####
+# gef works only when extended-remote.
+#####
+####################
+####################
+$ valgrind --vgdb=yes --vgdb-error=0 ./btree.out
+$ gdb ./btree.out -ex 'target extended-remote | /usr/local/libexec/valgrind/../../bin/vgdb' -ex 'br 315' -ex 'c'
+>>> s_mon 0x4bf9130 # keep try with the interested addr until leak
+$ cat ~/gdb_scripts/func.gdb | grep s_mon -A 5
+define s_mon
+  s
+  monitor leak_check full definiteleak increased
+  monitor who_points_at $arg0
+end
+####################
+
+# gdb show mem https://stackoverflow.com/a/23231859/21294350
+```
+  or more direct
+```bash
+# https://unix.stackexchange.com/a/98766/568529 notice here `2>file` no space inside.
+$ valgrind_l ./btree.out 2>~/bfree_valgrind_l.txt;less_n ~/bfree_valgrind_l.txt
+```
 ## TODO
 - read "APUE".
 # Projects
