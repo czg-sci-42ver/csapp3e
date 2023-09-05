@@ -2082,6 +2082,10 @@ end
 # https://unix.stackexchange.com/a/98766/568529 notice here `2>file` no space inside.
 $ valgrind_l ./btree.out 2>~/bfree_valgrind_l.txt;less_n ~/bfree_valgrind_l.txt
 ```
+6. See `btree.c`
+#### valgrind (Also see the above program debug log)
+- track all local malloc variables `return` to ensure it is *freed before* the first time it is *not returned*.
+  This can be partly shown in `valgrind` but it *may overlap* the reasons (i.e. [chained](https://github.com/xxyzz/ostep-hw/pull/20/files#diff-c29bf7afaaad874ebab95c6703ea8266f61bf4417581ffecf4aeabd175a6ff9dR162) memory leaks) So we needs to find the *root*.
 ## TODO
 - read "APUE".
 # Projects
