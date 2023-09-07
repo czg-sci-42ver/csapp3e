@@ -779,9 +779,6 @@ $ uname -r
 - > when an interrupt occurs, either the instruction has not run at all, or it has run to completion;
   This is ensured by hardware at least [in x86](https://stackoverflow.com/a/55186668/21294350). See [intel_64] p3196.
 - Here "Dijkstra" also works out ["Dijkstra's algorithm"](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
-- TODO How inode is encoded.
-  maybe can be thought as one [pointer](https://unix.stackexchange.com/a/106871/568529) which points to some [structures](https://www.kernel.org/doc/html/latest/filesystems/ext4/inodes.html?highlight=inode) like `i_flags`.
-  > inodes point to blocks on disk
 - [Allocation Bitmap](https://www.ntfs.com/exfat-allocation-bitmap.htm)
 ## API
 - [`void *(*start_routine)(void *)`](https://stackoverflow.com/questions/1352426/why-does-start-routine-for-pthread-create-return-void-and-take-void)
@@ -872,12 +869,14 @@ $ uname -r
 - `pthread_cond_init`
 - > Either way works, but we usually use the dynamic (latter) method.
   why dynamic is prefered? (Maybe to avoid accident pass the stack address?)
-  - [because](https://stackoverflow.com/a/15925014/21294350) 
-    > you're supposed to initialize a *statically* allocated mutex i.e. it is going to *live until the application ends*, at which point it will be *destroyed by the system*, presumably that's what the author meant. That applies to mutex/cond variables that is *dynamically initialized as well*, the system will clean those up as well.
-    So `pthread_mutex_destroy` may be not one must just like `free` if you know your program will *not last very long*.
-    - From the [codes](https://github1s.com/bminor/glibc/blob/master/nptl/pthread_mutex_destroy.c#L39) `atomic_store_relaxed (&(mutex->__data.__kind), -1);`, it is to set the *invalid* state.
-    Also the *static property* that the variable last *until the program ends* may not be preferred because that's not highly tuneable.
-    - the mutex must be [static](https://stackoverflow.com/a/20617227/21294350) or in the heap which can be *accessed globally*.
+  - [because](https://stackoverflow.com/a/15925014/21294350)
+    - the *static property* that the variable last *until the program ends* may *not be preferred* because that's not highly tuneable.
+    - miscs
+      - > you're supposed to initialize a *statically* allocated mutex i.e. it is going to *live until the application ends*, at which point it will be *destroyed by the system*, presumably that's what the author meant. That applies to mutex/cond variables that is *dynamically initialized as well*, the system will clean those up as well.
+        So `pthread_mutex_destroy` may be not one must just like `free` if you know your program will *not last very long*.
+        - From the [code and comments](https://github1s.com/bminor/glibc/blob/master/nptl/pthread_mutex_destroy.c#L39) `pthread_mutex_destroy` is first try getting the lock and then invalidate *without freeing the memory*. 
+          And `atomic_store_relaxed (&(mutex->__data.__kind), -1);`, it is to set the *invalid* state .
+      - the mutex must be [static](https://stackoverflow.com/a/20617227/21294350) or in the heap which can be *accessed globally*.
 - > It is safer thus to view waking up as a hint that something might have changed, rather than an absolute fact.
   because `pthread_cond_wait` in [opengroup_doc]
   > When using condition variables there is always a *Boolean predicate involving shared variables associated with each condition* wait that is true if the thread should proceed. Spurious wakeups from the pthread_cond_timedwait() or pthread_cond_wait() functions may occur. Since the return from pthread_cond_timedwait() or pthread_cond_wait() *does not imply anything about the value of this predicate*, the predicate should be re-evaluated upon such return.
@@ -1214,17 +1213,40 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
 - Also above "two-phase lock"
 ## Lock-based Concurrent Data Structures
 - see [asm_md] for "thread safe".
-- ["monitor"](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage) same as the before "Figure 28.9" where uses signal to wakeup.
+- ["monitor"][monitor_synchronization] which references [H74] same as the before "Figure 28.9" where uses signal to wakeup.
   Notice from [this](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Solving_the_bounded_producer/consumer_problem), "monitor" is not one primitive but one which the programmer can manually ~~tune~~ design.
   - the 2rd link is the detailed implementation of 1st.
-  - > a monitor is a synchronization construct that allows threads to have both mutual exclusion and the ability to wait (block) for a certain condition to become false. 
+  - here `queue` implies "general semaphores".
+  - definition
+    > a monitor is a synchronization construct that allows threads to have both mutual exclusion and the ability to wait (block) for a certain condition to become false. 
     this is trivial by just using `m` and `cv`
-    > Monitors also have a mechanism for signaling other threads that their condition has been met. 
-    `signal(cv2); // Or: broadcast(cv2);`
-    > A monitor consists of a mutex (lock) object and condition variables. A condition variable is essentially a container of threads that are waiting for a certain condition. 
+    > A monitor consists of a mutex (lock) object and condition variables. A condition variable is essentially a *container* of threads that are waiting for a certain condition. 
     implied by `wait(m, cv);`. "move this thread to cv's //			// wait-queue so that it will be notified"
-    > Monitors provide a mechanism for threads to *temporarily give up* exclusive access in order to wait for some condition to be met, before regaining exclusive access and resuming their task.
-    "// release(m) 		// Atomically release lock "m" so other"
+    - > Monitors also have a *mechanism* for signaling other threads that their condition has been met. 
+      `signal(cv2); // Or: broadcast(cv2);`
+    - `wait`
+      > Monitors provide a mechanism for threads to *temporarily give up* exclusive access in order to wait for some condition to be met, before regaining exclusive access and resuming their task.
+      "// release(m) 		// Atomically release lock "m" so other" and then "*Context switch*".
+      - > At some future time ... wake this thread up
+        "// This thread is switched back to on some core." implies maybe
+        > // During this time, other threads may cause the condition to
+        > // become *false again*
+        So we need "re-check the "while" loop condition".
+        i.e.
+        > *between* the time that I was woken up *and* the time that I re-acquired
+        > // the lock inside the "wait" call in the last iteration of this loop
+        - [ostep_book]
+          > While this does not seem strictly necessary per the logic of the program, it is always a good idea, as we will see below.
+          avoid weird check failures.
+      - so more specifically, "unlock->wait->lock"
+        also see [ostep_book] C30-5.
+      - > either from before entering the monitor
+        means before calling `wait` to wait for monitors to wake.
+      - ~~TODO~~ "the monitor *semantic* type being used.".
+        maybe whether `broadcast` or `signal`
+        See [ostep_book]
+        > hold the lock when calling wait, is not just a tip, but rather *mandated by the semantics* of wait
+        i.e. API of `wait`.
   - above wikipedia references [BH73](https://en.wikipedia.org/wiki/Monitor_(synchronization)#cite_note-:0-1)
 - `counter_t *c` should be unique to every thread and `NUMCPUS=thread_num_per_CPU`.
 - `pwndbg` source code references [this](https://github.com/giampaolo/psutil/pull/1727#issuecomment-707624964) which recommends `cat /sys/devices/system/cpu/cpu0/topology/core_cpus_list` to get thread_id relation instead of [`cat /sys/devices/system/cpu/cpu0/topology/thread_siblings_list`](https://stackoverflow.com/a/7812183/21294350).
@@ -1259,7 +1281,235 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
     >  allows more concurrency by keeping a *dummy node at the head* (dequeue end) of a singly linked list
     the "dummy" is based on "list". See "Figure 29.8" where *only one* end node exists.
     - "compare-and- swap " is read-modify-write. So it avoids [ABA](https://en.wikipedia.org/wiki/ABA_problem)
+## Condition Variables
+this chapter only shows how to use `Pthread_cond_wait(&c, &m);` which is important for "synchronization" based on *Mesa semantics*, but not shows how `c` is implemented detailedly.
+in [linux](https://github1s.com/bminor/glibc/blob/master/sysdeps/htl/bits/types/struct___pthread_cond.h#L25-L26). Use `gdb` to check the definition between 2 options when `F12`
+```c
+typedef union
+{
+  struct __pthread_cond_s __data;
+  char __size[__SIZEOF_PTHREAD_COND_T];
+  __extension__ long long int __align;
+} pthread_cond_t;
+```
+TODO detailed 
+- > hardware and OS support.
+  "hardware primitives" i.e. atomic instruction and OS data structures which stores the lock state.
+- > whether a condition is true before continuing its execution
+  ~~like predicate~~
+- > hugely inefficient as the parent spins
+  similar to before, maybe sleep instad of spin.
+- > useful for a thread to wait for some condition to become true before proceeding
+  i.e. synchronization in CUDA.
+- > waiting on the condition
+  similar to `futex_wait` before.
+- `pthread_cond_wait(pthread_cond_t *c, pthread_mutex_t *m);` is ~~similar to~~ same as the internal sematics of[monitor_synchronization] `wait(m, cv);`.
+  - it has been said in "Locks" section because of the waiting operation.
+- > the state variable done
+  implies the order because of the predicate `while (done == 0)`.
+- > sleeping, waking, and locking
+  where lock is implied by sleep.
+- > What problem could occur here? Think about it1
+  child thread may not finish when the parent thread finishes.
+  i.e. `done = 1;` -> `if (done == 0)` block is skipped and then "parent thread finishes" but `Pthread_cond_signal(&c);` doesn't run.
+  - the book offers one example where `wait->wake` order is violated same as "Figure 30.4".
+- Notice project "processes-shell" doesn't have have pipe function.
+  - although in the [ostep_hw] it uses pipe with `fork` in section 1.
+    where `read(first_pipefd[0], NULL, 0);` implies wait which function as .
+    See [table 2](https://www.linuxtoday.com/blog/blocking-and-non-blocking-i-0/#:~:text=By%20default%2C%20read()%20waits,if%20no%20bytes%20are%20available.) which shows `read` relation with `fd` (whether open and `O_NONBLOCK` which can be controlled by `fcntl`).
+- "in-kernel bounded buffer" can be implemented by `pipe`
+- why "Figure 30.6" use `assert` to directly exit when failure?
+  because
+  > Now we need to write some routines that know when it is OK to access the buffer to either put data into it or get data out of it.
+  lock is manipulated outside.
+- > However, putting a lock around the code doesn’t work; we need something more.
+  because deadlock (See Figure 30.8). similar to [this](#P_V_deadlock) but not totally same.
+  ~~Here `consumer` may be stuck at `Pthread_cond_wait` while `producer` is stuck at `Pthread_mutex_lock`.~~
+  - > if we have more than one of these threads (e.g., two consumers), the solution has two critical problems
+    ~~1. deadlock, one consumer release the lock when `Pthread_cond_wait` while the other consumer locks it but won't signal. Then the producer is also locked.~~
+    ~~2. same for 2 producers and 1 consumer.~~
+    Notice `Pthread_cond_wait` implies release of the lock.
+  - ~~They both correspond to~~ the book *2rd problem* ~~(i.e. lack `m->guard`).~~
+    > It has something to do with the fact that there is *only one condition* variable.
+    See "Figure 30.11" "Oops"
+  - The book *1st problem* is failure to check the count which *may be modified by another consumer* between `Pthread_cond_signal` and its self `get()` due to *undetermined context switches*.
+    See "The problem arises for a simple reason ..."
+    > but there is no guarantee that when the woken thread runs, the state will still be as desired.
+    i.e. wakeup may be interrupted.
+    - ["Mesa semantics"](https://samuelsorial.tech/mesa-vs-hoare-semantics) -> from waiting to ready *instead of running*.
+      "Hoare semantics" -> atomic so from waiting to running.
+      So
+      > using a while loop is *always correct*; using an if statement only might be, de-pending on the semantics of signaling.
+- "Figure 30.12" relation with [EWD_35] figure 3.
+  `fill,empty` -> `LA,LB` and `AP` -> `mutex` (but `mutex` has no alternation function because the always pair `lock,unlock`)
+  - Since "Figure 30.8" has `mutex` and figure 1 in [EWD_35] has used `while`
+    their improvement process has no overlap.
+    because "figure 1" -(change lock location to acquire early)> "figure 2" -(add mutex/AP)> "figure 3"
+    "Figure 30.8" -(use while to avoid *spurious* wakeup)> "Figure 30.10" -(differentiate cond to avoid wakeup to the *wrong* target)> "Figure 30.12"
+- [spurious wakeups](https://stackoverflow.com/questions/8594591/why-does-pthread-cond-wait-have-spurious-wakeups#comment135830591_11517091). See [this](https://stackoverflow.com/a/77050523/21294350) for more.
+  > The second was that it wasn't difficult to abstractly imagine machines and implementation code that could *exploit this requirement to improve* the performance of average condition wait operations through optimizing the synchronization mechanisms.
+  i.e. sometimes if we know there is no possibility for "spurious wakeups" then we can *skip* the check.
+  if the check is just in the `pthread_cond_wait` then the skip may be difficult.
+  > making condition wakeup *completely predictable* might substantially slow all condition variable operations.
+- "Figure 30.14" probably has redundant `Pthread_cond_signal`s sometimes because the `while` condition is stricter to meet.
+  So
+  > as it reduces context switches
+  - > with multiple producers or consumers (or both)
+    i.e. ~~multiple `mutexes`~~ switch to another `producer` or `consumer` before into next for-loop -> concurrency.
+- > Unfortu-nately, when it calls signal to wake a waiting thread, it might *not wake the correct waiting* thread
+  means in [LR80]
+  > If, however, the monitor calls some other procedure which is outside the monitor module, the *lock is not released*, even if the other procedure is in (or calls) another monitor and *ends up doing a WAIT*.
+  - > with a call to pthread_cond_broadcast(), which wakes up all waiting threads
+    means [LR80]
+    > On the other hand, there are times when a BROADCAST is correct and a NOTIFY is not
+  - > covering condition, as it covers all the cases where a thread needs to wake up (conservatively);
+    means `pthread_cond_broadcast()` covers all cases
+    Also see [LR80]
+    > It is better to use NOTIFY if there will typically be several processes waiting on the condition, and it is known that *any* waiting process can respond properly.
+- > see the producer/consumer problem with only a single condition variable
+  i.e. See "Figure 30.10" binary `count` -> so only one choice then `pthread_cond_broadcast` functions same as `pthread_cond_signal`.
+### [LR80]
+same as above "samuelsorial" says.
+TODO As the introduction says, it solves many problems.
+- Hoare semantics
+  > This definition allows the waiter to assume the truth of some predicate stronger than the monitor invariant
+  here assume the atomic while ["the monitor invariant"](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2) is ~~only what needs to be checked which has no constraint of check time/latency.~~ ~~only the `lock` but not what to do after the `lock`.~~ the atomicity which ensures the enqueue into "sleep-queue" and *lock*, but *not exact their running time.*
+  > but is given priority over threads on the entrance queue.
+  - > several additional process switches
+    i.e. switch to the wait thread after the scheduler didn't schedule the wait thread as expected.
+  - From the [H74], it uses one [`s` queue](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Blocking_condition_variables) to ~~ensure the signal order.~~ *first schedule the signaled* ones then the unsignaled ones in the queue.
+    And `restart t` ensures the above "from waiting to running" semantics. So
+    > the woken thread will run *immediately* upon being woken
+  ```bash
+  [czg /mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/pseudo_code]$ diff Nonblocking_Mesa_cv.c blocking_Hoare_cv.c
+  +schedule:
+  +    if there is a thread on s
+  +        select and remove one thread from s and restart it
+  +        (this thread will occupy the monitor next)
+  +    else if there is a thread on e
+  $ cat blocking_Hoare_cv.c 
+  enter the monitor:
+      enter the method
+      if the monitor is locked
+          add this thread to e
+          block this thread
+      else
+          lock the monitor
+  ...
+  wait c:
+      add this thread to c.q
+      schedule
+      block this thread
+  ```
+  here block means sleep from `wait c`.
+  - > With a blocking condition variable, the signaling thread must *wait outside the monitor* (at least) until the signaled thread relinquishes occupancy of the monitor by either returning or by again waiting on a condition variable.
+    here outside means "unoccupied".
+    and the `restart t ... block this thread` in `signal c` is just manually designed to ensure *immediate* switch.
+  - `signal and return` avoids `block this thread` in `signal` to add more threads to the queue `s` which will adds the overhead of `schedule`. So maybe better.
+- "the monitor invariant" [detailed](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Blocking_condition_variables)
+  ~~here `P_c` depends on what to do ~~
+  > Thus each condition variable c is *associated with an assertion Pc*. While a thread is waiting on a condition variable, that thread is not considered to occupy the monitor, and so other threads may *enter the monitor to change the monitor's state*
+  Then this [example](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Sample_Mesa-monitor_implementation_with_Test-and-Set)
+  where `!c.waitingThreads.isEmpty()` in `signal` is $P_c$ (in bounded-buffer `!c.waitingThreads.isFull()` in `wait` may exist) and `testAndSet(threadingSystemBusy)` is `I` (i.e. *lock* -> monitor invariant)
+  - in summary, `I` is more general constraint while $P_c$ is *more specific* to the target problem.
+  - So
+    > Hence nothing more than the monitor invariant may be assumed after a WAIT
+    i.e. when it really is about to run, it *only ensures getting the lock* but the $P_c$ not ensured.
+### [D68](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.%20The%20General%20Semaphore.)
+- ~~TODO~~ private means mutual in "private semaphores" ?
+  maybe means it can be [only manipulated](https://pages.mtu.edu/~shene/NSF-3/e-Book/SEMA/basics.html) with `wait`,`wake`, So similar to the private member in c++ class.
+  Also see [this](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_implemented_using_semaphores)
+- > The semaphores are essentially *non-negative integers*; *when* only used to solve the mutual exclusion problem, the range of their values will even be restricted to "0" and "1"
+  same as csapp
+  this imply queue 
+  > called "number of queuing portions".
+- > The Producer/Consumer (Bounded Buffer) Problem
+  the former is "a producer and a consumer coupled via a buffer with *unbounded capacity*.".
+  the bouneded is due to `number of empty positions:= N;` which is also shown in csapp.
+- > either a lock or a condition variable
+  i.e. "binary semaphores" and "general semaphores"
+### [D01](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD13xx/EWD1303.html)
+#### interrupt
+in summary, interrupt *increases efficiency of concurrency* when waiting for thread complete.
+- "probe instructions" ~~is similar to~~ aims to function as `Pthread_cond_signal` but with less efficiency.
+  > test whether a concurrent activity it had started earlier had, in the mean time, been completed
+  because it is based on *definite* frequency
+  - problems
+    1. > Say that you would like to probe every 100 instructions, do you insert a probe instruction into a loop body of 10 instructions
+       here 100 is based on the *binary program file* which obviously *can't know some runtime count*, so inserted inside the loop will make it running at higher frequency.
+    2. > introduce each subroutine in two versions
+  - solution by interrupt.
+    > a piece of *dedicated* hardware monitors the outside world for completion signals from communication devices.
+    > thus instantaneously freeing
+    So *dynamic frequency*.
+    > restore enough of the machine state so that, after the servicing of the interrupt, under all circumstances the interrupted computation could be *resumed* correctly.
+  - How got
+    > Halfway the functional design of the X1, I guess early 1957, *Bram and Carel confronted me* with the idea of the interrupt, and I remember that I panicked, *being used to machines with reproducible* behaviour.
+#### semaphore
+> generalize the one-character output register to an output buffer of any size.
+- symmetry means
+  > The exciting discovery was one of symmetry: just as the computer could be temporarily frozen because the typewriter *wasn't ready for the next type action*, so could the typewriter be temporarily frozen because the computer was not ready yet for the next type action;
+  i.e. here small "output register" will blocks when filled
+  so computer will block when "typewriter" is filled and vice versa.
+  > just as the computer could have to wait until the output buffer was empty, the typewriter could have to wait until the output buffer was filled.
+  - This highly shows the relation between `P` (decrement) and `V` (increment).
+  - channel -> "dedicated hardware monitor"
+    > our channels could be active concurrently with the CPU and as a rule their *activity was synchronized with the peripheral* they served.
+  - > the one semaphore, indicating the length of the queue, was *incremented* (in a V) by the CPU and decremented (in a P) by the channel, the other one, counting the number of unacknowledged completions, was incremented by the channel and decremented by the CPU.
+    i.e. V(S_1) -> P(S_1),V(S_2) -> P(S_2)
+##### [terminology EWD-35][EWD_35] by [this](https://en.wikipedia.org/wiki/Semaphore_(programming)#Operation_names)
+- TODO
+  - > You should not ask me what's what, because I can not remember that, since having discovered that the logical problems, that they evoke by the non-sequentiality of the process definition, are in both cases exactly the same.
+  - > provided we hereby state that the operation falsify, in spite of its sequential definition should be considered as a elementary instruction of the repertoire of machines.
+    "elementary" -> atomic.
+- Figure 1
+  - problem
+    > If *both machines are outside* their critical section – say somewhere in the block left blank – then both LA and LB false. If now *simultaneously they enter in their upper block*, they both find that the other machine does not impose any obstacle in their way, and they both go on and arrive *simultaneously in their critical section*.
+- Fig. 2
+  similar to "Figure 1" will "simultaneously" deadlock. <a id="P_V_deadlock"></a>
+- solution to above 2 Figs.
+  > Due to the *asymmetric* significance of this logical variable
+  explicitly make them *unable* to process *totally* concurrently.
+  i.e. here `AP` controls the order like `m->guard` and `LA,LB` control critical sections like `m->flag`. (similar to Figure 28.9)
+- `non falsify (SX)` -> [`!p`](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage)
+- `"LXi: if non falsify (SX) then goto LXi; TXi; SX := true; process Xi; goto Lxi"` lack how `SX` is manipulated (i.e. count machines)
+  > We can play this with one common logical variable, say SX indicating that *none* of the machines is *executing its critical* path.
+  > note, that in the programs for the separate machines Xi nowhere is it stated, *how many machines Xi actually exist*:
+  - > The programmed wait cycle that exists herein, is of course very nice, but it did little to what our goal. A tiny wait cycle is indeed the way to keep a machine busy "without effect" .
+    i.e. figure 1,2 `LA,LB?` loop
+    same as [ostep_book] says.
+    especially when multiple machines wait for only one machine which may cause the bottleneck.
+    > at the expense of the effective speed of the other machines
+    - So
+      > To express this we introduce a *statement* instead of wait cycle
+      Here `P` means *pass outside* instead of useless wait
+      `V` release to dequeue.
+      - Then
+        > The operation V can now be considered as a combination of assigning the value true to a semaphore, *plus alerting* the central alarm clock on this event.
+        > With the introduction of the P-operation as we more or less achieved, that we say to a machine, which *temporarily has to stop*, "Go to sleep, we will wake you up when you can progress."
+        They are implied by
+        > Because, when we still had the wait cycle using the operation falsify, the individual machines had the duty to detect the equalization to true of the common logical variables, which were waiting for the event and in that sense *waiting was a fairly active* business for a relatively neutral event.
+      - in summary, `P()/V()` can be thought as `pthread_cond_wait()/pthread_cond_signal()`.
+- > They have even invented different names for it, one called "parallel programming" and the other called “multi programming”.
+  - the former implies concurrency
+    > In the first case I mentioned the increasing complexity of machines, which now are composed of *a number of more or less autonomous working parts* with the assignment to work *together* to execute one process.
+  - the latter implies context switch
+    > In the second case, where we looked at the machine in a *so-called "real-time application"*, then we had a view of a *single device* that had the possibility, in case of a change in the external urgency situation, to *switch to the now most urgent* of its possible tasks.
+    here real-time is what said in section 1 that no big latency.
+#### [EWD6] which may be implied [here](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD10xx/EWD1000.html)
+In summary, stack is used for recursion.
+- terminology
+  > I vividly remember my conscious search for a good name for the device, good in the sense that it would *yield both a noun and a verb.*
+  > At the time, I worked in *Dutch* and came up with the noun "stapel" and the verb "stapelen",
+- [anonymous variable](https://stackoverflow.com/a/47825583/21294350) may be one address in the *global data* region ~~like `.bss`~~ to store const data allocated when the program starts.
+  - TODO meaning in EWD6
+    maybe meaning it's not returned recursively, so anonymous from the top level.
+- here link is just what [`jal`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jal) does.
 ## TODO
+### introduction
+- TODO How inode is encoded.
+  maybe can be thought as one [pointer](https://unix.stackexchange.com/a/106871/568529) which points to some [structures](https://www.kernel.org/doc/html/latest/filesystems/ext4/inodes.html?highlight=inode) like `i_flags`.
+  > inodes point to blocks on disk
 ### API
 - [symbol table](https://www.geeksforgeeks.org/symbol-table-compiler/)
 - what is the [usage](https://stackoverflow.com/a/52240195/21294350) of `SDT probes` which is related wtih `LIBC_PROBE`
@@ -1275,6 +1525,7 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
   - Or as [COD_RISCV_2nd_A_appendix] says, use one specific instruction [`LL/SC`](https://stackoverflow.com/a/14761049/21294350) which *can't be interrupted*
   - imply ["bypass the store buffer"](https://stackoverflow.com/a/43837970/21294350) which references [this](https://yarchive.net/comp/linux/store_buffer.html).
   - Also related with [MESI](https://stackoverflow.com/a/25350342/21294350) to make *visible*.
+### Condition Variables
 # appendix
 ## book recommendation
 - "Debugging with GDB: The GNU Source-Level Debugger" 10th is offered [officially](https://sourceware.org/gdb/current/onlinedocs/gdb.html/) when [12th](https://www.amazon.com/Debugging-GDB-GNU-Source-Level-Debugger/dp/1680921436#:~:text=gdb%20can%20do%20four%20main,when%20your%20program%20has%20stopped.) is available.
@@ -1904,6 +2155,17 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
       This also implies why using the two-level loop. (See "Summary" steps)
   - > minimum variation in the code complexity that *can be revealed*
     i.e. instruction number with variation of 1 *may not be differentiated* maybe due to parallelism.
+- relation with [BIOS](https://stackoverflow.com/questions/77034591/what-is-the-relation-between-bios-and-the-benchmark-instruction-pair-cpuid-and?noredirect=1#comment135818245_77034591)
+  - SMI in BIOS will [influence the interval](https://stackoverflow.com/a/25778592/21294350) where [SMM](https://en.wikipedia.org/wiki/System_Management_Mode) is what the "firmware" runs which *suspends* the "normal execution".
+    > If you see a *long gap* between two timestamp readings
+  ```bash
+  [czg ~/ostep-hw/29]$ sudo turbostat ./btree_1.out
+      # not show SMI column https://www.mankier.com/8/turbostat#
+  $ perf stat -a -A -e r02B -- sleep 2
+      # all 0
+  ```
+    - So it will influence the above test
+      > low-variance timing for the some work *with interrupts disabled*
 
 ---
 
@@ -1987,7 +2249,7 @@ Out[1]: '0' # not support clflush
 1. this has been asked before.
   See C19 where we prefer `clock_gettime` than `gettimeofday` because of precision.
   See C6 for `rdtsc`
-2. here `sizeof(pthread_mutex_t): 40` which comforms to the alignment of 8 bytes. See [amd_64]
+1. here `sizeof(pthread_mutex_t): 40` which comforms to the alignment of 8 bytes. See [amd_64]
   > aligned 64-byte region of WC memory type
   maybe it can be controlled see [amd_64] p1162 "Number of bytes fetched".
 - Here `threadID % NUMCPUS` is to make each CPU can run one specific thread which has been said before that the CPU can only schedule one thread in the core each time.
@@ -2086,6 +2348,121 @@ $ valgrind_l ./btree.out 2>~/bfree_valgrind_l.txt;less_n ~/bfree_valgrind_l.txt
 #### valgrind (Also see the above program debug log)
 - track all local malloc variables `return` to ensure it is *freed before* the first time it is *not returned*.
   This can be partly shown in `valgrind` but it *may overlap* the reasons (i.e. [chained](https://github.com/xxyzz/ostep-hw/pull/20/files#diff-c29bf7afaaad874ebab95c6703ea8266f61bf4417581ffecf4aeabd175a6ff9dR162) memory leaks) So we needs to find the *root*.
+### C30
+- `#define Malloc(s) ({ void *p = malloc(s); assert(p != NULL); p; })` shows how `p;` without `return` used.
+- `./main-two-cvs-while -l 1 -m 2 -p 1 -c 1 -P 1 -C 0 -v` also fine.
+2. only make sense after using sleep. (here check num lines `| wc -l` maybe no use for the performance)
+>  What would you predict num_full to be with different buffer sizes (e.g., -m 10) and different numbers of produced items (e.g., -l 100),
+only make the buffer behavior different.
+- when the buffer size `-m` less than loop size `-l`, the performance should increase when the buffer size increases if wait has sleep otherwise the difference may be not viewed easily.
+```bash
+$ pro_num=2;str="0,0,0,0.1,0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=10;./main-two-cvs-while -p ${pro_num} -c 1 -m ${size} -v -l 10 -t -P ${pro_sleep} | tail -n 1
+Total time: 0.10 seconds
+$ pro_num=2;str="0,0,0,0.1,0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=1;./main-two-cvs-while -p ${pro_num} -c 1 -m ${size} -v -l 10 -t -P ${pro_sleep} | tail -n 1
+Total time: 1.91 seconds
+# without -P delay
+$ pro_num=2;str="0,0,0,0.1,0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=1;./main-two-cvs-while -p ${pro_num} -c 1 -m ${size} -v -l 10 -t | tail -n 1
+Total time: 0.00 seconds
+$ pro_num=2;str="0,0,0,0.1,0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=10;./main-two-cvs-while -p ${pro_num} -c 1 -m ${size} -v -l 10 -t | tail -n 1
+Total time: 0.00 seconds
+```
+3. I don't have Mac... although I can install MacOS but I didn't.
+4. similar to 2, many consumers will be stuck at wait.
+5. ~~similar to 2, it will improve.~~
+in 2, producers are constrained by the buffer size too small (i.e. they can't add more sometimes)
+
+~~here, consumers are more than producers and then the buffer size is always 0 -> consumer stuck.~~
+~~increase the buffer size can't improve but increase both the buffer size and producers can work.~~
+Need increase `-m` very large so that the buffer can contain many data and the consumer will 
+```bash
+# read from pipe to the variable https://unix.stackexchange.com/a/365222/568529
+# dup str https://stackoverflow.com/a/56836378/21294350
+$ pro_num=10;con_num=3;str="0,0,0,0.1,0,0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=10;./main-two-cvs-while -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} | tail -n 1 | awk '{print $3}' | read time;ipython -c "$time/$pro_num"
+Out[1]: 0.081
+$ pro_num=1;con_num=3;str="0,0,0,0.1,0,0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=10;./main-two-cvs-while -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} | tail -n 1 | awk '{print $3}' | read time;ipython -c "$time/$pro_num"
+Out[1]: 0.0 # sometimes 0.3, etc
+# book example
+$ pro_num=1;con_num=3;str="0,0,0,0.1,0,0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=3;./main-two-cvs-while -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} | tail -n 1 | awk '{print $3}' | read time;ipython -c "$time/$pro_num"
+Out[1]: 0.7
+```
+here `sleep` will hold the lock, so no overlap
+```bash
+$ pro_num=1;con_num=3;delay=0.1;str="0,0,0,${delay},0,0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=3;./main-two-cvs-while -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} > /tmp/test_time.txt;grep "c3" /tmp/test_time.txt | wc -l | read count;ipython -c "$count*$delay";tail -n 1 /tmp/test_time.txt
+Out[1]: 0.9
+Total time: 0.90 seconds
+```
+6. different from 5, this will unlock and then sleep, so sleep can overlap.
+This is why original `wait` without delay has little overhead.
+7. here alawys 13 not influenced by `-m`, because it is decided by `1*10+3` which is addition of data produced by producers and `END_OF_STREAM` of consumer count.
+```bash
+$ ./main-two-cvs-while -p 1 -c 3 -m 10 -C 0,0,0,0,0,0,1:0,0,0,0,0,0,1:0,0,0,0,0,0,1 -l 10 -v -t > /tmp/test_time.txt;grep "c6" /tmp/test_time.txt | wc -l | read count;ipython -c "$count";tail -n 1 /tmp/test_time.txt
+Out[1]: 13
+Total time: 5.00 seconds
+```
+8. No. As the book says in p16.
+9. ~~TODO weird stick at `c2`~~
+here `count` is 0.
+Ç1 waits for P0 to change `count` to 0 while P0 waits for C1 to change `count` to 0.Then both wait. -> deadlock
+- similar to "Figure 30.11,10" where all unlocks in `wait` instead of here by direct `unlock` at `p6/c6`.
+- here doesn't proceed to C0->c1 maybe due to the Linux's scheduler choice.
+```bash
+$ ./main-one-cv-while -p 1 -c 2 -m 1 -P 0,0,0,0,0,0,1 -v -t
+ NF         P0 C0 C1
+...
+  1 [*  0 ] p6
+...
+  0 [*--- ]    c6
+  0 [*--- ]       c3
+  0 [*--- ]       c2
+```
+10. Again as the book says, one consumer's filled state won't be changed to empty by others.
+- "there is more than one" consumers
+```bash
+$ pro_num=1;con_num=2;delay=0.1;str="0,0,0,0,${delay},0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=1;./main-two-cvs-if -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep}
+$ pro_num=1;con_num=2;delay=0.1;str="0,0,0,${delay},0,0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));size=1;./main-two-cvs-if -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep}
+```
+add more delay when *not holding the lock*, then the order can be *more dynamic*.
+so both `p3` and `p0` are ok. But `p3` is better because it implies `num_full=max`, so *the `num_full == 0` stuck won't happen* and then the condition that more consumers consume can happen.
+```bash
+# `p0` sometimes work.
+# linux scheduler probably switches thread when `p4` or `p2` and `c0` (lock failure) or `c4/c2`
+$ pro_num=1;con_num=2;delay=0.1;str="0,0,0,0,${delay},0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));pro_str="${delay},0,0,0,0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=1;./main-two-cvs-if -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} -P ${pro_sleep}
+...
+  1 [*  6 ] p2
+  1 [*  6 ]    c3
+  0 [*--- ]    c4
+0,100000000
+will begin nanosleep
+end nanosleep 1st time
+check whether sleep suspends all CPUs
+  0 [*--- ]    c5
+  0 [*--- ]    c6
+  0 [*--- ]    c0
+  0 [*--- ]    c1
+  0 [*--- ]    c2
+  0 [*--- ]       c3
+error: tried to get an empty buffer
+# above is similar to Figure 30.9, but it avoids frequent context switches so that only switches after `wait` (c2) and others are same as Figure 30.9.
+$ pro_num=1;con_num=2;delay=0.1;str="0,0,0,0,${delay},0,0";con_sleep=$(printf "$str:%.0s" $(seq "${con_num}"));pro_str="0,0,0,${delay},0,0,0";pro_sleep=$(printf "$str:%.0s" $(seq "${pro_num}"));size=1;./main-two-cvs-if -c ${con_num} -p ${pro_num} -m ${size} -v -l 10 -t -C ${con_sleep} -P ${pro_sleep}
+...
+# similar to above
+  1 [*  9 ] p6
+  1 [*  9 ]       c3
+  0 [*--- ]       c4
+0,100000000
+will begin nanosleep
+end nanosleep 1st time
+check whether sleep suspends all CPUs
+  0 [*--- ]       c5
+  0 [*--- ]       c6
+  0 [*--- ]       c0
+  0 [*--- ]       c1
+  0 [*--- ]       c2
+  0 [*--- ]    c3
+error: tried to get an empty buffer
+```
+11. race condition. But although no lock, the linux won't overlap them maybe due to the high overheads of thread context switch.
+`./main-two-cvs-while-extra-unlock -p 1 -c 2 -m 10 -l 10 -v -C 0,0,0,0,1,0,0:0,0,0,0,0,0,0` will set the priority implicitly.
 ## TODO
 - read "APUE".
 # Projects
@@ -2360,6 +2737,13 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 ```
 # miscs
 - [LinuxForums.org](https://en.wikipedia.org/wiki/LinuxForums.org) has been shutdown which is [shown here](https://stackoverflow.com/questions/851958/where-do-malloc-and-free-store-allocated-sizes-and-addresses#comment660519_851958).
+## C/C++
+- `static` is [different](https://stackoverflow.com/a/65965050/21294350) from implicit global wrt *link*.
+  > only be visible in its translation unit i.e. in file1.c
+  > because then b will be a *global variable which has external* linkage.
+  - But both
+    > The lifetime of a static variable is the *entire run of the program*. You can access the static variable outside of it's scope/translation unit if you have the *address* of that static variable.
+    So it is fine to use `static` with reference (i.e. address of the variable) across source code files (i.e. translation unit)
 ## awk
 - use single-quotes instead of double by `man`.
   > The awk program specified in the command line is most easily specified within single-quotes
@@ -2382,6 +2766,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
   - TODO here "infinitive form" ~~isn't same as "to be"~~ is the ["Bare infinitive"](https://www.grammarly.com/blog/infinitives/) which may function as "adjective"/noun.
 - From [this](https://dictionary.cambridge.org/us/grammar/british-grammar/other-others-the-other-or-another), "another" can replace "The other".
   > Another means *‘one more’* or ‘an additional or extra’, or ‘an alternative or different’.
+- > guarantee that any threads that should be woken are
+  means ... (woken) by google translate.
 
 ---
 
@@ -2406,6 +2792,9 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [X+10]:./Ostep_papers/Xiong.pdf
 [MS91]:./Ostep_papers/R06-scalable-synchronization-1991.pdf
 [S+11]:./Ostep_papers/Sundararaman.pdf
+[EWD6]:./Ostep_papers/07_dijkstra.pdf
+[LR80]:./Ostep_papers/Monitors_in_Mesa.pdf
+[EWD_35]:https://www.cs.utexas.edu/users/EWD/translations/EWD35-English.html
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
@@ -2435,3 +2824,4 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [amd_64]:../references/AMD/amd64.pdf
 
 [osdev_x86_64_reg]:https://wiki.osdev.org/CPU_Registers_x86-64
+[monitor_synchronization]:https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage
