@@ -1,3 +1,4 @@
+// from linux source code
 #include <errno.h>
 #include "pthreadP.h"
 #include <shlib-compat.h>

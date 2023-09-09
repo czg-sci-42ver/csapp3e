@@ -4617,7 +4617,7 @@ from 5.14,I changed to this [book](https://bank.engzenon.com/tmp/5e7f7183-219c-4
     - based on [this](https://en.wikipedia.org/wiki/Load-link/store-conditional#Implementations) (TODO 'three registers') maybe only one 'cache line' is weak (see manual p51), while 'dependent blocks' is strong
   - CompareExchange,Load-Linked/Store-Conditional, and Compare-And-Swap [compare](https://stackoverflow.com/questions/7069986/compare-and-swap-atomic-operation-vs-load-link-store-conditional-operation)
     - kw(keyword): 'except that', '"ABA" problem', 'implemented in terms of', 'though the limited amount'
-    - [live-lock 'Difference between Deadlock, Starvation ('some processes *never* getting serviced') , and Livelock: '](https://www.geeksforgeeks.org/deadlock-starvation-and-livelock/) (where two process swap locks but not 'do some work',also [see](https://stackoverflow.com/a/1162847/21294350)) which is related with program, maybe not directly related with lock only.
+    - [live-lock 'Difference between Deadlock, Starvation ('some processes *never* getting serviced') , and Livelock: '](https://www.geeksforgeeks.org/deadlock-starvation-and-livelock/) (where *two process swap* locks but not 'do some work',also [see](https://stackoverflow.com/a/1162847/21294350)) which is related with program, maybe not directly related with lock only.
       - From the codes
         Livelock swaps `l1` and `l2` but no `/// do some work` done (i.e. lock).
         > involved in a livelock constantly *keep on changing with regard to one another*, none progressing

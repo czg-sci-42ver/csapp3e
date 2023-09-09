@@ -697,11 +697,14 @@ $ uname -r
   because table level is less.
   > allocation can be quite fast (in certain scenarios)
   TODO maybe not allocate once instead of many times for smaller blocks.
-- mmap [diff](https://stackoverflow.com/a/21311462/21294350) `shmget`
-  TODO 
-  - diff [madvise](https://stackoverflow.com/questions/30470972/using-mmap-and-madvise-for-huge-pages)
-    - > In this way, most applications would be unaffected (and continue to use only 4-KB pages;
-      maybe the former is specific to one process while the latter is specific to one address.
+- mmap [diff](https://stackoverflow.com/a/21311462/21294350) [`shmget` (id) -> `shmat` (mem_addr)](https://github.com/czg-sci-42ver/code-for-blog/blob/289b20976d4fcff85cf52a9b2ec57109a29a93a7/2018/futex-basics/futex-wait-timeout.c#L56C16-L56C22)
+  - See [this](#shm_open_mmap) for [`shm_open`](https://stackoverflow.com/questions/71806449/relation-between-shm-open-and-mmap#comment126894511_71806449)
+    > does to shm_opened object the same as it does to opened file
+    - direct `mmap` to share, See [ostep_book] or "sem_init_across_processes_mod_direct_mmap.c".
+  - TODO 
+    - diff [madvise](https://stackoverflow.com/questions/30470972/using-mmap-and-madvise-for-huge-pages)
+      - > In this way, most applications would be unaffected (and continue to use only 4-KB pages;
+        maybe the former is specific to one process while the latter is specific to one address.
   - [examples](https://rigtorp.se/hugepages/)
 - > Overhead of allocation can also be bad (in some other cases).
   [See](https://lwn.net/Articles/839737/)
@@ -928,7 +931,7 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
     > the mutex is currently *owned by the calling thread*
     - So it has
       > the mutex shall maintain the concept of a *lock count*
-    - It is related with *recursion* where the deadlock is avoided because it knows *all* the unlock will be called all after calling *all* `lock`.
+    - It is related with *recursion* where the deadlock is avoided because it knows *all* the unlock will be called all after calling *all* `lock`. <a id="recursive_mutex"></a>
       > Otherwise after the first recursion, there will be instant deadlock because the lock *cannot be acquired a second time*.
       > and that's why non-recursive mutexes *deadlock if the same thread locks twice without a free*
       > they will be freed assuming *proper RAII* and the process terminates gracefully
@@ -1276,23 +1279,25 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
   - at least `Queue_Enqueue` and `Queue_Dequeue` can be parallel
     > to enable concurrency of enqueue and dequeue operations.
     but multiple `Queue_Dequeue`s can't except that these operations are combined TODO.
-  - > Because of the dummy node, enqueuers never have to access Head, and dequeuers never have to access Tail, thus avoiding deadlock problems that might arise from processes trying to acquire the locks in different order
+  - > Because of the dummy node, enqueuers never have to access Head, and dequeuers never have to access Tail, thus avoiding deadlock problems that might arise from processes trying to acquire the locks *in different order*
     just means same as the book *two different locks*.
+    "different order" is also implied in csapp "Figure 12.44".
     >  allows more concurrency by keeping a *dummy node at the head* (dequeue end) of a singly linked list
     the "dummy" is based on "list". See "Figure 29.8" where *only one* end node exists.
     - "compare-and- swap " is read-modify-write. So it avoids [ABA](https://en.wikipedia.org/wiki/ABA_problem)
 ## Condition Variables
 this chapter only shows how to use `Pthread_cond_wait(&c, &m);` which is important for "synchronization" based on *Mesa semantics*, but not shows how `c` is implemented detailedly.
-in [linux](https://github1s.com/bminor/glibc/blob/master/sysdeps/htl/bits/types/struct___pthread_cond.h#L25-L26). Use `gdb` to check the definition between 2 options when `F12`
-```c
-typedef union
-{
-  struct __pthread_cond_s __data;
-  char __size[__SIZEOF_PTHREAD_COND_T];
-  __extension__ long long int __align;
-} pthread_cond_t;
-```
-TODO detailed 
+- in [linux](https://github1s.com/bminor/glibc/blob/master/sysdeps/nptl/bits/pthreadtypes.h#L75-L76). Use `gdb` to check the definition between 2 options when `F12`
+  ```c
+  typedef union
+  {
+    struct __pthread_cond_s __data;
+    char __size[__SIZEOF_PTHREAD_COND_T];
+    __extension__ long long int __align;
+  } pthread_cond_t;
+  ```
+  - TODO detailed
+    maybe `atomic_fetch_add_release (cond->__data.__g_refs + g, -2)` implies queue.
 - > hardware and OS support.
   "hardware primitives" i.e. atomic instruction and OS data structures which stores the lock state.
 - > whether a condition is true before continuing its execution
@@ -1324,6 +1329,7 @@ TODO detailed
   lock is manipulated outside.
 - > However, putting a lock around the code doesn’t work; we need something more.
   because deadlock (See Figure 30.8). similar to [this](#P_V_deadlock) but not totally same.
+  But after all, they are both due to [this](#deadlock_circular_wait).
   ~~Here `consumer` may be stuck at `Pthread_cond_wait` while `producer` is stuck at `Pthread_mutex_lock`.~~
   - > if we have more than one of these threads (e.g., two consumers), the solution has two critical problems
     ~~1. deadlock, one consumer release the lock when `Pthread_cond_wait` while the other consumer locks it but won't signal. Then the producer is also locked.~~
@@ -1415,10 +1421,11 @@ TODO As the introduction says, it solves many problems.
   - So
     > Hence nothing more than the monitor invariant may be assumed after a WAIT
     i.e. when it really is about to run, it *only ensures getting the lock* but the $P_c$ not ensured.
-### [D68](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.%20The%20General%20Semaphore.)
+### [D68] with "private semaphores"
 - ~~TODO~~ private means mutual in "private semaphores" ?
   maybe means it can be [only manipulated](https://pages.mtu.edu/~shene/NSF-3/e-Book/SEMA/basics.html) with `wait`,`wake`, So similar to the private member in c++ class.
   Also see [this](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_implemented_using_semaphores)
+  - See [this](#private_semaphore) for the exact definition.
 - > The semaphores are essentially *non-negative integers*; *when* only used to solve the mutual exclusion problem, the range of their values will even be restricted to "0" and "1"
   same as csapp
   this imply queue 
@@ -1428,7 +1435,7 @@ TODO As the introduction says, it solves many problems.
   the bouneded is due to `number of empty positions:= N;` which is also shown in csapp.
 - > either a lock or a condition variable
   i.e. "binary semaphores" and "general semaphores"
-### [D01](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD13xx/EWD1303.html)
+### [D01]
 #### interrupt
 in summary, interrupt *increases efficiency of concurrency* when waiting for thread complete.
 - "probe instructions" ~~is similar to~~ aims to function as `Pthread_cond_signal` but with less efficiency.
@@ -1445,7 +1452,7 @@ in summary, interrupt *increases efficiency of concurrency* when waiting for thr
     > restore enough of the machine state so that, after the servicing of the interrupt, under all circumstances the interrupted computation could be *resumed* correctly.
   - How got
     > Halfway the functional design of the X1, I guess early 1957, *Bram and Carel confronted me* with the idea of the interrupt, and I remember that I panicked, *being used to machines with reproducible* behaviour.
-#### semaphore
+#### EWD1303_semaphore
 > generalize the one-character output register to an output buffer of any size.
 - symmetry means
   > The exciting discovery was one of symmetry: just as the computer could be temporarily frozen because the typewriter *wasn't ready for the next type action*, so could the typewriter be temporarily frozen because the computer was not ready yet for the next type action;
@@ -1458,6 +1465,7 @@ in summary, interrupt *increases efficiency of concurrency* when waiting for thr
   - > the one semaphore, indicating the length of the queue, was *incremented* (in a V) by the CPU and decremented (in a P) by the channel, the other one, counting the number of unacknowledged completions, was incremented by the channel and decremented by the CPU.
     i.e. V(S_1) -> P(S_1),V(S_2) -> P(S_2)
 ##### [terminology EWD-35][EWD_35] by [this](https://en.wikipedia.org/wiki/Semaphore_(programming)#Operation_names)
+maybe [EWD74 (TODO english)](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD00xx/EWD74.html) better "*try* to reduce"
 - TODO
   - > You should not ask me what's what, because I can not remember that, since having discovered that the logical problems, that they evoke by the non-sequentiality of the process definition, are in both cases exactly the same.
   - > provided we hereby state that the operation falsify, in spite of its sequential definition should be considered as a elementary instruction of the repertoire of machines.
@@ -1466,7 +1474,7 @@ in summary, interrupt *increases efficiency of concurrency* when waiting for thr
   - problem
     > If *both machines are outside* their critical section – say somewhere in the block left blank – then both LA and LB false. If now *simultaneously they enter in their upper block*, they both find that the other machine does not impose any obstacle in their way, and they both go on and arrive *simultaneously in their critical section*.
 - Fig. 2
-  similar to "Figure 1" will "simultaneously" deadlock. <a id="P_V_deadlock"></a>
+  similar to "Figure 1" will "*simultaneously*" deadlock. <a id="P_V_deadlock"></a>
 - solution to above 2 Figs.
   > Due to the *asymmetric* significance of this logical variable
   explicitly make them *unable* to process *totally* concurrently.
@@ -1505,6 +1513,381 @@ In summary, stack is used for recursion.
   - TODO meaning in EWD6
     maybe meaning it's not returned recursively, so anonymous from the top level.
 - here link is just what [`jal`](https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html#jal) does.
+## Semaphores
+- > needs both locks and condition variables to solve a broad range
+  the former mainly as the outer lock for mutual exclusion
+  the latter is for synchronization.
+- > one can use semaphores as both locks and condition variables
+  so csapp only introduces `sem`.
+- [EWD215](https://www.cs.utexas.edu/users/EWD/transcriptions/EWD02xx/EWD215.html)
+  - > The unbridled use of the go to statement has as an immediate consequence that it becomes terribly hard to find a *meaningful set of coordinates* in which to describe the process *progress*.
+    > The go to statement as it stands is just *too primitive*, it is too much an invitation to *make a mess of one's program*.
+    - solution -> `case`
+      > Like the conditional, it mirrors the dynamic structure of a program *more clearly* than go to statements and switches
+      i.e. the targets are more direct to view and understand.
+    - [TODO](https://dl.acm.org/doi/pdf/10.5555/63445.C1104358)
+      > The switch *declaration and the switch designator* have been abolished. Their place has been taken by the case construction, applying to both expressions and statements
+      maybe drop [`switch I := (D₁, D₂, ..., Dₙ)`](https://eev.ee/blog/2016/09/18/the-curious-case-of-the-switch-statement/)
+    - recommended usage.
+      > I remember having read the explicit recommendation to restrict the use of the go to statement to *alarm exits*
+  - > In [2] Guiseppe [sic] Jacopini seems to have proved the (logical) superfluousness of the go to statement
+    although above
+    > did I become convinced that the go to statement should be abolished from all "higher level" programming languages (i.e. everything *except —perhaps— plain machine code*)
+    `jmp` is always there.
+- ~~[D72] reference EWD instead of directly by EWD, so I ignored it.~~
+- Also [see](#ewd1303_semaphore) and [see](#d68-with-private-semaphores)
+- the [origin](https://news.ycombinator.com/item?id=8761539) of `P()/V()`
+  - torvalds [with](https://yarchive.net/comp/linux/semaphores.html) semaphores
+    [spinlock](https://www.baeldung.com/cs/spinlock-vs-semaphore) is just `lock` with `spin` as [ostep_book] shows. Also [see](https://stackoverflow.com/a/17221568/21294350)
+    > one that is implemented by busy waiting ("spinning")
+    - > I think the official explanation is that P and V are the first letters in some Dutch words, but I personally find the drug overdose story much more believable
+      :)
+  - [passering](https://news.ycombinator.com/item?id=8761654) begin
+- ~~TODO~~ in csapp "1039" excludes the negative conditions because ~~it *only has two* threads to `P()/V()`~~ ~~, so if both stuck at ~~ ~~maybe because it ignores the context switches~~ ~~it just not allows this unsafe (but maybe valid) conditions by `if (sem_wait(sem) < 0) unix_error("P error");` and then `exit`.~~ `sem_wait` excludes it. (Not see "Figure 12.21" which has no sem protection.)
+  > If  the  semaphore  currently  has the value zero, then the call *blocks* until either it becomes possible to perform the decrement
+  See "Figure 12.44" for deadlock (where both threads block at the bottom-left corner of the "overlapping forbidden regions", i.e. both `sem` is `-1` as Figure 12.22 shows) which is not same as "Forbidden region".
+  So "Forbidden region" can be avoided by `sem_wait` and it is *not one big problem* while deadlock can't be avoided *directly* by `sem_wait` without changing the *order*.
+  - > wait if value of semaphore s is negative
+    and [D68b] both allows "negative semaphore value".
+    They means *implicit negative* (not truly negative due to the above `sem_wait` block semantics) by one waiting queue.
+- `man sem_post`
+  > If the semaphore's value consequently becomes greater than zero
+  so if calling `sem_post` first, then no `sem_wait` wakeup.
+  or more specifically and obviously, only `sem=0` implies the possible queue.
+- >  assume that the actions they make are performed atomi-cally
+  i.e. [D68b] indivisible actions
+- [`sem_wait`](https://github1s.com/bminor/glibc/blob/master/nptl/sem_wait.c#L24)
+  newer one first run `__pthread_testcancel` to directly [return and not scheduled recently in the future](https://stackoverflow.com/questions/27374707/what-exactly-is-a-cancellation-point#comment43199960_27374707) [because](https://www.austingroupbugs.net/view.php?id=1076)
+  > the POSIX requirement that sem_wait should be a cancellation point regardless of whether it blocks
+  - [Cancellation Points](https://pubs.opengroup.org/onlinepubs/9699919799/xrat/V4_xsh_chap02.html)
+    > where a thread has to act on any *pending cancellation request* when cancelability is enabled
+    - `pthread_cleanup_push` also take this in account.
+  - [old ones](https://github1s.com/bminor/glibc/blob/master/nptl/sem_wait.c#L61-L62)
+    1st check `atomic_decrement_if_positive (futex) > 0` but it will `return` if `__val <= 0`, so `sem<0` is *impossible*. (this is done by `(d & SEM_VALUE_MASK) == 0)` in the newer one) <a id="sem_neg_impossible"></a>
+    then if `sem>0` fails, then just `lll_futex_wait_cancel` waits for wakeup.
+  - `atomic_compare_exchange_weak_acquire` will use relaxed order by [`__atomic_compare_exchange_n ((mem), (expected), (desired), 1,__ATOMIC_ACQUIRE, __ATOMIC_RELAXED); }`](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html#index-_005f_005fatomic_005fcompare_005fexchange_005fn) because there is no interested store at all (i.e. only write to the not interested `expected` but not `mem`. If `*mem== *expected`, then needs `acq` to ensure the real equal relation).
+  - as the [comment](https://github1s.com/bminor/glibc/blob/master/nptl/sem_waitcommon.c#L123-L124) says, `__new_sem_wait_fast` won't sleep and it will return `-1` when failure so that `__new_sem_wait_slow64` will be called and may sleep.
+    - TODO why `uint64_t d = atomic_fetch_add_relaxed (&sem->data,(uint64_t) 1 << SEM_NWAITERS_SHIFT);`
+      maybe for understandable reading that highlight waiter number by `SEM_NWAITERS_SHIFT`?
+- Figure 31.6
+  - ~~TODO `sem_wait(&s)` should be before `Pthread_create` to ensure the `post` signal can be captured.~~
+    `X` should be 0, then when `wait` 1st, it will be stuck and when `wait` 2rd it will decrease and return.
+- > With the ordering case, it was 0, because there is nothing to give away at the start;
+  with `lock`, `sem_wait` will hold the resource and *run 1st*.
+  while `cond_t`, `sem_wait` won't hold the resource (because none of resources) and *run later*.
+- Figure 30.11 has no `count` compared with Figure 30.11 because it is implied in `sem` which will *increase/decrease* and check the condition.
+- > waits for a buffer to become empty in order to put data into it
+  means stuck when `empty=0`.
+  "become empty" -> `empty>0` implies `true`.
+- Figure 31.10
+  - the `sem_wait` and `sem_post` pair ensures the order of the sequences of critical sections excluding the race conditions because only one producer/consumer can wakeup.
+    Here *scheduler can't* wakeup `sem_wait(&full);` ~~even between `put(i);` and .~~ and only corresponding `sem_post(&full)` can.
+  - > You can try this same example with more threads (e.g., multiple pro-ducers, and multiple consumers). It should still work.
+    TODO so why [this](#undesirable_bounded_buffer)
+- > We now have a problem: a race condition
+  maybe `buffer`.
+- Figure 31.11
+  deadlock similar to [this](#deadlock_circular_wait)
+  one hold the `mutex` waiting for `&empty` while others which can signal `&empty` is blocked due to `mutex`.
+  same as p10.
+- > as long as we can guarantee that no insert is on-going, we can allow many *lookups to pro- ceed concurrently*.
+  This is the difference between Reader and consumer.
+- The Reader-Writer Lock in [CHP71] is just one specific application of `sem` and we can tune the `sem` as we expect. So I ignore the paper [CHP71]
+  "Figure 31.13" is same as csapp "Figure 12.26". But the former is better because it explicity manipulates with the only structure `rwlock_t`.
+  here only the first lock `sem_wait(&rw->writelock);` -> readers can be concurrent.
+  And `sem_wait(&rw->lock);` locks access to `rw->readers`.
+- > This approach works (as desired), but does have some negatives, espe-cially when it comes to *fairness*.
+  same as the csapp 12.20 homework. See two [12.20_fair*](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.20_fair_only_two_sem.c) codes and my [comments](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.20/#comment-6273427059).
+  > prevent more readers from entering the lock *once a writer is waiting.*
+  similar to csapp 12.19 homework (See my [fix code](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.19_fix.c)), but "stronger priority to writers" instead of readers.
+- "Big" meaning in "Big and dumb is better" in [H87](https://www2.eecs.berkeley.edu/Pubs/TechRpts/1987/CSD-87-381.pdf)
+- > The contention for these forks, and the *synchronization* problems that *ensue*
+  i.e. ~~synchronization -> `P (mutex);` in [D71] to ensure the atomic modification of state variable related with the *contention*~~
+  > We’ll also need some semaphores to solve this problem. Let us assume swe have five, one for each fork: sem t forks[5].
+  similar to `P(prisem[w]);` but the latter is based on philosopher instead of the fork lock.
+  - TODO 
+    > indeed, this is how Dijkstra himself solved the problem
+    Dijkstra all use the same `test` and it use philosopher lock to implicitly lock the two forks.
+- > Following Downey’s solutions [D08]
+  but `return (p + 1) % 5;` is already shown in [D71].
+- > Think through the ramifications of this solution
+  - obviously the deadlock is only possible to happen when all philosophers hold only one lock
+    otherwise, if one holds two, it can proceed and release to avoid the deadlock (i.e. one endless waiting cycle)
+    - so the deadlock implies the `P0~P2` hold the left forks and
+      only `P4` and `P0` will contend to break the waiting cycle.
+      then `P3` will be always able to hold the `f4` after holding the `f3` and proceed -> the waiting cycle is broken.
+- > decide upon a threshold for “too many”
+  ~~Maybe see my [optimized code](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/c5eb9b45f5fc86c0b74f4464f9347b0cd4e24924/site/content/chapter12/code/12.20_fair_only_two_sem.c#L25)~~
+  [T99](https://yarchive.net/comp/linux/semaphores.html) just use the *bounded* buffer (i.e. throttling mechanism).
+- Figure 31.17 is similar to [D08] p265
+  but it has no `wakeup`.
+  just care about `s->value` is enough to protect based on the following semantics which excludes the negative condition.
+  - > we don’t maintain the invariant that the value of the semaphore, when negative, reflects the number of waiting threads
+    by `while (s->value <= 0)` holds the state `s->value=0`.
+  - > never be lower than zero ... matches the current Linux implementation
+    See [this](#sem_neg_impossible).
+  - ~~TODO~~ linux `sem_t` [implementation](https://github1s.com/bminor/glibc/blob/master/sysdeps/nptl/internaltypes.h#L160-L161) just adds more states
+    ```c
+    struct new_sem
+    {
+    #if __HAVE_64B_ATOMICS
+      /* The data field holds both value (in the least-significant 32 bits) and
+         nwaiters.  */
+    # if __BYTE_ORDER == __LITTLE_ENDIAN
+    #  define SEM_VALUE_OFFSET 0
+    # elif __BYTE_ORDER == __BIG_ENDIAN
+    #  define SEM_VALUE_OFFSET 1
+    # else
+    # error Unsupported byte order.
+    # endif
+    # define SEM_NWAITERS_SHIFT 32
+    # define SEM_VALUE_MASK (~(unsigned int)0)
+      uint64_t data;
+      int private;
+      int pad;
+    #else
+    # define SEM_VALUE_SHIFT 1
+    # define SEM_NWAITERS_MASK ((unsigned int)1)
+      unsigned int value;
+      int private;
+      int pad;
+      unsigned int nwaiters;
+    #endif
+    };
+    ```
+### [D68b]
+here "COROLLARY 1" allows negative semaphore value. -> so can be "private semaphores" with ~~"one (or more) blocked processes"~~ "its waiting list"
+- > V-operation represents the re-moval of a barrier
+  allow *delayed* operation to resume, so somewhat synchronize
+- > conditional V(private semaphore)
+  i.e. similar to `&fill` and `&empty` which are specific to this producer and consumer pair but `mutex` can be used for all routines which access shared data like `buffer` by `put(i);`.
+  > possibly one (or more) *blocked* processes should now get permission to continue
+  - Notice here `Note 1.` assumes atomic by "indivisible actions", so then it can implement `pthread_cond_t` but with *different parameter semantics* which has *no lock* although their functions are same that pair the wait and the wakeup.
+    So it doesn't conflict with [this](#b04_summary) because there is no atomic there to ensure the atomic operation with the *lock and wait*.
+- > Each sequential process has associated with it a num-ber of private semaphores and *no other process* will ever perform a P-operation on them. <a id="private_semaphore"></a>
+  So maybe `pshared` in `sem_init`
+- harmonious cooperation
+  take "producer and consumer" for example.
+  1. obviously one producer can produce many data which can be consumed by multiple consumers.
+    init -> just init the `cond` and `mutex`.
+    > (If a  process needing a  segment from the drum has gener-ated a  task for the segment controller,  special precautions have  been  taken  to  ensure  that    the  segment  asked  for remains  in  core  at  least  until  the  requesting  process  has effectively accessed  the  segment  concerned.
+    i.e. consumer request will always be met by the producer.
+    > Without  *this precaution*  finite  tasks could  be forced  to generate  an *infinite* number of tasks for the segment controller, and the system could get stuck in an unproductive page flutter.
+    maybe just one constraint that finite generates finite.
+  2. > When a cyclic process leaves its homing position "it accepts a task"
+    > It is proved that after the acceptance of an initial task all processes eventually will be (again) in their hom-ing position.
+    So homing position maybe sleep or others?
+    So 
+    > It is proved that it is impossible that all processes have returned to their honfing position while somewhere in the system there is still *pending* a generated but unae-eepted task.
+    TODO ~~means no deadlock (i.e. when one sleeps all others sleep)~~
+  3. > Each process *blocked* in the course of task execution relies on the other processes for removal of the *barrier*.
+    `P()` may fail -> block. The counterpart `V()` -> remove the block/barrier.
+    - implies "circular waits" (i.e. deadlock) not allowed. <a id="deadlock_circular_wait"></a>
+- [ostep_book] "both locks and condition variables."
+  i.e. above "mutual exclusion" and "private semaphores" (the latter implies Mesa semantics by the paper pseudocode)
+### [D72]
+similar to "Figure 30.12" but it has $r_i$ which ensures the minimal available data num.
+here `f` counts empty slots and `n` counts the available data num.
+- TODO
+  - how "undesirable properties" occur. <a id="undesirable_bounded_buffer"></a>
+- TODO weird the `f>0` condition:
+  Here assume consumption and production are all protected by the lock
+  then they have no overlap, so `f<=tot` always hold (IMO this should be the condition)
+- ~~so maybe many consumers make the `f=0` (i.e. swap the init state of `f` and `n`)~~
+  ~~and above "undesirable properties" cause the `f=0` can't be modified (Very weird).~~
+  ~~then production is also stopped by `f=0`~~
+  production maybe `f=0`
+- "undesirable properties" may be same as the [ostep_book] "memory-intensive region"
+- so in p2, if $n_i\le r_i$, then `f` keeps *unchanged* (i.e. $f=tot-\sum\limits_{i} max(n_i,r_i)$) (Then the above problem is *solved*)
+  but `n` will change
+  so the producer will always be able to produce and then $n_i>0$ always holds -> stuck/stopped consumer less. And when $n_i> r_i$, it becomes normal, so a) and b still hold and the buffer won't *overflow*. The $n_i>0$ always ensures no *underflow*.
+### [CB08]
+- > Because the number of readers must be updated atomically, acquiring the lock as a reader requires the same bus transaction—a read-to-own—as acquiring a mutex
+  > in the *absence* of a more sophisticated (and *less space-efficient*) synchronization primitive, a readers/writer lock will use a single word of memory to store the number of readers.
+  ~~TODO~~ i.e. mutex and reader_lock may invalidate each other when cached when not aligned (i.e. although more space-efficient but may be harmful to the cacheline) carefully.
+- > the lock implementation blocks new readers when a writer is blocked
+  ~~deadlock? TODO but why must blame it on "readers/writer lock"?~~
+  > if a writer blocks between the initial acquisition as reader and the recursive acquisition as reader
+  See [this](#recursive_mutex)
+  > All of this is not to say that readers/writer locks shouldn’t be used
+  Not forbidden to use, but just take car\e because the concurrent readers *may* be recursive.
+- [hash chain](https://www.geeksforgeeks.org/c-program-hashing-chaining/) -> table implemented with a list `table[i]`.
+  - TODO "per-chain hash-table locks"
+### [D71]
+[wikipedia](https://en.wikipedia.org/wiki/Dining_philosophers_problem) doesn't says about "very Hungry" and "secretary".
+- the 3 `test` ensures the [ostep_book]
+  > concurrency is high (i.e., as many philosophers can eat at the same time *as possible*).
+
+- why separate `P(1eft hand fork);` will fail, beacuse:
+  > that has to be eaten with *two* forks
+  > *each* will grab his *left* hand fork and from that moment onwards the group is stuck
+- See (2) for allowable condition that 1->2 (so unstable).
+  (1) is one invariant.
+- unstable situation
+  1. by `C[w]:= 1; test (w) ;`.
+  2. 2->0 will allow adjacent philosophers to eat by `C[w]:= 0; test [(w+l) mod 5];test [(w-1) mod 5];`.
+  See "In words:".
+- here `C[w]:= 1` means sleep.
+- `P(prisem[w]); eat` will be stuck except when `V(prisem[K])` has been called either by `test (w)` self or by `test [(w+l) mod 5]` from adjacent philosophers.
+  So it is similar to `pthread_cond_t`.
+- > for the following reasons.
+  1. highlight the help with the addition of "the private semaphore".
+    instead of using one long queue (i.e. a general semaphore)
+    > the latter directly with the aid of a general semaphore
+  3. > inclusive the need for the introduction of the intermediate state called "hungry"
+    to wakeup *conditionally*.
+- > we shall show how (using *only single* P-operations and binary semaphores)
+  > This was another reason not to introduce the parallel P-operation: for the solution with the parallel P-operation we did not see an automatic way of *avoiding* the danger of *individual* starvation.
+  i.e. parallel P-operation has more limits so that it is more difficult to debug.
+- solving with starvation.
+  - > This can be overcome by more sophisticated rules (introducing besides the state "hungry" also the state "very hungry")
+    i.e. in the 1st cycle, (Notice the `P (mutex);`) 1st philosopher `P(prisem[w]); eat` -(switch)> 2nd philosopher `C[w]:= 1; test (w) ;` fails and stuck at `P(prisem[w]);` -> 3rd `P(prisem[w]); eat`, and then 4,5 all stuck at `P(prisem[w]);`
+    then `2nd` starved
+    - maybe solution
+      ```c
+      hungry_cnt[0:4] initially = 0
+      procedure test (integer value K);
+      /*
+      If C[K]=0, then it has eaten, not taken in account.
+      not eat if adjacent people are very Hungry
+      */
+        if C[K] =3 // this first to avoid recheck after the "C[K]:=3".
+          if C[(K-1) mod 5] ≠ 2
+            and C[(K+1) mod 5] ≠ 2
+            do begin
+              C[K]:= 2; V(prisem[K]);hungry_cnt[K] = 0
+            end
+        if C[K]= 1
+          if C[(K-1) mod 5] = 3 or C[(K+1) mod 5] = 3 // avoid too many state 3
+            return
+          if C[(K-1) mod 5] ≠ 2
+            and C[(K+1) mod 5] ≠ 2
+            do begin
+              C[K]:= 2; V(prisem[K]);hungry_cnt[K] = 0
+            end
+          else
+            hungry_cnt[K]++ // important, otherwise 1 state won't exist.
+            do begin
+              if hungry_cnt[K] ==2 do begin
+                C[K]:=3 // very Hungry.
+                hungry_cnt[K] = 0
+              end
+            end;
+      
+      P (mutex);
+          C[w]:= 1;
+          /*
+          Set the priority.
+          ignore this: This is already achieved by above "C[(K-1) mod 5] ≠ 2,3". but not very good, because it will probably frequently from 1 to 3 and then no priority.
+          */
+          // if C[w-1] =3 do begin
+          //   test(w-1);
+          // end
+          // if C[w+1] =3 do begin
+          //   test(w+1);
+          // end
+          test (w) ;
+      V(mutex);
+      ```
+      with the above patch, 
+      in the 1st cyle simlar to above original with no one "very Hungry", it will end up "(2,0),(1,1),(2,0),(1,1),(1,1)" ("(2,0)" means state 2 with hungry_cnt=0).
+      ~~But here the 1st finishes eating earlier, 1st `C[w]:= 0` -> 5th `test (w) ;` success and then `P(prisem[w]); eat`. -(state from 1st to 5th: 0,3,2,3,2)> 1st `test [(w+l) mod 5];` fails due to 3rd is eating and `test [(w-1) mod 5];` no action because 5th is eating (state 2) ->~~
+      then 2nd cycle,
+      maybe "(2,0),(1,1),(2,0),(1,1),(1,1)" -> "(0,0),(3,0),(2,0),(1,1),(2,0)" -> "(0,0),(2,0),(0,0),(3,0),(2,0)" -> "(0,0),(0,0),(0,0),(3,0),(2,0)" -> "(0,0),(0,0),(0,0),(2,0),(0,0)"
+      - or "(2,0),(1,1),(2,0),(1,1),(1,1)" -> "(1,1),(3,0),(2,0),(1,1),(2,0)" -> "(1,1),(3,0),(2,0),(3,0),(1,1)" (notice here 1st (1,1) not changed due to adjacent (3,0)) -> "(1,1),(2,0),(1,1),(2,0),(1,1)"
+
+        with original ones, "2,1,2,1,1" same as before
+        2nd cycle, "2,1,2,1,1" -> "1,1,2,1,2" (1st finish `C[w]:= 0; test [(w+l) mod 5]; ...` and then `C[w]:= 1; test (w) ;`) -> "2,1,2,1,1" () -> "1,1,2,1,2" ...
+
+        So my patch avoids this livelock (one special deadlock, i.e. always wait for something).
+- TODO
+  - > Secondly we could have made a more crude solution: the procedure "test" has a parameter indicating for which philosopher the test *has to be done*;
+  - > suggest that it should be done automatically, because in real life, whether we like it or not, the situation can be more complicated.
+    Does it mean that we need automatic test scripts?
+- secretary
+  - why use it
+    > This places our processes in a hierarchy which *avoids deadly embraces* as far as mutual exclusion is concerned in exactly the same way in which mutual exclusion semaphores would need to *be ordered* in the case of nested critical sections.
+    because the order is more direct and easy to maintain.
+    Same as the chapter p11 footnote
+    > it may have been more natural to place the mutex acquire/release *inside* the put() and get()
+  - similar to subroutines
+    > Instead of N equivalent processes, we now have N directors served by a common secretary.
+    > shows great resemblance to the relation between a set of mutually independent programs and a *common library*
+    > similar to the relation between main program and *subroutines*.
+    > identified a process to which the "*common* variables" belong: they belong to the common secretary.
+    - differences from subroutines (IMO there is no difference, it is only different from the special subroutines where no sleep in the subroutines).
+      subroutines:
+      > we *can* regard the main program "asleep"
+      while secretary:
+      > the secretary *may decide* to keep him asleep
+      > when she signals a release —analogous to the return of the normal subroutine— she will supply the *identity of the process* to be *woken* up.
+      - So the director may be really asleep for long time (similar to `futex_wait`)
+        > b) "calling", i.e. he has tried to initiate a call on a secretary, but the call *could not be honoured*, e.g. because the secretary was busy with another call
+        or short time -> c).
+      i.e. director's a) -> secretary's b) while director's b),c) -> a).
+      - notice the state is *relative* (i.e. *recursive* calls)
+        > may be *simultaneously* busy with respect to her directors and calling or sleeping with respect to one of her *subsecretaries*.
+    - embellishments
+      1. "masking bit" (similar to CUDA)
+      2. "parameter passing" dynamic with different types of directors. (maybe similar to c++ overload?)
+  - TODO so what is "It is this *collection of observations* that was an incentive to redo"?
+  - "semi-sequential"
+    > but in an undefined order, i.e. depending on *the calls of her directors*.
+    while "fully sequential"
+    > in an order determined by the evolution of this *process*.
+  - > a bunch of *non-reentrant* routines
+    i.e. has states inside (similar to sequential circuits.)
+### [D08]
+- p265
+  - ignore the following (`mutex` excludes the following switch condition):
+    here `do{}while` is to keep the order of `semaphore - > wakeups` and `cond_wait/cond_signal` same for `sem_signal` and `sem_wait`.
+    otherwise the `cond_signal` original useful may be no use and the `P/V` pair is no longer balanced.
+    i.e. `semaphore - > wakeups ++;` -(switch to `sem_wait`)> `( semaphore - > wakeups < 1)` failure -> `semaphore - > wakeups - -;` -(switch back)> `cond_signal ( semaphore - > cond );`
+  - here `do{}while` just ensures `sem_wait` not to use the old possible `cond_signal` and `semaphore - > wakeups` which *signals nobody* and then weirdly *skips* the `cond_wait ( semaphore - > cond , semaphore - > mutex );` when `semaphore - > value < 0` (obviously forbidden).
+    i.e. it ensures `semaphore - > value < 0` ~~always~~ only *accepts the future* wakeups instead of history.
+    more specifically if using `while()`, assume that  (v,w)/(value,wakeup):(-1,0) -(`semaphore - > value ++;`)> (0,0) -> (0,1) -> `cond_signal` (assume nobody gets wakeup) -(after *unlock*, switch to `sem_wait`)> (-1,1) -> *skip* `cond_wait` -> (-1,0) -> after unlock, `value=-1` state *mistakenly enters the critical session* which is protected by `sem_wait`.
+    TODO how to achieve the above assumption.
+### [B04]
+- "wake-up waiting race"
+  i.e. the interrupted case function as expected
+  more specifically, if atomic, then `wait` and `wakeup` and A proceeds.
+  But here non-atomic case *also achieve* the same result. same as the following "controls the *order*".
+- TODO
+  - > will not get stranded enqueued incorrectly on s.
+    so mutual exclusion?
+#### Getting Started modification_1 See [mod_1.cpp](./code_test/pseudo_code/cond_based_on_sem/mod_1.cpp)
+- > This mean that the next thread to call c.Wait() will just decrement s.count and drop through
+  just above "old possible `cond_signal`".
+  - > You can fix it by counting the calls of c.Wait() and the matching calls of c.Signal()
+    controls the *order*.
+    here `x` is lock so init `x.count = 1`
+#### Fixing things up See [mod_2.cpp](./code_test/pseudo_code/cond_based_on_sem/mod_2.cpp)
+1. add *queue* property
+2. the `signal` can't totally *correspond* to the `wait`.
+  > and one of the 7 threads would end up enqueued on s.
+  - here `h.V();` implies the `s.P()` has finished (similar to some type of resources).
+    > The thread in c.Signal waits on h.P() until a thread has made a matching call of h.V() inside c.Wait().
+    TODO but it still has *no correspondence ensure*.
+    it only ensures `Broadcast()` will block at `h.P();` until all waiters finish `h.V();`.
+- TODO
+  - So does this
+    > give the wrong answer
+    > So eventually we gave up on the idea that we should build locks and condition variables out of semaphores
+    Does the mutex around `m.Release(); s.P();` can achieve the atomic to ensure the solution working?
+    IMO it works
+    ~~above strike-through not works because one `wait` will block others which is obviously.~~
+    > using the hardware test-and-set instructions to get atomicity with spin-locks
+    So why the paper not use it?
+#### Optimising Signal and Broadcast
+i.e. calls the `Wait` instead of `Signal` immediately after `Signal` done by the scheduler.
+#### B04_summary
+problem list:
+1. [atomic](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2)
+  which will cause "wake-up waiting race".
+2. correspondance (IMO the paper solution is no use, maybe needs waiter queue in "The Sequel" which is also use in ).
+  - TODO does linux `sem_post` [based](https://github1s.com/bminor/glibc/blob/master/nptl/sem_post.c#L56-L57) on `futex_wake` has this correspondance?
+  - solution "has a fundamental *performance* problem".
+3. "Optimising Signal and Broadcast" which is the kernel scheduler's obligation.
 ## TODO
 ### introduction
 - TODO How inode is encoded.
@@ -2391,7 +2774,7 @@ $ pro_num=1;con_num=3;delay=0.1;str="0,0,0,${delay},0,0,0";con_sleep=$(printf "$
 Out[1]: 0.9
 Total time: 0.90 seconds
 ```
-6. different from 5, this will unlock and then sleep, so sleep can overlap.
+6. different from 5, this will unlock and then sleep, so sleep can overlap. This also implies `nanosleep` ~~only makes one CPU sleep.~~ [not makes the CPU idle "CPU time isn't wasted"](https://tldp.org/HOWTO/IO-Port-Programming-4.html).
 This is why original `wait` without delay has little overhead.
 7. here alawys 13 not influenced by `-m`, because it is decided by `1*10+3` which is addition of data produced by producers and `END_OF_STREAM` of consumer count.
 ```bash
@@ -2463,6 +2846,9 @@ error: tried to get an empty buffer
 ```
 11. race condition. But although no lock, the linux won't overlap them maybe due to the high overheads of thread context switch.
 `./main-two-cvs-while-extra-unlock -p 1 -c 2 -m 10 -l 10 -v -C 0,0,0,0,1,0,0:0,0,0,0,0,0,0` will set the priority implicitly.
+### C31
+1. here use `sem_open` ~~instead of~~ is different from `sem_init` due to the former make process share more convenient. The child *process* [doesn't share (This compares the comparison of their usages when sharing between processes)](https://blog.superpat.com/semaphores-on-linux-sem_init-vs-sem_open) the `sem`. <a id="shm_open_mmap"></a>
+  here `sem_open` (fd) -> `ftruncate` controls size to avoid weird behaviors (TODO how weird) -> `mmap` from fd to mem_addr.
 ## TODO
 - read "APUE".
 # Projects
@@ -2752,6 +3138,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - use [pipe command](https://stackoverflow.com/a/15337502/21294350)
 ## vim
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
+## makefile
+- See this [template](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
 ## the English grammar
 - [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
   just care about the answer is enough without caring the questions "do" or "don't".
@@ -2795,6 +3183,14 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [EWD6]:./Ostep_papers/07_dijkstra.pdf
 [LR80]:./Ostep_papers/Monitors_in_Mesa.pdf
 [EWD_35]:https://www.cs.utexas.edu/users/EWD/translations/EWD35-English.html
+[D68b]:./Ostep_papers/dijkstra-the68.pdf
+[D72]:./Ostep_papers/dijkstra1972.pdf
+[CB08]:./Ostep_papers/Real-world_Concurrency.pdf
+[D71]:https://www.cs.utexas.edu/users/EWD/transcriptions/EWD03xx/EWD310.html
+[D01]:https://www.cs.utexas.edu/users/EWD/transcriptions/EWD13xx/EWD1303.html
+[D68]:https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.%20The%20General%20Semaphore.
+[D08]:./Ostep_papers/LittleBookOfSemaphores.pdf
+[B04]:./Ostep_papers/ImplementingCVs.pdf
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
