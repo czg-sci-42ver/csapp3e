@@ -4333,6 +4333,7 @@ as -alhnd test.s > test.lst
 # `.gitignore`
 ## `.gitignore` use bash [Pattern Matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html) (i.e. [glob](https://stackoverflow.com/questions/33189437/explain-gitignore-pattern-matching)) although current latest `.gitignore` file not show it. **NOT using regex**
 - so use [git check-ignore -v **/* ](https://scriptcrunch.com/git-show-ignored-files/) to check all subdir files, here `**/` -> all subdirs, `*` -> any str
+  - notice: the files need to be "Untracked" to be checked by `check-ignore`.
 - regex `+` by [?*](https://stackoverflow.com/questions/28281504/what-is-the-gitignore-equivalent-of-one-or-more-occurrence)
 - [debug](https://stackoverflow.com/questions/2937407/test-whether-a-glob-has-any-matches-in-bash) glob with `compgen`
 - [pattern-list](https://www.linuxjournal.com/content/pattern-matching-bash)

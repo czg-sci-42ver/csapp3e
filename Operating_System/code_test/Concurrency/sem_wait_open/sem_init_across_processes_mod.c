@@ -23,6 +23,7 @@ int main(int argc, char **argv)
   close(fd);
 
    if ((shm = shm_open("myshm", O_RDWR | O_CREAT, S_IRWXU)) < 0) {
+  //  if ((shm = shm_open("myshm",  O_CREAT, O_RDWR)) < 0) {
     perror("shm_open");
     exit(1);
   }

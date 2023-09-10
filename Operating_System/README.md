@@ -2847,8 +2847,63 @@ error: tried to get an empty buffer
 11. race condition. But although no lock, the linux won't overlap them maybe due to the high overheads of thread context switch.
 `./main-two-cvs-while-extra-unlock -p 1 -c 2 -m 10 -l 10 -v -C 0,0,0,0,1,0,0:0,0,0,0,0,0,0` will set the priority implicitly.
 ### C31
+- duplicate inclusion of headers are [*avoided*](https://stackoverflow.com/a/9748310/21294350) in many header implementation.
+  [`#pragma once`](https://en.wikipedia.org/wiki/Pragma_once) also [fine](https://stackoverflow.com/a/69293444/21294350)
+  - ~~TODO how this [happens](https://stackoverflow.com/questions/7881021/how-to-avoid-duplicate-inclusion-of-a-header-file)~~ Notice this [only avoids](https://stackoverflow.com/questions/7881021/how-to-avoid-duplicate-inclusion-of-a-header-file#comment135874972_7881178) the duplicate inclusion in the header instead of source codes.
+    So that `gcc` may warn related with [ODR](https://en.wikipedia.org/wiki/One_Definition_Rule)
+    Also see "avoid_dup_include".
 1. here use `sem_open` ~~instead of~~ is different from `sem_init` due to the former make process share more convenient. The child *process* [doesn't share (This compares the comparison of their usages when sharing between processes)](https://blog.superpat.com/semaphores-on-linux-sem_init-vs-sem_open) the `sem`. <a id="shm_open_mmap"></a>
   here `sem_open` (fd) -> `ftruncate` controls size to avoid weird behaviors (TODO how weird) -> `mmap` from fd to mem_addr.
+  See [ostep_hw] for why the author use it since here only threads are used instead of processes.
+- `sem_open`
+  > If O_CREAT is specified, and a semaphore with the given name *already* exists, then mode and value are *ignored*
+  `man 7 sem_overview`
+  > Two processes can operate on the same named semaphore by passing the *same  name*  to sem_open(3)
+  So [usage](https://stackoverflow.com/a/8359403/21294350)
+  - `sem_unlink` (to destruct) is used after `sem_close` (to remove references).
+    > will *destruct* the semaphore once its *reference* count is 0
+- `sem_init` doesn't initialize.
+  by viewing the assembly difference, 
+  1. when `#define USE_INIT_POINTER`
+    it only moves one 8 byte pointer, but the pointer may point to nothing
+    ```asm
+    mov    QWORD PTR [rbp-0x8],rax
+    ...
+    mov    rax,QWORD PTR [rbp-0x10]
+    ...
+    mov    rdi,rax
+    call   1090 <sem_init@plt>
+    ```
+  2. when not `#define USE_INIT_POINTER`
+    it will use the stack to store the data, then all behavior is defined and won't access weird mem locations.
+    ```asm
+    // others except "..." same as above
+    lea    rax,[rbp-0x30]
+    ```
+  [summary](https://stackoverflow.com/a/74716788/21294350) (same as [this](https://stackoverflow.com/a/61669391/21294350)) and source code just [cast](https://github1s.com/bminor/glibc/blob/master/nptl/sem_wait.c#L39-L40).
+  > It *doesn't allocate* an object, double ptr would be needed for that.
+3. is similar to CUDA thread synchronization that *all* threads need to achieve *one point* and then one thread can proceed.
+5. Also see csapp 12.19,20 where not use `sleep` for starvation (so not good for reproduction) and use `read_first` and something similar to `count` to control.
+6. Here `Sem_wait(m->t1);` will make many threads stuck in room 1 if they flood in between `m->room2++;` and `Sem_wait(m->mutex);`.
+  state: `m->room1=n,m->t1=-n`
+
+  then the one `thread_0` in room 2 will `Sem_post(m->t1);` to let one into room 2 and then stuck at `Sem_wait(m->t2);` and the new one `thread_1` into room 2 will let another into room 2 and stuck same as  `thread_0` and *loop* until all into room 2 by `m->room1 == 0` (then `m->t1=0`)
+  then let one in room 2 into the critical session by `Sem_post(m->t2)`.
+  state: (n-1 + `thread_0`=n) `Sem_post(m->t1);` make `m->t1=0` and one `Sem_post(m->t2);` to let `thread_0` continue.
+
+  Then after the critical session, `Sem_post(m->t2);` will let another thread in room 2 into the critical session which make the *one-by-one sequence*.
+  If the one exiting the critical session reenter the loop to acquire the lock, it will be stuck at `Sem_wait(m->t1);` because `m->t1=0` (this ensures no race conditions with `Sem_post(m->t2);` so that the critical session is *protected*)
+
+  - in summary, it use binary semaphore to implement many levels of buffers like room 1/2.
+  - more visually,
+    `thread_n` enters room 1 with `m->room1++;` then it waits for exit because `m->t1` init 1 which only allows one thread out of room 1 into room 2.
+    then one thread out of room 2 (`m->room2++`) into room 1 (`m->room1--`)
+    and let one thread into room 2 (`Sem_post(m->t1)`) if room 1 is *not empty* (This *implies* **all** threads must enter room 2 for one to proceed.) and waits (`Sem_wait(m->t2);`) **or** just exit room 2 (`Sem_post(m->t2);Sem_wait(m->t2);m->room2--;`).
+    From room 2 to **room_critical**, similar to before, let another one out of room 2 (`Sem_post(m->t2)`) into room_critical if room 2 is not empty (still above **all** must enter room_critical), otherwise `Sem_post(m->t1)` to let one cycle back to room 1 for the next iteration.
+    
+    The above statement that we *wait* for *all* to *enter one point* so that we can *proceed* is how starvation is avoided.
+7. TODO
+  like variants of barbershop, cigarette_smokers and dining_savages.
 ## TODO
 - read "APUE".
 # Projects
@@ -3140,6 +3195,24 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## makefile
 - See this [template](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
+### linux
+- What is the [first](https://unix.stackexchange.com/a/352315/568529) digit in umask value
+  - See [this](https://www.scaler.com/topics/special-permissions-in-linux/)
+    - `SUID` allows user temporary privilege
+      > temporarily assume the privileges of the file's *owner*
+    - `SGID` just 
+      > temporarily assume the *group* ownership of the file
+      > inherit the group ownership of the parent directory
+    - Sticky Bit: *sticks* to the file permissions by ignoring the dir permissions
+      just opposite of `SGID` which file *inherits* the permission of the dir while here file ignores.
+      > even if they have write permissions on the directory.
+      ```bash
+          # https://superuser.com/a/1370481/1658455 notice the t in "rwt"
+      $ ls -al /tmp
+      ls: /tmp/.mount_RamboxegeuXu: Transport endpoint is not connected
+      total 540
+      drwxrwxrwt 20 root     root        720 Sep 10 10:32 .
+      ```
 ## the English grammar
 - [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
   just care about the answer is enough without caring the questions "do" or "don't".
