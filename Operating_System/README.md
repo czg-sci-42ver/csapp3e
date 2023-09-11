@@ -747,6 +747,7 @@ $ uname -r
   This solves with the specific problem before "*cyclic* large-file access"
   > but notably handles the case where a cyclic large-file access occurs by *confining the pages of that cyclic access to the inactive* list
 # Concurrency
+TODO find one specific book about Concurrency to read.
 ## Introduction
 - > the OS can promote the illusion that *many virtual CPUs exist* when in fact there is only one physical CPU (or a few). This basic technique, known as *time sharing* of the CPU
   here assumes conventionally, one physical CPU runs one process sequentially.
@@ -1888,6 +1889,14 @@ problem list:
   - TODO does linux `sem_post` [based](https://github1s.com/bminor/glibc/blob/master/nptl/sem_post.c#L56-L57) on `futex_wake` has this correspondance?
   - solution "has a fundamental *performance* problem".
 3. "Optimising Signal and Broadcast" which is the kernel scheduler's obligation.
+## Concurrency bugs
+- [C+71](https://people.cs.umass.edu/~mcorner/courses/691J/papers/TS/coffman_deadlocks/coffman_deadlocks.pdf)
+  - FIG. 1 i.e. [this](#deadlock_circular_wait)
+  - FIG. 2 same as csapp
+- "Atomicity-Violation Bugs" can be solved by mutex obviously.
+  - > but not always
+    maybe deadlock due to the outside *order* of `proc_info_lock` with other locks which has been said in csapp.
+- "Order-Violation Bugs" obviously by `pthread_cond_t`
 ## TODO
 ### introduction
 - TODO How inode is encoded.
@@ -2883,6 +2892,21 @@ error: tried to get an empty buffer
   [summary](https://stackoverflow.com/a/74716788/21294350) (same as [this](https://stackoverflow.com/a/61669391/21294350)) and source code just [cast](https://github1s.com/bminor/glibc/blob/master/nptl/sem_wait.c#L39-L40).
   > It *doesn't allocate* an object, double ptr would be needed for that.
 3. is similar to CUDA thread synchronization that *all* threads need to achieve *one point* and then one thread can proceed.
+- ~~TODO~~ *sometimes* `mmap` fails when `htop` shows only `5.1G/16G` mem usage.
+  After reboot, same parameters always work fine with `4.88G/16G`.
+  `pthread_create` -> `allocate_stack` -> [`mem = __mmap (NULL, size, (guardsize == 0) ? prot : PROT_NONE,MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);`](https://github1s.com/bminor/glibc/blob/master/nptl/allocatestack.c#L366-L367) fails
+```c
+ ►0x7ffff7c8d474<pthread_create+2276>   call   mmap64                <mmap64>
+        addr: 0x0 
+        len: 0x801000
+        prot: 0x0 
+        flags: 0x20022
+        fd: 0xffffffff
+        offset: 0x0 
+```
+  - This is due to the too many recursive calls in with `if (errno==EEXIST)` where `errno` is not cleared across recursive calls so `if (errno==EEXIST)` always `true`.
+    either by reset `errno = 0;` to default after `Sem_unlink(name)`
+    or nested in `if(sem == SEM_FAILED)`.
 5. Also see csapp 12.19,20 where not use `sleep` for starvation (so not good for reproduction) and use `read_first` and something similar to `count` to control.
 6. Here `Sem_wait(m->t1);` will make many threads stuck in room 1 if they flood in between `m->room2++;` and `Sem_wait(m->mutex);`.
   state: `m->room1=n,m->t1=-n`
@@ -3195,7 +3219,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## makefile
 - See this [template](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
-### linux
+## linux
 - What is the [first](https://unix.stackexchange.com/a/352315/568529) digit in umask value
   - See [this](https://www.scaler.com/topics/special-permissions-in-linux/)
     - `SUID` allows user temporary privilege
@@ -3213,6 +3237,13 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
       total 540
       drwxrwxrwt 20 root     root        720 Sep 10 10:32 .
       ```
+## git
+- the following [squash](https://stackoverflow.com/a/51516360/21294350) `1,2` to the implicit `0` instead of `3`.
+```c
+1 s 01mn9h78 The lastest commit
+2 s a2b6pcfr A commit before the latest
+3 pick 093479uf An old commit i made a while back
+```
 ## the English grammar
 - [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
   just care about the answer is enough without caring the questions "do" or "don't".
