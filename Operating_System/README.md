@@ -9,6 +9,8 @@
 - > Well, hopefully those using this book actually do look at this part *earlier*, all throughout the course.
   So better read the *appendix when reading* the book.
 - > always look for *O’Reilly books* on topics you are interested in; they are almost always of high quality.
+# maxim
+- > Not everything worth doing is worth doing well”, which is a terrific engineering maxim
 # Introduction
 - p30
   - turn off address-space randomization temporarily based on [this](https://gcc.gnu.org/wiki/Randomization) and [this](https://www.tecmint.com/change-modify-linux-kernel-runtime-parameters/)
@@ -1892,11 +1894,123 @@ problem list:
 ## Concurrency bugs
 - [C+71](https://people.cs.umass.edu/~mcorner/courses/691J/papers/TS/coffman_deadlocks/coffman_deadlocks.pdf)
   - FIG. 1 i.e. [this](#deadlock_circular_wait)
-  - FIG. 2 same as csapp
+  - FIG. 2 same as csapp and 
+    [ostep_book] Figure 32.6, "presence of a cycle"
+    also [above](#deadlock_circular_wait)
 - "Atomicity-Violation Bugs" can be solved by mutex obviously.
   - > but not always
     maybe deadlock due to the outside *order* of `proc_info_lock` with other locks which has been said in csapp.
 - "Order-Violation Bugs" obviously by `pthread_cond_t`
+  - here `pthread_cond_wait(&mtCond, &mtLock);` can't receive *already released* signals, so we need one `mtInit` to control the order.
+  - here `while (mtInit == 0)` can be also `if (mtInit == 0)` if no other threads will modify the `mtInit`.
+    But `while` is more general and has not very large overheads (just one simple check of `mtInit`), o it is preferred. And it is *more portable* if the future codes are changed and maybe `mtInit` can be reset somewhere after `free`.
+  - > Note that we could likely use mThread as the state variable itself
+    easier if the system init `0`, otherwise maybe difficult to tell whether one *arbitrary* address is valid.
+- > the design of locking strategies in large systems must be carefully done to avoid deadlock in the case of *circular dependencies* that may occur *naturally* in the code.
+  ~~TODO~~ maybe one more lock outside?
+  See p8 "Hold-and-wait" which avoids the race of hold, so *no wait* then.
+- Conditions for Deadlock: 1->2->3 and 4 ensures the cycle *not to be changed* by the system -> the endless waiting cycle.
+- Prevention
+1. Circular Wait
+  "partial *ordering*" just less stricter ordering which only cares one *subset*.
+  similar to math [counterpart](https://en.wikipedia.org/wiki/Partially_ordered_set)
+  > Partial orders thus generalize total orders, in which *every* pair is comparable.\
+2. Hold-and-wait
+  See above 
+3. "No Preemption" avoids wait by `pthread_mutex_trylock`
+  > doesn’t really add preemption
+  not lock (like minus one when using semaphore) and wait
+   - > it skirts around the hard parts of using a trylock approach
+    i.e. Does it mean that it doesn't show the hard part of implementation?
+     - > One point about this solution: ... The first problem
+       1. the back point may be outside of current scope if stuck in one *subroutine*.
+       2. if back point is long before, the locks and memory *between that and the current point* are difficult to know exactly.
+         this is one common problem of `goto`.
+       - > in limited circumstances (e.g., the Java vector method mentioned earlier),
+         they are in the *same small* scope, so *easy* to back and know what to release.
+  - > back out of lock ownership (i.e., preempt their own ownership)
+    it means to *preempt the whole two* locks as one whole instead of only one.
+    > for the same resources (again, locks L1 and L2),
+    So 
+    > Resources (e.g., locks) cannot be forcibly removed
+    is solved.
+4. just atomic so no need for lock.
+  - `int old = *value;` can be implemented by only one instruction in x86.
+    ```c
+    do {
+     int old = *value; // a
+     } while (CompareAndSwap(value, old, old + amount) == 0) // b
+    ```
+    Think of two `AtomicIncrement` interleaved
+    a_1 -> a_2 -> b_1 -> b_2, then b_1 success (return) and b_2 failure, the next try of thread_2 b_2 will works (return).
+  - > has a race condition
+    i.e. multiple 5 -> multiple 6, then only the last `head = n` is valid and inserts only one node.
+    > for example, about the call to malloc()
+    i.e. as the [ostep_book] has said, `MT-Safe`
+    - `CompareAndSwap(&head, n->next, n)` ensures the sequential property.
+      this is similar to something like `AtomicInsert`
+- > If more intricate repair of data structures is first required, a human being may be involved to ease the process.
+  i.e. need repair before .
+### [L+08]
+- "Figure 3" inappropriate `timeout` parameter or lack checking `MAX_THREAD`.
+- `syscall` can be thought as one callback.
+  where `func_1(func_2)` may call `syscall(func_2)`
+  See the [example](https://en.wikipedia.org/wiki/Callback_(computer_programming)#C) where "callback" is *func pointer*.
+  - So "callback function of PBReadAsync" means it is called by `PBReadAsync ( &p)` where `p` is probably some type of func pointer.
+  - "making S1 and S2 atomic." is similar to [B04] `m.Release();s.P();`.
+- > tries to acquire a resource held by itself
+  lock one lock duplicately which is already locked but not unlocked.
+- "Figure 6" just needs thread 2 to finish modification of the three variables *without interrupts* and then thread 1 can call `putc` to print.
+  > it is not wrong for thread 1 to read mContent *either before or after* thread 2’s modifi- cation to all of three variables
+- > 90% (67 out of 74) of the examined non-deadlock bugs can deterministically manifest, if certain orders among *at most four* memory accesses are enforced.
+  i.e. they only *depend on* "at most four memory accesses"
+- "Finding (9)" is due to "Finding (2)".
+- > but it may introduce other non-deadlock bugs.
+  because `lock` implies order sometimes and at least atomicity.
+- "Figure 9(a)" obviously lacks atomicity.
+  it thoughts `state = LANDING` implies `js_UnpinPinnedAtom (...)`, but it is not that case.
+  - (b) ~~seems to be still wrong.~~ add one more implicit lock (i.e. spinlock) by `while(gcLevel>0)` waiting for `gcLevel = 0` which either means `ret` then no `js_MarkAtom (...)` or `gcLevel = 0;` after `js_MarkAtom (...)` *done*.
+    So the order is ensured.
+    - "race window between S1 and S2" i.e. which one of S1/S2 continues to run after `state = LANDING`.
+- Transactional memory can be implemented by hardware or software.
+  > combining software and hardware TMs.
+- > some of the *roll-back* concerns can be addressed using system supports
+  reduce the syscall overheads like duplicately accessing the mem by combining them together then *only one* overhead.
+  The "roll-back" implies the temporal locality so the combination is very useful to be reused and then combination overhead can be amortized.
+  - failure conditions to work
+    > As operations like I/O are hard to roll back
+- > too large memory footprint to be effectively handled by hardware-TM.
+  > Here, a trans-action (with abort, *rollback* and replay)
+  maybe not enough space to rollback for *some types* of hardware TM.
+- > programmers do not want B to wait for A.
+  So the pair wait/wakeup fails to meet the feature request.
+- [stack trace](https://github.com/brendangregg/FlameGraph)
+- > mentioned that they got help from Valgrind, Purify
+  `helgrind` can help ~~now~~.
+  It exists from `72a784f3b192a4cc4d9f8a55e7cab80dbbeb1aae` which is `git-svn-id: svn://svn.valgrind.org/valgrind/trunk@2` by `helgrind/Makefile.am                  |   80 +++` in `git log --stat`.
+#### 5. Bug fix study
+- 1. `COND` similar to spinlock
+  1. `Switch` needs programmer's logic
+  2. `design` just reconstruction
+  3. `lock` has been said in the [ostep_book] and see Table 2
+  1,4 has been said in [ostep_book], 3 is implicitly said in [ostep_book] "Lock-based Concurrent Data Structures" chapter and 2 is more implicitly said in [ostep_book] "possible ordering" contexts.
+- 1. `GiveUp` has potential harm which will cause non-deadlock bugs
+  So the "Figure 32.6" can be avoided but non-deadlock bugs are probably caused then.
+  1. `Split` just shorten the mutex time and therefore less races.
+  2. `AcqOrder` similar to `Switch`
+  obviously "Figure 32.6" can be avoided without bad side effects.
+- See Table 2 for more
+- "Table 1" has been said later in different sections.
+  "Section 4" is to guide testing, concurrency bug detection, etc.
+#### summary
+- Finding (1,2) -> cause/reasons
+- Finding (3) *pairwise* threads
+  - (4) only one thread
+- (5,6,7) variable
+  although *one is common* case, but also needed to take "above one" in account.
+  and above 2 is *rare*.
+- Finding (8) accesses at most 4.
+
 ## TODO
 ### introduction
 - TODO How inode is encoded.
@@ -2049,6 +2163,8 @@ find: ‘/proc/1475/net’: Invalid argument
 - [B89, B97, B+96, K+96]
   they are all old before 2000.
 - [D+13]
+- [T+94]
+- [H01, H91, H93]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -2091,6 +2207,7 @@ find: ‘/proc/1475/net’: Invalid argument
 1. obviously same
 2. same as 1.
 3. similar to the book example.
+  [TODO meaning](https://github.com/xxyzz/ostep-hw/pull/6)
 4. with the increasing order.
 5. same length of each workload and same slice time as the workload time.
 6. longer; 
@@ -2158,6 +2275,7 @@ See [this doc](https://github.com/czg-sci-42ver/ostep-hw/blob/master/9/README.md
   samller quantum size allows interleave -> more fair.
 ## Virtualization part 2
 ### C13
+See [some problems](https://github.com/xxyzz/ostep-hw/pull/3#issuecomment-652352748)
 1. not totally match by substracting `free` column number in `free` because of some overheads.
 2. not totally match. `[heap]` size is `132` when `./memory-user.o 100 100`.
   - maybe better than "a linked list" because it can allocate one block of data instead of one when adding one node to the list.
@@ -2928,6 +3046,156 @@ error: tried to get an empty buffer
     The above statement that we *wait* for *all* to *enter one point* so that we can *proceed* is how starvation is avoided.
 7. TODO
   like variants of barbershop, cigarette_smokers and dining_savages.
+### 32
+1. although `./vector-deadlock -n 2 -l 1 -d -v` can deadlock, but maybe rare for 2 threads.
+2. See 1, still rare on my machine. `./vector-deadlock -n 2 -l 10000000 -d -v` will but `./vector-deadlock -n 2 -l 100000 -d -v` not.
+3. Yes not not clearly; 1.
+  notice here unlock order doesn't matter because it will help out of the stuck state, so any order is fine. 
+4. IMHO here `vector_0` is always different from `vector_1`.
+  maybe the `vector-global-order.c` is targeted for general cases.
+5. it needs more threads to amortize the thread overhead, also limited by physical thread num 16. 
+```bash
+$ max_threads=99;for i in $(seq ${max_threads});do total=900000;threads=$i;python -c "print(${total}%${threads})" | read skip;if [ ${skip} -eq 0 ];\
+ then echo $i threads;python -c "print(${total}/${threads})" | read loop;./vector-global-order -t -n ${threads} -l ${loop} -d;fi;done
+1 threads
+Time: 0.08 seconds
+2 threads
+Time: 0.10 seconds
+3 threads
+Time: 0.12 seconds
+4 threads
+Time: 0.22 seconds
+5 threads
+Time: 0.22 seconds
+6 threads
+Time: 0.27 seconds
+8 threads
+Time: 0.26 seconds
+9 threads
+Time: 0.31 seconds
+10 threads
+Time: 0.31 seconds
+12 threads
+Time: 0.29 seconds
+15 threads
+Time: 0.23 seconds
+16 threads
+Time: 0.16 seconds
+18 threads
+Time: 0.17 seconds
+20 threads
+Time: 0.17 seconds
+24 threads
+Time: 0.17 seconds
+25 threads
+Time: 0.17 seconds
+30 threads
+Time: 0.20 seconds
+32 threads
+Time: 0.18 seconds
+36 threads
+Time: 0.21 seconds
+40 threads
+Time: 0.20 seconds
+...
+```
+6. here not limited by physical thread num 16.
+  so the above is limited actually by contention/race instead of thread switch overheads.
+```bash
+$ max_threads=99;for i in $(seq ${max_threads});do total=9900000;threads=$i;python -c "print(${total}%${threads})" | read skip;if [ ${skip} -eq 0 ];\
+ then echo $i threads;python -c "print(${total}/${threads})" | read loop;./vector-global-order -t -n ${threads} -l ${loop} -d -p;fi;done
+1 threads
+Time: 0.50 seconds
+2 threads
+Time: 0.52 seconds
+3 threads
+Time: 0.44 seconds
+4 threads
+Time: 0.34 seconds
+5 threads
+Time: 0.32 seconds
+6 threads
+Time: 0.24 seconds
+8 threads
+Time: 0.20 seconds
+9 threads
+Time: 0.17 seconds
+10 threads
+Time: 0.19 seconds
+11 threads
+Time: 0.17 seconds
+12 threads
+Time: 0.17 seconds
+15 threads
+Time: 0.13 seconds
+16 threads
+Time: 0.13 seconds
+18 threads
+Time: 0.11 seconds
+20 threads
+Time: 0.11 seconds
+22 threads
+Time: 0.09 seconds
+24 threads
+Time: 0.10 seconds
+25 threads
+Time: 0.09 seconds
+30 threads
+Time: 0.08 seconds
+32 threads
+Time: 0.08 seconds
+33 threads
+Time: 0.08 seconds
+36 threads
+Time: 0.08 seconds
+40 threads
+Time: 0.08 seconds
+44 threads
+Time: 0.08 seconds
+45 threads
+Time: 0.08 seconds
+48 threads
+Time: 0.07 seconds
+# the rest same as 48
+```
+7. maybe the 1st `pthread_mutex_trylock` is to avoid too heavy contention so that livelock.
+  TODO why the professor adds "the first call to pthread mutex trylock()".
+  really slow because the always *useless loops*. increase most of time.
+8. always contends for shared pointer `&global`.
+  TODO [ostep_hw] seems to be wrong.
+  slightly slower than `vector-global-order` but really faster than `vector-try-wait`.
+9. 
+10. ~~obviously better.~~ `./vector-try-wait` < `./vector-nolock` < `./vector-avoid-hold-and-wait` < `./vector-global-order`.
+```bash
+$ max_threads=99;for i in $(seq ${max_threads});do total=100000;threads=$i;python -c "print(${total}%${threads})" | read skip;if [ ${skip} -eq 0 ];\          
+ then echo $i threads;python -c "print(${total}/${threads})" | read loop;./vector-nolock -t -n ${threads} -l ${loop} -d ;fi;done
+1 threads
+Time: 0.07 seconds
+2 threads
+Time: 0.09 seconds
+4 threads
+Time: 0.33 seconds
+5 threads
+Time: 0.17 seconds
+8 threads
+Time: 0.18 seconds
+10 threads
+Time: 0.20 seconds
+16 threads
+Time: 0.15 seconds
+20 threads
+Time: 0.15 seconds
+25 threads
+Time: 0.13 seconds
+32 threads
+Time: 0.14 seconds
+40 threads
+Time: 0.13 seconds
+50 threads
+Time: 0.14 seconds
+80 threads
+Time: 0.13 seconds
+```
 ## TODO
 - read "APUE".
 # Projects
