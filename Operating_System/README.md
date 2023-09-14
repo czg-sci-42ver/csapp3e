@@ -2243,6 +2243,7 @@ find: ‘/proc/1475/net’: Invalid argument
 - [T+94]
 - [H01, H91, H93]
 - [PDZ99, WCB01]
+  - [PDZ99] See highlights for how IPC is used for switching between threads and the event loop.
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -3280,11 +3281,25 @@ Time: 0.13 seconds
 - [`__INLINE_SYSCALL_NARGS_X`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysdep.h#L99-L100) excludes the 1st arg from the count range for something like `SYSCALL_CANCEL (pselect6_time64, nfds, readfds, writefds, exceptfds,pts64, NULL);`.
   so SYSCALL_CANCEL(pselect6_time64) -> `__INLINE_SYSCALL0`
   See how this is [implemented](https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments) in "COUNT_ARGUMENTS".
-- [`SYSCALL_CANCEL`](https://sourceware.org/glibc/wiki/SyscallWrappers) is to respond to something like the cancellation [signal](https://stackoverflow.com/questions/5684265/implementing-cancellable-syscalls-in-userspace#comment6497273_5686698)
+- [`SYSCALL_CANCEL`](https://sourceware.org/glibc/wiki/SyscallWrappers) is to respond to something like the cancellation [*signal*](https://stackoverflow.com/questions/5684265/implementing-cancellable-syscalls-in-userspace#comment6497273_5686698)
+  This also implies `EINTR`
   - Also see improvement to [share](https://patchwork.ozlabs.org/project/glibc/patch/1492200452-4653-1-git-send-email-ynorov@caviumnetworks.com/#1634769) the `INLINE_SYSCALL_CALL (__VA_ARGS__)`.
   - TODO [AS-safe](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L28-L29)
   - Also see [`man pthread_cancel`](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L24-L25)
 - From `aio_gist/aio_read-test_mod.c`, `lseek/fseek` is a must to use *consecutive* calls of `read,write` with the same `fd/FILE*`.
+  So after [`read`](https://unix.stackexchange.com/a/208900/568529) in `server_select.c`, offset is at EOF.
+#### network basics 
+TODO Reread after learning the network.
+- [`SO_REUSEADDR`](https://stackoverflow.com/a/14388707/21294350) mainly differentiates between `0.0.0.0` and other specific addresses.
+  TODO [1](https://stackoverflow.com/a/3233022/21294350)
+  - `SO_REUSEPORT` is mainly to reuse the *totally same* address and port.
+- [`setsockopt`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysv/linux/setsockopt.c#L95-L96)
+  option is implemented in [syscall which means whether enable](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/net/core/sock.c#L1131-L1132) by [search](https://github.com/search?q=repo%3Atorvalds%2Flinux+%2FSYSCALL_DEFINE.*setsockopt%2F&type=code).
+  - find [syscall definition](https://stackoverflow.com/a/45205822/21294350) [also](https://github.com/0xAX/linux-insides/blob/master/SysCall/linux-syscall-1.md)
+- `listen` [vs](https://stackoverflow.com/a/34073929/21294350) `accept`
+##### TODO
+- from `man 7 socket`
+  > it is *not possible* to bind to this port for any local address
 ## TODO
 - read "APUE".
 # Projects
@@ -3601,6 +3616,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 2 s a2b6pcfr A commit before the latest
 3 pick 093479uf An old commit i made a while back
 ```
+### github
+- [regex search](https://stackoverflow.com/questions/17595962/github-search-using-regex#comment135841165_72518518)
 ## the English grammar
 - [grammar](https://english.stackexchange.com/a/432025) to answer "We don't want that, do we?" in chapter 12.
   just care about the answer is enough without caring the questions "do" or "don't".
@@ -3653,6 +3670,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [D08]:./Ostep_papers/LittleBookOfSemaphores.pdf
 [B04]:./Ostep_papers/ImplementingCVs.pdf
 [L+08]:./Ostep_papers/asplos122-lu.pdf
+[A+02]:./Ostep_papers/adyahowell.pdf
+[PDZ99]:./Ostep_papers/Flash_web.pdf
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
