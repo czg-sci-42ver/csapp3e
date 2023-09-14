@@ -2010,7 +2010,84 @@ problem list:
   although *one is common* case, but also needed to take "above one" in account.
   and above 2 is *rare*.
 - Finding (8) accesses at most 4.
-
+## Event-based Concurrency
+- `man pselect`
+  - > shall modify the objects pointed to by the readfds, writefds, and errorfds arguments
+    i.e. the book
+    > select() replaces the given descriptor sets with subsets
+  - > File descriptor *masks* of type fd_set can be initialized and tested with FD_CLR(), FD_ISSET(), FD_SET(), and FD_ZERO()
+    > shall return the total number of bits set in the bit *masks*
+    i.e. 
+    > returns the total number of ready descriptors in all the sets
+- po `poll` See [daniel](https://daniel.haxx.se/docs/poll-vs-select.html)
+  advantages:
+  1. has more expansibility by "event flag".
+    i.e. in daniel
+     > offers somewhat more flavors of events to wait for
+  disadvantages:
+  1. all fds has no differences. They are represented by `(struct pollfd) foo.fd`.
+  - TODO 
+    > select() only uses (at maximum) *three* bits of data per file descriptor, while poll() typically uses 64 bits per file descriptor. In each syscall invoke poll() thus needs to copy a lot more over to kernel space.
+  - more [detailed](https://stackoverflow.com/a/3951845/21294350)
+    `select`
+    1. > then the *bitmask* passed to select() has to be large enough to accomodate that *highest* descriptor
+      ~~TODO~~ ~~because~~ meaning. 
+      - based on [this `i < fds.size()`](https://hechao.li/2022/01/04/select-vs-poll-vs-epoll/) (although it not sticks to the [API](https://www.tutorialspoint.com/unix_system_calls/_newselect.htm)) and `man poll` -> `i<2` they all traverse the `fds`.
+        But the bitmask implies if two fds where one small and one *very big*, the bitmask length is very big although we *only needs two bits* at all.
+      - i.e. 
+        > The select() API with a "max fds" as first argument of course *forces a scan* over the bitmasks to find the exact file descriptors to check for, which the poll() API avoids
+        poll just only one scan.
+      - [scotdoyle](http://scotdoyle.com/python-epoll-howto.html)
+        - i.e. 
+          > because the Python program does *not have to inspect each* socket for events of interest
+    2. > has to loop over all three bitmasks
+      similar to 1
+    3. > they are *ruined* and are no longer marked
+      `poll` just always check all `nfds` number of `fds`.
+      i.e. `poll`
+      > keep re-using the same data structure.
+    - `epoll`
+      - from [this](https://suchprogramming.com/epoll-in-3-easy-steps/), basic usage is similar to `poll`
+        where `events` corresponds to `pollfd.events`
+        - `epoll_ctl`
+          "file description" see `man 2 open` -> "the file offset and the file status flags"
+      - [`O(1)`](https://www.hackingnote.com/en/versus/select-vs-poll-vs-epoll/) complexity due to [devarea "epoll_wait returns only the objects with ready file descriptors"](https://devarea.com/linux-io-multiplexing-select-vs-poll-vs-epoll/)
+        - devarea
+          - ["level triggered or edge triggered"](https://en.wikipedia.org/wiki/Epoll#Triggering_modes)
+          - maybe also avoids frequent context switches by "manage the context in the *kernel*"
+- > these basic primitives give us a way to build a non-blocking event loop
+  - `select`
+    this is by `struct timeval       timeout;` instead of by [`fcntl(fd, F_SETFL, flags | O_NONBLOCK);`](https://cboard.cprogramming.com/linux-programming/109694-select-o_nonblock.html#post811382). See "select_poll/O_NONBLOCK_select*"
+    So [this](https://stackoverflow.com/questions/28851639/select-with-non-blocking-reads#comment69602213_28851750) is wrong.
+  - TODO by the `man poll`, it doesn't care about `fd` properties which includes `O_NONBLOCK`.
+  - `ioctl` more [detailed](https://www.daemon-systems.org/man/ioctl.2.html) than linux `man`
+- `select(maxFD+1, &readFDs, NULL, NULL, NULL);` may be enough to use `select(maxFD, &readFDs, NULL, NULL, NULL);` because of `fd < maxFD`. See `O_NONBLOCK_select.c`
+- > open and set up a bunch of sockets (not shown)
+  See csapp 982 or `O_NONBLOCK_select_ibm.c`
+  where the latter uses `ioctl` and `sockaddr_in6` instead of `struct addrinfo` use by the former.
+- "out-of-band data"
+  [1](https://en.wikipedia.org/wiki/Out-of-band_data#Implementations)
+  > routes the data to the *normal* reception endpoint if it is in-band, and to a *separate* mechanism if it is out-of-band
+  [2](https://www.gnu.org/software/libc/manual/html_node/Out_002dof_002dBand-Data.html)
+  > Typically the reason for sending out-of-band data is to send *notice* of an exceptional condition
+- 33.8
+  1. shows "event-based approach" *only applies to one-core*.
+    > on modern multicore systems, simple event handling without locks is no longer possible
+    So probably we can **ignore its usage** if wanting to use **multiple cores**.
+  2. 33.6 may fails with the event handler self "an event-handler page faults".
+    because no other valid works to do like thread switches.
+    po This is mainly due to 1 that thread switch is not available.
+  3. See "rip is to ..."
+- humanable SIGSEGV handler [example](https://stackoverflow.com/q/2663456/21294350)
+- TODO
+  - [nodejs](https://www.freecodecamp.org/news/understanding-node-js-event-driven-architecture-223292fcbc2d/) "EVENT-BASED" CONCURRENCY
+    maybe probably due to that its process has internal high dependency, so it can't proceed until I/O finishes (or partly finishes).
+### [A+02]
+- ["tail call optimization"](https://stackoverflow.com/a/9814654/21294350)
+  the main problem with `n * acc` is that it is not easy to be unfolded.
+  but `fac_tailrec(n * acc, n - 1)` is easy when directly *nested in itself*.
+  so no stack overheads.
+- here rip is to split functions to ensure nonblocking property of the event handler.
 ## TODO
 ### introduction
 - TODO How inode is encoded.
@@ -2165,6 +2242,7 @@ find: ‘/proc/1475/net’: Invalid argument
 - [D+13]
 - [T+94]
 - [H01, H91, H93]
+- [PDZ99, WCB01]
 ## after learning the algorithms
 - [Decay_Usage]
   - "Mach effect"
@@ -2208,9 +2286,9 @@ find: ‘/proc/1475/net’: Invalid argument
 2. same as 1.
 3. similar to the book example.
   [TODO meaning](https://github.com/xxyzz/ostep-hw/pull/6)
-4. with the increasing order.
-5. same length of each workload and same slice time as the workload time.
-6. longer; 
+1. with the increasing order.
+2. same length of each workload and same slice time as the workload time.
+3. longer; 
   This implies "job length" means the time length.
 1. longer; the longest time slice as the longest one length of the workloads.
   See [this](https://github.com/czg-sci-42ver/ostep-hw/blob/master/7/README.md) for correct answer of 7 where `(n - 1) * jt`.
@@ -3046,7 +3124,7 @@ error: tried to get an empty buffer
     The above statement that we *wait* for *all* to *enter one point* so that we can *proceed* is how starvation is avoided.
 7. TODO
   like variants of barbershop, cigarette_smokers and dining_savages.
-### 32
+### C32
 1. although `./vector-deadlock -n 2 -l 1 -d -v` can deadlock, but maybe rare for 2 threads.
 2. See 1, still rare on my machine. `./vector-deadlock -n 2 -l 10000000 -d -v` will but `./vector-deadlock -n 2 -l 100000 -d -v` not.
 3. Yes not not clearly; 1.
@@ -3196,6 +3274,17 @@ Time: 0.14 seconds
 80 threads
 Time: 0.13 seconds
 ```
+### C33
+6. maybe time?
+#### miscs
+- [`__INLINE_SYSCALL_NARGS_X`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysdep.h#L99-L100) excludes the 1st arg from the count range for something like `SYSCALL_CANCEL (pselect6_time64, nfds, readfds, writefds, exceptfds,pts64, NULL);`.
+  so SYSCALL_CANCEL(pselect6_time64) -> `__INLINE_SYSCALL0`
+  See how this is [implemented](https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments) in "COUNT_ARGUMENTS".
+- [`SYSCALL_CANCEL`](https://sourceware.org/glibc/wiki/SyscallWrappers) is to respond to something like the cancellation [signal](https://stackoverflow.com/questions/5684265/implementing-cancellable-syscalls-in-userspace#comment6497273_5686698)
+  - Also see improvement to [share](https://patchwork.ozlabs.org/project/glibc/patch/1492200452-4653-1-git-send-email-ynorov@caviumnetworks.com/#1634769) the `INLINE_SYSCALL_CALL (__VA_ARGS__)`.
+  - TODO [AS-safe](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L28-L29)
+  - Also see [`man pthread_cancel`](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L24-L25)
+- From `aio_gist/aio_read-test_mod.c`, `lseek/fseek` is a must to use *consecutive* calls of `read,write` with the same `fd/FILE*`.
 ## TODO
 - read "APUE".
 # Projects
@@ -3563,6 +3652,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [D68]:https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.%20The%20General%20Semaphore.
 [D08]:./Ostep_papers/LittleBookOfSemaphores.pdf
 [B04]:./Ostep_papers/ImplementingCVs.pdf
+[L+08]:./Ostep_papers/asplos122-lu.pdf
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
