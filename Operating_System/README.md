@@ -1322,9 +1322,18 @@ this chapter only shows how to use `Pthread_cond_wait(&c, &m);` which is importa
   i.e. `done = 1;` -> `if (done == 0)` block is skipped and then "parent thread finishes" but `Pthread_cond_signal(&c);` doesn't run.
   - the book offers one example where `wait->wake` order is violated same as "Figure 30.4".
 - Notice project "processes-shell" doesn't have have pipe function.
-  - although in the [ostep_hw] it uses pipe with `fork` in section 1.
-    where `read(first_pipefd[0], NULL, 0);` implies wait which function as .
-    See [table 2](https://www.linuxtoday.com/blog/blocking-and-non-blocking-i-0/#:~:text=By%20default%2C%20read()%20waits,if%20no%20bytes%20are%20available.) which shows `read` relation with `fd` (whether open and `O_NONBLOCK` which can be controlled by `fcntl`).
+  - although in the [ostep_hw] it uses pipe with `fork` in section 1
+    where `read(first_pipefd[0], NULL, 0);` implies wait which causes the context switches then implied by OS.
+    See [table 2](https://www.linuxtoday.com/blog/blocking-and-non-blocking-i-0/#:~:text=By%20default%2C%20read()%20waits,if%20no%20bytes%20are%20available.) which shows `read` relation with `fd` flags (whether `O_NONBLOCK` which can be controlled by `fcntl` is enabled). <a id="O_NONBLOCK"></a>
+    - `O_NONBLOCK` influences
+      1. "Reading from Empty Pipes"
+        - TODO
+          > and is not present if the file is blocking.
+      2. > but the semantics of opening device files can also change when O_NONBLOCK is specified
+        i.e. `man 2 open`
+        > that is, I/O operations will (*briefly*) block when device activity is  required ... Since O_NONBLOCK semantics might eventually be implemented
+      3. > If O_NONBLOCK is specified when opening a named pipe for writing, the open() will return *immediately*
+    - [mode](https://www.gnu.org/software/libc/manual/html_node/Opening-and-Closing-Files.html)
 - "in-kernel bounded buffer" can be implemented by `pipe`
 - why "Figure 30.6" use `assert` to directly exit when failure?
   because
@@ -2057,12 +2066,18 @@ problem list:
           - maybe also avoids frequent context switches by "manage the context in the *kernel*"
 - > these basic primitives give us a way to build a non-blocking event loop
   - `select`
-    this is by `struct timeval       timeout;` instead of by [`fcntl(fd, F_SETFL, flags | O_NONBLOCK);`](https://cboard.cprogramming.com/linux-programming/109694-select-o_nonblock.html#post811382). See "select_poll/O_NONBLOCK_select*"
+    nonblock is done by setting `struct timeval       timeout;` to not `-1` instead of by [`fcntl(fd, F_SETFL, flags | O_NONBLOCK);`](https://cboard.cprogramming.com/linux-programming/109694-select-o_nonblock.html#post811382). See "select_poll/O_NONBLOCK_select*" ?
     So [this](https://stackoverflow.com/questions/28851639/select-with-non-blocking-reads#comment69602213_28851750) is wrong.
-  - TODO by the `man poll`, it doesn't care about `fd` properties which includes `O_NONBLOCK`.
+  - ~~TODO~~ by the `man poll`, it doesn't care about `fd` properties which includes `O_NONBLOCK`.
+  - the above `poll/select` relations with `O_NONBLOCK`
+    See `man 2 open`
+    > *Neither* the open() nor any *subsequent* I/O operations on the file descriptor which is returned  will  cause the calling process to *wait*
+    > Note  that  the  setting of this flag has *no effect* on the operation of poll(2), select(2), epoll(7), and similar ... meaning that an I/O operation performed on the file descriptor with the O_NONBLOCK flag *clear* would *not block*.
+    i.e. file can be safely operated with I/O *without delays*. <a id="poll_wait_O_NONBLOCK"></a>
   - `ioctl` more [detailed](https://www.daemon-systems.org/man/ioctl.2.html) than linux `man`
-- `select(maxFD+1, &readFDs, NULL, NULL, NULL);` may be enough to use `select(maxFD, &readFDs, NULL, NULL, NULL);` because of `fd < maxFD`. See `O_NONBLOCK_select.c`
-- > open and set up a bunch of sockets (not shown)
+- `select(maxFD+1, &readFDs, NULL, NULL, NULL);` may be enough to use `select(maxFD, &readFDs, NULL, NULL, NULL);` because of `fd < maxFD`. See `O_NONBLOCK_select.c` ?
+- the [ostep_book]
+  > open and set up a bunch of sockets (not shown)
   See csapp 982 or `O_NONBLOCK_select_ibm.c`
   where the latter uses `ioctl` and `sockaddr_in6` instead of `struct addrinfo` use by the former.
 - "out-of-band data"
@@ -2082,6 +2097,15 @@ problem list:
 - TODO
   - [nodejs](https://www.freecodecamp.org/news/understanding-node-js-event-driven-architecture-223292fcbc2d/) "EVENT-BASED" CONCURRENCY
     maybe probably due to that its process has internal high dependency, so it can't proceed until I/O finishes (or partly finishes).
+### [O96]
+- why TCL [no use](https://news.ycombinator.com/item?id=14945434)
+  TK used to implement [GUI](https://www.tutorialspoint.com/tcl-tk/index.htm#:~:text=Tcl%20is%20a%20general%20purpose,building%20GUI%20in%20many%20languages.) in [`python`](https://realpython.com/python-gui-tkinter/)
+- > Kernel calls, window systems not multi-threaded.
+  This depends on the OS [choices](https://stackoverflow.com/questions/1652799/multiple-ui-threads-on-the-same-window#comment1549737_1670193)
+- > Often don't want concurrency anyway (e.g. window events)
+  See acolyer [blog](https://blog.acolyer.org/2014/12/09/why-threads-are-a-bad-idea/#:~:text=They%20are%20%E2%80%9Ctoo%20hard%20for,end%20up%20with%20corrupted%20data.)
+  > susceptible to deadlock, partially because of the *unfortunate interaction* between *input* event processing and any sensible *object-oriented* modeling of the GUI components
+  - TODO Distributed systems related
 ### [A+02]
 - ["tail call optimization"](https://stackoverflow.com/a/9814654/21294350)
   the main problem with `n * acc` is that it is not easy to be unfolded.
@@ -2283,6 +2307,7 @@ find: ‘/proc/1475/net’: Invalid argument
   Also [see](https://stackoverflow.com/a/37558902/21294350)
 1. is included in 3.
 ### C7 (C6 only has codes without the simulation homework)
+this [issues](https://github.com/xxyzz/ostep-hw/issues/19#issuecomment-1636791448): IMHO just comparison based on the same benchmark is enough, similar to `perf` benchmark when reading the COD.
 1. obviously same
 2. same as 1.
 3. similar to the book example.
@@ -3277,17 +3302,82 @@ Time: 0.13 seconds
 ```
 ### C33
 6. maybe time?
+#### debug
+- [`Can't open file anon_inode:[io_uring] which was expanded to anon_inode:[io_uring] during file-backed mapping note processing`](https://stackoverflow.com/a/73814664/21294350)
+  i.e. can't reconstruct the file map.
+- `pgrep -f "server_.*"` notice the [quote](https://gist.github.com/BigOokie/fea128a063e6e4e870cb4a246967a419) in `zsh` because `zsh` will expand `.*` when feeding them to `pgrep`.
+- why always has server threads left.
+```bash
+$ filename=test2.txt;num_reqs=10;trials=100;for j in $(seq ${trials});do for i in $(seq ${trials}); do\
+ touch /tmp/server_out /tmp/server_err
+ ./server_epoll.out ${num_reqs} 1>/tmp/server_out 2>/tmp/server_err &
+ server_pid=$(jobs -p | awk '{print $3}')
+ ./client.out ${filename} ${num_reqs} 1>/dev/null
+ cat /tmp/server_out
+done | grep -E "[0-9]+" | wc -l;done
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+# but sometimes less than 100
+$ pgrep -f "server_.*" | wc -l
+24
+# if while the above two-level loop runs, we run another loop
+$ filename=test2.txt;num_reqs=10;trials=100;for i in $(seq ${trials}); do\
+ touch /tmp/server_out /tmp/server_err
+ ./server_io_uring.out ${num_reqs} 1>/tmp/server_out 2>/tmp/server_err &
+ ./client.out ${filename} ${num_reqs} 1>/dev/null
+ cat /tmp/server_out
+done
+...
+recv: Connection reset by peer # also shown in the two-level loop
+```
+  above "less" maybe due to `SO_REUSEPORT` so that multiple sockets can use the same server, this also avoids the problem "*bind*: Address already in use" which is "TIME_WAIT" ([this](https://serverfault.com/a/23529/1032032) no use) when [`netstat -tulpna | grep 8080`](https://stackoverflow.com/a/24824688/21294350). Also see [this](https://stackoverflow.com/questions/10070567/how-many-ways-to-reduce-the-number-of-time-wait-as-soon-as-possible-in-client#comment12894104_10070770)
+  - the above "bind" problem not solved by [this](https://superuser.com/a/668155/1658455)
 #### miscs
 - [`__INLINE_SYSCALL_NARGS_X`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysdep.h#L99-L100) excludes the 1st arg from the count range for something like `SYSCALL_CANCEL (pselect6_time64, nfds, readfds, writefds, exceptfds,pts64, NULL);`.
   so SYSCALL_CANCEL(pselect6_time64) -> `__INLINE_SYSCALL0`
   See how this is [implemented](https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments) in "COUNT_ARGUMENTS".
 - [`SYSCALL_CANCEL`](https://sourceware.org/glibc/wiki/SyscallWrappers) is to respond to something like the cancellation [*signal*](https://stackoverflow.com/questions/5684265/implementing-cancellable-syscalls-in-userspace#comment6497273_5686698)
   This also implies `EINTR`
+  The blocking property implies synchronous.
   - Also see improvement to [share](https://patchwork.ozlabs.org/project/glibc/patch/1492200452-4653-1-git-send-email-ynorov@caviumnetworks.com/#1634769) the `INLINE_SYSCALL_CALL (__VA_ARGS__)`.
   - TODO [AS-safe](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L28-L29)
   - Also see [`man pthread_cancel`](https://github1s.com/bminor/glibc/blob/master/nptl/cancellation.c#L24-L25)
 - From `aio_gist/aio_read-test_mod.c`, `lseek/fseek` is a must to use *consecutive* calls of `read,write` with the same `fd/FILE*`.
   So after [`read`](https://unix.stackexchange.com/a/208900/568529) in `server_select.c`, offset is at EOF.
+##### bash
+- [`&-`](https://stackoverflow.com/a/68721033/21294350)
+#### [libevent](https://libevent.org/) vs event
+- > libevent is meant to replace the event loop found in event driven network servers. An application just needs to call event_dispatch() and then *add* or remove events *dynamically* *without having to change the event loop*.
+  it also allows [other threads](https://stackoverflow.com/a/12394499/21294350) to modify the loop.
+- vs [libev](https://github.com/envoyproxy/envoy/issues/4952#issue-376972421)
+- TODO by [this](#poll_wait_O_NONBLOCK), libevent calling `epoll` should block always.
+#### io_uring
+[io_uring]
+##### diff with aio
+- [offload](https://blog.cloudflare.com/io_submit-the-epoll-alternative-youve-never-heard-about/) similar to background.
+1. system calls related with [meltdown](https://en.wikipedia.org/wiki/Meltdown_(security_vulnerability)#Overview).
+  > This occurs between memory access and *privilege checking* during instruction processing
+  So
+  >  allows a process to *bypass the normal privilege checks*
+  - So `man io_uring_setup`
+    > the application can submit and reap I/Os *without doing a single system call*
+#### epoll
+- `O_CLOEXEC` is to avoid file accessed by unintended processes.
+  Also avoids race condition by `man 2 open`.
+  > attempts to set its close‐on‐exec flag using fcntl(2) at the same time as another thread does a fork(2) plus execve(2)
+  here `fork` implies "file leak".
+- `recv` [vs](https://stackoverflow.com/a/1790778/21294350) `read`
+  [also](https://stackoverflow.com/questions/1790750/what-is-the-difference-between-read-and-recv-and-between-send-and-write#comment71511794_1790778)
+- TODO
+  1. `NOT_PENDING_ZERO_DATAGRAM` and `READ_TO_BUFFER_BUT_SEND_ZERO_CONTENT_BUFFER`
 #### network basics 
 TODO Reread after learning the network.
 - [`SO_REUSEADDR`](https://stackoverflow.com/a/14388707/21294350) mainly differentiates between `0.0.0.0` and other specific addresses.
@@ -3297,9 +3387,13 @@ TODO Reread after learning the network.
   option is implemented in [syscall which means whether enable](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/net/core/sock.c#L1131-L1132) by [search](https://github.com/search?q=repo%3Atorvalds%2Flinux+%2FSYSCALL_DEFINE.*setsockopt%2F&type=code).
   - find [syscall definition](https://stackoverflow.com/a/45205822/21294350) [also](https://github.com/0xAX/linux-insides/blob/master/SysCall/linux-syscall-1.md)
 - `listen` [vs](https://stackoverflow.com/a/34073929/21294350) `accept`
+- use [io_uring](https://developers.redhat.com/articles/2023/04/12/why-you-should-use-iouring-network-io)
+- always weird `` 
+    maybe due to [this](https://serverfault.com/a/23529/1032032) related with this
 ##### TODO
 - from `man 7 socket`
   > it is *not possible* to bind to this port for any local address
+- same as csapp, `recv: Connection reset by peer`
 ## TODO
 - read "APUE".
 # Projects
