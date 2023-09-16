@@ -3340,6 +3340,8 @@ recv: Connection reset by peer # also shown in the two-level loop
 ```
   above "less" maybe due to `SO_REUSEPORT` so that multiple sockets can use the same server, this also avoids the problem "*bind*: Address already in use" which is "TIME_WAIT" ([this](https://serverfault.com/a/23529/1032032) no use) when [`netstat -tulpna | grep 8080`](https://stackoverflow.com/a/24824688/21294350). Also see [this](https://stackoverflow.com/questions/10070567/how-many-ways-to-reduce-the-number-of-time-wait-as-soon-as-possible-in-client#comment12894104_10070770)
   - the above "bind" problem not solved by [this](https://superuser.com/a/668155/1658455)
+  - TODO but from [this](https://www.baeldung.com/linux/close-socket-time_wait), `SO_REUSEADDR` should solve with the problem.
+    maybe due to [socket is actively listening](https://serverfault.com/a/329847/1032032).
 - similar to [Benchmark_IA_64], the overhead needs to be substracted when using `./bench.sh` but it's enough for comparison.
 ```bash
 $ ./bench.sh test2.txt 10 10 0
@@ -3653,6 +3655,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 # TODO after reading the compiler book
 - C6 1.c `preempt`, etc.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
+# TODO after reading the network book
+- C33 homework TODO.
 # TODO
 - read the Multi-CPU Scheduling after "Concurrency".
 - use `valgrind` with chapter 14,22 homework.
