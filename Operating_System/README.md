@@ -3342,6 +3342,9 @@ recv: Connection reset by peer # also shown in the two-level loop
   - the above "bind" problem not solved by [this](https://superuser.com/a/668155/1658455)
   - TODO but from [this](https://www.baeldung.com/linux/close-socket-time_wait), `SO_REUSEADDR` should solve with the problem.
     maybe due to [socket is actively listening](https://serverfault.com/a/329847/1032032).
+  - [no pid](https://unix.stackexchange.com/a/106562/568529) scheduled for "TIME_WAIT"
+    so [config](https://www.unix.com/302433223-post2.html) parameter
+    [TODO](https://serverfault.com/a/839399/1032032)
 - similar to [Benchmark_IA_64], the overhead needs to be substracted when using `./bench.sh` but it's enough for comparison.
 ```bash
 $ ./bench.sh test2.txt 10 10 0
@@ -3689,6 +3692,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 ```
 # miscs
 - [LinuxForums.org](https://en.wikipedia.org/wiki/LinuxForums.org) has been shutdown which is [shown here](https://stackoverflow.com/questions/851958/where-do-malloc-and-free-store-allocated-sizes-and-addresses#comment660519_851958).
+## QA community
+- try [codidact](https://unix.stackexchange.com/users/388654/quas%c3%admodo)
 ## C/C++
 - `static` is [different](https://stackoverflow.com/a/65965050/21294350) from implicit global wrt *link*.
   > only be visible in its translation unit i.e. in file1.c
@@ -3696,12 +3701,19 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
   - But both
     > The lifetime of a static variable is the *entire run of the program*. You can access the static variable outside of it's scope/translation unit if you have the *address* of that static variable.
     So it is fine to use `static` with reference (i.e. address of the variable) across source code files (i.e. translation unit)
+- `asm volatile` ensures [unnecessary writes](https://stackoverflow.com/a/38741832/21294350) always to occur which is just [what gcc says](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Volatile-1).
+  Also
+  > *aren't reordered* against each other.
+  - [this](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=72795#c1)
+    global `int` maybe has external "observers", so not discard
+    while with `static`, the compiler can know whether it is used in this file and decide whether to discard.
 ## awk
 - use single-quotes instead of double by `man`.
   > The awk program specified in the command line is most easily specified within single-quotes
   - escape single-quotes [needs](https://stackoverflow.com/questions/9899001/how-to-escape-a-single-quote-inside-awk#comment12630340_9899594)
     > The ' character *closes* the opening ' shell string literal.
 - use [pipe command](https://stackoverflow.com/a/15337502/21294350)
+- access [row number](https://unix.stackexchange.com/a/89641/568529)
 ## vim
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## makefile
@@ -3787,6 +3799,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [L+08]:./Ostep_papers/asplos122-lu.pdf
 [A+02]:./Ostep_papers/adyahowell.pdf
 [PDZ99]:./Ostep_papers/Flash_web.pdf
+[O96]:./Ostep_papers/ousterhout-threads.pdf
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 
