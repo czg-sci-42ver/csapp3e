@@ -3340,6 +3340,23 @@ recv: Connection reset by peer # also shown in the two-level loop
 ```
   above "less" maybe due to `SO_REUSEPORT` so that multiple sockets can use the same server, this also avoids the problem "*bind*: Address already in use" which is "TIME_WAIT" ([this](https://serverfault.com/a/23529/1032032) no use) when [`netstat -tulpna | grep 8080`](https://stackoverflow.com/a/24824688/21294350). Also see [this](https://stackoverflow.com/questions/10070567/how-many-ways-to-reduce-the-number-of-time-wait-as-soon-as-possible-in-client#comment12894104_10070770)
   - the above "bind" problem not solved by [this](https://superuser.com/a/668155/1658455)
+- similar to [Benchmark_IA_64], the overhead needs to be substracted when using `./bench.sh` but it's enough for comparison.
+```bash
+$ ./bench.sh test2.txt 10 10 0
+file io_uring
+6
+io_uring average_time: 779179.44ns/request
+file epoll
+6
+epoll average_time: 664083.0ns/request
+file libevent
+6
+libevent average_time: 598955.25ns/request
+$ python ./bench.py test2.txt 10 10
+io_uring: 146140.99 nanoseconds/request
+epoll: 155767.91 nanoseconds/request
+libevent: 152840.86 nanoseconds/request 
+```
 #### miscs
 - [`__INLINE_SYSCALL_NARGS_X`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysdep.h#L99-L100) excludes the 1st arg from the count range for something like `SYSCALL_CANCEL (pselect6_time64, nfds, readfds, writefds, exceptfds,pts64, NULL);`.
   so SYSCALL_CANCEL(pselect6_time64) -> `__INLINE_SYSCALL0`
