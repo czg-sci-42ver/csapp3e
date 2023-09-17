@@ -3639,6 +3639,30 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   - [POSIX.1‐2017](https://pubs.opengroup.org/onlinepubs/9699919799.2018edition/)
 - lottery
   - 9
+## pzip
+- > what happens if one thread runs more slowly than another? Does the compression give more work to faster threads?
+  IMHO, see pzip.c "consecutive".
+- TODO
+  - > Thus, making the core compression loop as *CPU efficient* as possible is needed for high performance.
+    So the code just write in the compression loop instead of calculation.
+### align
+[wiki](https://en.wikipedia.org/wiki/Data_structure_alignment#Typical_alignment_of_C_structs_on_x86)
+- > This may not be true for unaligned accesses to *multiple* memory words, e.g. the first word might be read by one device, both words written by another device and then the second word read by the first device so that the value read is *neither the original value nor the updated value*
+  i.e. the value can't be loaded or written as one whole.
+- TODO
+  > This limitation is not present when compiling for x86.
+[catb](http://www.catb.org/esr/structure-packing/) I only read 3,4
+- > Storage for the basic C datatypes on a *vanilla ISA doesn’t normally start at arbitrary* byte addresses in memory. Rather, each type except char has an alignment requirement; chars can start on any byte address, but 2-byte shorts must start on an even address, 4-byte ints or floats *must* start on an address divisible by 4
+  - > Self-alignment makes access faster because it facilitates generating *single*-instruction fetches and puts of the typed data
+    > It is good to know in any application where you really, really care about optimizing your use of memory bandwidth and minimizing cache-line misses.
+    these are also said in csapp.
+- TODO
+  - > Historically, some processors (especially those lacking barrel shifters) have had more restrictive ones
+## webserver
+- See csapp asm doc "related with tiny interfaces"
+- ostep_hw changes
+  - `request_read_headers` use one more elegant `do{}while()`
+  - `size_t` [better](https://stackoverflow.com/a/73167304/21294350) `%zu`
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
@@ -3650,7 +3674,8 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - > lookup, delete, and so forth
   with Linked Lists.
 - > hash table that does not resize; a little more work is required to *handle resizing*
-- >  (such as B-trees); for this knowledge, a database class is your best bet.
+- > (such as B-trees); for this knowledge, a database class is your best bet.
+- "concurrency-sort"
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -3718,6 +3743,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## makefile
 - See this [template](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
+- [`-rm`](https://www.gnu.org/software/make/manual/html_node/Cleanup.html) to avoid errors which is done in [here](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/1488b2ece5fbe65d8439095240f2b6e699d7e105/site/content/chapter12/code/12.36/makefile#L19) by other methods.
 ## linux
 - What is the [first](https://unix.stackexchange.com/a/352315/568529) digit in umask value
   - See [this](https://www.scaler.com/topics/special-permissions-in-linux/)

@@ -3951,7 +3951,8 @@ $ gcc flush_stdin.c -o flush_stdin.o;./flush_stdin.o
 - get [predefined macro](https://stackoverflow.com/questions/2224334/gcc-dump-preprocessor-defines) ` echo | gcc -dM -E -` [or](https://stackoverflow.com/questions/19409847/how-does-eclipse-cdt-understand-size-type)
 - stat structure not shown in `man 2 stat` in archlinux, shown in [man7](https://man7.org/linux/man-pages/man2/stat.2.html)
   - [S_ISREG](https://linux.die.net/man/2/stat)
-  - or [man inode](https://stackoverflow.com/questions/40163270/what-is-s-isreg-and-what-does-it-do)
+    or [man inode](https://stackoverflow.com/questions/40163270/what-is-s-isreg-and-what-does-it-do)
+    - [regular files](https://unix.stackexchange.com/a/52740/568529) [identification](https://en.wikipedia.org/wiki/Unix_file_types#Regular_file)
 - `<` [redirection](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 - Descriptor table Open file table [detailed](https://www.usna.edu/Users/cs/wcbrown/courses/IC221/classes/L09/Class.html) [simplified](https://biriukov.dev/docs/fd-pipe-session-terminal/1-file-descriptor-and-open-file-description/)
 - [why](https://stackoverflow.com/questions/985051/what-is-the-purpose-of-fork) use fork()
@@ -4020,6 +4021,23 @@ $ stty -icanon && vim
 - CGI [env](https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html)
 - http/1.1 [rfc](https://datatracker.ietf.org/doc/html/rfc2616)
 - [Connection reset by peer](https://stackoverflow.com/a/1434592/21294350) [see problem 12.23](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.23/)
+#### related with tiny interfaces
+- `open_listenfd`
+  - [`SOCK_STREAM`](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream#comment126234466_71417876)
+  - why `Getaddrinfo` returns a list.
+    See `man Getaddrinfo`
+    > There are several reasons why the linked list may have more than one addrinfo structure
+  - TODO
+    > the network host is *multihomed*
+  - `AI_PASSIVE`
+    > If  the AI_PASSIVE flag is specified in hints.ai_flags, and node is *NULL*, then the returned socket addresses will be suitable for *bind*(2)ing a socket that will accept(2)
+    based on `Getaddrinfo(NULL, port, &hints, &listp)`, it is similar to `make_socket` in `~/ostep-hw/33/server_select.c`
+  - `AI_NUMERICSERV`
+    > This flag is used to inhibit the invocation of a *name resolution* service in cases where it is known not to be required
+    also avoid DNS
+  - `AI_ADDRCONFIG` avoids invalid IPv6/v4
+    > then IPv4 addresses are returned in the list pointed to by res only if the local system has *at least one* IPv4  address configured
+  - 
 ### threads
 - [asynchronous](https://unix.stackexchange.com/questions/386814/what-do-asynchronous-and-synchronous-mean-in-notifying-processes-of-system-event) event
 - CPU Context Switching [save](https://www.scaler.com/topics/operating-system/context-switching-in-os/) CPU state in cooperation with separate virtual memory.
