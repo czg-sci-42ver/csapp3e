@@ -1167,12 +1167,12 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
     because the scheduler may interrupt the `mutex_lock` in thread_2 after the 2rd `atomic_bit_test_set (mutex, 31) == 0` and then `atomic_add_zero (mutex, 0x80000000)` in thread_1.
     So we need to retest `v = *mutex;`
   - `lowlevellock.h` in glibc-2.9 which is [issued in 2008](https://sourceware.org/glibc/wiki/Glibc%20Timeline) [github](https://github.com/bminor/glibc/blob/glibc-2.9/nptl/lowlevellock.h) or [bootlin](https://elixir.bootlin.com/glibc/glibc-2.9/source/nptl/lowlevellock.h) (the following based on bootlin to explain)
-    - `lll_futex_timed_wait`
+    - [`lll_futex_timed_wait`](https://elixir.bootlin.com/glibc/glibc-2.9/source/nptl/sysdeps/unix/sysv/linux/x86_64/lowlevellock.h#L211) or [github](https://github.com/bminor/glibc/blob/f52bb4d77eee0b7805ad57c069f29b544baa2db7/nptl/sysdeps/unix/sysv/linux/x86_64/lowlevellock.h#L211)
       - TODO
         ~~- `__to` meaning~~
         - [`__typeof`](https://github1s.com/bminor/glibc/blob/glibc-2.9/nptl/sysdeps/unix/sysv/linux/x86_64/lowlevellock.h#L208)
       - [`__asm`](https://stackoverflow.com/questions/3323445/what-is-the-difference-between-asm-asm-and-asm#comment72722149_3323445) is similar to `asm`
-      - `"0" (SYS_futex)` [meaning](https://stackoverflow.com/a/57485860/21294350) and [doc](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Input-Operands)
+      - `"0" (SYS_futex)` [meaning](https://stackoverflow.com/a/57485860/21294350) and [doc](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Input-Operands) <a id="asm_extended_input_digit"></a>
         > The resulting asm will print the *same register name twice*, for both %0 and %1
         here `SYS_futex` is also stored in `a` register like `rax` same as`__status`.
       - `register` for [Local Variables](https://gcc.gnu.org/onlinedocs/gcc/Local-Register-Variables.html)
@@ -3667,6 +3667,14 @@ $3 = {
 2. Here `*(int *)4096` will always init the same value.
 3. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
 ### Kernel Threads
+#### patch
+- TODO
+  - `umalloc.o` maybe due to thread_create needing 
+    > This routine should call malloc() ...
+    ?
+- `#include "defs.h"` to use `acquire(struct spinlock *lk)` is no use.
+  Also see the `~/ostep-hw/projects/vm-xv6-intro/tests/test_1.c`.
+#### debugs
 - See [this](#stuck_x86_64) x86_64 always stuck.
   So I switches to `i386` but it doesn't support atomic.
 #### i386
@@ -3691,6 +3699,32 @@ $3 = {
   - from this `-m32` is [not totally same](https://stackoverflow.com/q/9467860/21294350) as `i386`
     and [`cmpxchg8b`](https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b#ia-32-architecture-compatibility) atill not supports `i386`
 - [`libatomic`](https://stackoverflow.com/a/53300405/21294350) by [`-latomic`](https://stackoverflow.com/questions/30591313/why-does-g-still-require-latomic) only applies to 64-bit. See above "not implemented"
+##### solution
+- use the lock as the `xv6` does. See `~/ostep-hw/projects/concurrency-xv6-threads/threads_asm.patch`
+```bash
+[czg_arch ~/xv6-public]$ git rev-parse HEAD
+eeb7b415dbcb12cc362d0783e41c3d1f44066b17
+# I use qemu 8.1.0
+$ yay -Qi qemu-base
+Name            : qemu-base
+Version         : 8.1.0-2
+$ git reset --hard origin/master;git clean -f -x -d .;\
+tree > ~/orig_xv6_tree.txt.cmp;diff ~/orig_xv6_tree.txt.cmp ~/ostep-hw/projects/concurrency-xv6-threads/orig_xv6_tree.txt;\
+git apply ~/ostep-hw/projects/concurrency-xv6-threads/threads_asm.patch;\
+make qemu-nox
+...
+$ test_thread
+Main thread pid: 3
+Before thread_create()
+First arg: I've tried not to remember no memories, second arg: 69
+best_num in thread: 42
+thread pid: 4
+Returned thread pid: 4
+best_num in main: 69
+myturn: 0
+myturn: 1
+number: 300
+```
 ## shell and lottery
 - shell related chapters
   - 5,

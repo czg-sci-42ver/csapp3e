@@ -3,7 +3,7 @@
 typedef struct test_lock{
   int ticket;
 } lock_struct;
-// #define USE_ASM
+#define USE_ASM
 
 int main(){
   int test=0;
@@ -13,17 +13,18 @@ int main(){
   int myturn;
   lock_struct lock={0};
   #ifdef USE_XADD
-  asm("mov 1,%0\n\t"
+  asm("mov $1,%0\n\t"
       "lock xadd %0,%1"
       :"+r" (myturn), "+m" (lock.ticket)
       );
   #else
+  // https://imada.sdu.dk/u/kslarsen/dm546/Material/IntelnATT.htm
   asm("mov %1,%0\n\t"
-      "incw %1"
-      :"+r" (myturn), "+m" (lock.ticket)
+      "lock addl $1,%1"
+      : "+r" (myturn), "+m" (lock.ticket)::
       );
   #endif
   #endif
-  // printf("%d %d\n",myturn,lock.ticket);
+  printf("%d %d\n",myturn,lock.ticket);
   return myturn;
 }
