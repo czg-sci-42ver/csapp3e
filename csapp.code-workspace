@@ -32,6 +32,9 @@
 		},
 		{
 			"path": "../CSAPP-3e-Solutions/site/content"
+		},
+		{
+			"path": "../../../../../home/czg_arch/qemu"
 		}
 	],
 	"settings": {

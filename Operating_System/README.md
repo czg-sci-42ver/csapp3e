@@ -3445,40 +3445,75 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   - fixed
     use `git clean -f -x` to remove all generated files.
     Then (Notice both the `CPU` and the `TOOLPREFIX` can't be ignored.)
-    ```bash
-    $ cat ~/No_Werror.patch 
-      diff --git a/Makefile b/Makefile
-      index 09d790c..aead744 100644
-      --- a/Makefile
-      +++ b/Makefile
-      @@ -29,7 +29,7 @@ OBJS = \
-              vm.o\
-       
-       # Cross-compiling (e.g., on Mac OS X)
-      -# TOOLPREFIX = i386-jos-elf
-      +TOOLPREFIX = i386-elf-
-       
-       # Using native tools (e.g., on X86 Linux)
-       #TOOLPREFIX = 
-      @@ -76,7 +76,7 @@ AS = $(TOOLPREFIX)gas
-       LD = $(TOOLPREFIX)ld
-       OBJCOPY = $(TOOLPREFIX)objcopy
-       OBJDUMP = $(TOOLPREFIX)objdump
-      -CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
-      +CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
-       CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-       ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
-       # FreeBSD ld wants ``elf_i386_fbsd''
-      @@ -217,7 +217,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
-              then echo "-gdb tcp::$(GDBPORT)"; \
-              else echo "-s -p $(GDBPORT)"; fi)
-       ifndef CPUS
-      -CPUS := 2
-      +CPUS := 1
-       endif
-       QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
-    $ make qemu-nox
-    ```
+```diff
+$ cat ~/No_Werror.patch 
+diff --git a/Makefile b/Makefile
+index 09d790c..aead744 100644
+--- a/Makefile
++++ b/Makefile
+@@ -29,7 +29,7 @@ OBJS = \
+        vm.o\
+  
+  # Cross-compiling (e.g., on Mac OS X)
+-# TOOLPREFIX = i386-jos-elf
++TOOLPREFIX = i386-elf-
+  
+  # Using native tools (e.g., on X86 Linux)
+  #TOOLPREFIX = 
+@@ -76,7 +76,7 @@ AS = $(TOOLPREFIX)gas
+  LD = $(TOOLPREFIX)ld
+  OBJCOPY = $(TOOLPREFIX)objcopy
+  OBJDUMP = $(TOOLPREFIX)objdump
+-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
++CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
+  CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+  ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
+  # FreeBSD ld wants ``elf_i386_fbsd''
+@@ -217,7 +217,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
+        then echo "-gdb tcp::$(GDBPORT)"; \
+        else echo "-s -p $(GDBPORT)"; fi)
+  ifndef CPUS
+-CPUS := 2
++CPUS := 1
+  endif
+  QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
+$ make qemu-nox
+```
+the above patch at least works with `qemu v8.0.4/v5.0.1/v4.0.1`
+  - with `x86_64-elf-gcc`, it doesn't work even with `2020-09-15 11:27:07 -0500  (tag: v5.0.1, origin/stable-5.0)` or `origin/stable-4.0`. <a id="stuck_x86_64"></a>
+  ```bash
+  $ git log --tags --simplify-by-decoration --pretty="format:%ci %d" # https://stackoverflow.com/a/13208822/21294350
+  ...
+  2019-10-17 15:15:33 -0500  (tag: v4.0.1, origin/stable-4.0)
+  ```
+    - TODO spend more time on the real OS like Unix instead of this simulation.
+#### debug with installation of `qemu`
+```bash
+$ ps aux | grep qemu   
+czg_arch  146986  0.2  0.0  15528  4352 pts/5    S+   12:13   0:00 make qemu-nox
+czg_arch  146997  117  0.4 1100496 77684 pts/5   Sl+  12:13   0:08 qemu-system-i386 -nographic -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 512
+czg_arch  147176  0.0  0.0  11288  3072 pts/7    S+   12:13   0:00 grep --color=always qemu
+[czg_arch ~/xv6-public]$ gdb -p 146997
+...
+   41 #ifdef __ASSUME_TIME64_SYSCALLS
+ ► 42   return SYSCALL_CANCEL (ppoll_time64, fds, nfds, timeout, sigmask,
+   43                          __NSIG_BYTES);
+...
+pwndbg> p nfds
+$1 = 0x5
+pwndbg> p fds
+$2 = (struct pollfd *) 0x56292d980340
+pwndbg> p *fds
+$3 = {
+  fd = 0x0,
+  events = 0x1,
+  revents = 0x0
+}
+```
+- remove the [`extern "C"`](https://stackoverflow.com/a/1041880/21294350) wrapper.
+- installation [recommendation](https://wiki.qemu.org/Hosts/Linux#Simple_build_and_test) with `--enable-debug`
+  Since archlinux only support downgrading from [cache](https://unix.stackexchange.com/a/103868/568529). Also [see](https://unix.stackexchange.com/a/313526/568529)
+  - `=` in [`pacman -S package=1.2.3-1`](https://bbs.archlinux.org/viewtopic.php?pid=1841068#p1841068) no use.
 ### Codes
 - based on this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8)
   1. "17:45" the `UPROGS` can be without leading `_`
@@ -3631,6 +3666,31 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
   - TODO how `p->data[p->nwrite++ % PIPESIZE] = addr[i];` return `-1`.
 2. Here `*(int *)4096` will always init the same value.
 3. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
+### Kernel Threads
+- See [this](#stuck_x86_64) x86_64 always stuck.
+  So I switches to `i386` but it doesn't support atomic.
+#### i386
+- `xadd` [not implemented](https://github.com/confluentinc/librdkafka/issues/212#issuecomment-81481119) in i386 (if implemented, the single instruction must ensure it atomic. If not, we needs `lock`)
+  the non-support also see [1](https://www.reddit.com/r/osdev/comments/t92isg/comment/hzw7q1z/?utm_source=share&utm_medium=web2x&context=3)
+  See this [example](https://stackoverflow.com/a/130813/21294350)
+  With [old gcc](https://gcc.godbolt.org/z/zr6qKxz7n) [>= 4.9](https://stackoverflow.com/a/20326913/21294350), also fails.
+  - weird [this](http://fxr.watson.org/fxr/source/i386/include/atomic.h?im=bigexcerpts#L188) still use `xadd`
+  - [`adc`](https://stackoverflow.com/a/67326816/21294350) not supports `lock`
+  - [`cmpxchg`](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54087#c0) also [not supported](https://www.felixcloutier.com/x86/cmpxchg#ia-32-architecture-compatibility)
+- [test 32 bit binary](https://stackoverflow.com/a/27679899/21294350) on the 64-bit machine by `gcc atomic_fetch_add.c -o atomic_fetch_add.out -mtune=i386 -m32`.
+  but it still uses `xadd`.
+  - archlinux [config](https://www.linuxquestions.org/questions/programming-9/how-to-use-32-bit-c-libraries-on-64-bit-arch-linux-801349/#post3931706) to enable 32-bit compilation.
+    Also see [1](https://bbs.archlinux.org/viewtopic.php?pid=1535840#p1535840) or [2](https://bbs.archlinux.org/viewtopic.php?pid=1894569#p1894569) if error.
+  ```bash
+  $ pacman -Qs lib32
+  local/lib32-gcc-libs 13.2.1-3 # avoid "-m32 cannot find libgcc_s.so.1: No such file or directory" error
+      32-bit runtime libraries shipped by GCC
+  local/lib32-glibc 2.38-3 # https://stackoverflow.com/a/7412698/21294350
+      GNU C Library (32-bit)
+  ```
+  - from this `-m32` is [not totally same](https://stackoverflow.com/q/9467860/21294350) as `i386`
+    and [`cmpxchg8b`](https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b#ia-32-architecture-compatibility) atill not supports `i386`
+- [`libatomic`](https://stackoverflow.com/a/53300405/21294350) by [`-latomic`](https://stackoverflow.com/questions/30591313/why-does-g-still-require-latomic) only applies to 64-bit. See above "not implemented"
 ## shell and lottery
 - shell related chapters
   - 5,
@@ -3769,6 +3829,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 2 s a2b6pcfr A commit before the latest
 3 pick 093479uf An old commit i made a while back
 ```
+- show [patch](https://stackoverflow.com/a/11284366/21294350)
 ### github
 - [regex search](https://stackoverflow.com/questions/17595962/github-search-using-regex#comment135841165_72518518)
 ## the English grammar
