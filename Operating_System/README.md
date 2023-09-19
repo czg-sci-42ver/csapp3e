@@ -3826,6 +3826,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
   - [this](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=72795#c1)
     global `int` maybe has external "observers", so not discard
     while with `static`, the compiler can know whether it is used in this file and decide whether to discard.
+  - use [intel style](https://stackoverflow.com/a/200028/21294350)
 ## awk
 - use single-quotes instead of double by `man`.
   > The awk program specified in the command line is most easily specified within single-quotes
