@@ -3408,6 +3408,14 @@ TODO Reread after learning the network.
 - [`setsockopt`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysv/linux/setsockopt.c#L95-L96)
   option is implemented in [syscall which means whether enable](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/net/core/sock.c#L1131-L1132) by [search](https://github.com/search?q=repo%3Atorvalds%2Flinux+%2FSYSCALL_DEFINE.*setsockopt%2F&type=code).
   - find [syscall definition](https://stackoverflow.com/a/45205822/21294350) [also](https://github.com/0xAX/linux-insides/blob/master/SysCall/linux-syscall-1.md)
+    So search by `SYSCALL_DEFINE.*dup` for `dup` syscall.
+    - `dup2`
+      - [`struct fdtable`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/include/linux/fdtable.h#L27-L28)
+      - it will close `fd` by [`filp_close`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L1140-L1141) which calls `filp_flush` called by [`close`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/open.c#L1566-L1567) before return as man says:
+        > it is closed before being reused
+      - it inc [ref count](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/include/linux/fs.h#L1042-L1043) with [`struct file`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/include/linux/fs.h#L992-L993) <a id="dup_inc"></a>
+      - [`__releases`](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59856) by [this](https://stackoverflow.com/a/21019180/21294350) is to let the compiler check the lock state where [`in` supported here](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L1160-L1161) and `out` [supported](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L1137-L1138) here.
+        - it can function as [one sequence](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L170-L171) by first [release](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L175-L176) and then [acquire](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/file.c#L184-L185)
 - `listen` [vs](https://stackoverflow.com/a/34073929/21294350) `accept`
 - use [io_uring](https://developers.redhat.com/articles/2023/04/12/why-you-should-use-iouring-network-io)
 - always weird `` 
@@ -3517,7 +3525,7 @@ $3 = {
 ### Codes
 - based on this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8)
   1. "17:45" the `UPROGS` can be without leading `_`
-    This can be also seen from the code:
+    This can be also seen from the code in `mkfs` which make the executable (Also see the comments for reasons why they did this):
     ```c
     if(argv[i][0] == '_')
       ++argv[i];
@@ -3528,12 +3536,34 @@ $3 = {
   4. `./mkfs fs.img README _cat _echo _forktest _grep _init _kill _ln _ls _test_1 _test_2 _mkdir _rm _sh _stressfs _test_readcount _usertests _wc _zombie ` will make the `test_1` executable in the `fs.img`.
   - TODO read after "20:40".
 - [`traps.h`](https://github.com/czg-sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) defines the error code.
-- `argint` or `argptr` See `syscall.c`.
+- `argint` or `argptr` See `syscall.c` related comments.
+  - so `argptr` return `pp` (`void **`) which points to some memory `void *`.
+    > Fetch the nth word-sized system call argument as a *pointer to a block of memory* of size bytes
+    - here `(char*)` and `void *` size is same, so both is ok
+    - by `argptr(int n, char **pp, int size)`, `*pp = (char*)i;` and **`(uint)i+size > curproc->sz`** etc 
+      `*pp` ~~points to one memory range of~~ with size `size`. <a id="argptr_size"></a>
   - From `(uint)i+size` the `size` corresponds to size of `n`th parameter.
+    `fetchint((myproc()->tf->esp) + 4 + 4*n, ip)` implies `0` corresponds to the 1st parameter.
 - `P2V` is [specific](https://stackoverflow.com/questions/50073792/whats-the-mechanism-behind-p2v-v2p-macro-in-xv6) to the xv6 memory space. 
   See the figure.
 - here assume page table bits same as [x86](https://pekopeko11.sakura.ne.jp/unix_v6/xv6-book/en/Page_tables.html).
 - How `write` [works](https://stackoverflow.com/questions/49971604/how-does-xv6-write-to-the-terminal).
+- memory allocation init by `kinit1(end, P2V(4*1024*1024)); // phys page allocator`.
+  So we can use `kalloc(void)` then.
+  And `if((p->kstack = kalloc()) == 0){` means allocation failure.
+- TODO trapframe is to store current function state by [this](https://github.com/YehudaShapira/xv6-explained/blob/a0f15f4c3427238c54ec090528f9b32ff32c7e4c/Explanations.md).
+  > When we return from an interrupt (or, in our case, start the process for the first time), we do the following:
+#### Kernel Threads
+- `trapframe` is special `context` which is used in [exception](https://stackoverflow.com/a/47855470/21294350) manipulation.
+- `filedup` similar to [`dup2`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysv/linux/dup2.c#L29-L30) in csapp which has the `f->ref` count.
+  See [this](#dup_inc)
+```bash
+/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_35 $ cd cgi-bin;make --always-make;cd ..;make --always-make;gdb -ex 'br dup2' -ex 'r' --args ./tiny 8080
+# browser http://127.0.0.1:8080/cgi-bin/adder?1&2 (not use https because not support)
+pwndbg> si 2
+...
+ ►0x7ffff7cff349<dup2+9>    syscall  <SYS_dup2>
+```
 ### scheduling-xv6-lottery
 - this has no `tests` dir, so no tests offered by the instructor.
 - this [video](https://www.youtube.com/watch?v=vR6z2QGcoo8) has no cc
@@ -3668,12 +3698,26 @@ $3 = {
 3. `np->pgdir = copyuvm(curproc->pgdir, curproc->sz)` implies the inheritance.
 ### Kernel Threads
 #### patch
-- TODO
-  - `umalloc.o` maybe due to thread_create needing 
-    > This routine should call malloc() ...
-    ?
+- `umalloc.o` maybe due to thread_create needing 
+  > This routine should call malloc() ...
+  it can be shown by removing `umalloc.o` and see the effects.
 - `#include "defs.h"` to use `acquire(struct spinlock *lk)` is no use.
   Also see the `~/ostep-hw/projects/vm-xv6-intro/tests/test_1.c`.
+- `_test_thread` is compiled by `_%: %.o $(ULIB)` where `%.o` is compiled by default with `%.c` by `make`.
+- `EXTRA= ... test_thread.c` is not needed.
+- ld with [`-N`](https://stackoverflow.com/q/48549036/21294350) is to allow RMX.
+- by [this](#argptr_size), `if (argptr(0, (char **)&stack, sizeof(void *)) < 0)` should be `if (argptr(0, (char **)&stack, sizeof(void **)) < 0)` although their size is same.
+- Since `CPU=1` in `makefile`, here thread is only one concept but not totally based on hardware.
+  - it just create one process `if ((np = allocproc()) == 0)` and let the scheduler decide the rest.
+- `join` will first `sleep(curproc, &ptable.lock);` if any thread and then `wakeup1` by thread `exit` and 
+  (TODO) then maybe `if(p->state == ZOMBIE)` in parent before `curproc->state = ZOMBIE;` in thread. Then the parent may be into sleep again and no other threads will wake up it. (This mainly depends on how scheduler schedules between processes)
+- [`__ATOMIC_SEQ_CST`](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html) enforces total ordering which is seen by *all cores*.
+##### TODO
+- How to align `void *stack = malloc(PGSIZE);`?
+#### linux and glibc thread implementation
+- also based on `clone`
+  [this](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysv/linux/clone-internal.c#L85-L86) calls the syscall [`clone3`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/kernel/fork.c#L3194-L3195)
+  so it is also based on *processes*.
 #### debugs
 - See [this](#stuck_x86_64) x86_64 always stuck.
   So I switches to `i386` but it doesn't support atomic.
@@ -3777,6 +3821,9 @@ number: 300
 # TODO after reading the compiler book
 - C6 1.c `preempt`, etc.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
+## xv6
+- from [this](https://cs.stackexchange.com/questions/160004/why-do-we-use-main-function-in-almost-all-the-programming-languages#comment334807_160008), `_start` needs to be with `-e` to form `-e _start`.
+  So `$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o umalloc.o` can't make `_forktest` executable maybe due to the above reasons. So it is followed by `$(OBJDUMP) -S _forktest > forktest.asm`.
 # TODO after reading the network book
 - C33 homework TODO.
 # TODO
