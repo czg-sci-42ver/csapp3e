@@ -3712,6 +3712,19 @@ pwndbg> si 2
 - `join` will first `sleep(curproc, &ptable.lock);` if any thread and then `wakeup1` by thread `exit` and 
   (TODO) then maybe `if(p->state == ZOMBIE)` in parent before `curproc->state = ZOMBIE;` in thread. Then the parent may be into sleep again and no other threads will wake up it. (This mainly depends on how scheduler schedules between processes)
 - [`__ATOMIC_SEQ_CST`](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html) enforces total ordering which is seen by *all cores*.
+- [x86 Calling Convention](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/concurrency-xv6-threads/README.md#x86-calling-convention)
+  from code `return fetchint((myproc()->tf->esp) + 4 + 4*n, ip);` which is same as [x86](https://www.cs.mcgill.ca/~cs573/fall2002/notes/lec273/lecture15/15_4.htm#:~:text=To%20pass%20parameters%20to%20a,the%20bottom%20of%20the%20stack.) the latter parameter stores at higher address, so the patch
+```diff
++  uint *sp = stack + PGSIZE;
++  sp--;
++  *sp = (uint)arg2;
++  sp--;
++  *sp = (uint)arg1;
++  sp--;
++  *sp = 0xffffffff;        // fake return PC
+```
+  where the last `sp` stores the fake return which corresponds to `fcn`.
+  and `+ 4` above is probably to store the syscall return address, which can be seen in `/mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/miscs/call_arg_stack/call_arg_stack.out`
 ##### TODO
 - How to align `void *stack = malloc(PGSIZE);`?
 #### linux and glibc thread implementation
