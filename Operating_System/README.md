@@ -750,6 +750,12 @@ $ uname -r
   > but notably handles the case where a cyclic large-file access occurs by *confining the pages of that cyclic access to the inactive* list
 # Concurrency
 TODO find one specific book about Concurrency to read.
+- why OS lock needs hardware support
+  1. [atomic](https://cs.stackexchange.com/a/132120/161388)
+  2. OS needs to protect itself from [interrupts](https://cs.stackexchange.com/a/132134/161388)
+    - and other cores (Also [see](https://cs.stackexchange.com/questions/132115/why-do-os-locks-require-hardware-support#comment278150_132115)).
+  3. speed mentioned in the 2rd link. Also [see](https://cs.stackexchange.com/questions/132115/why-do-os-locks-require-hardware-support#comment278143_132115)
+  4. worse if not "consistent view of memory" (maybe if lock is stored probably in mem)
 ## Introduction
 - > the OS can promote the illusion that *many virtual CPUs exist* when in fact there is only one physical CPU (or a few). This basic technique, known as *time sharing* of the CPU
   here assumes conventionally, one physical CPU runs one process sequentially.
@@ -3814,6 +3820,26 @@ number: 300
 - ostep_hw changes
   - `request_read_headers` use one more elegant `do{}while()`
   - `size_t` [better](https://stackoverflow.com/a/73167304/21294350) `%zu`
+## concurrency-mapreduce
+- See `diff hash_orig.c hash_orig_mod.c` for some comments.
+### TODO
+- the rest `indirectly` is related with `create_item`.
+  But after checking `CHECK_CREATE_ITEM`, all `Ht_item *` pointer by `create_item` are freed.
+```bash
+==36445== 86,961 (2,520 direct, 84,441 indirect) bytes in 105 blocks are definitely lost in loss record 6 of 6
+==36445==    at 0x484178B: malloc (vg_replace_malloc.c:431)
+==36445==    by 0x10A0B3: create_item (hash.c:197)
+==36445==    by 0x10A487: ht_insert (hash.c:327)
+==36445==    by 0x1095A6: MR_Emit (mapreduce.c:56)
+==36445==    by 0x109455: Map_FILE (mapreduce.c:18)
+==36445==    by 0x109610: Map_wrpapper (mapreduce.c:66)
+==36445==    by 0x494D9EA: start_thread (pthread_create.c:444)
+==36445==    by 0x49D1C83: clone (clone.S:100)
+==36445== 
+==36445== LEAK SUMMARY:
+==36445==    definitely lost: 2,520 bytes in 105 blocks
+==36445==    indirectly lost: 84,441 bytes in 315 blocks
+```
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
@@ -3827,6 +3853,8 @@ number: 300
 - > hash table that does not resize; a little more work is required to *handle resizing*
 - > (such as B-trees); for this knowledge, a database class is your best bet.
 - "concurrency-sort"
+## related with data structures
+- use non-HashTable struct but similar to HashTable in "concurrency-mapreduce".
 ## C9
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
@@ -3887,6 +3915,20 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
     global `int` maybe has external "observers", so not discard
     while with `static`, the compiler can know whether it is used in this file and decide whether to discard.
   - use [intel style](https://stackoverflow.com/a/200028/21294350)
+- `typeof` is manipulated by the [compiler](https://gcc.gnu.org/onlinedocs/gcc/Typeof.html), so it can only get the parameter declared type but not its original
+  e.g. in `pthread_create`, in `start_routine` the `arg` passed in by `(void *)arg` can be only identified as `void *` but not something like how the `arg` declared in the `main`.
+
+### check SEGV
+- [this](https://stackoverflow.com/a/15340456/21294350)
+  - why `sigsetjmp` is [better](https://stackoverflow.com/a/20755336/21294350)
+    > being added to the *signal mask* of the process. This *prevents* subsequent occurrences of that signal from *interrupting* the signal handler.
+    > Under FreeBSD 5.2.1 and Mac OS X 10.3, setjmp and longjmp save and *restore* the signal mask.
+    > To allow *either* form of behavior, POSIX.1 does not specify the effect of setjmp and longjmp on signal masks.
+    so it is to allow the sigmask to be maintained by the user.
+  - above example is similar to APUE "Figure 10.8" and csapp corresponding ones.
+    where "the "fake" return" checks whether "SIGSEGV" occurs and manipulate correspondingly.
+    so when `illegal` the `if else` are both executed.
+    > on the "fake" return that occurs after longjmp() or siglongjmp(), the nonzero value specified in val is returne
 ## awk
 - use single-quotes instead of double by `man`.
   > The awk program specified in the command line is most easily specified within single-quotes
@@ -3943,6 +3985,9 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
   > Another means *‘one more’* or ‘an additional or extra’, or ‘an alternative or different’.
 - > guarantee that any threads that should be woken are
   means ... (woken) by google translate.
+
+# books recommended by OSTEP
+- [APUE](http://www.apuebook.com/toc3e.html) which is also used by ostep-hw (See [`grep -r -i "apue" --include \*.c`](https://stackoverflow.com/a/12517022/21294350))
 
 ---
 

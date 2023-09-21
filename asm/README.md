@@ -9938,22 +9938,26 @@ Result = PASS
       > This is because these blocks are usually *one-time allocations*, references to which are kept throughout the duration of the process's lifetime.
       maybe something like `stdout`.
   - ‘possibly lost’ because using `**` pointer which may be unsafe because to free it may be complex which will result in errors, see 'If we kept some extra information', 'used the numbers pointer as a base', 'points to the third block of numbers'(i.e. after runnning `numbers++;`),' theoretically count backward to the beginning'
-    > unless you're doing *unusual* things with pointers that could cause them to *point into the middle of an allocated block*
-    So
-    ```bash
-    ~/ostep-hw/29 $ valgrind_l ./btree_1.out 2>~/bfree_valgrind_l_1.txt; less_n ~/bfree_valgrind_l_1.txt
-    120 ==48849== 272 bytes in 1 blocks are possibly lost in loss record 7 of 26
-    121 ==48849==    at 0x4846600: calloc (vg_replace_malloc.c:1554)
-    122 ==48849==    by 0x4011812: calloc (rtld-malloc.h:44)
-    123 ==48849==    by 0x4011812: allocate_dtv (dl-tls.c:369)
-    124 ==48849==    by 0x4012261: _dl_allocate_tls (dl-tls.c:628)
-    125 ==48849==    by 0x494A538: allocate_stack (allocatestack.c:429)
-    126 ==48849==    by 0x494A538: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
-    127 ==48849==    by 0x109426: main (btree.c:442)
-    ```
-    can be ignored because of `pthread_create` is lib functions.
+    - > unless you're doing *unusual* things with pointers that could cause them to *point into the middle of an allocated block*
+      So
+      ```bash
+      ~/ostep-hw/29 $ valgrind_l ./btree_1.out 2>~/bfree_valgrind_l_1.txt; less_n ~/bfree_valgrind_l_1.txt
+      120 ==48849== 272 bytes in 1 blocks are possibly lost in loss record 7 of 26
+      121 ==48849==    at 0x4846600: calloc (vg_replace_malloc.c:1554)
+      122 ==48849==    by 0x4011812: calloc (rtld-malloc.h:44)
+      123 ==48849==    by 0x4011812: allocate_dtv (dl-tls.c:369)
+      124 ==48849==    by 0x4012261: _dl_allocate_tls (dl-tls.c:628)
+      125 ==48849==    by 0x494A538: allocate_stack (allocatestack.c:429)
+      126 ==48849==    by 0x494A538: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      127 ==48849==    by 0x109426: main (btree.c:442)
+      ```
+      can be ignored because of `pthread_create` is lib functions.
+    - > see the user manual for some possible causes.
+      TODO [where](https://valgrind.org/docs/manual/manual.html)?
+    - maybe similar to "still reachable", we can ignore "possibly lost"
+      > "still reachable" means your program is probably ok -- it didn't free some memory it *could have*. This is quite common and *often reasonable*. Don't use --show-reachable=yes if you don't want to see these reports.
   - 'indirectly lost'
-    - 'be **tempted** to fix it by simply clearing the pointer','We should have freed the memory first', 'by iteratively fixing the definitely lost memory leaks, you will eventually fix all indirectly lost memory leaks.'
+    - 'be **tempted** to fix it by simply clearing the pointer','We should have freed the memory first', 'by *iteratively fixing the definitely lost* memory leaks, you will eventually *fix all indirectly lost* memory leaks.'
     - 'indirectly lost: 24 bytes in 3 blocks' -> `numbers->nums`
   - 'Suppressed' -> to manually Suppress leak
     - 'won't show backtraces for where those still **reachable or indirectly** lost blocks','make sense to see whether you can deallocate them early'
