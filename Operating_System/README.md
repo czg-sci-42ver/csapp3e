@@ -1015,7 +1015,7 @@ TODO find one specific book about Concurrency to read.
 - > executing this code can result in a race con-dition, we call this code a *critical section*.
 
   this is a bit different from the critical path which cares about *time*.
-- Transaction processing -> [atomicity](https://en.wikipedia.org/wiki/Transaction_processing#Atomicity).
+- Transaction processing -> [atomicity](https://en.wikipedia.org/wiki/Transaction_processing#Atomicity). <a id="Transaction_atomicity"></a>
 - ["atomic compare-and-swap"](https://en.wikipedia.org/wiki/Copy-on-write#Examples) in Copy-on-write (COW).
   - in "journal" it just use the history where each unit is based on one block which *can't be splitted* due to atomicity.
     > The changes are thus said to be atomic (*not divisible*) in that they either succeed (succeeded originally or are replayed completely during recovery), or are *not replayed at all* (are skipped because they had *not yet been completely written* to the journal before the crash occurred).
@@ -2967,6 +2967,89 @@ problem list:
   so only when both `1` and `10` finished, the bandwidth will be normal -> division of 4 in $\frac{N}{4}*R$
   - since here no bottleneck -> $*N$
 - [RAID-6 encoding](https://en.wikipedia.org/wiki/Standard_RAID_levels#General_parity_system)
+## Files and Directories
+- Capability provides "a *single* mechanism" to "address both hardware and software resources". See [p4](https://homes.cs.washington.edu/~levy/capabook/Chapter1.pdf)
+- notice `fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0` in `strace cat foo` to use sequential read as the raid chapter says.
+- `dd if=foo of=bar` also uses `dup2(3, 0)`
+- See `man stdin` for stdin fd number.
+- "open file table" see csapp 944/1122 and xv6 `ftable`.
+- `F_SETOWN` sets
+  > set the *process ID or process group ID* specified to receive SIGURG signals when out‐of‐band  data
+- > (if fsync() is correctly implemented, that is)
+  maybe means as said in man where it may be interrupted by some faults or power failures:
+  > In the middle ground between these extremes, fsync() might or might not actually cause data to  be written  where  it  is  safe from a power failure
+- > Because the stack is persistent, data push’d by one invocation of pstack can be pop’d by the next.
+  i.e. no delay like disk files which needs `fsync` to solve.
+- `mv` syscalls
+```bash
+renameat2(AT_FDCWD, "foo", AT_FDCWD, "bar", RENAME_NOREPLACE) = -1 EEXIST (File exists)
+# check not replace dirs
+openat(AT_FDCWD, "bar", O_RDONLY|O_PATH|O_DIRECTORY) = -1 ENOTDIR (Not a directory)
+newfstatat(AT_FDCWD, "foo", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
+newfstatat(AT_FDCWD, "bar", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
+# check the permission
+geteuid()                               = 1000
+faccessat2(AT_FDCWD, "bar", W_OK, AT_EACCESS) = 0 # Perform access checks using the "effective" user and group IDs
+renameat(AT_FDCWD, "foo", AT_FDCWD, "bar") = 0
+```
+- [`struct stat`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/arch/alpha/include/uapi/asm/stat.h#L5-L6) in linux and see `man 3type stat`
+- book `struct dirent` -> `struct linux_dirent` in `man getdents64`
+- > a program may want to call stat() on each file to get more information on each, such as its length or other detailed information.
+  It uses `statx`
+```bash
+$ strace ls -l
+...
+openat(AT_FDCWD, "/", O_RDONLY|O_CLOEXEC|O_PATH|O_DIRECTORY) = 4                                                
+statx(4, ".", AT_STATX_SYNC_AS_STAT, STATX_TYPE|STATX_INO|STATX_MNT_ID, {stx_mask=STATX_ALL|STATX_MNT_ID, stx_at
+tributes=STATX_ATTR_MOUNT_ROOT, stx_mode=S_IFDIR|0755, stx_size=312, ...}) = 0
+```
+- > for fear that you will create a cycle in the directory tree)
+  e.g.
+  `a->a/foo` then `ln a/foo .` will make the endless loop `a->a/foo->a->a/foo`.
+- [dangling reference](https://stackoverflow.com/a/17997314/21294350) -> invalid reference.
+  so soft-link points to the original file while hard points to the *inode*.
+- execute bit for [directory](https://superuser.com/a/169418/1658455)
+- "transactional file system" uses [atomicity](#Transaction_atomicity) to solve with TOCTTOU.
+- > per-process entity, which refers to an *entry* in the open file table
+  See xv6 source codes
+```c
+sys_open(void)
+...
+if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
+
+filealloc()
+...
+for(f = ftable.file; f < ftable.file + NFILE; f++){
+
+fdalloc(struct file *f)
+...
+curproc->ofile[fd] = f;
+```
+  so `struct file` pointers (i.e. entry) in `ftable` are shared across processes.
+  > 
+### TODO
+- > This last step *atomically* swaps the new file into place, while concurrently deleting the old version of the file
+  How implemented in [`do_renameat2`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/namei.c#L4898-L4899)
+- > you are making a structure (the inode) that will track virtually all relevant infor-mation about the file
+  how inode data struct defined.
+- can't be [removed](https://unix.stackexchange.com/a/29572/568529) from the `wheel` group which is related with [`sudo`](https://en.wikipedia.org/wiki/Wheel_(computing)#Wheel_group) (this is just one convention and needs [visudo](https://superuser.com/a/1082668/1658455) modification to take effect)
+```bash
+$ sudo gpasswd -d czg_arch wheel
+Removing user czg_arch from group wheel
+gpasswd: user 'czg_arch' is not a member of 'wheel'
+[czg_arch ~/czg_tmp]$ id
+uid=1000(czg_arch) gid=1004(czg_arch) groups=1004(czg_arch),964(docker),991(lp),998(wheel)
+[czg_arch ~/czg_tmp]$ id czg_arch 
+uid=1000(czg_arch) gid=1004(czg_arch) groups=1004(czg_arch),991(lp),964(docker) # weird: different from above.
+[czg_arch ~/czg_tmp]$ whoami 
+czg_arch
+
+$ sudo -i
+$ visudo
+...
+## Uncomment to allow members of group wheel to execute any command
+# %wheel ALL=(ALL:ALL) ALL
+```
 # hardware
 ## TODO
 - SCSI disks vs IDE disks / ATA.
@@ -4517,29 +4600,29 @@ STAT totalTime 843.4000000001232
 STAT totalTime 1010.0000000001611
 ```
 ### Files and Directories
-- Capability provides "a *single* mechanism" to "address both hardware and software resources". See [p4](https://homes.cs.washington.edu/~levy/capabook/Chapter1.pdf)
-- notice `fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0` in `strace cat foo` to use sequential read as the raid chapter says.
-- `dd if=foo of=bar` also uses `dup2(3, 0)`
-- See `man stdin` for stdin fd number.
-- "open file table" see csapp 944/1122 and xv6 `ftable`.
-- `F_SETOWN` sets
-  > set the *process ID or process group ID* specified to receive SIGURG signals when out‐of‐band  data
-- > (if fsync() is correctly implemented, that is)
-  maybe means as said in man where it may be interrupted by some faults or power failures:
-  > In the middle ground between these extremes, fsync() might or might not actually cause data to  be written  where  it  is  safe from a power failure
-- > Because the stack is persistent, data push’d by one invocation of pstack can be pop’d by the next.
-  i.e. no delay like disk files which needs `fsync` to solve.
-- `mv` syscalls
+1. TODO not changes which is different from [ostep_hw]. 
+- `40755` [meaning](https://stackoverflow.com/a/46748199/21294350)
+4. 
 ```bash
-renameat2(AT_FDCWD, "foo", AT_FDCWD, "bar", RENAME_NOREPLACE) = -1 EEXIST (File exists)
-# check not replace dirs
-openat(AT_FDCWD, "bar", O_RDONLY|O_PATH|O_DIRECTORY) = -1 ENOTDIR (Not a directory)
-newfstatat(AT_FDCWD, "foo", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
-newfstatat(AT_FDCWD, "bar", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
-# check the permission
-geteuid()                               = 1000
-faccessat2(AT_FDCWD, "bar", W_OK, AT_EACCESS) = 0
-renameat(AT_FDCWD, "foo", AT_FDCWD, "bar") = 0
+$ sudo ls -al sed  
+total 4
+dr--r--r-- 1 root     root      10 Jul 27 10:07 .
+$ ./myfind.out -d 1 -n 'c' ~/czg_tmp/sed/
+optind:3
+optind:5 pattern:c
+/home/czg_arch/czg_tmp/sed/
+
+# the 'x' mode doesn't influence read of the dir, but the 'r' does.
+$ sudo chmod o-r sed
+$ sudo ls -al sed   
+total 4
+dr--r----- 1 root     root      10 Jul 27 10:07 .
+...
+$ ./myfind.out -d 1 -n 'c' ~/czg_tmp/sed/
+optind:3
+optind:5 pattern:c
+/home/czg_arch/czg_tmp/sed/
+myfind: '/home/czg_arch/czg_tmp/sed/': Permission denied
 ```
 ## TODO
 - read "APUE".
@@ -5120,6 +5203,7 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
       total 540
       drwxrwxrwt 20 root     root        720 Sep 10 10:32 .
       ```
+- source codes See github or [lxr](http://lxr.linux.no/#linux+v2.6.31/include/linux/types.h#L34) by [this](https://stackoverflow.com/a/1608377/21294350)
 ## git
 - the following [squash](https://stackoverflow.com/a/51516360/21294350) `1,2` to the implicit `0` instead of `3`.
 ```c
