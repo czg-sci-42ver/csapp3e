@@ -3050,6 +3050,7 @@ $ visudo
 ## Uncomment to allow members of group wheel to execute any command
 # %wheel ALL=(ALL:ALL) ALL
 ```
+## 
 # hardware
 ## TODO
 - SCSI disks vs IDE disks / ATA.
