@@ -6,6 +6,7 @@
 - Many things of the book has been said in csapp and COD.
 - read this book "Javascript: The Good Parts".
 - posix related docs better see [opengroup_doc] which is more detailed than `man`
+- xv6 version `2012-01-30-1-g1c41342` in [ostep_book] "p499/709".
 ## also applies to other books
 - > Well, hopefully those using this book actually do look at this part *earlier*, all throughout the course.
 
@@ -4500,7 +4501,7 @@ STAT totalTime 343.4000000000096
 ```
 - TODO make `$ ./raid.py -L 4 -t -n 40000 -c -w 100 -W seq | tail -n 2` work.
 - why `12k`
-always scales up.
+always scales up so all numbers of requests are reasonable.
 ```bash
 $ for i in $(seq 6);do num=$(python -c "print($i*5000)");./raid.py -L 4 -t -n ${num} -c -w 100 -W seq | tail -n 2;done
 STAT totalTime 176.69999999999425
@@ -4515,7 +4516,31 @@ STAT totalTime 843.4000000001232
 
 STAT totalTime 1010.0000000001611
 ```
-
+### Files and Directories
+- Capability provides "a *single* mechanism" to "address both hardware and software resources". See [p4](https://homes.cs.washington.edu/~levy/capabook/Chapter1.pdf)
+- notice `fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0` in `strace cat foo` to use sequential read as the raid chapter says.
+- `dd if=foo of=bar` also uses `dup2(3, 0)`
+- See `man stdin` for stdin fd number.
+- "open file table" see csapp 944/1122 and xv6 `ftable`.
+- `F_SETOWN` sets
+  > set the *process ID or process group ID* specified to receive SIGURG signals when out‐of‐band  data
+- > (if fsync() is correctly implemented, that is)
+  maybe means as said in man where it may be interrupted by some faults or power failures:
+  > In the middle ground between these extremes, fsync() might or might not actually cause data to  be written  where  it  is  safe from a power failure
+- > Because the stack is persistent, data push’d by one invocation of pstack can be pop’d by the next.
+  i.e. no delay like disk files which needs `fsync` to solve.
+- `mv` syscalls
+```bash
+renameat2(AT_FDCWD, "foo", AT_FDCWD, "bar", RENAME_NOREPLACE) = -1 EEXIST (File exists)
+# check not replace dirs
+openat(AT_FDCWD, "bar", O_RDONLY|O_PATH|O_DIRECTORY) = -1 ENOTDIR (Not a directory)
+newfstatat(AT_FDCWD, "foo", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
+newfstatat(AT_FDCWD, "bar", {st_mode=S_IFREG|0644, st_size=56, ...}, AT_SYMLINK_NOFOLLOW) = 0
+# check the permission
+geteuid()                               = 1000
+faccessat2(AT_FDCWD, "bar", W_OK, AT_EACCESS) = 0
+renameat(AT_FDCWD, "foo", AT_FDCWD, "bar") = 0
+```
 ## TODO
 - read "APUE".
 # Projects
