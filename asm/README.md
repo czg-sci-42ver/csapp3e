@@ -3867,7 +3867,7 @@ vcvtsi2ss %edi, %xmm1, %xmm2
     - ~~TODO~~ [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM 
       Just see the above, but notice Flash is just one special EEPROM and it only has structural similarity with DRAM because of `WL` and `BL` but how they store bit is totally different where the latter uses capacitor and the former uses "*Floating-gate* MOSFET". <a id="flash_diff_dram"></a>
       - This implies why Flash is [slower](https://qr.ae/py3C3i) than DRAM.
-        > And the force an electron *through an isolator* idea of the Flash’s MOSFET *floating gate* is just slower than both.
+        > And the force an electron *through an isolator* idea of the Flash’s MOSFET *floating gate* is just slower than both. <a id="Floating_isolator"></a>
 
       Notice: floating gate "solving the traditional *endurance* roblem" because of "utilizing an *oxide* less than 2001 thick *between* a floating poly gate and an $N^+$ region" (more detailedly, it is *surrounded* by oxide) (This is also said somewhere in wikipedia which is temporarily forgotten the location)
 
@@ -5481,7 +5481,9 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
 - p886
   - RAID 2: 'all hard disk drives implementing internal error correction' like [Reed-Solomon](https://datarecovery.com/rd/what-are-hard-drive-error-correction-codes-eccs/) , so 'external Hamming code' is redundant -> 'not currently used'.
   - TODO RAID 3 Bit-Interleaved Parity [difference](https://gursimrandhillon.files.wordpress.com/2013/09/raid-notes.pdf) with RAID 4
-  - RAID 4 is better because it 'allowing independent accesses' while RAID 3 is based on 'byte-level striping' and 'because any single block of data will, by definition, be *spread across* all members of the set'. So RAID 3 is not independent .
+  - RAID 4 is better because it 'allowing *independent* accesses' while RAID 3 is based on '*byte*-level striping' and 'because any single block of data will, by definition, be *spread across* all members of the set'. So RAID 3 is not independent. <a id="not_use_raid_3"></a>
+    - TODO maybe due to the unnecessary fine-grained stripping of RAID 2/3 so RAID 2/3 is not used.
+    - From [this](https://en.wikipedia.org/wiki/Standard_RAID_levels#Comparison), RAID2~4 are similar where differences only on the error correction and striping methods.
     - In short, RAID 4 can manipulate multiple requests because they normally are stored at different disks (i.e. 'as long as the *minimum access* is *one* sector.'). While RAID 3 can't because every data spread across these disks.
       - Write is *similarly* benefited. And it can use *shortcut* to reduce disk access *number*.
 - p889
