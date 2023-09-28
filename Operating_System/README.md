@@ -1,4 +1,6 @@
 - See [Online notes](https://www.josehu.com/assets/file/ostep-note/operating-systems-ostep.html#advancedrelated-topics)
+# markdown modification
+- `( >.*\n)([^\n])` (to avoid already modified quotes `>` which has newline departed from the subsequent contents) or `( >.*\n)([.*])` to `$1\n$2`.
 # How to read this book
 - > While it’s generally good to trust this book, remember too that the authors have *opinions*; those opinions may *not (always) be as widely shared as you might think.*
 
@@ -7,6 +9,8 @@
 - read this book "Javascript: The Good Parts".
 - posix related docs better see [opengroup_doc] which is more detailed than `man`
 - xv6 version `2012-01-30-1-g1c41342` in [ostep_book] "p499/709".
+- > Don’t just read academic papers; also read about recent advances in the popular press (e.g., [V12]).
+  read web "anandtech".
 ## also applies to other books
 - > Well, hopefully those using this book actually do look at this part *earlier*, all throughout the course.
 
@@ -26,12 +30,12 @@
     ```
 - "journaling or copy-on-write" is *not same*.
   The COW is same as csapp p871
-  See [this](https://lwn.net/Articles/576276/) from [this](https://unix.stackexchange.com/a/634056/568529) where journaling can be seen as `journalctl`.
-  > Btrfs, instead, will *move overwritten blocks elsewhere* in the filesystem and write the *new data there*, leaving the older copy of the data in place.
+  See [this](https://lwn.net/Articles/576276/) from [this](https://unix.stackexchange.com/a/634056/568529) where journaling can be seen as `journalctl`. <a id="COW_btrfs"></a>
+  > When data is *overwritten* in an ext4 filesystem, the new data is written on top of the existing data on the storage device, *destroying* the old copy. Btrfs, instead, will *move overwritten blocks elsewhere* in the filesystem and write the *new data there*, leaving the older copy of the data in place.
 
   > So, among other things, a COW filesystem does *not need to implement a separate journal* to provide crash resistance.
 
-  - `--reflink=always` implies COW.
+  - [`--reflink=always`](https://btrfs.readthedocs.io/en/latest/Reflink.html) implies COW.
 - after comparison of 1.01 and 1.00 of introduction, the code font size is changed.
   Also see [this](https://pages.cs.wisc.edu/~remzi/OSTEP/combined.html) for more changes.
 - > to write such a program in a high-level language like C9 without thinking about assembly, to write code in assembly without thinking about logic gates, and to build a processor out of gates without thinking too much about transistors. 
@@ -2898,7 +2902,7 @@ problem list:
   > includes a small amount of non-volatile RAM (e.g., battery-backed)
 
 - ["Specialized software"](https://qr.ae/pK7QZT) is optimized for one specific purpose.
-- silent error [definition](https://people.cs.umass.edu/~phillipa/papers/fast10.pdf)
+- silent error [definition](https://people.cs.umass.edu/~phillipa/papers/fast10.pdf) (i.e. latent sector errors)
   > i.e. errors that are unknown to the system *until it tries to access* the affected sector,
 
   > The timestamps in our data refer to the time when the error was *detected*, not necessarily when it first *happened*
@@ -2956,17 +2960,11 @@ problem list:
   ~~if using more independent writes on *different stripes* like number $N$, then the speed will be $\frac{R}{N}$ MB/s~~
   original writes only one I/O (i.e. one write) to two -> $(R/2)$ speed.
 - > Also, when updating the parity disk in RAID-4/5, the first read of the old parity will likely cause a full seek and rotation, but the second write of the parity will *only result in rotation*. Finally, sequential I/O to mirrored RAIDs pay a 2× performance penalty as compared to other approaches
+
   because two reads/writes to adjacent disks of mirrored ones has no relations -> higher penalty.
 - [Hot Spare](https://community.boschsecurity.com/t5/Security-Video/What-is-the-difference-between-RAID-5-RAID-5-plus-a-Hot-Spare/ta-p/11521) i.e. dependability as said in COD.
   > When a drive fails, the hot spare automatically *takes its place*, *rebuilding* the data without manual intervention
-### TODO
-- > then our total bandwidth for small writes will be $\frac{N}{4}*R$ MB/s
 
-  because based on the book example, `1,10` will occupy four slots and make the following requests *block*
-  if one of `1/10` finished, still only 3 slots (including one parity slot) avialable, so still somewhat block.
-  so only when both `1` and `10` finished, the bandwidth will be normal -> division of 4 in $\frac{N}{4}*R$
-  - since here no bottleneck -> $*N$
-- [RAID-6 encoding](https://en.wikipedia.org/wiki/Standard_RAID_levels#General_parity_system)
 ## Files and Directories
 - Capability provides "a *single* mechanism" to "address both hardware and software resources". See [p4](https://homes.cs.washington.edu/~levy/capabook/Chapter1.pdf)
 - notice `fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0` in `strace cat foo` to use sequential read as the raid chapter says.
@@ -2975,10 +2973,14 @@ problem list:
 - "open file table" see csapp 944/1122 and xv6 `ftable`.
 - `F_SETOWN` sets
   > set the *process ID or process group ID* specified to receive SIGURG signals when out‐of‐band  data
+
 - > (if fsync() is correctly implemented, that is)
+
   maybe means as said in man where it may be interrupted by some faults or power failures:
   > In the middle ground between these extremes, fsync() might or might not actually cause data to  be written  where  it  is  safe from a power failure
+
 - > Because the stack is persistent, data push’d by one invocation of pstack can be pop’d by the next.
+
   i.e. no delay like disk files which needs `fsync` to solve.
 - `mv` syscalls
 ```bash
@@ -2995,6 +2997,7 @@ renameat(AT_FDCWD, "foo", AT_FDCWD, "bar") = 0
 - [`struct stat`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/arch/alpha/include/uapi/asm/stat.h#L5-L6) in linux and see `man 3type stat`
 - book `struct dirent` -> `struct linux_dirent` in `man getdents64`
 - > a program may want to call stat() on each file to get more information on each, such as its length or other detailed information.
+
   It uses `statx`
 ```bash
 $ strace ls -l
@@ -3004,6 +3007,7 @@ statx(4, ".", AT_STATX_SYNC_AS_STAT, STATX_TYPE|STATX_INO|STATX_MNT_ID, {stx_mas
 tributes=STATX_ATTR_MOUNT_ROOT, stx_mode=S_IFDIR|0755, stx_size=312, ...}) = 0
 ```
 - > for fear that you will create a cycle in the directory tree)
+
   e.g.
   `a->a/foo` then `ln a/foo .` will make the endless loop `a->a/foo->a->a/foo`.
 - [dangling reference](https://stackoverflow.com/a/17997314/21294350) -> invalid reference.
@@ -3011,6 +3015,7 @@ tributes=STATX_ATTR_MOUNT_ROOT, stx_mode=S_IFDIR|0755, stx_size=312, ...}) = 0
 - execute bit for [directory](https://superuser.com/a/169418/1658455)
 - "transactional file system" uses [atomicity](#Transaction_atomicity) to solve with TOCTTOU.
 - > per-process entity, which refers to an *entry* in the open file table
+
   See xv6 source codes
 ```c
 sys_open(void)
@@ -3025,14 +3030,8 @@ fdalloc(struct file *f)
 ...
 curproc->ofile[fd] = f;
 ```
-  so `struct file` pointers (i.e. entry) in `ftable` are shared across processes.
-  > 
-### TODO
-- > This last step *atomically* swaps the new file into place, while concurrently deleting the old version of the file
-  How implemented in [`do_renameat2`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/namei.c#L4898-L4899)
-- > you are making a structure (the inode) that will track virtually all relevant infor-mation about the file
-  how inode data struct defined.
-- can't be [removed](https://unix.stackexchange.com/a/29572/568529) from the `wheel` group which is related with [`sudo`](https://en.wikipedia.org/wiki/Wheel_(computing)#Wheel_group) (this is just one convention and needs [visudo](https://superuser.com/a/1082668/1658455) modification to take effect)
+  so `struct file` pointers `f` (i.e. entry) in `ftable` are shared across processes.
+- ~~can't be~~ [removed](https://unix.stackexchange.com/a/29572/568529) from the `wheel` group which is related with [`sudo`](https://en.wikipedia.org/wiki/Wheel_(computing)#Wheel_group) (this is just one convention and needs [visudo](https://superuser.com/a/1082668/1658455) modification to take effect)
 ```bash
 $ sudo gpasswd -d czg_arch wheel
 Removing user czg_arch from group wheel
@@ -3049,8 +3048,312 @@ $ visudo
 ...
 ## Uncomment to allow members of group wheel to execute any command
 # %wheel ALL=(ALL:ALL) ALL
+%wheel ALL=(ALL:ALL) NOPASSWD: ALL # no need for passwd to use the "sudo"
+
+# after roobot, the czg_arch has no sudo permission even with the password.
 ```
-## 
+## File System Implementation
+- > unlike our development of CPU and memory virtualization, we will not be adding hardware features
+
+  CPU virtualization -> needs "hardware-specific trap instruction" in [ostep_book] 72/709.
+  memory virtualization -> "including hardware features such as TLBs" in [ostep_book] 144/709.
+- `blk` in p5 means the block location in the inode region.
+- [`btrfs_inode`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/btrfs/btrfs_inode.h#L73)
+  general [`inode`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/include/linux/fs.h#L639-L640)
+- "dou-ble indirect pointer" similar to multi-level page tables.
+- > they are akin to segments in the discussion of virtual memory
+
+  TODO po segment is fixed size which is similar to but not same as the length in "extents".
+- p8 `strlen` is different from the lib function `strlen` which excludes the ending `'\0'`.
+- > contains inode number 2 (the *first inode* block)
+
+  TODO p4 d-map is the block 2.
+- > , one to the *data of the directory* (to link the high-level name of the file to its inode number), and one *read and write* to the directory inode to update it
+
+  i.e. foo data write (modify directory contents) "data of the directory" -> foo inode write (here read has been done before "foo data write") to modify the *metadata* of the directory.
+  - > one read to the inode bitmap (to find a free inode), one write to the inode bitmap (to mark it allocated), one write to the new inode itself (to initialize it)
+
+    in the figure also "bar inode" read before write.
+- > must not only allocate an inode, but also allocate space within the directory containing the new file.
+
+  this is based on *already needing* file contents allocation.
+  - "file creation" mainly implies possible directory modification so more I/O.
+  - Figure 40.4 the last three big blocks -> "writing to the file" without creating (although here is after creation).
+    - > two more to read and then write the inode (which is updated with the new block’s location)
+
+      is splitted by the "read the data bitmap" , "write the bitmap" and "one to write the actual block itself." (i.e. bar data [n]).
+- See chapter 22 LRU comparison with others.
+- > by delaying the write after the first update
+
+  i.e. delaying the write of the *inode bitmap*.
+- > then schedule the subsequent I/Os
+
+  i.e. See chapter 37.
+## Fast File System
+- differentiate BSD author [Bill Joy](https://en.wikipedia.org/wiki/Bill_Joy) which is also the author of `vi` from the UNIX author Ken Thompson.
+- ["Record-based storage systems"](https://en.wikipedia.org/wiki/Record-oriented_filesystem) maybe based on [lines](https://en.wikipedia.org/wiki/Storage_record)
+- "ASIDE: FFS FILE CREATION" same as the last chapter create a file.
+- > just a (relatively) little time seeking between chunks of the block.
+
+  See chapter 39
+  So although seek inside the disk may be high, but the seek time between disks or different groups in the disk is smaller.
+  Then in total, less time somewhat.
+- Figure 41.2 seems to be wrong.
+```python
+import matplotlib.pyplot as plt 
+import numpy as np
+t2 = np.arange(0.0, 1.0, 0.1)
+plt.figure()
+plt.plot(t2, 20*t2/(1-t2),'r--')
+plt.show() 
+```
+- > every 1024 blocks of the file (4MB) were placed in separate groups, the lone exception being the first 48KB of the file as pointed to by direct pointers
+
+  See "The Multi-Level Index"
+  1024 refers to indirect ones instead of direct ones.
+- > would buffer writes and then issue them in 4KB chunks to the file system
+
+  So will *know* at that time whether 4KB or sub-blocks then copy *avoided*.
+- With "track buffer", the "staggered layout scheme" is not needed.
+- > Long file names, symbolic links, and a rename operation that worked atomically all improved the utility of a system
+
+  From 40.7, use cache to help "Long file names".
+  And see the following in p12.
+## FSCK and Journaling
+- > 8 total, numbered 0 to 7, and spread across four blocks
+
+  this is different from "a 4-KB block can hold 16 inodes," said in [ostep_book] 534/709.
+- > ensuring that no directory is linked to more than once
+
+  i.e. the soft/symbolic link is not taken in account for the *link count*.
+- > With write buffering enabled (sometimes called immediate reporting
+
+  maybe due to:
+  the write doesn't need wait -> *immediate* reporting
+  - This also applies to CPU cache where write actual order may differ from the *issue* order.
+- > only after these writes *complete* can the file system send the transaction-end block to disk ... usually an extra rotation is incurred (think about why)
+
+  because these data is probably adjacent and the send after completion has probably *skipped* the write at *the 1st rotation*.
+- > during recovery, the file system sees a mismatch in the computed checksum versus the stored checksum in the transaction
+
+  so five original writes -> one single write with the *checksum*.
+- > one should make it a single 512-byte block.
+
+  to ensure it *not combined with later* other writes.
+- > ensures that the on-disk structures are consistent
+
+  i.e. between the log and the disk data.
+- > minimally including: the inode bitmap (to allocate a new inode), the newly-created inode of the file, ...
+
+  See "Figure 40.4" four writes in "create" row.
+- > logically commit all of this information to the journal for each of our two file creations; ... end up writing these same blocks over and over
+
+  i.e. logical logging.
+  write two times because "two file creations"
+- > thus reduces recovery time as well as enables re-use of the log in a circular fashion
+
+  here "circular" doesn't mean replace the head after *reaching across the end*.
+- p14: "Data write" first to ensure *no need to recover the user data* and "never point to garbage".
+  - Notice same as before and `free` function implementation, the free space is *not reset* but only removed from the *allocation range*.
+    > mark the transaction free in journal superblock
+
+- See [p33,34](https://compas.cs.stonybrook.edu/~nhonarmand/courses/fa17/cse306/slides/18-fs_consistency.pdf)
+  unordered refers to order of data w.r.t. metadata.
+- > any such revoked data is never replayed
+
+  i.e. the record *right before the revoke* record.
+- COW see [this](#COW_btrfs)
+  > This technique never overwrites files or directories in place
+
+  So there is *no intermediate state* for the old copy.
+## Log-structured File Systems
+- > places chunks of the inode map right *next to* where it is writing all of the other new information
+
+  > The checkpoint region contains pointers to (i.e., addresses of) the latest pieces of the inode map
+
+  So why not just make CR points to inodes?
+  See "43.8 What About Directories?" where both the dir and the file need to be tracked.
+  - Also see the homework 1 `./lfs.py -n 3` where data location can be kept with *just updating the imap*.
+- > whenever an inode is updated, its location on disk changes. If we hadn’t been careful, this would have also entailed an update to the directory that points to this file
+
+  Without the imap, there would be *two* locations for the same *inode number*, so the single inode number isn't enough for the lookup.
+  With the imap, it ensures the *one-to-one* map.
+- > the LFS cleaner works on a segment-by-segment basis
+
+  > write out a new set of segments with *just the live* blocks within them
+
+  ~~TODO So needs all segments are old which may be not the case sometimes.~~
+- > find its inode number N and offset T. 
+
+  based on the 2nd picture in p9, imap only maps `N` to the latest inode block.
+  So only one data block is valid.
+- > Worse, we *never overwrite in place*, and thus the latest version of an inode (i.e., the one we want) keeps moving.
+
+  > more and more blocks are getting over-written (in new segments) and thus being freed for use
+
+  i.e. the hot segment may have *more free* blocks in the future so that delay it.
+  "hot" -> changing more frequently.
+- > keeps two CRs, one at either end of the disk
+
+  as the backup of each other.
+- The log may be specific to the [*interval between checkpoints* "A long interval between ..."](https://web.stanford.edu/~ouster/cgi-bin/papers/lfs.pdf), so more efficient in some way than the last chapter.
+  the basic replay is probably [same](http://cs.williams.edu/~jannen/teaching/s20/cs333/meetings/LFS.pdf) as the last chapter.
+  it is [based on the checkpoints](https://elfi-y.medium.com/operating-systems-101-persistence-log-structured-file-system-and-flash-based-ssd-vi-e9620d79668b) as the book says.
+## Flash-based SSDs
+- why use NAND See [asm_md] "NAND_FLASH_SSD".
+  - It shows
+    1. > (by setting each bit to the value 1)
+
+      is the reset operation to the floating gate.
+      - Also implies
+        > the level of charge trapped within the transistor is mapped to a binary value. 
+
+        because the electron means 0.
+- > it can be erased *only a block* at a time
+
+  From [this](https://en.wikipedia.org/wiki/Flash_memory#Block_erasure) referenced by [this](https://community.st.com/t5/stm32cubeprogrammer-mcus/why-it-s-necessary-erase-the-flash-before-write-in-code-time/td-p/127616#:~:text=%3E%20Why%20in%20code%20time%20we,hardware%20limitation%20of%20FLASH%20memory.)
+  - ~~maybe~~ due to as books says
+    > The erase command is quite expensive, taking a few milliseconds to complete
+
+    or from wikipedia
+    > Because erase cycles are slow, the large block sizes used in flash memory erasing give it a *significant speed advantage* over non-flash EEPROM when writing large amounts of data. As of 2019, flash memory costs greatly less than *byte-programmable* EEPROM
+
+- > it is possible that some bits get flipped in neighboring pages
+
+  It is also said in ~~csapp~~ COD "row hammer".
+- > the costly read-modify-write of the direct-mapped
+
+  > read in the entire block (costly), erase it (quite costly), and then program it (costly).
+
+  here read intended to move the data elsewhere.
+- > read in the entire block (costly), erase it (quite costly), and then program it (costly).
+
+  log in the on-disk memory.
+  > Because of the log-structured nature of the device, overwrites create garbage blocks
+
+  i.e. not overwrite in place but elsewhere.
+- "checkpointing" avoids the *entire* search of "a large SSD".
+- > find a block that contains one or more garbage pages, read in the live (non-garbage) pages from that block, write out *those live* pages to the log, 
+
+  same as lfs chapter p10
+  > the LFS cleaner reads in a number of old (partially-used) *segments*, determines which blocks are live within these segments, and then write out a new set of segments with *just the live* blocks within them
+
+- > it is highly useful to know that a block is no longer needed, as the SSD can then remove this information from the FTL and *later reclaim* the physical space during garbage collection.
+
+  `trim` *accelerates* the reclamation without consulting the map to know whether dead-block.
+- > Adding more capacity also increases internal bandwidth, which can be used for cleaning and thus *not harm* perceived bandwidth to the client
+
+  because the banks can be in *parallel* which is different from the hard disks.
+- > This data copying increases write amplification greatly
+
+  so the optimal "amplification" is `1`.
+- "Hybrid Mapping" guess based on Block-Based Mapping
+  i.e. small writes -> page mapping
+  large writes -> block version.
+- switch merge
+  1. switch: the "log block" from block 0 -> 2
+  2. merge: 4 log pointers -> 1 data pointer
+  - > Why is it more challenging to handle? 
+
+    i.e. unable to switch and merge
+    so 2 logs plus one data 
+    and if next is block write, block 1 will be used and there is fragmentation inside the block 0.
+- > Logical blocks 2000, 2001, 2002, and 2003 all have the same chunk number (500)
+
+  $500=2000/4$ where 4 is the page num in one block.
+- > logical blocks 1002 and 1003 are read from physical block 2, and then *appended to the log*. 
+
+  ~~the "log" is for recovery while it doesn't need for "switch merge"?~~
+  > The resulting state of the SSD is the *same as the switch merge* above; however, in this case, the FTL had to perform extra I/O to achieve its goals
+
+  ~~TODO~~ ~~so why must make the log block erased~~ ~~since same as "switch merge", then how to use the advantage of the log block? only acquiring the advantages when writting to the log block?~~
+  > For example, imagine that logical blocks 0, 4, 8, and 12 are written to log block A. ... the log block A can be freed.
+
+  the log block is just one *temporary* block which stores the recent pages to write.
+  So p16 top figure will then copy `c,d` to block `0` -> p15 3rd figure.
+  - See
+    > thus the FTL must read 1, 2, and 3 from *elsewhere* and then write out 0, 1, 2, and 3 together.
+
+    it is to ensure block 1 is *consecutive*.
+    here "0, 1, 2, and 3 together" to the assigned block for 0.
+- > The basic *log-structuring* approach does a good initial job of spreading out write load, and *garbage collection* helps as well
+
+  these two imply the *sequential* write.
+- > SSD random read performance is not as good as SSD random write performance
+
+  because
+  > transforms random writes into sequential ones
+
+  while the random reads can't be transformed. 
+  - "Sequential writes" better because *less* overhead of the mapping log. See "switch merge".
+    - "Sequential read" better than "Sequential writes" is obvious because exactly *no* "overhead of the mapping log".
+- ["Request Scale"](https://pages.cs.wisc.edu/~jhe/eurosys17-he.pdf) means write-buffering in some way.
+- > Most FTLs are log-structured, which reduces the cost of writing
+  as before said, sequential and write elsewhere accelerates this process.
+### write amplification
+1. Wear Leveling
+  > periodically read all the live data out of such blocks and re-write it elsewhere
+
+  - This is for the lifetime of the SSD.
+2. > excessive *garbage collection* drives up write amplification
+
+3. in block-based mapping 
+  > This *data copying* increases write amplification greatly 
+
+  > perform *extra I/O* to achieve its goals, thus increasing write amplification.
+
+  - maybe better using "working set of necessary translations" with the "page-mapped FTLs".
+### Block-Based Mapping
+- > the FTL must read in 2000, 2001, and 2003, and then write out all four logical blocks in a new location,
+
+  because here the minimal unit is "block", so although only one page is modified, the whole block is written.
+## Data Integrity
+- > if the disk head touches the surface for some reason (a head crash
+  [See](https://acsdata.com/hard-drive-read-write-heads/#:~:text=The%20heads%20do%20not%20touch,as%20the%20%E2%80%9Cflying%20height%E2%80%9D.)
+  > This is essentially air pressure that is *generated by the rotation* of the platters, and it creates *lift* on the heads.
+  - The read/write is based on transform between [electric current and the magnetic field](https://en.wikipedia.org/wiki/Disk_read-and-write_head#Traditional_head). 
+- > log-structured nature of the NetApp WAFL file system
+  i.e. snapshots
+- "RAID-DP" better see [this](https://community.netapp.com/t5/Tech-ONTAP-Articles/Back-to-Basics-RAID-DP/ta-p/86123) or [pdf](https://www.netapp.com/pdf.html?item=/media/19939-tr-3298.pdf) version where diagnoal will *drop one disk* so allow detection of two-disk errors.
+  TODO [math][C+04]
+- ~~TODO~~ "XOR-based checksums" is just the *multi-bit* parity.
+- > disk sector or block
+  as ssd chapter says, "block" terminology meaning depends on the context.
+- "Checksum" is used to *detect*, so no strong need for correction offered by error codes like the hamming code.
+## Summary Dialogue
+- [erasure code](https://www.techtarget.com/searchstorage/definition/erasure-coding#:~:text=Erasure%20coding%20(EC)%20is%20a,different%20locations%20or%20storage%20media.) is more redundant version.
+## TODO
+- 38
+  - > then our total bandwidth for small writes will be $\frac{N}{4}*R$ MB/s
+
+    because based on the book example, `1,10` will occupy four slots and make the following requests *block*
+    if one of `1/10` finished, still only 3 slots (including one parity slot) avialable, so still somewhat block.
+    so only when both `1` and `10` finished, the bandwidth will be normal -> division of 4 in $\frac{N}{4}*R$
+    - since here no bottleneck -> $*N$
+  - [RAID-6 encoding](https://en.wikipedia.org/wiki/Standard_RAID_levels#General_parity_system)
+- 39
+  - > This last step *atomically* swaps the new file into place, while concurrently deleting the old version of the file
+
+    How implemented in [`do_renameat2`](https://github1s.com/torvalds/linux/blob/aed8aee11130a954356200afa3f1b8753e8a9482/fs/namei.c#L4898-L4899)
+  - > you are making a structure (the inode) that will track virtually all relevant infor-mation about the file
+
+    how inode data struct defined.
+- 42
+  - > until the delete of said blocks is checkpointed out of the journal.
+
+  i.e. after really delete? so the said blocks can't be seen.
+- 43
+  - > simply by comparing the on-disk version number with a version number in the imap
+
+    how does this version show the specific information about one *specific file*?
+### 44
+- "latency of reads, programs, and erases" shown where in [V12]?
+### 45
+- > Only if the writes to both the inode and the data
+  overheads maybe higher than one read and one write, so how do ZFS help this problem with the write complexity?
+- >  because the copy is needed anyhow (e.g., to copy the data from the kernel page cache into a user buffer), combined copying/checksumming can be quite effective.
+  > combine data copying and checksumming
+  i.e. avoid the context switches?
 # hardware
 ## TODO
 - SCSI disks vs IDE disks / ATA.
@@ -3208,6 +3511,14 @@ find: ‘/proc/1475/net’: Invalid argument
 - [H01, H91, H93]
 - [PDZ99, WCB01]
   - [PDZ99] See highlights for how IPC is used for switching between threads and the event loop.
+- "recent advances" with `fsck` [M+13]
+- Soft Updates [GP94]
+- [C+12]
+- potential harms, see Mogul [M94].
+- how to do better [MR+97]
+- [J10] which needs the access rights.
+- [A+08, M+14]
+- [M+14]
 ## history
 - [S08]
 ## after learning the algorithms
@@ -4570,8 +4881,10 @@ maybe "seek" counts?
   so `./raid.py -L 5 -t -n 100 -c -w 100       // 497.4` better than RAID-4.
 8. 
 - > How does the performance vary with RAID level, and when doing reads versus writes
+
   not many differences.
 - > How about when varying the size of each request
+
 the sequential property *amortizes* somewhat.
 ```bash
 $ ./raid.py -L 4 -t -n 100 -c -w 100 -W seq | tail -n 2
@@ -4625,6 +4938,361 @@ optind:5 pattern:c
 /home/czg_arch/czg_tmp/sed/
 myfind: '/home/czg_arch/czg_tmp/sed/': Permission denied
 ```
+### File System Implementation
+- `refCnt = 2` makes the dir default "r:2", but `stat` with dir is not this case, also after creating the subdir.
+1. 
+```bash
+$ ./vsfs.py -n 6 -s 17
+...
+
+# ans
+create /u dir
+create /a file
+unlink /a
+create /z dir
+create /s dir
+create /z/f file
+```
+2. inode number increment and decrement.
+See [ostep_hw] better.
+3. dir; `mkdir`
+  `./vsfs.py -d 2 -n 100 -p -c -s 3` will fails with `write`.
+  `if self.dbitmap.numFree() == 0:` makes crash when no free.
+4. 3 plus `create`,
+  ~~based on Figure 40.3,`open/read` doesn't add to inodes -> succeeds.~~
+  From `rc = self.doAppend()` there is no separate `read` operation.
+  ~~TODO different from [ostep_hw].~~
+  - Use `str="read";for i in $(seq 10000);do echo $i; ./vsfs.py -i 2 -n 100 -p -c -s $i | grep $str;done > ~/log_inode.log 2>&1` to debug.
+
+### Fast File System
+3. here `59=40+20-1`.
+```bash
+$ ./ffs.py -f in.largefile -L 100 -T -c -S
+group inodes    data
+    0 /a-------- /aaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+    1 ---------- aaaaaaaaaa a--------- ----------
+...
+a            1  /a           regular    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 
+
+span: files
+  file:         /a  filespan:  59
+               avg  filespan:  59.00
+```
+4. 
+5. `./ffs.py -f in.manyfiles -c -T` avoid the defragmentation.
+6. `./ffs.py -f in.manyfiles -L 100 -v -T -c -i 5` larger.
+7. ~~same as 5.~~
+  avoid the defragmentation somewhat.
+9. 2 and above is same; increase mostly.
+### 42
+- notice obviously the data block addr is different from the inode block addr.
+- "[z] [] [] [g]" is included when run on my computer.
+```bash
+$ ./fsck.py -S 1
+Final state of file system:
+
+inode bitmap 1000100010000001
+inodes       [d a:0 r:4] [] [] [] [d a:12 r:2] [] [] [] [d a:6 r:2] [] [] [] [] [f a:-1 r:2] [] [f a:-1 r:1]
+# based on `self.inodes[parentInum].incRefCnt()`, here / has 2 sub-directories -> r:4
+data bitmap  1000001000001000
+data         [(.,0) (..,0) (g,8) (w,4) (m,13) (z,13)] [] [] [] [] [] [(.,8) (..,0) (s,15)] [] [] [] [] [] [(.,4) (..,0)] [] [] [] 
+...
+Can you figure out how the file system was corrupted?
+# here the 13th bit (when 1st is 0th) of the inode is wrong when 13th block has been allocated.
+```
+  ~~here accumulative `refCnt` of `f` is 3 corresponding to 3 files -> no error with inode `refCnt`.~~
+  here `(m,13) (z,13)` implies `[f a:-1 r:2]`
+  `(s,15)` means it is in the inode block 15.
+- Here I use `python 3.11.5` which influences the `seed`.
+- The following based on `fsck` instead of `journaling`.
+1. similar to README
+```bash
+$ ./fsck.py -D
+data         [(.,0) (..,0) (g,8) (w,4) (m,13) (z,13)] [] [] [] [] [] [(.,8) (..,0) (s,15)] [] [] [] [] [] [(.,4) (..,0)] [] [] [] 
+# dir: /g,/w by viewing `(.,8)`, etc. ## wrong without /
+# file: /g/s,/m,/z
+```
+2. based on `fsck`, prefer the inode state than the inode bitmap. See p5 "Free blocks" 
+4. data is wrong.
+  ```bash
+  CORRUPTION::INODE 8 with directory [('.', 8), ('..', 0), ('s', 15)]:
+     entry ('s', 15) altered to refer to different name (y)
+  ```
+  38 -> possible because conventional `..` See "Directory checks" in p6.
+   ```bash
+   CORRUPTION::INODE 4 with directory [('.', 4), ('..', 0)]:
+     entry ('..', 0) altered to refer to different name (b)
+   ```
+  642 -> detectable but unable to fix.
+   ```bash
+   CORRUPTION::INODE 0 with directory [('.', 0), ('..', 0), ('g', 8), ('w', 4), ('m', 13), ('z', 13)]:
+     entry ('g', 8) altered to refer to different name (w)
+   ```
+- TODO "Add a 1 to the folder name." in [ostep_hw]
+5. use the data block.
+6. same as 5.
+7. same as 5.
+- TODO why "All data will be lost."
+  since the crash only writes the inode partly which may not have modified the data blocks.
+8. ~~Yes as the always case for redundancy.~~
+  As [ostep_hw] says, no need for redundancy here.
+9. scan the data block.
+  - See `./vsfs.py -n 10 -p -c -s 6`, where `[f a:2 r:2]` in `inodes` means the file contents are in data block 2.
+    So here no data block which is not a directory, then it is ok if *either* inode or data is corrupted.
+    i.e. `[f a:7 r:2]` -> `[f a:-1 r:2]`
+    ```bash
+    $ ./fsck.py -S 16 -c
+    RANDINT 4
+    CORRUPTION::INODE 13 points to dead block 7
+    ...
+    inodes       [d a:0 r:4] [] [] [] [d a:12 r:2] [] [] [] [d a:6 r:2] [] [] [] [] [f a:7 r:2] [] [f a:-1 r:1] 
+    ```
+### 43
+1. create -> write -> create
+```bash
+$ ./lfs.py -n 3
+...
+FINAL file system contents:
+[   0 ] ?    checkpoint: 14 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+[   1 ] ?    [.,0] [..,0] -- -- -- -- -- -- 
+[   2 ] ?    type:dir size:1 refs:2 ptrs: 1 -- -- -- -- -- -- -- 
+[   3 ] ?    chunk(imap): 2 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+[   4 ] ?    [.,0] [..,0] [ku3,1] -- -- -- -- -- 
+[   5 ] ?    type:dir size:1 refs:2 ptrs: 4 -- -- -- -- -- -- -- 
+[   6 ] ?    type:reg size:0 refs:1 ptrs: -- -- -- -- -- -- -- -- 
+[   7 ] ?    chunk(imap): 5 6 -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+[   8 ] ?    z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0
+[   9 ] ?    type:reg size:8 refs:1 ptrs: -- -- -- -- -- -- -- 8 
+[  10 ] ?    chunk(imap): 5 9 -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+[  11 ] ?    [.,0] [..,0] [ku3,1] [qg9,2] -- -- -- -- 
+[  12 ] ?    type:dir size:1 refs:2 ptrs: 11 -- -- -- -- -- -- -- 
+[  13 ] ?    type:reg size:0 refs:1 ptrs: -- -- -- -- -- -- -- -- 
+[  14 ] ?    chunk(imap): 12 9 13 -- -- -- -- -- -- -- -- -- -- -- -- -- 
+$ ./lfs.py -n 3 -o -c
+...
+write file  /ku3 offset=7 size=4 
+contents ['z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0', 'v1v1v1v1v1v1v1v1v1v1v1v1v1v1v1v1', 'x2x2x2x2x2x2x2x2x2x2x2x2x2x2x2x2', 'i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3']
+...
+```
+  - live: 12->11
+    9->8
+    13
+    - lack 0,14
+  - `type:reg size:8 refs:1 ptrs: -- -- -- -- -- -- -- 8` because
+    1. `new_inode['size'] = max(current_offset, inode['size'])` will use the `current_offset` (i.e. 8) as `size` here (here `while current_offset < NUM_INODE_PTRS and current_offset < offset + len(contents):` make only part of the contents written to the disk). 
+    2. `new_inode_address = self.log(new_inode)` will add the contents to the disk.
+3. Here `write file  /us7 offset=4 size=0` may be a little redundant.
+4. Too many requests. The basic idea is same as above.
+6. continuous -> faster.
+  See [ostep_hw] for more.
+7. See 1
+8. the `..` increase the `refs` of `/`.
+  See [ostep_hw]
+9. No
+  just increase `refs`
+10. `-a r` -> `[kg5,205]`
+  imap too many empty slots.
+11. data loss.
+  possible data loss.
+  replay and update the checkpoint. See [ostep_hw] it depends on the log contents as the last chapter says.
+### 44
+- `ideal` -> direct memory instead of SSD.
+  > The first is what we'll call an "ideal" SSD, which actually isn't much an SSD at all; it's more like a perfect memory.
+  So it doesn't have the `E` state.
+- `update_cursor` will `self.current_page = -1` when all pages in one block are used.
+- `for block in (x for y in (range(self.gc_current_block, self.num_blocks), range(0, self.gc_current_block)) for x in y):`
+```python
+# init
+gc_current_block=1
+num_blocks=3
+# test the most inner
+for y in (range(gc_current_block, num_blocks), range(0, gc_current_block)):
+# or "for y in [range(gc_current_block, num_blocks), range(0, gc_current_block)]:"
+  print(y)
+######## output
+# range(1, 3)
+# range(0, 1)
+########
+k = [x for y in (range(gc_current_block, num_blocks), range(0, gc_current_block)) for x in y]
+k
+######## output
+# [1, 2, 0]
+########
+for block in (x for y in (range(gc_current_block, num_blocks), range(0, gc_current_block)) for x in y):
+  print(block)
+######## output
+# 1
+# 2
+# 0
+########
+```
+4. $4*(40+10)+1000=1200$
+```bash
+$ ./ssd.py -T log -s 1 -n 10 -C
+...
+# erase
+cmd   0:: write(12, u) -> success
+cmd   1:: write(32, M) -> success
+cmd   2:: read(32) -> M
+cmd   3:: write(38, 0) -> success
+cmd   4:: write(36, e) -> success
+cmd   5:: trim(36) -> success
+cmd   6:: read(32) -> M
+cmd   7:: trim(32) -> success
+cmd   8:: read(12) -> u
+cmd   9:: read(12) -> u
+...
+```
+5. ~~`./ssd.py -T direct -s 1 -n 10 -C` no overwrite -> same.~~
+  wrong -> ~~two~~ erase (See p7, it will erase each time when writting by default), so
+  - here `self.physical_program(old_page, old_data)` will count each page write -> `Writes   0          1          0          6          0          0          0          Sum: 7` where `6=3+0+1+2` (See "write_cnt plus 1 due to old pages" for `1+2` meaning)
+  - less earse and related read, write.
+7. See README instead of [ostep_hw]
+  By viewing `LOG_GC_SKIP` infos, when encountering
+```bash
+$ ./ssd.py -T log -n 1000 -C -G 4 -g 3 -J -F | less
+...
+cmd  98:: write(4, U) -> success
+
+FTL     0: 63   2: 17   4: 20   5: 35   6: 30   9: 64  12: 65  15: 68  16: 10  17: 39 
+       18: 11  19: 62  24: 19  25: 38  27: 61  28: 18  29: 66  30: 16  31: 67  32: 12 
+       33: 14  34: 15  35: 60  37: 33  40: 31  42: 37  43: 69  45: 34  46: 32  47: 13 
+       48: 36 
+Block 0          1          2          3          4          5          6          
+Page  0000000000 1111111111 2222222222 3333333333 4444444444 5555555555 6666666666 
+      0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 
+State EEEEEEEEEE vvvvvvvvvv vEEEEEEEEE vvvvvvvvvv EEEEEEEEEE EEEEEEEEEE vvvvvvvvvv 
+Data             CxtzZ1zrKj U          wS1qXg3ljS                       TW5PZkrIdh 
+Live             ++++++++++ +          ++++++++++                       ++++++++++ 
+
+blocks_in_use 4
+begin garbage_collect
+x first in  [0,7)
+x secondly in  [0,0)
+skip 0 due to STATE_ERASED
+skip 1 due to all live block inside it
+skip current block 2
+skip 3 due to all live block inside it
+skip 4 due to STATE_ERASED
+skip 5 due to STATE_ERASED
+skip 6 due to all live block inside it
+# notice above although 4 blocks are used, but due to no free candidate, so free delayed.
+cmd  99:: write(42, Y) -> success
+
+FTL     0: 63   2: 17   4: 20   5: 35   6: 30   9: 64  12: 65  15: 68  16: 10  17: 39 
+       18: 11  19: 62  24: 19  25: 38  27: 61  28: 18  29: 66  30: 16  31: 67  32: 12 
+       33: 14  34: 15  35: 60  37: 33  40: 31  42: 21  43: 69  45: 34  46: 32  47: 13 
+       48: 36 
+Block 0          1          2          3          4          5          6          
+Page  0000000000 1111111111 2222222222 3333333333 4444444444 5555555555 6666666666 
+      0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 
+State EEEEEEEEEE vvvvvvvvvv vvEEEEEEEE vvvvvvvvvv EEEEEEEEEE EEEEEEEEEE vvvvvvvvvv 
+Data             CxtzZ1zrKj UY         wS1qXg3ljS                       TW5PZkrIdh 
+Live             ++++++++++ ++         +++++++ ++                       ++++++++++ 
+
+blocks_in_use 4
+begin garbage_collect
+x first in  [0,7)
+x secondly in  [0,0)
+skip 0 due to STATE_ERASED
+skip 1 due to all live block inside it
+skip current block 2
+gc 12:: read(physical_page=30)
+gc 12:: write()
+gc 12:: read(physical_page=31)
+gc 12:: write()
+gc 12:: read(physical_page=32)
+gc 12:: write()
+gc 12:: read(physical_page=33)
+gc 12:: write()
+gc 12:: read(physical_page=34)
+gc 12:: write()
+gc 12:: read(physical_page=35)
+gc 12:: write()
+gc 12:: read(physical_page=36)
+gc 12:: write()
+gc 12:: read(physical_page=38)
+gc 12:: write()
+gc 12:: read(physical_page=39)
+gc 12:: write()
+All pages used in the current block. Begin check.
+current_block 2 num_blocks 7
+check block 2
+check block 3
+check block 4
+gc use block 4
+erase  3
+gc 12:: erase(block=3)
+# here block 3 isn't all live, so we can free it. but obviously, it seems to be redundant
+```
+  From above weird behavior, `gc_high_water_mark` may be better to count the page instead of the block. So that no need to move *many pages* as [ostep_hw] says.
+8. ~~[ostep_hw] maybe based on the old script~~
+- default no gc
+- much erase overheads.
+  - Much read and write failures make `log` time less.
+- almost all ways
+- With gc by `-G 4 -g 3`
+  - See 5 -> direct has more overheads of erase and as a side-effect more ones of read and write.
+```bash
+$ ./ssd.py -T direct -n 1000 -C -G 4 -g 3 -J -F -S
+...
+Times
+  Erase time 520000.00
+  Write time 188960.00
+  Read time  50480.00
+  Total time 759440.00
+$ ./ssd.py -T log -n 1000 -C -G 4 -g 3 -J -F -S
+...
+Times
+  Erase time 465000.00
+  Write time 184880.00
+  Read time  44760.00
+  Total time 694640.00
+# ideal no GC, so less Write,Read
+$ ./ssd.py -T ideal -n 1000 -C -G 4 -g 3 -J -F -S
+...
+Times
+  Erase time 0.00
+  Write time 20800.00
+  Read time  3740.00
+  Total time 24540.00
+```
+9. erase much less.
+  - From `address = random_randint(0, int(hot_target * (max_page_addr - 1)))` the random range applies to *logical* addresses
+  - `./ssd.py -T log -s 1 -n 1000 -G 6 -g 8 -S -K 80/20 -J -C -F` will move `valid` more frequently instead of appending `valid`, so less frequent to achieve the `high_water_mark`.
+```bash
+$ ./ssd.py -T log -s 1 -n 1000 -G 6 -g 8 -S -J -C -F | grep "erase(" | wc -l
+129
+$ ./ssd.py -T log -s 1 -n 1000 -G 6 -g 8 -S -K 80/20 -k 50 -J -C -F | grep "erase(" | wc -l
+72
+$ ./ssd.py -T log -s 1 -n 1000 -G 6 -g 8 -S -K 80/20 -J -C -F | grep "erase(" | wc -l
+57
+```
+TODO With `direct`, the behavior is opposite because the hot region will imply higher erase although cold is same.
+maybe due to more `read` when no `-K 80/20 -k 50`.
+```bash
+$ ./ssd.py -T direct -s 1 -n 1000 -G 6 -g 8 -S -K 80/20 -k 50 -J -C -F | grep "erase in write_direct" | wc -l
+509
+$ ./ssd.py -T direct -s 1 -n 1000 -G 6 -g 8 -S -J -C -F | grep "erase in write_direct" | wc -l             
+492
+```
+### 45
+- [Fletcher](https://en.wikipedia.org/wiki/Fletcher%27s_checksum#Example_calculation_of_the_Fletcher-16_checksum) example -> ~~the book code seems to be wrong.~~
+  where `CB0` first plus `C0` then `C1` -> `0xFF` so `0xFF%0xFF=0x00`,
+  simialr to `CB1`
+3. See [ostep_hw]
+5. overflow
+6. TODO is there one specific pattern for this coincidence?
+7. Fletcher cares about order.
+  bacause of above `C1`
+8. See [ostep_hw]
+
+#### codes
+3. performance: former; checking: latter (with small number, they are similar)
+  See the before comparison in `./checksum.py`
+4. similar to XOR, faster than Fletcher based on `./compare.sh`.
+5. there are 4 checksum methods referenced above in the code homework and also in the book.
+  Here use the simplest method `XOR`.
 ## TODO
 - read "APUE".
 # Projects
@@ -5095,10 +5763,15 @@ number: 300
 # TODO after reading the network book
 - C33 homework TODO.
 - [MR96] 6.6 and later in 6 better with codes.
+# TODO after reading the cryptography book
+- [F04](https://pages.cs.wisc.edu/~remzi/OSTEP/Citations/checksums-03.pdf)
+- [M13]
+- chapter 45 code 4,5
 # TODO
 - read the Multi-CPU Scheduling after "Concurrency".
 - use `valgrind` with chapter 14,22 homework.
   - read [SN05]
+- ext4 vs reiserfs
 ## related with security
 - > lets the attacker inject arbitrary data into the target’s address space.
 
@@ -5280,6 +5953,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [PDZ99]:./Ostep_papers/Flash_web.pdf
 [O96]:./Ostep_papers/ousterhout-threads.pdf
 [MR96]:./Ostep_papers/mogul96usenix.pdf
+[R92]:./Ostep_papers/CSD-92-696.pdf
+[C+04]:./Ostep_papers/corbett.pdf
 
 [H93_MIPS_R4000]:../references/other_resources/COD/MIPS/R4400_Uman_book_Ed2.pdf
 

@@ -3862,6 +3862,26 @@ vcvtsi2ss %edi, %xmm1, %xmm2
     - [NOR flash](https://en.wikipedia.org/wiki/Flash_memory#NOR_flash) just means *either* word line (implies `OR`) will "pull the output bit line low" (implies `N(OT)`) because of the current conduction.
       - NAND is similar to the above except that "first the *desired group* is selected (in the same way that a single transistor is selected from a NOR array). Next, *most* of the word lines are pulled up above $V_{T2}$, 
       while *one* of them is pulled up to $V_I$"
+      - default ~~zero~~ 1 where electrons imply zero.
+        > pull the bit line *low*) if the selected bit *has not been* programmed.
+        > set to a binary "0" value, by the following procedure: ... so electrons can flow from the source to the drain
+      - TODO 
+        - how related with the physics.
+          > When the FG is charged with electrons, this charge screens the electric field from the CG, thus, *increasing the threshold* voltage (VT) of the cell.
+        - > NAND Flash cells are read by analysing their response to *various voltages*
+      - > Whereas NOR flash might address memory by page then word, NAND flash might address it by page, word and bit.
+        ~~why NOR no bit addressable.~~
+        > In any case, *both* bit and word addressing modes are *possible* with either NOR or NAND flash.
+      - > the reduction in ground wires and bit lines allows
+        maybe because the less ground -> more space for word line -> less groups -> less (po shorter) bit lines.
+        So used in SSD probably as [ostep_hw] book says. <a id="NAND_FLASH_SSD"></a>
+      - > NAND flash is typically permitted to contain a certain number of faults
+        maybe designed by the Manufacturers to *decrease error bit usage*.
+      - So the "insulating layer" can decide *floating gate state*.
+        > If the channel conducts at VI, the FG must be uncharged
+        > The *binary* value of the cell is sensed by *determining whether there is current* flowing through the transistor when VI is asserted on the CG
+        - more complex
+          > In a *multi-level* cell device, which stores more than one bit per cell, the amount of current flow is sensed (rather than simply its presence or absence)
     - Here reading MOSFET is by ["Electric-field screening" -> "*damping* of electric fields caused by the presence of *mobile charge carriers*"](https://www.chemeurope.com/en/encyclopedia/Electric_field_screening.html#:~:text=Screening%20is%20the%20damping%20of,and%20conduction%20electrons%20in%20metals.) (here the $FG=V_{T2}$ will damp the electric field 
     so that "the channel *does not conduct* at the $V_{I}$")
     - ~~TODO~~ [hardware](https://en.wikipedia.org/wiki/Flash_memory) diff DRAM 
