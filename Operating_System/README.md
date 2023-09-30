@@ -5328,6 +5328,8 @@ $ ./ssd.py -T direct -s 1 -n 1000 -G 6 -g 8 -S -J -C -F | grep "erase in write_d
 - `server` uses `NULL` to accept all addresses with one port, so it needs `peer_addr`, etc., in `UDP_Read(sfd, buf, (struct sockaddr *) &peer_addr, &peer_addr_len)` to know what address to send while the client doesn't need.
   See `man`
   > accept connections on any of the host’s network addresses
+- `bind` [vs](https://stackoverflow.com/a/27015017/21294350) `connect`
+- `sem_open` -> Shared memory ([`/dev/shm`](https://buddy.works/docs/on-premises/solving-problems/shared-memory))
 1. `struct sockaddr` is just one general type for `sockaddr_in` and [`sockaddr_storage`](https://stackoverflow.com/a/16010670/21294350) is one more general one for both `struct sockaddr_in` and `struct sockaddr_in6`.
 ```c
 struct sockaddr_in{
@@ -5346,6 +5348,8 @@ unsigned char sin_zero[sizeof (struct sockaddr)
   - the client seems to send all requests well.
     TODO `recvfrom` seems to read weird results (Maybe due to the UDP server will read all requests by *only one socket*, so there is Congestion) and [`io_uring_prep_recvfrom`](https://github.com/axboe/liburing/issues/397#issuecomment-1003056318) is not supported but `sendto` is supported.
     So `*_async*` is not totally functional. <a id="async_UDP"></a>
+  - TODO
+    1. `sendto` [queue](https://stackoverflow.com/a/43622014/21294350)?
 ```bash
 $ ./UDP-server_async.out
 read tmp_buf �д��
@@ -5363,13 +5367,16 @@ to send tmp_buf first _1
 prep_send_to send first _1 with len 9
 too many requests
 ```
-- Notice, UDP [doesn't need one server "Second, using unconnected one:"](https://blog.cloudflare.com/everything-you-ever-wanted-to-know-about-udp-sockets-but-were-afraid-to-ask-part-1/) to `connect` so `connect` always succeeds.
+- Notice, UDP [doesn't need one server "Second, using unconnected one:"](https://blog.cloudflare.com/everything-you-ever-wanted-to-know-about-udp-sockets-but-were-afraid-to-ask-part-1/) to `connect` so `connect` always succeeds. Also [see](https://stackoverflow.com/a/7818961/21294350)
 ```bash
 # no server is running
 $ ./UDP-client.out localhost
 Send: first hello
 ```
 7. 
+- a.b. just division and compare.
+- based on whether timeout if blocking and 
+  TODO retry counts (order wrong so needs re-transmit) if async.
 ## TODO
 - read "APUE".
 # Projects
@@ -5904,7 +5911,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
   - use [intel style](https://stackoverflow.com/a/200028/21294350)
 - `typeof` is manipulated by the [compiler](https://gcc.gnu.org/onlinedocs/gcc/Typeof.html), so it can only get the parameter declared type but not its original
   e.g. in `pthread_create`, in `start_routine` the `arg` passed in by `(void *)arg` can be only identified as `void *` but not something like how the `arg` declared in the `main`.
-
+- not use *too many* `ifdef` which is hard to track correspondance.
+  See `~/ostep-hw/48/UDP-lib_async.h`
 ### check SEGV
 - [this](https://stackoverflow.com/a/15340456/21294350)
   - why `sigsetjmp` is [better](https://stackoverflow.com/a/20755336/21294350)
