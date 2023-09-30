@@ -4241,7 +4241,7 @@ typedef char type24[3]; // here 'type24' is main body; can be seen as 'type24' -
 - page table entry (pte) [kernel](https://github.com/lorenzo-stoakes/linux-vm-notes/blob/master/sections/page-tables.md) code
 - show `__builtin_bswap32` definition
 - [defining](https://stackoverflow.com/questions/47377745/c89-c99-say-theyre-macros-make-them-happy) a macro that does essentially nothing `#define stdin stdin`
-- SOCK_RAW SOCK_DGRAM [diff](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream) csapp p975
+- ~~SOCK_RAW~~ SOCK_STREAM SOCK_DGRAM [diff](https://stackoverflow.com/questions/5815675/what-is-sock-dgram-and-sock-stream) csapp p975
 - why rio... in csapp robust?
 - memory [circuit][memory_Introduction] and virtual memory related with [vm][Virtual_Memory]
 - how [semaphore](https://www.shiksha.com/online-courses/articles/mutex-vs-semaphore-what-are-the-differences/) is used differently from mutex with regard to ‘several processes’
