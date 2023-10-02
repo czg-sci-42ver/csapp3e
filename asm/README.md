@@ -6,6 +6,7 @@
   [Also](http://catalog.mit.edu/subjects/6/)
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
 - also [this](https://github.com/pkuflyingpig/cs-self-learning/)
+- See [this](https://github.com/pezy/ReadingNotes)
 # standards
 - [c++](https://www.iso-9899.info/wiki/The_Standard)
   [9899:2011](https://www.iso-9899.info/n1570.html)
@@ -11757,12 +11758,15 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
   Also [math stackexchange](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics) (ignore the [1st ans](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics#comment2598012_1535))
 - 黑皮书 使用 
   1. ["Discrete Mathematics and its Applications"](https://www.suning.com/item/0071487071/12406300968.html) as this [edu](https://www.engineeringonline.ncsu.edu/course/csc-226-discrete-mathematics-for-computer-scientists/)
+    - [solutions](https://github.com/idealclover/NJU-Review-Materials/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF%E7%B3%BB/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6%E9%BB%91%E7%9A%AE%E4%B9%A6%E7%AD%94%E6%A1%88/RosenIRG_Chap08.pdf)
   2. ["Discrete Mathematics for Computer Scientists"](https://item.jd.com/10037867743124.html) which is [1st](https://www.amazon.com/Discrete-Mathematics-Computer-Scientists-Cliff/dp/0132122715) edition.
 - Or try [this](https://csci.williams.edu/discrete-mathematics-preparation/)
+- MIT [solutions](https://github.com/spamegg1/Math-for-CS-solutions/blob/master/inclass-questions/MIT6_042JS15_cp3_solutions.pdf)
 # C++
 16th in [best seller](https://www.amazon.com/Best-Sellers-C++-Programming/zgbs/digital-text/8288738011) maybe mainly due to the primer property.
 Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanley-B-Lippman/dp/0321714113#detailBulletsWrapper_feature_div) where maybe lists the *historical highest* rank.
 - not to read c++ primer plus both [1](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list) and [2](https://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list), [3](https://qr.ae/pyWjiD)
+- c++ primer [solutions](https://github.com/pezy/CppPrimer) or [this](https://github.com/xingdl2007/cpp-primer5e)
 ## whether to learn C or operating system first
 - [not](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk46hug/?utm_source=share&utm_medium=web2x&context=3) to learn C before C++, because [1](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk4uwu6/?utm_source=share&utm_medium=web2x&context=3)
   Also [this](https://stackoverflow.com/a/145098/21294350) which says about their differences from [this](https://stackoverflow.com/a/598555/21294350).

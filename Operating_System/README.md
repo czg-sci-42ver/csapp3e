@@ -2507,6 +2507,7 @@ problem list:
 - `syscall` can be thought as one callback.
   where `func_1(func_2)` may call `syscall(func_2)`
   See the [example](https://en.wikipedia.org/wiki/Callback_(computer_programming)#C) where "callback" is *func pointer*.
+  Also can be seen as ["a function that is called repeatedly"](https://towardsdatascience.com/control-the-training-of-your-neural-network-in-tensorflow-with-callbacks-ba2cc0c2fbe8#:~:text=A%20callback%20is%20a%20function,end%20of%20a%20training%20epoch.)
   - So "callback function of PBReadAsync" means it is called by `PBReadAsync ( &p)` where `p` is probably some type of func pointer.
   - "making S1 and S2 atomic." is similar to [B04] `m.Release();s.P();`.
 - > tries to acquire a resource held by itself
@@ -3092,7 +3093,7 @@ $ visudo
 ## Fast File System
 - differentiate BSD author [Bill Joy](https://en.wikipedia.org/wiki/Bill_Joy) which is also the author of `vi` from the UNIX author Ken Thompson.
 - ["Record-based storage systems"](https://en.wikipedia.org/wiki/Record-oriented_filesystem) maybe based on [lines](https://en.wikipedia.org/wiki/Storage_record)
-- "ASIDE: FFS FILE CREATION" same as the last chapter create a file.
+- "ASIDE: FFS FILE CREATION" same as the previous chapter create a file.
 - > just a (relatively) little time seeking between chunks of the block.
 
   See chapter 39
@@ -3196,8 +3197,8 @@ plt.show()
 - > keeps two CRs, one at either end of the disk
 
   as the backup of each other.
-- The log may be specific to the [*interval between checkpoints* "A long interval between ..."](https://web.stanford.edu/~ouster/cgi-bin/papers/lfs.pdf), so more efficient in some way than the last chapter.
-  the basic replay is probably [same](http://cs.williams.edu/~jannen/teaching/s20/cs333/meetings/LFS.pdf) as the last chapter.
+- The log may be specific to the [*interval between checkpoints* "A long interval between ..."](https://web.stanford.edu/~ouster/cgi-bin/papers/lfs.pdf), so more efficient in some way than the previous chapter.
+  the basic replay is probably [same](http://cs.williams.edu/~jannen/teaching/s20/cs333/meetings/LFS.pdf) as the previous chapter.
   it is [based on the checkpoints](https://elfi-y.medium.com/operating-systems-101-persistence-log-structured-file-system-and-flash-based-ssd-vi-e9620d79668b) as the book says.
 ## Flash-based SSDs
 - why use NAND See [asm_md] "NAND_FLASH_SSD".
@@ -3380,10 +3381,104 @@ plt.show()
 - > it thus *calls back* into the RPC layer
   implies the stub abstraction.
 - RPC has less communication overheads compared with DSM due to less communication counts, etc.
+## NFS
+- generation number
+  i.e. if one file is deleted and one new is created, maybe inode is reused to refer to one *new* file, so *new generation*.
+- ~~TODO po~~ `NFSPROC_WRITE` means `return` "attributes" based on other info formats.
+  See
+  > The READ protocol message requires the protocol to pass along the file handle of the file *along with* the offset within the file *and* number of bytes to read
+  ~~- "attributes" -> return code~~
+  - `NFSPROC_GETATTR` is to ensure *stateless* available.
+- > how this protocol is turned into a file system across the client-side file system and the file server.
+  "client-side file system" issues requests and ~~the file server uses its saved state to manipulate with.~~
+- based on "Figure 49.5" and description before, only the `/` info is shared which minimizes the recovery overheads and `FH` is only maintained by the server. 
+  -> so client crashes are solved.
+  - > the *client tracks all* relevant state for the file access
+    so server crashes are solved.
+  - So `fd` (client) -> `FH` (server) -> inode (server)
+    instead of originally "`fd` (server) -> inode (server)"
+    - > the file handle (and attributes) for foo.txt will be returned.
+      "attributes" i.e. `struct stat` also (server)
+- ["Idempotence"](https://en.wikipedia.org/wiki/Idempotence) -> reentrant in csapp.
+- >  Specifically, after sending the request, the client sets a timer to go off after a specified time period
+  same as the previous chapter "timeout/retry".
+- "49.8 Improving Performance: Client-side Caching" similar to the before technology but the disk and memory is *substituted* by the network and memory/disk.
+  - > Adding caching into any sort of system with multiple client caches introduces a big and interesting challenge which we will refer to as the cache consistency problem
+    think as multiple-core CPU as COD says.
+    - So needs above "generation number"?
+    - similar to COD, maybe need one protocal to broadcast (maybe solves "update visibility") and invalidate to others (solves "stale cache"), etc
+      however above is stateful which stores *states in the clients* instead of all maintained by the servers.
+      - So 
+        - > the client invalidates the file, thus removing it from the client cache
+          invalidate to *self*
+- > a flush-on-close (close-toopen) approach ensures that when a file is closed
+  because the modification of one file is *atomic w.r.t. each close*.
+- > the second trick is to use a file system design specifically designed to write to disk quickly when one finally needs to do so [HLM94, RO91]
+  i.e. tuned w.r.t. the physical storage devices like LFS which referenced in [RO91] does.
+- > Sun introduced the VFS/Vnode interface, enabling multiple file system implementations to coexist in the same operating system.
+  maybe one layer *above* the NFS "Client-side File System".
+- "update visibility" -> C2's data is in its *memory* which may not be visible to others.
+  "stale cache" -> C2's data is in the *server* while others may use the *old its cache*. 
+## AFS
+- > the server will inform the client when a file that the client is caching has been modified.
+  > notice the analogy to polling versus interrupts.
+  similar to the invalidate in MESI. See COD.
+  > thus ensuring that the server would notify the client of a change in its cached state
+  callback -> interrupt handler.
+- > a file identifier (FID) (*similar to* the NFS file handle) 
+  > An FID in AFS consists of a volume identifier, a file identifier, and a “uniquifier” (to enable reuse of the volume and file IDs when a file is deleted)
+  here the basic idea is same but with different names.
+- compare "Figure 49.5" with "Figure 50.2",
+- "callbacks" can solve the "cache staleness" obviously because of the immediate update
+  and "update visibility" indirectly because of "flush-on-close".
+  > Finally, upon close(), the file (if it has been modified) is flushed back to the server
+- > writes to a file are immediately visible to other local processes 
+  at least achieved by the shared memory. This is ensured by [POSIX specification](https://stackoverflow.com/a/64093650/21294350).
+- > in NFS, writes of *individual blocks* may be flushed out to the server
+  See the previous chapter p14.
+- > treat all of its cache contents as suspect
+  here is in the cache disk.
+- > with NFS, clients hardly noticed a server crash
+  because the clients just retry and don't care about the server crash.
+- > however, those writes are buffered by the local (client-side) file system cache and thus said costs are likely hidden.
+  i.e. delayed so that overlaps with the following operations.
+- > because the client first fetches the old file in its entirety, only to subsequently overwrite it. NFS, in contrast, will simply overwrite blocks and thus avoid the initial (useless) read
+  See the previous chapter p14 where each block is just overwritten.
+  Here since AFS updates each file as one minimal unit, so it needs to fetch the newest one to update *based on it*.
+- > were not frequently shared
+  so "overwrite" across clients is not frequent.
+- > NFS, in contrast, allows each client to mount NFS servers in any way that they please
+  See
+  > indeed, this would be obtained through the NFS *mount protocol*, which is how clients and servers first are connected together
+  - while for AFS
+    > The server, in order to access the file, must perform a full pathname traversal, *first looking in the root* directory to find home
+    so
+    > AFS provides a true global namespace to clients
+    i.e. root dir.
+- > includes facilities for flexible user-managed access control
+  > incorporates mechanisms to authenticate users
+  See [ostep_book] p495/709.
+- > adds server state
+  See 50.4, i.e. immediate invalidate.
 ## TODO
 - 48
   - > when you’re in a data center with thousands of machines, failure is happening all the time. 
     maybe every machine can function as either a client or a server.
+- 49
+  - > NFS ensures that a subsequent open from another node will see the latest file version.
+    So unable to open concurrently?
+  - > where details of an implementation serve to define user-observable semantics, instead of the other way around.
+    i.e. instead of "user-observable semantics serve to define details of an implementation"?
+- 50
+  - why v1 compared with NFS, no `CREATE,REMOVE` and DIR related.
+  - > load was not balanced across servers
+    `NFS` may use `FH` to spread the load.
+    > the server used a single distinct process per client
+    `NFS` may be multi-thread.
+  - ~~Why $P_2$ doesn't write to the server on `close()` in Figure 50.3.~~
+    because it is after `read`.
+  - "Figure 50.4"
+    ~~here (NFS,AFS)-7 should be $(N_L · L_{net},L_{net})$~~
 # hardware
 ## TODO
 - SCSI disks vs IDE disks / ATA.
@@ -3549,6 +3644,7 @@ find: ‘/proc/1475/net’: Invalid argument
 - [J10] which needs the access rights.
 - [A+08, M+14]
 - [M+14]
+- [HLM94, RO91]
 ## history
 - [S08]
 ## after learning the algorithms
@@ -5124,7 +5220,7 @@ contents ['z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0z0', 'v1v1v1v1v1v1v1v1v1v1v1v1v1v1v1v1'
   imap too many empty slots.
 11. data loss.
   possible data loss.
-  replay and update the checkpoint. See [ostep_hw] it depends on the log contents as the last chapter says.
+  replay and update the checkpoint. See [ostep_hw] it depends on the log contents as the previous chapter says.
 ### 44
 - `ideal` -> direct memory instead of SSD.
   > The first is what we'll call an "ideal" SSD, which actually isn't much an SSD at all; it's more like a perfect memory.
@@ -5377,6 +5473,91 @@ Send: first hello
 - a.b. just division and compare.
 - based on whether timeout if blocking and 
   TODO retry counts (order wrong so needs re-transmit) if async.
+### 49
+- from the `~/ostep-homework/download/dist-nfs/README`
+  1. TODO `awk '(n == 0) {n=1; t0 = $1} (n == 1) {t = $1} END {print t - t0}' sample` is to get the time of the 1st request instead of "the first and last timestamps".
+- [`gz`](https://linuxize.com/post/how-to-unzip-gz-file/) by `gzip -dk` or others.
+2. `retry` is highly used in NFS.
+3. 
+4. `read` seems to be more sequential which is different from what [ostep_hw] says.
+```bash
+$ awk -f ./q4.awk anon-deasna-021016-1300.txt
+
+read_seq_usr_cnt 3446
+read 1949 seq skipped
+actual seq_cnt:412151
+read rnd/seq:111177/408879 with
+seq_rnd_max_diff(seq-rnd):50011 by (58992-8981)
+seq_rnd_min_diff(seq-rnd):-2475 by (345-2820)
+
+write_seq_usr_cnt 2555
+write 1425 seq skipped
+actual seq_cnt:188456
+write rnd/seq:127211/185030 with
+seq_rnd_max_diff(seq-rnd):76130 by (76442-312)
+seq_rnd_min_diff(seq-rnd):-31145 by (1355-32500)
+
+$ awk -f ./q4_skip_resend.awk anon-deasna-021016-1300.txt
+
+read_seq_usr_cnt 437
+read rnd/seq:109191/408349 with
+seq_rnd_max_diff(seq-rnd):50013 by (58992-8979)
+seq_rnd_min_diff(seq-rnd):-2460 by (345-2805)
+
+write_seq_usr_cnt 581
+write rnd/seq:125162/184631 with
+seq_rnd_max_diff(seq-rnd):76133 by (76442-309)
+seq_rnd_min_diff(seq-rnd):-31135 by (1355-32490)
+```
+5. count similar to `check_sub_arr_size` in 4
+6. here `!` just to [propagate the error status](https://stackoverflow.com/a/367075/21294350) in the pipeline.
+  use `set -e` to ["exit immediately"](https://stackoverflow.com/a/47265582/21294350).
+- based on `~/ostep-homework/download/dist-nfs/README`, use `%6` to track the pair.
+- avg, etc., see `max_pair,min_pair,rnd_cnt/len` in `q4.awk` (here `len` is not used in the awk script)
+7. See [ostep_hw] 2
+8. TODO cache.
+#### awk
+- [concatenate](https://www.gnu.org/software/gawk/manual/html_node/Strings-And-Numbers.html#:~:text=The%20exact%20manner%20in%20which,s%20default%20value%20is%20%22%25.) strs
+- str to num [quickly](https://stackoverflow.com/a/45868358/21294350)
+### 50
+- `self.cache.decref(fname)` when `close` so `'refcnt': 0`
+```bash
+$ ./afs.py -C 2 -n 1 -s 12 -S 111000 -d 1
+      Server                         c0                          c1
+...
+                                                        open:a [fd:0]
+                                                        read:0 -> value?
+                                                        close:0
+                            open:a [fd:0]
+                            write:0 value? -> 1
+                            close:0
+                                                        invalidate file:a cache: {'a': {'data': 0, 'dirty': False, 'refcnt': 0, 'valid': True}}
+```
+- `a1` in `oa1` means `fname, fd = a[1], int(a[2])`
+- `write` default increment 1 by `self.value += 1`.
+- Notice here only when `getfile(self, fname)` will update the cache while `invalidate` only invalidates by `self.cache[fname] = dict(data=self.cache[fname]['data'], dirty=self.cache[fname]['dirty'],refcnt=self.cache[fname]['refcnt'], valid=False)`.
+  po this isn't one flaw because it truly shows the file contents which corresponds to when it is `open`ed.
+- each client increments the `fd` when `open` each file.
+1. `$ ./afs.py -s 12 -f 3 -C 3 -r 0.3 -n 4 -c`
+2. check `open:b`, etc., to understand. I only checked partly but the basic idea is same.
+  when one client writes one file when `close` which is also `open`ed by other clients.
+3. track `close` and `write` which will modify the cache state. (Same as above only checked partly)
+4. only when `open` of client 1 after `close` of client 0.
+```bash
+$ ./afs.py -A oa1:w1:c1,oa1:r1:c1 -c -S 001011
+...
+                                                        read:1 -> 0
+```
+5. See 4
+6. final `close` decides the result.
+  ~~both is `1` similar to 4.~~
+  due to write order influencing the write data, so both is 2 due to the ending `00` or `11` is *not splitted*.
+```bash
+$ ./afs.py -A oa1:w1:c1,oa1:w1:c1 -S 001110 -c | tail -n 1
+file:a contains:1
+[czg_arch ~/ostep-homework/dist-afs]$ ./afs.py -A oa1:w1:c1,oa1:w1:c1 -S 000111 -c | tail -n 1
+file:a contains:2
+```
 ## TODO
 - read "APUE".
 # Projects
