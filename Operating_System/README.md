@@ -5916,7 +5916,6 @@ Name            : qemu-base
 Version         : 8.1.0-2
 $ git reset --hard origin/master;git clean -f -x -d .;\
 tree > ~/orig_xv6_tree.txt.cmp;diff ~/orig_xv6_tree.txt.cmp ~/ostep-hw/projects/concurrency-xv6-threads/orig_xv6_tree.txt;\
-
 git apply ~/ostep-hw/projects/concurrency-xv6-threads/threads_asm.patch;\
 make qemu-nox
 ...
@@ -5974,7 +5973,7 @@ number: 300
   - `size_t` [better](https://stackoverflow.com/a/73167304/21294350) `%zu`
 ## concurrency-mapreduce
 - See `diff hash_orig.c hash_orig_mod.c` for some comments.
-### TODO
+### TODO (this seems to be solved but I didn't update this note, which can be tested by `valgrind`)
 - the rest `indirectly` is related with `create_item`.
   But after checking `CHECK_CREATE_ITEM`, all `Ht_item *` pointer by `create_item` are freed.
 ```bash
@@ -5991,6 +5990,84 @@ number: 300
 ==36445== LEAK SUMMARY:
 ==36445==    definitely lost: 2,520 bytes in 105 blocks
 ==36445==    indirectly lost: 84,441 bytes in 315 blocks
+```
+## filesystems-check
+### patch
+- use `%s/\v([^^]) $/\1/g` in `vim` to remove "trailing whitespace".
+  notice to regenerate the patch after modifying the source files because the **`index` has changed**.
+```bash
+$ idi ~/tmp.patch ~/ostep-hw/projects/filesystems-check/xv6_patch/mkfs.c.patch
+/home/czg_arch/tmp.patch                                                                  /home/czg_arch/ostep-hw/projects/filesystems-check/xv6_patch/mkfs.c.patch                
++CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -f  +CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -f 
+no-omit-frame-pointer                                                                     no-omit-frame-pointer                                                                    
+ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo    CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo  
+-fno-stack-protector)                                                                     -fno-stack-protector)                                                                    
+ ASFLAGS = -m32 -gdwarf-2 -Wa,-divide                                                      ASFLAGS = -m32 -gdwarf-2 -Wa,-divide                                                    
+ # FreeBSD ld wants ``elf_i386_fbsd''                                                      # FreeBSD ld wants ``elf_i386_fbsd''                                                    
+diff --git a/mkfs.c b/mkfs.c                                                              diff --git a/mkfs.c b/mkfs.c                                                             
+index 8e011a7..00c897b 100644                                                             index 8e011a7..627fa65 100644                                                            
+--- a/mkfs.c                                                                              --- a/mkfs.c                                                                             
++++ b/mkfs.c                                                                              +++ b/mkfs.c                                                                             
+@@ -231,6 +231,7 @@ ialloc(ushort type)                                                   @@ -231,6 +231,7 @@ ialloc(ushort type)                                                  
+   din.nlink = xshort(1);                                                                    din.nlink = xshort(1);                                                                
+   din.size = xint(0);                                                                       din.size = xint(0);  
+```
+### xv6
+- `freeblock` controls the data block location.
+  So `iappend` just updates the data block.
+- `wsect(i, zeroes);` will init all to `0` by default.
+- by `nblocks = FSSIZE - nmeta;` -> `FSSIZE` is the block num.
+  `int nbitmap = FSSIZE/(BSIZE*8) + 1;` -> `BSIZE` is byte num in each block and `8` is due to each `char` has `8` bits.
+  So `assert(used < BSIZE*8);` should always meet because `FSSIZE<BSIZE*8` where what data range `uchar buf[BSIZE];` can contain.
+- `balloc(freeblock);` but with `indirect[fbn - NDIRECT] = xint(freeblock++);` which increments `freeblock` after assigning `freeblock`
+  so the last `freeblock` used is **fake**.
+#### TODO
+### contest
+- TODO
+  1. > We will provide you with an xv6 image that has a number of in-use inodes that are not linked by any directory. 
+    temporarily unavailable.
+- `memmove` [vs](https://stackoverflow.com/a/1201337/21294350) `memcpy`
+- Use `bin_d2c ./fs.img.repair ~/xv6-public/fs.img | less_n` to check whether the right binary generated.
+#### test
+- by using `mkfs.c.error_img.patch`
+```bash
+[~/xv6-public]$ make fs.img --always-make
+~/ostep-hw/projects/filesystems-check $ git rev-parse HEAD
+f043fe385bcacf7d0816b731e74f711b0a9b815d
+$ make --always-make
+$ rm fs.img.*
+$ ./xcheck_contest_3.out -r ~/xv6-public/fs.img
+$ bin_d2c ~/xv6-public/fs.img.repair ~/xv6-public/fs.img | less_n
+...
+     12 @@ -1920,22 +1920,22 @@
+     13  000077f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+     14  00007800: 0200 2e00 0000 0000 0000 0000 0000 0000  ................
+     15  00007810: 0100 2e2e 0000 0000 0000 0000 0000 0000  ................
+     16 -00007820: 0300 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     17 -00007830: 0400 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     18 -00007840: 0500 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     19 -00007850: 0600 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     20 -00007860: 0700 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     21 -00007870: 0800 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     22 -00007880: 0900 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     23 -00007890: 0a00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     24 -000078a0: 0b00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     25 -000078b0: 0c00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     26 -000078c0: 0d00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     27 -000078d0: 0e00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     28 -000078e0: 0f00 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     29 -000078f0: 1000 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     30 -00007900: 1100 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+     31 -00007910: 1200 6c6f 7374 5f69 6e6f 6465 7300 0000  ..lost_inodes...
+$ ./xcheck_contest_3.out -r ~/xv6-public/fs.img.repair 
+find dir inode 1 size:512
+lost_found inum:2
+find dir inode 2 size:288
+lost_found inum:2 addr[0]:60
+lost_found_dir_inum 2byte offset 8
+check size 288 with imgp related 288
+inodestart 32 lost_found_dir_inum:2
+data (1,..)data (3,lost_inodes)data (4,lost_inodes)data (5,lost_inodes)data (6,lost_inodes)data (7,lost_inodes)data (8,lost_inodes)data (9,lost_inodes)data (10,lost_inodes)data (11,lost_inodes)data (12,lost_inodes)data (13,lost_inodes)data (14,lost_inodes)data (15,lost_inodes)data (16,lost_inodes)data (17,lost_inodes)
 ```
 # TODO after reading the algorithm book
 [W+95]
@@ -6039,6 +6116,8 @@ number: 300
 - use `valgrind` with chapter 14,22 homework.
   - read [SN05]
 - ext4 vs reiserfs
+## projects
+- `initial-memcached`,`initial-kv`
 ## related with security
 - > lets the attacker inject arbitrary data into the target’s address space.
 
