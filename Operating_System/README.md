@@ -6068,7 +6068,22 @@ lost_found_dir_inum 2byte offset 8
 check size 288 with imgp related 288
 inodestart 32 lost_found_dir_inum:2
 data (1,..)data (3,lost_inodes)data (4,lost_inodes)data (5,lost_inodes)data (6,lost_inodes)data (7,lost_inodes)data (8,lost_inodes)data (9,lost_inodes)data (10,lost_inodes)data (11,lost_inodes)data (12,lost_inodes)data (13,lost_inodes)data (14,lost_inodes)data (15,lost_inodes)data (16,lost_inodes)data (17,lost_inodes)
+
+29a3a5d $ make --always-make
+rm fs.img.*
+./xcheck_contest_3.out -r ~/xv6-public/fs.img
+bin_d2c ~/xv6-public/fs.img.repair ~/xv6-public/fs.img | less_n 2>&1
+echo -e "\ncheck repair"
+./xcheck_contest_3.out -r ~/xv6-public/fs.img.repair
+...
+
+check repair
+find dir inode 1 size:512
+lost_found inum:2
+find dir inode 2 size:288
+lost_found inum:2 addr[0]:60
 ```
+- not make input file and output file same, them `int file_fd=open(target_file, O_RDWR|O_CREAT|O_TRUNC, 0666);` to create a new image will delete the original image, then all zero so no data is able to be written to the new image.
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
