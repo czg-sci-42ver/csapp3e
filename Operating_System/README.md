@@ -5972,6 +5972,7 @@ number: 300
   - `request_read_headers` use one more elegant `do{}while()`
   - `size_t` [better](https://stackoverflow.com/a/73167304/21294350) `%zu`
 ## concurrency-mapreduce
+- Also see this [solution](https://github.com/prabhsuggal/OSTEP/blob/master/projects/concurrency-mapreduce/mapreduce.c)
 - See `diff hash_orig.c hash_orig_mod.c` for some comments.
 ### TODO (this seems to be solved but I didn't update this note, which can be tested by `valgrind`)
 - the rest `indirectly` is related with `create_item`.
@@ -6084,6 +6085,11 @@ find dir inode 2 size:288
 lost_found inum:2 addr[0]:60
 ```
 - not make input file and output file same, them `int file_fd=open(target_file, O_RDWR|O_CREAT|O_TRUNC, 0666);` to create a new image will delete the original image, then all zero so no data is able to be written to the new image.
+- using `mkfs.c.test_contest_1_2.patch`
+  `ERROR_REFER` -> 1
+  `LOOP_DIRS` -> 2
+## kv
+- [see](https://github.com/MarwanRadwan7/KV)
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
@@ -6272,6 +6278,9 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - > guarantee that any threads that should be woken are
 
   means ... (woken) by google translate.
+
+## foo bar
+- [this](https://softwareengineering.stackexchange.com/a/69815)
 
 # books recommended by OSTEP
 - [APUE](http://www.apuebook.com/toc3e.html) which is also used by ostep-hw (See [`grep -r -i "apue" --include \*.c`](https://stackoverflow.com/a/12517022/21294350))
