@@ -6090,6 +6090,52 @@ lost_found inum:2 addr[0]:60
   `LOOP_DIRS` -> 2
 ## kv
 - [see](https://github.com/MarwanRadwan7/KV)
+- [tips](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-kv/README.md#tips) are just for general coding
+- [`$*`](https://unix.stackexchange.com/a/129077/568529)
+## memcached
+- `.MAKE` maybe no use, [see](https://stackoverflow.com/a/32480894/21294350)
+  - where no prerequisite for `run_debug`, so needs to [force updating](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html).
+    > Since it has no prerequisites, clean *would always be considered up to date* and its recipe would not be executed.
+    - Also see
+      ```bash
+      $ make all-recursive -d > ~/memcached.log
+      $ less ~/memcached.log
+      ...
+      Makefile:2176: update target 'all-recursive' due to: target is .PHONY
+      ...
+      gcc -DHAVE_CONFIG_H -I.  -DNDEBUG   -g -O2 -pthread -pthread -Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -MT memcached-memcached.o -MD -MP -MF .deps/memcached-memcached.Tpo -c -o memcached-memcached.o `test -f 'memcached.c' || echo './'`memcached.c
+      ...
+      gcc  -g -O2 -pthread -pthread -Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls   -o memcached memcached-memcached.o memcached-hash.o memcached-jenkins_hash.o memcached-murmur3_hash.o memcached-slabs.o memcached-items.o memcached-assoc.o memcached-thread.o memcached-daemon.o memcached-stats_prefix.o memcached-util.o memcached-cache.o memcached-bipbuffer.o memcached-base64.o memcached-logger.o memcached-crawler.o memcached-itoa_ljust.o memcached-slab_automove.o memcached-authfile.o memcached-restart.o memcached-proto_text.o memcached-proto_bin.o        memcached-extstore.o memcached-crc32c.o memcached-storage.o memcached-slab_automove_extstore.o      -levent 
+      ```
+      - TODO above many `.o` functions. <a id="memcached_mul_o"></a>
+- although `make -d` has
+```bash
+gcc -DHAVE_CONFIG_H -I.  -DNDEBUG   -g -O2 -pthread -pthread -Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -MT memcached-proto_bin.o -M      D -MP -MF .deps/memcached-proto_bin.Tpo -c -o memcached-proto_bin.o `test -f 'proto_bin.c' || echo './'`proto_bin.c
+```
+  but `complete_incr_bin` -> `write_bin_error` -> `errstr = "Non-numeric server-side value for incr or decr";` doesn't run observed by `printf("c->cmd == PROTOCOL_BINARY_CMD_INCREMENT %d\n",c->cmd == PROTOCOL_BINARY_CMD_INCREMENT);`.
+- `process_marithmetic_command` is not used observed by `else if (first == 'i') { ... process_arithmetic_command(c, tokens, ntokens, 1);`.
+  similarly, `strncmp(cm, "incr", 4)` in `proxy_request.c` also doesn't run.
+### features
+- > The first argument should be an existing key
+  `do_item_get(key, nkey, hv, c, DONT_UPDATE)`
+- > anything else should fail in the same manner that incr fails.
+  `NON_NUMERIC`, etc in `do_add_delta`
+- > Do little changes to test your understanding
+  I added many `printf` to see what functions has been run or not.
+  I didn't make `incr` function as `decr`.
+- > Determine what you can copy to make mult and div work.
+  I just add one parameter to pass `Mul_type mul`.
+```bash
+$ grep -r -w "Mul_type" *  
+grep: memcached: binary file matches
+memcached.c:                                    item **it_ret,const Mul_type mul) {
+grep: memcached-debug: binary file matches
+memcached.h:} Mul_type;
+memcached.h:                                    item **it_ret,const Mul_type mul);
+memcached.h:                                 uint64_t *cas, Mul_type mul);
+proto_text.c:static void process_arithmetic_command(conn *c, token_t *tokens, const size_t ntokens, const bool incr,Mul_type mul) {
+thread.c:                                 uint64_t *cas, Mul_type mul) {
+```
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
@@ -6119,6 +6165,7 @@ lost_found inum:2 addr[0]:60
 # TODO after reading the compiler book
 - C6 1.c `preempt`, etc.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
+- [this](#memcached_mul_o)
 ## xv6
 - from [this](https://cs.stackexchange.com/questions/160004/why-do-we-use-main-function-in-almost-all-the-programming-languages#comment334807_160008), `_start` needs to be with `-e` to form `-e _start`.
   So `$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o umalloc.o` can't make `_forktest` executable maybe due to the above reasons. So it is followed by `$(OBJDUMP) -S _forktest > forktest.asm`.
