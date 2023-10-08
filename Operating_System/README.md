@@ -3199,7 +3199,7 @@ plt.show()
   as the backup of each other.
 - The log may be specific to the [*interval between checkpoints* "A long interval between ..."](https://web.stanford.edu/~ouster/cgi-bin/papers/lfs.pdf), so more efficient in some way than the previous chapter.
   the basic replay is probably [same](http://cs.williams.edu/~jannen/teaching/s20/cs333/meetings/LFS.pdf) as the previous chapter.
-  it is [based on the checkpoints](https://elfi-y.medium.com/operating-systems-101-persistence-log-structured-file-system-and-flash-based-ssd-vi-e9620d79668b) as the book says.
+  Roll forward: it is [based on the checkpoints](https://elfi-y.medium.com/operating-systems-101-persistence-log-structured-file-system-and-flash-based-ssd-vi-e9620d79668b) as the book says.
 ## Flash-based SSDs
 - why use NAND See [asm_md] "NAND_FLASH_SSD".
   - It shows
@@ -6136,6 +6136,68 @@ memcached.h:                                 uint64_t *cas, Mul_type mul);
 proto_text.c:static void process_arithmetic_command(conn *c, token_t *tokens, const size_t ntokens, const bool incr,Mul_type mul) {
 thread.c:                                 uint64_t *cas, Mul_type mul) {
 ```
+## filesystems-distributed
+- IMHO, my codes may have some errors and much flexibility as the README doesn't say the detailed implementation (mine was based on my understanding of the related chapter contents).
+```bash
+
+```
+### ld
+- `soname` is [to](https://en.wikipedia.org/wiki/Soname)
+  > provide version backwards-compatibility information
+  so just `libx.so.1` is enough.
+  > they would all have the same soname, e.g. libx.so.1. ... the soname field of the shared object tells the system that it can be used to fill the dependency for a binary which was originally compiled using version 1.2
+### API
+- > You then consult the inode map again to find the location of inode number k (A1), and finally read the desired data block at address A0.
+  `int MFS_Read(int inum, char *buffer, int block)`
+  so `inum` -(imap)> `block` -(read)> `buffer`.
+- > assume there are a maximum of 4096 inodes
+  > your on-disk image just consists of an ever-growing log
+  so the img size is always increasing while having one inode num restriction.
+- As the LFS chapter says
+  > and concerns over cleaning costs [SS+95] perhaps *limited LFS’s initial impact* on the field. However, some modern commercial file systems, including NetApp’s WAFL [HLM94], Sun’s ZFS [B07], and Linux btrfs [R+13], and even modern flash-based SSDs [AD14], adopt a *similar copy-on-write* approach to writing to disk, and thus the intellectual legacy of LFS lives on in these modern file systems
+  > NetApp’s WAFL does this with old file contents; by making *old versions available*, WAFL no longer has to worry about cleaning quite so often
+  so not implement cleaning as README says.
+### make
+- [`.PHONY: all` similar to `SUBDIRS`](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html) will always run `all`
+  but not recursively for `${PROGS}` which depends on `% : %.o ...`.
+### LFS with NFS
+- "small-write problem"
+  LFS
+  > When writing to disk, LFS first buffers all updates (including metadata!) in an inmemory segment; when the segment is *full*, it is written to disk in one long, sequential transfer *to an unused part* of the disk
+  > Instead of overwriting files in places, LFS always writes to an unused portion of the disk, and then later reclaims that old space through cleaning. This approach, which in database ystems is called shadow paging [L77] and in file-system-speak is sometimes called *copy-on-write*
+  NFS (README)
+  > Specifically, *on any change* to the file system state (such as a MFS_Write, MFS_Creat, or MFS_Unlink), *all the dirtied* buffers in the server are committed to the disk.
+  - So here we still has "small-write problem" because of using the NFS convention.
+  - So in LFS, probably the block with inodes and imaps is stored in the *mem* and stored to the *disk* with many data blocks by reordering them to make all data blocks before the inode, imap similar to chpter 4/16.
+    while in NFS, it is not. The inode and imap always use *one new block* with each write, etc, as chapter page 9 and 7 shows. So internal fragmentation.
+    Then here we just always write the block with the inode and the imap which is **not full** to the disk.
+#### LFS
+- > Existing file systems perform poorly on many common workloads
+  so non-adjacent block is invalid for lfs.
+  This can be also seen from chapter 8/16.
+- lfs only ensures "sequential **writes**" not "sequential reads" which can be partly implemented by cleaning and then moving blocks. 
+- > System memories are growing
+  so use `mmap`.
+- > For example, if you are adding a new block to a file, you would write the data block, new version of the inode, and a new piece of the inode map to the end of the log
+  Based on chapter 9/16, overwrite will just write the *whole data block* so just take it although maybe not efficient.
+  > note that the inode looks as big as the data block, which generally isn’t the case; in most systems, data blocks are 4 KB in size, whereas an inode is much smaller, around 128 bytes
+  so Inode and Imap may be in one block **instead of two**. -> Needs `Block_Offset_Addr` to access the address although `README` says "Each entry is a simple 4-byte integer".
+  So *no need to copy the whole block* which the inode/imap resides in.
+  ```c
+  typedef struct __Block_Offset_Addr{
+  uint block;
+  uint offset;
+  } Block_Offset_Addr;
+  ```
+  so maybe not "sequential reads" because inodes and imaps are scattered.
+  - cleaning
+    `CR` always updated.
+    `Imap` indexed by `CR`, so old ones can be easy to find. similar to
+    > LFS increases its version number and records the new version number in the imap
+    `Inode` indexed by `Imap`, ...
+    `Data` indexed by `Inode`, ...
+    - chapter 11/16 
+      similar to `SS` and TLB, maybe the cache can store the direct map of `(block,(offset))->whether_valid` (offset is not for data blocks) to accelerate the cleaning.
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
