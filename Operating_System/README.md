@@ -6139,6 +6139,207 @@ thread.c:                                 uint64_t *cas, Mul_type mul) {
 ## filesystems-distributed
 - IMHO, my codes may have some errors and much flexibility as the README doesn't say the detailed implementation (mine was based on my understanding of the related chapter contents).
 ```bash
+$ LD_LIBRARY_PATH=..:$LD_LIBRARY_PATH ./server 10000 fs.img
+$ LD_LIBRARY_PATH=..:$LD_LIBRARY_PATH ./client
+client:: got reply in MFS_Lookup [ret:0 contents:(0)]
+client:: got reply in MFS_Stat [ret:0 contents:(64,DIRECTORY)]
+client:: got reply in MFS_Creat [ret:0 contents:(0)]
+client:: got reply in MFS_Stat [ret:0 contents:(96,DIRECTORY)]
+client:: got reply in MFS_Write [ret:0 contents:(0)]
+client:: got reply in MFS_Read [ret:0 contents:(test first
+)]
+client:: got reply in MFS_Creat [ret:0 contents:(0)]
+client:: got reply in MFS_Creat [ret:0 contents:(0)]
+client:: got reply in MFS_Write [ret:0 contents:(0)]
+client:: got reply in MFS_Read [ret:0 contents:(test second
+)]
+client:: got reply in MFS_Lookup [ret:0 contents:(3)]
+client:: got reply in MFS_Stat [ret:0 contents:(4096,REGULAR_FILE)]
+The following one should fail
+MFS_Unlink: error
+client:: got reply in MFS_Unlink [ret:0 contents:(0)]
+The following one should fail
+rc -1 MFS_Lookup: error
+client:: got reply in MFS_Creat [ret:0 contents:(0)]
+client:: got reply in MFS_Write [ret:0 contents:(0)]
+client:: got reply in MFS_Read [ret:0 contents:(test third
+)]
+client:: got reply in MFS_Lookup [ret:0 contents:(1)]
+client:: got reply in MFS_Unlink [ret:0 contents:(0)]
+client:: got reply in MFS_Unlink [ret:0 contents:(0)]
+client:: got reply in MFS_Stat [ret:0 contents:(128,DIRECTORY)]
+client:: got reply in MFS_Shutdown [ret:0 contents:(0)]
+$ LD_LIBRARY_PATH=..:$LD_LIBRARY_PATH gdb --args ./server 10000 fs.img
+pwndbg> br 1089 # after `read_img`
+pwndbg> r
+pwndbg> p checkpoint # here two imaps same See "23(0x17)->..."
+$1 = {
+  log_end = {
+    block = 0x17,
+    offset = 0x200
+  },
+  imap_addr = {[0x0] = {
+      block = 0x17,
+      offset = 0x100
+    }, [0x1] = {
+      block = 0x0,
+      offset = 0x0
+    } <repeats 255 times>}
+}
+pwndbg> p *(Inode_Map*)(mmap_file_ptr+4096*(0x17)+0x100)
+$2 = {
+  inode_addr = {[0x0] = {
+      block = 0x17,
+      offset = 0x0
+    }, [0x1] = {
+      block = 0x11,
+      offset = 0x0
+    }, [0x2] = {
+      block = 0x15,
+      offset = 0x0
+    }, [0x3] = {
+      block = 0x13,
+      offset = 0x0
+    }, [0x4] = {
+      block = 0x0,
+      offset = 0x0
+    } <repeats 12 times>},
+  maps = {[0x0] = {
+      inum = 0x0,
+      index = 0x0
+    }, [0x1] = {
+      inum = 0x1,
+      index = 0x1
+    }, [0x2] = {
+      inum = 0xffffffff,
+      index = 0x2
+    }, [0x3] = {
+      inum = 0xffffffff,
+      index = 0x3
+    }, [0x4] = {
+      inum = 0x0,
+      index = 0x0
+    } <repeats 12 times>}
+}
+pwndbg> p *(Inode*)(mmap_file_ptr+4096*(0x11)+0x00) # baz
+$4 = {
+  size = 0x0,
+  type = REGULAR_FILE,
+  data_ptr = {[0x0] = 0x0 <repeats 14 times>},
+  align = '\000' <repeats 191 times>
+}
+pwndbg> p *(Inode*)(mmap_file_ptr+4096*(0x17)+0x00)
+$5 = {
+  size = 0x80,
+  type = DIRECTORY,
+  data_ptr = {[0x0] = 0x16, [0x1] = 0x0 <repeats 13 times>},
+  align = '\000' <repeats 191 times>
+}
+pwndbg> p *(MFS_DirEnt_t(*)[6])(mmap_file_ptr+4096*0x16+0x0)
+$7 = {[0x0] = {
+    name = ".", '\000' <repeats 26 times>,
+    inum = 0x0
+  }, [0x1] = {
+    name = "..", '\000' <repeats 25 times>,
+    inum = 0x0
+  }, [0x2] = {
+    name = "baz", '\000' <repeats 24 times>,
+    inum = 0x1
+  }, [0x3] = {
+    name = '\000' <repeats 27 times>,
+    inum = 0xffffffff # stop at 0x80/0x20 (0x20=sizeof(MFS_DirEnt_t))
+  }, [0x4] = {
+    name = '\000' <repeats 27 times>,
+    inum = 0x0
+  }, [0x5] = {
+    name = '\000' <repeats 27 times>,
+    inum = 0x0
+  }}
+pwndbg> r
+### then rerun client without exiting the server
+$ LD_LIBRARY_PATH=..:$LD_LIBRARY_PATH ./client
+client:: got reply in MFS_Lookup [ret:0 contents:(0)]
+client:: got reply in MFS_Stat [ret:0 contents:(128,DIRECTORY)]
+client:: got reply in MFS_Creat [ret:0 contents:(0)]
+client:: got reply in MFS_Stat [ret:0 contents:(128,DIRECTORY)]
+MFS_Write: error with -1
+### ^C (stty -a) in the server.
+pwndbg> p checkpoint 
+$8 = {
+  log_end = {
+    block = 0x19,
+    offset = 0x300
+  },
+  imap_addr = {[0x0] = {
+      block = 0x19,
+      offset = 0x200
+    }, [0x1] = {
+      block = 0x0,
+      offset = 0x0
+    } <repeats 255 times>}
+}
+pwndbg> p *(Inode_Map*)(mmap_file_ptr+4096*(0x19)+0x200)
+$10 = {
+  inode_addr = {[0x0] = {
+      block = 0x19,
+      offset = 0x100
+    }, [0x1] = {
+      block = 0x11,
+      offset = 0x0
+    }, [0x2] = {
+      block = 0x19,
+      offset = 0x0
+    }, [0x3] = {
+      block = 0x13,
+      offset = 0x0
+    }, [0x4] = {
+      block = 0x0,
+      offset = 0x0
+    } <repeats 12 times>},
+  maps = {[0x0] = {
+      inum = 0x0,
+      index = 0x0
+    }, [0x1] = {
+      inum = 0x1,
+      index = 0x1
+    }, [0x2] = {
+      inum = 0x2,
+      index = 0x2
+    }, [0x3] = {
+      inum = 0xffffffff,
+      index = 0x3
+    }, [0x4] = {
+      inum = 0x0,
+      index = 0x0
+    } <repeats 12 times>}
+}
+pwndbg> p *(Inode*)(mmap_file_ptr+4096*(0x19)+0x00)
+$11 = {
+  size = 0x0,
+  type = REGULAR_FILE,
+  data_ptr = {[0x0] = 0x0 <repeats 14 times>},
+  align = '\000' <repeats 191 times>
+}
+pwndbg> p *(Inode*)(mmap_file_ptr+4096*(0x19)+0x100)
+$12 = {
+  size = 0x80,
+  type = DIRECTORY,
+  data_ptr = {[0x0] = 0x18, [0x1] = 0x0 <repeats 13 times>},
+  align = '\000' <repeats 191 times>
+}
+pwndbg> p *(MFS_DirEnt_t(*)[6])(mmap_file_ptr+4096*0x18+0x0)
+$14 = {[0x0] = {
+    name = ".", '\000' <repeats 26 times>,
+    inum = 0x0
+  }, [0x1] = {
+    name = "..", '\000' <repeats 25 times>,
+    inum = 0x0
+  }, [0x2] = {
+    name = "baz", '\000' <repeats 24 times>,
+    inum = 0x1
+  }, [0x3] = {
+    name = "foo", '\000' <repeats 24 times>,
+    inum = 0x2
 
 ```
 ### ld
