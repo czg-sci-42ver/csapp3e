@@ -6136,7 +6136,7 @@ memcached.h:                                 uint64_t *cas, Mul_type mul);
 proto_text.c:static void process_arithmetic_command(conn *c, token_t *tokens, const size_t ntokens, const bool incr,Mul_type mul) {
 thread.c:                                 uint64_t *cas, Mul_type mul) {
 ```
-## filesystems-distributed
+## filesystems-distributed (finish this from 10-5 13:03 to 10-9 09:07 with 1k+ lines of codes, maybe too long...)
 - IMHO, my codes may have some errors and much flexibility as the README doesn't say the detailed implementation (mine was based on my understanding of the related chapter contents).
 ```bash
 $ LD_LIBRARY_PATH=..:$LD_LIBRARY_PATH ./server 10000 fs.img
@@ -6399,6 +6399,30 @@ $14 = {[0x0] = {
     `Data` indexed by `Inode`, ...
     - chapter 11/16 
       similar to `SS` and TLB, maybe the cache can store the direct map of `(block,(offset))->whether_valid` (offset is not for data blocks) to accelerate the cleaning.
+## filesystems-distributed-ufs
+- ~~this should be simpler than above lfs because super block (i.e. above checkpoint), bitmaps, inode tables are all in **fixed location** so less updates.~~
+- this is also used by xv6.
+### comparison with filesystems-distributed `idi ./README.md ../filesystems-distributed-ufs/README.md | less_n`
+```bash
+$ declare -f idi    
+idi () {
+        . ~/.virtualenv/misc/bin/activate
+        icdiff $1 $2
+}
+```
+I did `lfs` first because I think of UNIX file system should be more difficult ... but this ufs may be not totally same as the current UNIX one.
+- add `nbytes` with `MFS_Write/Read`, just use `size` in the inode to track it.
+- > An inode bitmap (can be one or more 4KB blocks, depending on the number of inodes)
+  - since no sequential write restriction, so no need frequent copy like `lfs`.
+  - when one new block needs to be allocated, just like `lfs`, append to the end.
+- > As for directories ...
+  same as `lfs`.
+- Since they are just using difference data structures, the basic ideas are same for them, so I didn't do this project.
+#### `mkfs.c`
+It just use the structure in chapter 5/18.
+- In `mkfs.c`, `itable.inodes[0].direct[i] = -1;` and `parent.entries[i].inum = -1;` init to `-1` while my lfs implementation doesn't ~~to decrease the creation overheads (both needs `memset` so still has overheads)~~ with the related check functions to solve with the special `root` which looks as invalid entry because `inum`,`pinum` both are `0`. 
+- `(void) fsync(fd)`
+  See [this](https://stackoverflow.com/a/13954680/21294350) although they are not totally same.
 # TODO after reading the algorithm book
 [W+95]
 - > balanced bi-nary trees, splay trees, or partially-ordered trees
@@ -6429,6 +6453,7 @@ $14 = {[0x0] = {
 - C6 1.c `preempt`, etc.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
 - [this](#memcached_mul_o)
+- inline relations with stack and `call`, See this filesystems-distributed which uses this frequently.
 ## xv6
 - from [this](https://cs.stackexchange.com/questions/160004/why-do-we-use-main-function-in-almost-all-the-programming-languages#comment334807_160008), `_start` needs to be with `-e` to form `-e _start`.
   So `$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o umalloc.o` can't make `_forktest` executable maybe due to the above reasons. So it is followed by `$(OBJDUMP) -S _forktest > forktest.asm`.
