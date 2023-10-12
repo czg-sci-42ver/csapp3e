@@ -11799,6 +11799,9 @@ just [top-down book](https://www.quora.com/What-are-the-best-undergraduate-textb
     - [trip-counts](http://users.ece.utexas.edu/~bevans/hp-dsp-seminar/03_C6xDSP/tsld020.htm) is used when [perf](https://www.intel.com/content/www/us/en/docs/advisor/user-guide/2023-0/trip-counts.html) to find the bottleneck,
   - Also see [official doc](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#constant-memory)
     Also see how to [use](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html?highlight=constant%20mem#device-memory) in the codes similar to [this SO](https://stackoverflow.com/a/28993944/21294350)
+# security books
+- [SE13] "Secure Coding in C and C++" from ostep
+- [D+07] “The Art of Software Security Assessment”
 # CUDA here I use `12.2` version <a id="notice"></a>
 **NOTICE**: CUDA implementation is influenced by the **always changing** GPU architecture.
 **SO not to stick** to one version's CUDA implementation.

@@ -2968,6 +2968,7 @@ problem list:
 
 ## Files and Directories
 - Capability provides "a *single* mechanism" to "address both hardware and software resources". See [p4](https://homes.cs.washington.edu/~levy/capabook/Chapter1.pdf)
+  > Conceptually, a capability is a *token*, ticket, or key that gives the possessor permission to access an entity or object in a computer system
 - notice `fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0` in `strace cat foo` to use sequential read as the raid chapter says.
 - `dd if=foo of=bar` also uses `dup2(3, 0)`
 - See `man stdin` for stdin fd number.
@@ -3479,6 +3480,108 @@ plt.show()
     because it is after `read`.
   - "Figure 50.4"
     ~~here (NFS,AFS)-7 should be $(N_L · L_{net},L_{net})$~~
+# Security
+## Intro Security
+- [enclave](https://en.wikipedia.org/wiki/Enclave_and_exclave) is something totally surrounded by self.
+- scheduling policy relation with security in the operating system
+  See
+  > We might have an availability goal stating that one process run-ning on the system cannot hog the CPU and *prevent other processes from getting* their share of the CPU
+- [IPC](https://en.wikipedia.org/wiki/Inter-process_communication)
+  - related with networks like [TCP](https://security.stackexchange.com/questions/146522/secure-tcp-traffic-for-inter-process-communication)
+- > nor operating system services
+  i.e.
+  > *System calls* offer the operating system another opportunity
+- > determine which process made the system call
+  [this](https://unix.stackexchange.com/a/364505/568529)
+  Also see the next chapter
+  > Associated with the calling process is the OS-controlled data structure that describes the process,
+## Authentication
+- page [frame](https://stackoverflow.com/a/42263132/21294350)
+  > Logical pages are mapped to page frames using page tables.
+  [relations](https://cs.stackexchange.com/a/11670/161388) with page
+  >  a page may *not be backed* by a page frame (it could be a zero-fill page which hasn't been accessed, or paged out to secondary memory), and a page frame may back *multiple* pages
+- Password [Salting](https://cyberhoot.com/cybrary/password-salting/)
+  Also see p8,9/19
+- [zero-day exploits](https://en.wikipedia.org/wiki/Zero-day_(computing)#Window_of_vulnerability) means
+  the exploit is before the patch. Also [see](https://usa.kaspersky.com/resource-center/definitions/zero-day-exploit)
+  > which means they have “zero days” to fix it.
+- why linux echo name but [not](https://askubuntu.com/a/331472/1682447) password
+  > it is very common that someone will *copy* text from the command line and make it available to untrusted persons
+- [typing patterns](https://en.wikipedia.org/wiki/Keystroke_dynamics) [codes](https://www.typingdna.com/docs/how-to-record-typing-patterns.html)
+- [phoneme](https://en.wikipedia.org/wiki/Phoneme) means something like phonetic symbols.
+- IOT [related](https://dataconomy.com/2022/08/23/ubiquitous-computing-pervasive-computing/) with pervasive computing
+  > ubiquitous computing will fall under *human-machine* interaction. IoT will fall under machine-to-machine interaction
+- PIN [vs](https://learn.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/hello-why-pin-is-better-than-password) password
+  > A PIN can be a set of *numbers*, but enterprise policy might enforce complex PINs that include special characters and letters
+  > That PIN is useless to anyone without that specific hardware.
+## Access Control
+- > We could have one big access control list that specifies allowable access to *every* room, but that would get *unmanageable*
+  because we need to ensure "least privileges".
+- > understand that the namespaces are different – that’s what we do with process IDs, for example
+  similar to cpp namespace
+  [See](https://man7.org/linux/man-pages/man7/pid_namespaces.7.html)
+  > PID namespaces isolate the process ID number space, meaning that processes in different PID namespaces can have the *same* PID.
+- > maybe it can just generate that bit pattern and successfully give itself the desired access to the file
+  ACL needs privilege to change so this problem gets solved.
+  > the ability to copy a capability would suggest we can’t take access permission away,
+  ACL *relates* itself with the file so maybe not easy to copy although it can.
+  - So simialrly for the "capability"
+    > The *operating system* controls and maintains capabilities,
+- > With capabilities, it’s easy to determine which system resources a given principal can access. Just look through the principal’s capability list
+  this is the cons of the ACL.
+  So
+  > On the other hand, determining the entire set of principals who can access a resource becomes more expensive
+  this is the pros of the ACL :)
+- > Simple methods for making capability lists short and manageable have not been as well developed as the Unix method of providing short ACLs
+  because files are difficult to be classified in groups.
+- > you also run some degree of mandatory access control. If not, in the example of sudo above, the user running under the Programmer identity could run a command to change the access permissions on files
+  i.e. reset to the original state after `setuid` back to the original user, etc.
+- > Security failures due to poorly designed policies implemented by those mechanisms are not.
+  because these policies are *designed* by the users.
+## crypto
+- how does [POW](https://www.forbes.com/advisor/investing/cryptocurrency/proof-of-work/) verify. [Also](https://www.fool.com/terms/p/proof-of-work/)
+  > For the block to be confirmed, a crypto miner must generate a target hash that's less than or equal to that of the block.
+  See [this](https://medium.com/coinmonks/how-preventing-spam-emails-led-to-proof-of-work-46a294b2435) related with the spam.
+  > but mass spam emailers will have *difficulty* generating the required *proofs*, which would require huge computational resources.
+  i.e.
+  > Since each hash operation takes some time, submitting a proper request will require a *predictable amount of work*
+- [Heartbleed](https://www.csoonline.com/article/562859/the-heartbleed-bug-how-a-flaw-in-openssl-caused-a-security-crisis.html#:~:text=Heartbleed%20works%20by%20taking%20advantage,allowing%20the%20attacker%20access%20to)
+  bound `payload` in `memcpy(bp, pl, payload);` isn't checked.
+- [Forward](https://en.wikipedia.org/wiki/Forward_secrecy) secrecy
+  > Forward secrecy protects *past* sessions against *future* compromises of keys or passwords. By generating a unique session key for *every session* a user initiates, the compromise of a single session key will not affect any data other than that exchanged in the specific session protected by that *particular key*
+  > This by itself is not sufficient for forward secrecy which additionally requires that a *long-term secret* compromise does not affect the security of past session keys.
+  i.e.
+  > If you use random chance to generate keys, though, figuring out one of them *won’t help* your opponent figure out any of your *other* keys
+- gathering [entropy](https://en.wikipedia.org/wiki//dev/random)
+  > The Linux kernel *generates entropy* from keyboard timings, mouse movements, and integrated drive electronics (IDE) timings
+  > Embedded systems have difficulty gathering enough entropy as they are often very simple devices with *short boot* times
+- at-rest data / Data at [rest](https://en.wikipedia.org/wiki/Data_at_rest)
+- [SQL injection](https://en.wikipedia.org/wiki/SQL_injection) just the [literal](https://en.wikipedia.org/wiki/Code_injection) meaning.
+## Distributed
+- [bootstrap](https://en.wikipedia.org/wiki/Bootstrapping#Software_loading_and_execution) means 
+  > It became a self-sustaining process that proceeded *without external help*
+- > Best cryptographic practice calls for you to use a brand new key to encrypt the bulk of your data for each connection you set up
+  ~~TODO~~ same as "Forward secrecy" before.
+- [primitive mod](https://en.wikipedia.org/wiki/Primitive_root_modulo_n)
+  > The remainders in the period, which are 3, 2, 6, 4, 5, 1, form a rearrangement of *all nonzero remainders* modulo 7
+  > if for *every* integer a coprime to n, there is some integer k for which $g^k ≡ a (mod n)$.
+- [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm#Powers_of_10) means integer version.
+  ~~TODO~~ [related](https://en.wikipedia.org/wiki/Discrete_logarithm#Modular_arithmetic) with the book Modular arithmetic.
+  here the attacker needs to get the [index](https://en.wikipedia.org/wiki/Discrete_logarithm#) `x` by `X,g,n`
+- `k` is the "secret key" shared, i.e. `18` [here](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Cryptographic_explanation).
+- > like preventing an eavesdropper from simply using a cookie that was copied as it went across the network
+  because they are encrypted.
+- > up will pop a message warning you of the danger and asking if you want to go ahead despite the risk
+  maybe same as "Diffie-Hellman", authentication will help with this problem.
+## TODO after reading the security books
+1. How SHA-1 cracked.
+### Intro Security
+### Authentication
+- > having to store the access control information somewhere near the file and dealing with potentially expensive searches of long lists.
+  seems to have been solved by
+  > And instead of a search of an arbitrary sized list, a little simple logic on *a few bits* would provide the answer to the access control question.
+### Distributed
+- SSH SSL [diff](https://managewp.com/blog/ssh-vs-ssl#:~:text=SSH%20uses%20a%20username%2Fpassword,connection%20between%20servers%20and%20browsers.)
 # hardware
 ## TODO
 - SCSI disks vs IDE disks / ATA.
@@ -6463,6 +6566,7 @@ It just use the structure in chapter 5/18.
 - [MR96] 6.6 and later in 6 better with codes.
 - chapter 48
 - [this](#async_UDP)
+- 57.5 SSL/TLS
 # TODO after reading the cryptography book
 - [F04](https://pages.cs.wisc.edu/~remzi/OSTEP/Citations/checksums-03.pdf)
 - [M13]
@@ -6476,7 +6580,6 @@ It just use the structure in chapter 5/18.
 - `initial-memcached`,`initial-kv`
 ## related with security
 - > lets the attacker inject arbitrary data into the target’s address space.
-
 # OSTEP 1.01 chpaters in the [ostep_book]
 Just all use the pdf from the [web](https://pages.cs.wisc.edu/~remzi/OSTEP/#book-chapters), it seems that 1.01 is not issued all at one time but with many discrete times.
 - chapter 6,19,23,26,28,40,
