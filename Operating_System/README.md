@@ -3588,6 +3588,23 @@ plt.show()
 # appendix
 ## book recommendation
 - "Debugging with GDB: The GNU Source-Level Debugger" 10th is offered [officially](https://sourceware.org/gdb/current/onlinedocs/gdb.html/) when [12th](https://www.amazon.com/Debugging-GDB-GNU-Source-Level-Debugger/dp/1680921436#:~:text=gdb%20can%20do%20four%20main,when%20your%20program%20has%20stopped.) is available.
+## Virtual Machines
+most of these have been said in COD.
+- [`int 0x80`](https://stackoverflow.com/a/1817579/21294350)
+- trap means switch / [capture](https://softwareengineering.stackexchange.com/a/419126) the interrupt.
+- Figure B.1 just same as Figure 6.2.
+- TODO
+  - > the VMM installs its desired VPN-to-MFN mapping
+    > the VMM must track the *physical*-to-machine mappings for each virtual machine it is running
+    So PPN or VPN?
+  - > are not particularly meant to make the hardware easier to use.
+    because of more overheads?
+## projects-systems
+- TODO
+  - [where](https://github.com/remzi-arpacidusseau/ostep-projects/tree/master/initial-reverse) is "G.4 Intro to Concurrency"?
+    - Also
+      1. G.7 File System Defragmenter
+      2. G.8 Concurrent File Server
 ## labs
 ### Tutorial
 - [signature](https://en.wikipedia.org/wiki/Type_signature) of the C routine
@@ -3703,6 +3720,10 @@ find: ‘/proc/1475/net’: Invalid argument
 
     this seems not to be included in the [README.md](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/vm-xv6-intro/README.md)
   - "H.4" and "H.5" has not been included
+  - where is
+    1. H.7 Advanced Kernel Threads
+    2. H.8 Extent-based File System
+- ["H.11 File System Checker"](https://github.com/remzi-arpacidusseau/ostep-projects/tree/master/filesystems-checker)
 ### miscs tips
 - > don’t turn on optimization (-O); *though this may work*, it may also lead to confusion during debugging.
 

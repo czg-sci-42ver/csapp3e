@@ -5422,6 +5422,10 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - shadow page table
     - [p6,8 with MPN,etc](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) more directly [p29 with MPN,etc.,definition](https://www.doc.ic.ac.uk/~etheresk/etheresk-211-vms.pdf)
       - here SPT is [shadow ~~(beacuse *skip* one media)~~ page table](https://sites.google.com/site/masumzh/articles/hypervisor-based-virtualization/memory-virtualization) <a id="hypervisor"></a>
+    - See [this](https://stackoverflow.com/a/9834730/21294350) which skips the [GPA](https://projectacrn.github.io/latest/developer-guides/hld/hv-memmgt.html) as [this](https://cseweb.ucsd.edu/~yiying/cse291j-winter20/reading/Virtualize-Memory.pdf) p6.
+      > creates a corresponding 0xdeadbeef->HPA mapping for the hardware to use.
+    - shadow means [similar](https://en.wikipedia.org/wiki/Shadow_table).
+      > contains data similar to (in the same format as) its primary table, which is the table it's "shadowing".
   - [CR3 -> PDBR](https://en.wikipedia.org/wiki/Control_register#CR3)
   - [indirection 'accessing a variable through the use of a *pointer*'](https://en.wikipedia.org/wiki/Indirection)
   - po 'real pages' should refer to above ~~MPN~~ PPN, see p855 ('virtual memory, *physical memory*, and machine memory')
