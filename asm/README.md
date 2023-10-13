@@ -7512,7 +7512,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   [CP-67](https://en.wikipedia.org/wiki/CP-67#:~:text=CP%2D67%20is%20the%20control,customized%20S%2F360%2D40.) is the [VMM](#VMM).
   TODO See [development process](https://en.wikipedia.org/wiki/VM_(operating_system)) of VM in IBM including VM/370 and z/VM.
 - Batch processing is just based on processing *one batch* each time ("run the next until the batch was complete").
-  In [multitasking](https://en.wikipedia.org/wiki/Computer_multitasking) used by [Time-sharing](https://en.wikipedia.org/wiki/Time-sharing#Time-sharing) "New tasks can *interrupt* already started ones before they finish" while Batch processing can't ([Multiprogramming](https://en.wikipedia.org/wiki/Computer_multitasking#Multiprogramming) is similar to multitasking, "the context of this program was stored away"). This implies "interactive".
+  In [multitasking](https://en.wikipedia.org/wiki/Computer_multitasking) used by [Time-sharing](https://en.wikipedia.org/wiki/Time-sharing#Time-sharing) "New tasks can *interrupt* already started ones *before they finish*" while Batch processing can't ([Multiprogramming](https://en.wikipedia.org/wiki/Computer_multitasking#Multiprogramming) is similar to multitasking, "the context of this program was stored away"). This implies "interactive".
 
 - TODO 
   read "The Mythical Man Month"

@@ -6744,6 +6744,32 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 # books recommended by OSTEP
 - [APUE](http://www.apuebook.com/toc3e.html) which is also used by ostep-hw (See [`grep -r -i "apue" --include \*.c`](https://stackoverflow.com/a/12517022/21294350))
 
+# other OS books
+## [Operating System Concepts](https://www.os-book.com/OS10/)
+### Preface
+- synchronous/asynchronous [vs](https://www.programmr.com/blogs/difference-between-asynchronous-and-non-blocking) blocking/nonblocking
+  >  But they are also different because asynchronous calls usually involve a *callback* or an event, to signal that the response is available, while in the case of non-blocking the call returns with whatever is available and the caller might have to *try again* to get the rest of the data
+  [i.e.](https://stackoverflow.com/a/2625565/21294350)
+  > having started a "background" effort to fulfil your request
+- FreeBSD, Mach, and Windows 7 case studies
+  the two former [see](https://os-book.com/OSE2/appendices-dir/index.html)
+  TODO win 7
+### Introduction
+- Figure 1.5 See [intel_64] p3192/5062.
+- > Typically, these applications are designed so that once each computing node in the *cluster* has solved *its portion* of the problem, the results from all the nodes are *combined* into a final solution
+  this is just what CUDA does.
+- See [asm_md] "multitasking" -> "before they finish" so
+  > the CPU executes multiple processes by switching among them, but the switches occur *frequently*, providing the user with a fast response time
+- Spooling just means [buffering](https://www.geeksforgeeks.org/what-exactly-spooling-is-all-about/).
+- > Every machine-level instruction that runs natively on the source system must be *translated* to the *equivalent function* on the target system, frequently resulting in several target instructions.
+  i.e. [Binary translation](https://en.wikipedia.org/wiki/Binary_translation) in OSTEP.
+- [portals](https://en.wikipedia.org/wiki/Portals_network_programming_application_programming_interface)
+### TODO
+#### Introduction
+- Holographic data storage
+- [NRAM](https://en.wikipedia.org/wiki/Nano-RAM) [FRAM](https://en.wikipedia.org/wiki/Ferroelectric_RAM)
+- network operating system implementation.
+
 ---
 
 <!-- ostep related -->
