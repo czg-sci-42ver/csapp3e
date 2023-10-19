@@ -6567,6 +6567,8 @@ It just use the structure in chapter 5/18.
 - > (such as B-trees); for this knowledge, a database class is your best bet.
 
 - "concurrency-sort"
+## Operating System Concepts
+- Depth-First Search Tree
 ## related with data structures
 - use non-HashTable struct but similar to HashTable in "concurrency-mapreduce".
 ## C9
@@ -6746,11 +6748,20 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 
 # other OS books
 ## [Operating System Concepts](https://www.os-book.com/OS10/)
+This is about many different operating systems and care more about the concepts but let the implementation inside the projects and problems.
+I used the summary and the study-guide to ensure understanding the main ideas at least.
+
+14.7.1,2 have been said in OSTEP which says more detailedly, so I skipped them in this book.
 ### Preface
 - synchronous/asynchronous [vs](https://www.programmr.com/blogs/difference-between-asynchronous-and-non-blocking) blocking/nonblocking
   >  But they are also different because asynchronous calls usually involve a *callback* or an event, to signal that the response is available, while in the case of non-blocking the call returns with whatever is available and the caller might have to *try again* to get the rest of the data
   [i.e.](https://stackoverflow.com/a/2625565/21294350)
   > having started a "background" effort to fulfil your request
+  - See p168/1278 where they are same.
+  - Also see p634/1278 where another different aspect
+    > a nonblocking read() returns immediately with whatever data are available—the full number of bytes requested, fewer, or none at all. An asynchronous read() call requests a transfer that will be performed in its entirety but will complete at some *future* time.
+    i.e. nonblocking ~~is not totally non-block which~~ may have received some data when it is called and *reflects* when return.
+    While asynchronous doesn't reflect.
 - FreeBSD, Mach, and Windows 7 case studies
   the two former [see](https://os-book.com/OSE2/appendices-dir/index.html)
   TODO win 7
@@ -6761,14 +6772,308 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 - See [asm_md] "multitasking" -> "before they finish" so
   > the CPU executes multiple processes by switching among them, but the switches occur *frequently*, providing the user with a fast response time
 - Spooling just means [buffering](https://www.geeksforgeeks.org/what-exactly-spooling-is-all-about/).
+  > stored in a queue at the speed of the computer
+  but not using memory. p639/1278
 - > Every machine-level instruction that runs natively on the source system must be *translated* to the *equivalent function* on the target system, frequently resulting in several target instructions.
   i.e. [Binary translation](https://en.wikipedia.org/wiki/Binary_translation) in OSTEP.
 - [portals](https://en.wikipedia.org/wiki/Portals_network_programming_application_programming_interface)
+- [Copyleft](https://www.gnu.org/gwm/libredocxml/x53.html#:~:text=A%20copyright%20infers%20that%20only,community%2C%20provided%20it%20remains%20Libre.) means
+  > A Copyleft, on the other hand, provides a method for software or documentation to be *modified*, and distributed back to the community, provided it *remains Libre*.
+  > The copyleft ensures that not only is the original source free, *but that all modifications* must be made free, and permission is granted for all who follow in modifying that same program or document, provided they *abide by these terms*.
+- > are *multiprocessor* systems in which each CPU contains several computing cores
+  based on p46, it should be "Multicore"
+### Operating-System Structures
+- shell naming [origin](https://www.quora.com/What-is-the-origin-of-the-name-shell-as-in-shell-computing-shell-programming-shell-accounts-C-shell-or-Bourne-Again-shell)
+- get process attributes like [PID](https://www.ibm.com/docs/en/psw/2.2.6?topic=linux-process-attributes)
+- better use [standardized `O_NONBLOCK`](https://stackoverflow.com/a/1151077/21294350) instead of `FIONBIO`.
+- [Character](https://askubuntu.com/a/1021400/1682447) Devices
+### Processes
+From here, I only read the context of bold/colored texts, etc.
+- > Linux systems initially adopted the System V init approach, but recent distributions have replaced it with systemd.
+  for archlinux installed by me, it is not this case.
+  TODO
+```bash
+$ ps -el | head
+F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
+4 S     0       1       0  0  80   0 -  5590 -      ?        00:00:04 systemd
+$ cat /proc/1/cmdline 
+/sbin/init
+$ htop # shows /sbin/init with pid 1                                            
+```
+- [pipe](https://stackoverflow.com/questions/53313194/how-to-make-parent-and-child-bidirectional-pipe-in-c) is unidirectional.
+- Byte-stream-oriented protocol [vs](https://www.researchgate.net/post/What_is_the_difference_between_message-oriented_protocols_and_stream-oriented_protocols#:~:text=The%20TCP%20is%20a%20byte,a%20sequence%20of%20data%20bytes.&text=The%20UDP%20is%20a%20message,a%20stream%20of%20UDP%20datagrams.) Message-stream-oriented protocol
+  Also [see](https://stackoverflow.com/a/3017697/21294350)
+- Rendezvous implies [wait](https://en.wikipedia.org/wiki/Rendezvous_(Plan_9))
+### threads
+- Thread-Local Storage [example](https://www.geeksforgeeks.org/thread_local-storage-in-cpp-11/#).
+  - i.e. [private storage area](https://stackoverflow.com/a/35701531/21294350)
+- as the book says, see `man pthreads` for what to share.
+- [Asynchronous cancellation](https://man7.org/linux/man-pages/man3/pthread_cancel.3.html#:~:text=Asynchronous%20cancelability%20means%20that%20the,system%20does%20not%20guarantee%20this).) is not same as the book says "One thread immediately terminates the target thread".
+  > Asynchronous cancelability means that the thread can be canceled at any time (usually immediately, but the system does not guarantee this)
+- "scheduler activation" uses the LWP as the medium.
+### scheduling
+- > If a process uses too much CPU time, it will be moved to a lower-priority queue. 
+  to give other processes opportunities to run.
+  > This scheme leaves I/O-bound and interactive processes—which are typically characterized by short CPU bursts—in the higher-priority queues. In addition, a process that waits too long in a lower-priority queue may be moved to a higher-priority queue.
+  interactive will be interrupted more often -> short CPU bursts.
+- Linux default [only](https://unix.stackexchange.com/a/287583/568529) [one-to-one](https://man7.org/linux/man-pages/man3/pthread_attr_setscope.3.html#:~:text=The%20PTHREAD_SCOPE_SYSTEM%20contention%20scope%20typically,both%201%3A1%20threading%20implementations.) model, i.e. `PTHREAD_SCOPE_SYSTEM`.
+- Notice here Symmetric multiprocessing is not *targeted* with ["a single, shared main memory"](https://en.wikipedia.org/wiki/Symmetric_multiprocessing) which is said in [asm_md].
+  > The standard approach for supporting multiprocessors is symmetric mul-tiprocessing (SMP), where each processor is *self-scheduling*
+  It is based on [this](https://www.geeksforgeeks.org/difference-between-asymmetric-and-symmetric-multiprocessing/#) which is not related with NUMA.
+  - Symmetric and [Asymmetric p11](https://elinux.org/images/1/13/ELCE2007-Asymmetric_NUMA.pdf) NUMA
+    although [this](https://qr.ae/pKhdlh) says a bit different description
+- [niceness](https://en.wikipedia.org/wiki/Nice_(Unix)#Etymology)
+  - `man sched` shows `SCHED_FIFO` is based on niceness.
+- See 313/1278 for "nonpreemptive SJF scheduling" example.
+- "Little’s formula"
+  here 2 seconds per process means the 14 processes will be manipulated in 2 seconds, then the next 14 will be in to fill the queue.
+- Rate-monotonic real-time scheduling based on rate -> static.
+  > (tasks with *shorter periods*/deadlines are given higher priorities)
+- > This illus-trates the inverse relationship between priorities and time quantam
+  because lower priority (implying CPU-intensive) means less counts, so for equality, time each is longer.
+- [Long/Medium/Short-term](https://en.wikipedia.org/wiki/Scheduling_(computing)#Process_scheduler) scheduling
+  do their specific functions.
+### Synchronization
+- Test-and-set is indeed [set and test](https://en.wikipedia.org/wiki/Test-and-set)
+  > The caller can then "test" the result to see if the state was changed by the call
+  - hardware
+    1. [internal note](https://en.wikipedia.org/wiki/Test-and-set#Hardware_implementation_of_test-and-set)
+      > storing the *address* of the memory location in a *special place*
+      > If the *test succeeds*, the DPRAM sets the memory location to the value given by CPU 1.
+    2. flag value
+      > but instead simultaneously *moves* the current value to a special register, while setting the contents of *memory location A* to a special "*flag* value".
+  - x86 use [`XCHG`](https://c9x.me/x86/html/file_module_x86_id_328.html) to implement [tsl](https://stackoverflow.com/questions/22424209/tsl-instruction-reference)
+  - avoid contention (i.e. Exclusive overheads) by [the prior normal test](https://en.wikipedia.org/wiki/Test_and_test-and-set)
+- Figure 6.9
+  If `i` is specific to each thread, all but one threads will be stuck at `compare_and_swap`.
+  Then `!waiting[j]` will only be true if all other threads are all *only inited*.
+  Then `j == i` will be true -> `lock = 0;`.
+
+  Otherwise, ` !waiting[j]` will be probably wrong, so `j = (i + 1) % n;` will select the *consecutive* one to run by `waiting[j] = false`.
+- p345/1278 where `temp != compare and swap(v, temp, temp+1)` ensures atomic.
+- > the general rule is to use a spinlock if the lock will be held for a duration of less than *two context switches*
+  otherwise like OSTEP says, sleep and wake may be better (i.e. the *two context switches*).
+- p348/1278 is similar to OSTEP Figure 31.17 where the latter adds the sleep and wakeup.
+  `struct process *list` is probably inherent in `Cond_wait`.
+- timing errors mean dependent on the execution time of threads.
+- monitors are only simply referenced in the OSTEP Figure 29.1 context.
+- > the logical condition for which Q was waiting may no longer hold.
+  this is probably one compound condition.
+- `x.wait` is one specific function, so it has `if (next count > 0) ...`.
+- p357/1278 
+  >  we must be sure that an uncooperative process does *not simply ignore the mutual-exclusion gateway* provided by the monitor and try to access the shared resource directly,
+  so the monitor doesn't built in the mutex in the function, specific to the Figure 6.14 implementation.
+- CAS doesn't need to context switch.
+- > A solution to the critical-section problem must satisfy the following three requirements: (1) mutual exclusion, (2) progress, and (3) bounded waiting
+  1. inherent requirement
+  2. to avoid the deadlock/livelock, etc.
+  3. to avoid starvation.
+- honest programming error may be due to not using [Honest functions](https://functionalprogrammingcsharp.com/honest-functions) from [this](https://stackoverflow.com/q/61015267/21294350)
+- for Peterson's Solution, `turn = i;` may be better to indicate the current turn hold by the thread self.
+- figure 6.4
+  - here turn order can be changed so that process 1 will be stuck and only process 0 runs.
+  - this reorder makes turn order is still undetermined as original.
+    but also each single flag *can't be ensured all true*, so here
+    > it is possible that both threads may be active in their critical sections *at the same time*
+### Synchronization examples
+- p391/1278 where the numbered lists are same as OSTEP and [wikipedia](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage) monitor description. 
+- "Checked vs Unchecked Exceptions" depends on *whether* are checked at compile time.
+- TODO probably the Functional Programming manipulates with the race condition [inherently](https://hackernoon.com/functional-programming-an-effective-approach-for-experienced-programmers), but maybe [not totally](https://www.reddit.com/r/functionalprogramming/comments/7z6lz2/comment/dulqjrq/?utm_source=share&utm_medium=web2x&context=3).
+  [JS](https://stackoverflow.com/a/75778374/21294350)
+  [general](https://softwareengineering.stackexchange.com/a/184457)
+- > On single-processor machines, such as embedded systems with only a *single processing core*, spinlocks are *inappropriate* for use and are replaced by enabling and disabling kernel preemption.
+  See [this](https://codex.cs.yale.edu/avi/os-book/OS9/practice-exer-dir/5-web.pdf)
+  > If the process is not relinquishing the processor, other processes *do not get the opportunity* to set the program condition required for the first process to make *progress*
+  because maybe in Linux implementation, user processes can't preempt with each other.
+### Deadlocks
+- 8.5.1 Mutual Exclusion
+  See OSTEP for detailed infos.
+- 8.5.2 Hold and Wait
+  where OSTEP combines the 2 methods because it has *none* before `prevention` lock and acquires *all* including `L1` and `L2`.
+- [Resource-Allocation-Graph Algorithm](https://gateoverflow.in/26520/deadlock#:~:text=Resource%2DAllocation%20Graph%20Algorithm%20%3A%20Works,or%20not%2C%20for%20Deadlock%20Avoidance.) only applies to when *one* instance of each resource
+  > if several instances per resource type, possibility of deadlock
+- Safety Algorithm
+  where 
+  1. "Find an index i such that both" implies `n`
+  2. "Needi ≤Work" implies `m`
+  3. "Go to step 2." implies `n`
+- 8.6.3.1 Safety Algorithm is to check the current state
+  8.6.3.2 Resource-Request Algorithm is to convert the current state to the next.
+- differences between deadlock-detection algorithm in p437/1278 and Banker’s Algorithm.
+- "8.5.3 No Preemption" -> livelock See OSTEP.
+  > It cannot generally be applied to such resources as mutex locks and semaphores, precisely the type of resources where *deadlock occurs most commonly*
+### Main Memory
+- is dependent on the [program](https://stackoverflow.com/a/45959845/21294350) instead of OS.
+  [example](https://developer.ibm.com/tutorials/l-dynamic-libraries/#dynamic-loading-example)
+  - `-rdynamic` is to use [`.dynsym`](https://reverseengineering.stackexchange.com/a/21623/43760)
+- "page of page table"
+  here page is the minimal unit, where each unit is indeed one page table.
+- clustered page tables for sparse address spaces See [p4](https://pages.cs.wisc.edu/~markhill/papers/sosp95_pagetables.pdf)
+  the cluster may function as one *cache* for each sparse access which from p12 is from *different processes*.
+  - Also see 550/1278
+- > If none is found, the hardware walks through the in-memory TSB looking for the TTE that corresponds to the virtual address that caused the lookup
+  because TSB is larger than TLB, so it should be searched after TLB.
+- > If the process can be moved during its execution from one memory segment to another
+  See p4,10,11,16
+  mainly due to swap.
+  > A process can be swapped into a different memory space.
+- [Associative Memory](https://www.geeksforgeeks.org/associative-memory/#), i.e. content-addressable memories ([CAMs](https://www.sciencedirect.com/topics/computer-science/associative-memory#:~:text=An%20associative%20memory%20is%20one,memory%20is%20called%20the%20key.))
+  > the associative memory compares the search query with the tags of *all* stored data
+  > Associative memory is designed to quickly find matching data, even when the search query is *incomplete* or imprecise
+  Also see [Study_Guide]
+  > TLB is associative – searched in parallel
+- [Segment table](https://www.geeksforgeeks.org/segmentation-in-operating-system/) – maps two-dimensional physical addresses
+  one dimension is segment
+  one is offset
+  while logical memory just offset from 0.
+- > Only part of program needs to be in memory for execution → logical address space > physical address space 
+  so something can be swapped out, then logical can be larger because some in it are not swapped in.
+- > If an instruction accesses multiple pages near each other → less “pain” because of locality of reference
+  this means data is not in discrete pages *each*.
+- Local replacement -> More consistent performance because they are not dependent on each.
+### Virtual memory
+10.5.3 to 10.9.2 highlights are lost due to the PDF reader crash.
+- p502/1278 says why virtual is reasonable.
+  > Users would be able to write programs for an extremely large virtual address space, simplifying the programming task
+  > Because each program could *take less physical memory*, more programs could be run at the same time
+- p506/1278 the internal table refers to the page table of the process.
+- The [Difference](https://stackoverflow.com/a/4856460/21294350) Between fork(), vfork(), exec() and clone()
+  - `_exit` is to avoid exit the parent, [See](https://stackoverflow.com/a/21781537/21294350)
+  - with copy on write, `fork` is similar to Cvfork`.
+    `man vfork`
+    > Until that point, the child shares all memory with its parent, including the stack
+- > a write to memory (to the time-of-use field in the page table) for each memory access
+  here means a *extra* write.
+- prove
+  > Like optimal replacement, LRU replacement does not suffer from Belady’s anomaly
+  See OSTEP related chapter p5
+  because LRU larger size will *contain* the smaller size condition. So will always be better, i.e. p521/1278 "subset".
+  while FIFO doesn't.
+- Linux approximation of LRU by the inactive (victim list) and the active list
+  They are dynamic.
+  Freshly faulted pages and "accessed multiple times" -> from inactive to active.
+- > neither MFU nor LFU replacement is common
+  because they care too much about history which may not valid for now.
+- 10.4.7 Page-Buffering Algorithms
+  here "free-frame pool" is clean ones and victims are always swapped out each time to keep the better free-frame.
+  > When a page fault occurs, a victim frame is chosen as before
+  > Whenever the paging device is *idle*, a modified page is selected and is written to secondary storage
+  - > It can be a useful augmentation to any pagereplacement algorithm, to reduce the penalty incurred if the wrong victim page is selected
+    because they function before full which must select the victim.
+- file-system services [space allocation](https://en.wikipedia.org/wiki/File_system) which is preparation for creating files, etc.
+  > Some file systems permit or require specifying an initial space allocation and subsequent incremental allocations as the file grows
+- [page sharing](https://kb.vmware.com/s/article/1021095)
+  > Transparent page sharing is a method by which redundant *copies* of pages are eliminated
+- > we must adjust each ai to be an integer that is greater than the minimum number of frames required by the instruction set, with a sum not exceeding m
+  if each greater, then how to ensure "not exceeding"?
+  - `10/137 × 62 ≈ 4` and `10/137*62=4.525547445255474` so not "greater".
+- > As a result, CPU utilization drops even further, and the CPU scheduler tries to increase the degree of multiprogramming even more
+  they have positive influences to each other from the dashed line to right in Figure 10.20.
+  > As they queue up for the paging device, the ready queue empties
+  they forms one circle.
+- See [p4](https://events.static.linuxfound.org/sites/events/files/slides/slaballocators.pdf) for the history among SLUB, SLOB and SLAB.
+- [ARMv8 contiguous bit](https://documentation-service.arm.com/static/5efa1d23dbdee951c1ccdec5?token=)
+- > When demand paging is used, we sometimes need to allow some of the pages to be locked in memory
+  because the memory range is being updated by I/O which *can't be modified* by others before I/O data is used.
+- why LRU must [interrupt](https://www.cs.nott.ac.uk/~pszgxk/courses/g53ops/Memory%20Management/MM14-LRU.html) but FIFO not?
+  maybe because it accesses something *not inside the page table*.
+- locality diff WORKING SET
+  See 535/1278 figure where the former is located at the peak 
+  while the latter is dynamic when the time changes.
+- p541/1278 is similar to align.
+  > each cache is made up of one or more slabs that are divided into chunks the *size of the objects* being represented
+- NUMA node see [asm_md] boost.
+### Mass-Storage Structure
+- [cfq](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/performance_tuning_guide/chap-red_hat_enterprise_linux-performance_tuning_guide-storage_and_file_systems) has 3 priority levels and only "more I/O" can change the priority temporarily.
+  - deadline 
+    > checks how long write operations have been starved of processor time
+    to change the following preference.
+    > Read batches take precedence over write batches by default
+  - noop FIFO with *merge* because of CPU-bound so no need for scheduling.
+- [volume](https://superuser.com/a/1340305/1658455) diff partition
+  > When you are working with a volume on a Dynamic Disk, you can choose to *extend* or span that volume across *multiple drives*, you can stripe or mirror, or in server editions you can even use RAID 5.
+- > Recoverable soft errors may trigger a device activity in which a copy of the block data is made and the block is spared or slipped.
+  maybe due to avoiding the next error because this block is probably bad.
+- "Increase the throughput" so "Reduce the response time".
+- through the local I/O ports [diff](https://quizlet.com/45799230/02-12-differentiate-between-motherboard-componentspurposeproperties-flash-cards/?__cf_chl_rt_tk=1py4mJ7sSoLBLOwm_SChEBefCflFO.pMWomFa_Ehwww-1697528643-0-gaNycGzNDSU) directly connected to motherboards
+  > motherboards commonly *include* USB connections that are connected directly to the motherboard
+- LUN masking is just [one mask](https://en.wikipedia.org/wiki/Logical_Unit_Number_masking).
+### I/O Systems
+- [OSI](https://en.wikipedia.org/wiki/OSI_model#Layer_1:_Physical_layer) layer
+  > converts the digital bits into electrical, radio, or optical signals
+- [daisy chain](https://www.amazon.com/Snark-SA-2-Pedal-Daisy-Chain/dp/B0052745WK)
+- [self-contained](https://stackoverflow.com/a/29395085/21294350) routine
+  > the definitions for the data format and *available procedures* for a given type or class of object
+  i.e. it defines all available inside it, while others are not permitted.
+- modem is [sequential](https://ptolemy.berkeley.edu/eecs20/week2/modems.html)
+- [asynchronous](https://electronics.stackexchange.com/a/563020/341985) keyboard
+  > So if a device requires the attention of the host, it must wait until the host polls it
+- [sharable](https://www.sharemouse.com/features/keyboard-sharing/#:~:text=One%20Keyboard%20for%20multiple%20Computers,pointing%20the%20mouse%20cursor%20at.) keyboard
+  > over your existing network connection to the computer you are pointing the mouse cursor at.
+- DIMM [diff](https://qr.ae/pKnZkO) NVME
+  > To the CPU it does not call an OS function to write data. It just copies into memory.
+- cache can hold the history data.
+  spool is one directional, from application to device. -> Device Reservation
+  buffer is based on different devices.
+### File-System Interface
+- "index" helps with the search.
+- linux [doesn't avoid](https://unix.stackexchange.com/a/99166/568529) link cycle
+### File-System Implementation
+- A linked list can also be used to [decrease](https://qr.ae/pKnm1j) the time required to delete a file
+- "WAFL snapshots" are based on copy-on-write where "clones" is "root inode" in Figure 14.13.
+- [Fast Directory Sizing](https://syntheway.com/Apple-File-System-APFS-macOS.htm#:~:text=Fast%20directory%20sizing%20works%20by,and%20have%20relatively%20little%20churn.)
+  > Fast directory sizing works by *precomputing* the size of directory as content is added and removed. Therefore, it is most appropriate for directories that contain many files and have relatively *little churn*. For example, a user’s Documents folder is a good candidate for fast directory sizing, whereas the /tmp directory would not.
+- FAT [relation](https://stackoverflow.com/a/22424829/21294350) with the "linked list". -> adjacent.
+### projects
+- most of them are codes inside the linux. I skipped all of them since doing the OSTEP projects.
 ### TODO
+1. I almost skipped all JAVA related description because I have not studied it and also I didn't study some general ideas from something like sicp.
+2. 
 #### Introduction
 - Holographic data storage
 - [NRAM](https://en.wikipedia.org/wiki/Nano-RAM) [FRAM](https://en.wikipedia.org/wiki/Ferroelectric_RAM)
 - network operating system implementation.
+#### Operating-System Structures
+- logically attach/detach devices diff request/releasedevice
+#### Processes
+- how sandbox implemented? p162/1278
+#### threads
+- several *nonfunctional* languages?
+- Java `future` object.
+#### scheduling
+- p232 [bound](https://en.wikipedia.org/wiki/Rate-monotonic_scheduling#Least_upper_bound)
+- the O(1) scheduler
+#### Synchronization
+- > Rather, we have moved busy waiting from the entry section to the critical sections of application programs
+  just suspend, so how busy waiting?
+#### Deadlocks
+- Try [lockdep](https://stackoverflow.com/a/21440835/21294350) which is [faster](https://lwn.net/Articles/537046/) than helgrind.
+- p430/1278
+  if 
+  > Since thread T0 is allocated five resources but has a maximum of ten, it *may request five more* resources. If it does so, it will have to wait, because they are unavailable
+  then originally,
+  > At time t0, the system is in a safe state. The sequence <T1, T0, T2> satisfies the safety condition
+  will be wrong because After `T1` releases, `T2` may request more then `7` which is larger than the available `5`.
+- why "Resource-Allocation Graph Algorithm" complexity is `O(mn)`.
+- detect cycle in directed graph [complexity](https://www.geeksforgeeks.org/detect-cycle-in-a-graph/) `O(n^2)`
+#### Virtual memory
+- p519/1278 why reverse -> same?
+- > Consider what may happen, though, if the reaper routine is unable to maintain the list of free frames below the minimum threshold. Under these circum-stances, the reaper routine may begin to reclaim pages more aggressively. For example, perhaps it will suspend the second-chance algorithm and use pure FIFO.
+  so how does the "second-chance algorithm" fail?
+#### Mass-Storage Structure
+- what is [SMR](https://www.buffalotech.com/blog/cmr-vs-smr-hard-drives-in-network-attached-storage-nas)?
+- > the time required to service reads is uniform but that, because of the properties of flash memory, write service time is not uniform
+- >  the mean time to data loss of a mirrored drive system is 100, 000^2∕(2 ∗ 10) 
+  the `/2` is due to [2 disks](https://cs.stackexchange.com/a/69474/161388).
+  the `/10` [see](http://www.petertribble.co.uk/Solaris/raid.html) where `R/F` is failure probability and `(F/2)/(R/F)` means we have *used up all* life time to fail.
+  So why use `lifetime/failure_rate` instead of `lifetime/non_failure_rate`?
+#### I/O Systems
+- How "STREAMS" implemented?
+#### File-System Interface
+- contrary
+  > Acyclic-graph directory structures enable users to share subdirectories and files but *complicate searching* and deletion
+  > The primary advantage of an acyclic graph is the relative *simplicity* of the algorithms to *traverse* the graph
+- TODO somewhere in the book: diff between NVM and SSD.
 
 ---
 
@@ -6845,3 +7150,5 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 [monitor_synchronization]:https://en.wikipedia.org/wiki/Monitor_(synchronization)#Monitor_usage
 
 [URPCs]:./reference/books/URPCs_19thEdition.pdf
+
+[Study_Guide]:./other_OS_books/Operating_System_Concepts/Study-Guide.pdf

@@ -7564,6 +7564,7 @@ here cloud means "throuth web".
 - p520
   - multiprocessor is [not](https://www.javatpoint.com/multiprocessor-and-multicore-system-in-operating-system#:~:text=A%20multicore%20contains%20multiple%20cores,capable%20of%20running%20many%20programs.) multicore.
   - job is similar to program where the latter [contains](https://superuser.com/questions/1661789/whats-the-difference-between-a-program-process-job-service-daemon-script) process and the former [contains](https://www.geeksforgeeks.org/difference-between-job-task-and-process/) tasks. And the book "task-level parallelism or process-level parallelism " implies their equivalence.
+  > A job consists of many tasks which in turn, consist of many processes
     Also see [this](https://superuser.com/a/1661791/1658455) "A job is just a scheduled program".
   - Shared Memory Processors -> [this](#SMP).
 - concurrent program [vs](https://slikts.github.io/concurrency-glossary/?id=concurrent-order-independent-vs-sequential#:~:text=Concurrency%20is%20about%20independent%20computations,step%20to%20produce%20correct%20results.) sequential program (whether *order* counts)
