@@ -6998,6 +6998,14 @@ $ htop # shows /sbin/init with pid 1
 - through the local I/O ports [diff](https://quizlet.com/45799230/02-12-differentiate-between-motherboard-componentspurposeproperties-flash-cards/?__cf_chl_rt_tk=1py4mJ7sSoLBLOwm_SChEBefCflFO.pMWomFa_Ehwww-1697528643-0-gaNycGzNDSU) directly connected to motherboards
   > motherboards commonly *include* USB connections that are connected directly to the motherboard
 - LUN masking is just [one mask](https://en.wikipedia.org/wiki/Logical_Unit_Number_masking).
+- [LOOK](https://www.geeksforgeeks.org/look-disk-scheduling-algorithm/#)
+  > it reverses direction as soon as it reaches the *last* request in the current direction.
+  Disadvantages (These are same as SCAN po)
+  1. real-time
+  2. queued up
+  3. starvation
+- flash [diff](https://www.ampersandtech.com/2022/12/13/the-quick-differences-between-flash-vs.ssd-storage.html) solid-state disks
+  > physically larger than flash storage options
 ### I/O Systems
 - [OSI](https://en.wikipedia.org/wiki/OSI_model#Layer_1:_Physical_layer) layer
   > converts the digital bits into electrical, radio, or optical signals
@@ -7018,12 +7026,95 @@ $ htop # shows /sbin/init with pid 1
 ### File-System Interface
 - "index" helps with the search.
 - linux [doesn't avoid](https://unix.stackexchange.com/a/99166/568529) link cycle
+- [LOFS](https://docs.oracle.com/cd/E18752_01/html/816-5177/lofs-7fs.html#REFMAN7lofs-7fs)
+  > Once the virtual file system is created, other file systems can be mounted within it, *without affecting* the original file system
 ### File-System Implementation
 - A linked list can also be used to [decrease](https://qr.ae/pKnm1j) the time required to delete a file
 - "WAFL snapshots" are based on copy-on-write where "clones" is "root inode" in Figure 14.13.
 - [Fast Directory Sizing](https://syntheway.com/Apple-File-System-APFS-macOS.htm#:~:text=Fast%20directory%20sizing%20works%20by,and%20have%20relatively%20little%20churn.)
   > Fast directory sizing works by *precomputing* the size of directory as content is added and removed. Therefore, it is most appropriate for directories that contain many files and have relatively *little churn*. For example, a user’s Documents folder is a good candidate for fast directory sizing, whereas the /tmp directory would not.
 - FAT [relation](https://stackoverflow.com/a/22424829/21294350) with the "linked list". -> adjacent.
+- if loop then one page will be accessed always so no Free-behind occurs.
+### File-System Internals
+- [NIS](https://en.wikipedia.org/wiki/Network_Information_Service#) tracks user related infos.
+- diff between Mounts and Cascading mounts.
+- XDR [relationship](http://retrogeeks.org/sgi_bookshelves/SGI_Developer/books/IRIX_NetPG/sgi_html/ch04.html) with RPC
+### Security
+- Trojan horse [diff](https://www.geeksforgeeks.org/difference-between-spyware-and-trojan-horse/#) spyware
+- p775/1278 proof of encryption with `mod`.
+- security through [obscurity](https://www.okta.com/identity-101/security-through-obscurity/)
+  > Security through obscurity seeks to keep a system secure by keeping knowledge of it secret
+- authorization [vs](https://www.sailpoint.com/identity-library/difference-between-authentication-and-authorization/#:~:text=So%2C%20what%20is%20the%20difference,a%20user%20has%20access%20to.) authentication in cyber security
+- Windows [Subject](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4670)
+- p760/1278 says about the "administrator" problem.
+  > Windows is the target for most attacks – most common, everyone is administrator
+### Protection
+- audit [trail](https://csrc.nist.gov/csrc/media/publications/shared/documents/itl-bulletin/itlbul1997-03.txt#:~:text=An%20audit%20trail%20is%20a,%2C%20operational%2C%20and%20technical%20controls.)
+- set user or group [ID](https://unix.stackexchange.com/a/58169/568529) on execution by `chmod +s`
+  > acquires *all* the file read/write/execute privileges of the *owner*
+- 
+  1. Reacquisition uses the idle time.
+    plus Indirection and keys, they are all applied to all capabilities.
+- Notice p777/1278 MAC diffs from p820/1278.
+- `CAP_NET_RAW` [usage](https://unix.stackexchange.com/a/447900/568529)
+- [`CAP_SETPCAP`](https://book.hacktricks.xyz/linux-hardening/privilege-escalation/linux-capabilities#cap_setpcap)
+- futex ... A race condition in its implementation means [this](https://www.collabora.com/news-and-blog/blog/2022/02/08/landing-a-new-syscall-part-what-is-futex/). so
+  > the system call itself could not be filtered out entirely.
+- [callout](http://www.qnx.com/developers/docs/qnxcar2/index.jsp?topic=%2Fcom.qnx.doc.neutrino.building%2Ftopic%2Fstartup_WRITCALLOUT.html) means *call outside* the kernel.
+- See p777/1278 where hash and then encrypt for Code signing.
+- need-to-know -> [necessary](https://www.isms.online/glossary/need-to-know-principle/#:~:text=The%20need%20to%20know%20principle,necessary%20to%20undertake%20their%20duties.).
+- [keyring](https://askubuntu.com/a/32165/1682447)
+- [Bell-LaPadula](https://www.geeksforgeeks.org/introduction-to-classic-security-models/#) model where Layer of Secrecy is significant.
+- [library operating system](https://en.wikipedia.org/wiki/Operating_system#Library)
+- [separation hypervisor](https://www.lynx.com/embedded-systems-learning-center/what-is-a-separation-kernel) where fixed.
+### Virtual Machines
+- [VMCS and VT-x](https://en.wikipedia.org/wiki/X86_virtualization#Intel_virtualization_(VT-x))
+### Networks and Distributed Systems
+- [CFS](https://en.wikipedia.org/wiki/Clustered_file_system)
+### The Linux System
+many of these are just duplicate of before ...
+- [virtual file system](https://en.wikipedia.org/wiki/Virtual_file_system)
+  > access different types of concrete file systems in a uniform way
+- [PLIP](https://en.wikipedia.org/wiki/Parallel_Line_Internet_Protocol)
+- fork [doesn't share](https://unix.stackexchange.com/a/420902/568529) file-system info
+- extent is like indirect data pointer p703/1278.
+### Windows
+- [CFG](https://learn.microsoft.com/en-us/windows/win32/secbp/control-flow-guard#how-does-cfg-really-work) See the first object in the figure.
+- security reference monitor -> [ACL](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/windows-kernel-mode-security-reference-monitor)
+- [ALPC](https://www.oreilly.com/library/view/windows-internals-fifth/9780735625303/ch03s06.html)
+- [csrss](https://en.wikipedia.org/wiki/Client/Server_Runtime_Subsystem)
+  here more windows abbr terms are skipped.
+- Paging file quota exceeded similar to [process quota](https://groups.google.com/g/comp.os.vms/c/2rfSB7S16Fw).
+- handle addr may [change](https://en.wikipedia.org/wiki/Handle_(computing)#Comparison_to_pointers) while pointer doesn't.
+  > allows the referent to be relocated in memory by the system without invalidating the handle
+- how Physical Address Extension [more](https://en.wikipedia.org/wiki/Physical_Address_Extension#Hardware_support) than 4 GB
+  > required in the operating system, in the chipset, and on the motherboard
+  more [detailed](https://stackoverflow.com/questions/8373944/how-does-pae-physical-address-extension-enable-an-address-space-larger-than-4g#comment10335163_8373944)
+  > swap in and out *different* parts of memory into the visible address space to make use of more than 4GB of RAM, but it can only see 4GB at any *single point* in time.
+- The [nonpaged pool](https://learn.microsoft.com/en-us/windows/win32/memory/memory-pools), i.e. pinned.
+  > guaranteed to reside in physical memory
+- [Page file](https://en.wikipedia.org/wiki/Page_table#Translation_failures) just one [back store](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file).
+- [VAD](https://cis.temple.edu/~giorgio/old/cis307s97/readings/virtual.html)
+  - related with [Reserved memory](https://www.baeldung.com/native-memory-tracking-in-jvm#:~:text=Reserved%20memory%20represents%20the%20total,app%20is%20using%20right%20now.)
+- > it does so because of a page fault, which causes the MM to send a noncached read request to the I/O manager.
+  because this is the 1st request which has not been in the *view*, so "noncached".
+- [core parking](https://gigperformer.com/docs/ultimate-guide-to-optimize-windows-for-stage/coreparking.html)
+- [Throttling](https://www.intel.com/content/www/us/en/support/articles/000088048/processors.html)
+- [two-phase](https://hongilkwon.medium.com/when-to-use-two-phase-commit-in-distributed-transaction-f1296b8c23fd#:~:text=Two%2Dphase%20commit%20(a.k.a%202PC,transaction%20manager)%20to%20initiate%202PC.) commit transactional algorithm
+- Session 0 [Isolation](https://techcommunity.microsoft.com/t5/ask-the-performance-team/application-compatibility-session-0-isolation/ba-p/372361)
+  > only system processes and services run in Session 0
+- csrss where `csrss` is server and "win32 application" is client.
+  > It's probably makes the most sense for csrss.exe to handle it because it's well positioned to deliver  messages to any win32 application, since all win32 applications run "under" it.
+- [VPN](https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-vpn#:~:text=A%20VPN%2C%20which%20stands%20for%20virtual%20private%20network%2C%20protects%20its,could%20benefit%20from%20a%20VPN.)
+- [DCOM](https://en.wikipedia.org/wiki/Distributed_Component_Object_Model) naming.
+- Administrators [diff](https://superuser.com/a/241098/1658455) power users
+- Slim Reader/Writer (SRW) Locks -> [a single process](https://learn.microsoft.com/en-us/windows/win32/sync/slim-reader-writer--srw--locks).
+- [`BindIoCompletionCallback`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-bindiocompletioncallback)
+  > On *completion* of an I/O request involving this file, a non-I/O worker thread will *execute the specified callback* function.
+- commit implies [mapping](https://stackoverflow.com/a/55779517/21294350)
+  [`SEC_COMMIT`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createfilemappinga)
+  > The system must have enough committable pages to hold the entire mapping.
+- scatter-gather implies the [mapping](https://en.wikipedia.org/wiki/Gather/scatter_(vector_addressing)#Definitions).
 ### projects
 - most of them are codes inside the linux. I skipped all of them since doing the OSTEP projects.
 ### TODO
@@ -7074,6 +7165,28 @@ $ htop # shows /sbin/init with pid 1
   > Acyclic-graph directory structures enable users to share subdirectories and files but *complicate searching* and deletion
   > The primary advantage of an acyclic graph is the relative *simplicity* of the algorithms to *traverse* the graph
 - TODO somewhere in the book: diff between NVM and SSD.
+- computer volume table?
+#### File-System Internals
+- how [active directory](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview) related with [LDAP](https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol#Add) provide a single name space?
+- lightweight directory-access implementation.
+#### Security
+- two links in p630.
+- such as its unique distinguished name and its common (DNS) name?
+- TLS implementation. 5:04
+- 777/1278 `mod` in digital signature.
+#### Protection
+- why is "confinement problem" unsolvable?
+#### Networks and Distributed Systems
+- clustered file system diff cluster-based DFS
+#### Windows
+- Page-file page-table entry T P V?
+- scheduling throttling ratios?
+- How [`DuplicateHandle`](https://f3real.github.io/duplicatehandle.html) share the `hSemaphoreCopy`?
+- windows variable-priority?
+- How is [`phNewWaitObject`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-registerwaitforsingleobject) used?
+- Figure 21.10 meaning?
+- pre-committed address space?
+- How AWE [related](https://en.wikipedia.org/wiki/Address_Windowing_Extensions) with Physical Address Extension?
 
 ---
 
