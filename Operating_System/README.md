@@ -7115,6 +7115,42 @@ many of these are just duplicate of before ...
   [`SEC_COMMIT`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createfilemappinga)
   > The system must have enough committable pages to hold the entire mapping.
 - scatter-gather implies the [mapping](https://en.wikipedia.org/wiki/Gather/scatter_(vector_addressing)#Definitions).
+### appendix
+#### A
+- Dedicated Computer Systems [diff](https://cs.stackexchange.com/a/51622/161388) Shared Computer Systems
+  the former
+  > used for *one task only*
+  which is indicated by
+  > *Unloading* the compiler tape
+  - the latter uses batch.
+- [Process Coordination](http://web.cs.wpi.edu/~cs3013/b02/week2-procco/week2-procco.html)
+#### B
+skipped because chapter 21
+#### C
+- [UNIX is a pun on MULTICS](https://www.reddit.com/r/todayilearned/comments/4dbd4e/comment/d1pd6zv/?utm_source=share&utm_medium=web2x&context=3)
+- linux creation of [sparse](https://linux.m2osw.com/how-avoid-creating-sparse-file-cc) files by C function with internal holes
+- fcntl.h to [append](https://stackoverflow.com/q/12741019/21294350).
+  > make each succeeding write() to an open file append to the end
+- [job-control](https://www.gnu.org/software/libc/manual/html_node/Concepts-of-Job-Control.html) signal
+  > The *processes* belonging to a single command are called a process group or job.
+  > A shell that supports job control must arrange to control *which* job can use the terminal at any time.
+- linux "quit" [dumps](https://man7.org/linux/man-pages/man5/core.5.html)
+- Figure C.6 shows the differences between "user structure" and "process structure".
+- [short-term scheduling](https://en.wikipedia.org/wiki/Scheduling_(computing)#:~:text=called%20demand%20paging.-,Short%2Dterm%20scheduling,or%20another%20form%20of%20signal.) -> CPU
+- "Section 10.4.5" doesn't have "swept linearly", while 4.2BSD has where `invalid` gives the second-chance.
+- "C.7.4" is to store something specific to one process like
+  > each such process needs its own offset for the file, keeping the offset in the inode is inappropriate. Thus, the file structure is used to contain the *offset*.
+- ["Reliably" delivered message sockets](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.sockettype?view=net-7.0) combines `Dgram` and `Stream` by "connectionless" and "notified if messages are lost".
+- [Socket Protocol](https://www.ibm.com/docs/en/aix/7.1?topic=protocols-socket)
+- packet [switching](https://en.wikipedia.org/wiki/Packet_switching#Concept) where switching means channel transmission.
+- [IMP](https://en.wikipedia.org/wiki/Interface_Message_Processor)
+- file Direct access [diff](https://www.baeldung.com/cs/file-access) sequential access
+- [jid](https://www.ibm.com/docs/en/zos/2.3.0?topic=descriptions-kill-end-process-job-send-it-signal) in IBM for "Linux signal to job instead of processes".
+#### D
+- [NoRMA](https://en.wikipedia.org/wiki/NoRMA#:~:text=No%20Remote%20Memory%20Access%20(abbreviated,globally%20accessible%20by%20the%20processors.)
+- computer utilities [diff](https://www.geeksforgeeks.org/difference-between-application-software-and-utility-software/) applications
+- > Its extensive use of messages as the only communica-tion method ensures that protection mechanisms are *complete and efficient*.
+  It uses virtual memory mapping to implement.
 ### projects
 - most of them are codes inside the linux. I skipped all of them since doing the OSTEP projects.
 ### TODO
@@ -7187,6 +7223,12 @@ many of these are just duplicate of before ...
 - Figure 21.10 meaning?
 - pre-committed address space?
 - How AWE [related](https://en.wikipedia.org/wiki/Address_Windowing_Extensions) with Physical Address Extension?
+#### appendix C
+- [`>& errs`](https://unix.stackexchange.com/a/89416/568529)?
+#### appendix D
+- Mach interoperable among computer systems?
+- Why use Precious pages?
+- copy-on-reference among multicomputer kernels?
 
 ---
 
