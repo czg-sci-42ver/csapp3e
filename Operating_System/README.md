@@ -6580,6 +6580,8 @@ It just use the structure in chapter 5/18.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
 - [this](#memcached_mul_o)
 - inline relations with stack and `call`, See this filesystems-distributed which uses this frequently.
+## Modern Operating Systems
+- [Printed listing](https://www.ibm.com/docs/en/wsfz-and-o/1.1?topic=translator-printed-listing)
 ## xv6
 - from [this](https://cs.stackexchange.com/questions/160004/why-do-we-use-main-function-in-almost-all-the-programming-languages#comment334807_160008), `_start` needs to be with `-e` to form `-e _start`.
   So `$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o umalloc.o` can't make `_forktest` executable maybe due to the above reasons. So it is followed by `$(OBJDUMP) -S _forktest > forktest.asm`.
@@ -6774,6 +6776,8 @@ I used the summary and the study-guide to ensure understanding the main ideas at
 - Spooling just means [buffering](https://www.geeksforgeeks.org/what-exactly-spooling-is-all-about/).
   > stored in a queue at the speed of the computer
   but not using memory. p639/1278
+  - Spooling [diff](https://www.geeksforgeeks.org/difference-between-spooling-and-buffering/#) buffering -> The key difference
+    > A spool is similar to buffer as it holds the jobs for a device *until* the device is ready to accept the job.
 - > Every machine-level instruction that runs natively on the source system must be *translated* to the *equivalent function* on the target system, frequently resulting in several target instructions.
   i.e. [Binary translation](https://en.wikipedia.org/wiki/Binary_translation) in OSTEP.
 - [portals](https://en.wikipedia.org/wiki/Portals_network_programming_application_programming_interface)
@@ -7229,6 +7233,187 @@ skipped because chapter 21
 - Mach interoperable among computer systems?
 - Why use Precious pages?
 - copy-on-reference among multicomputer kernels?
+## Modern Operating Systems
+1. I only inspected the titles to decide whether to read the related chapter.
+2. I skipped chapter 10, 11 because
+- they don't have much code related infos and I have seen them (although windows 10) in the book Operating System Concepts.
+  since windows 12 is said to come, no need to spend much time to learn one new windows system if not developing the corresponding softwares in it.
+- windows is proprietary and no codes are available.
+- "tofu" and something others shows the author not like China in some way (I know that China is one country with extreme centralization which has not been changed since the ancient ...).
+### PREFACE
+- [scheduler activation](https://zhu45.org/posts/2019/Apr/13/scheduler-activations-effective-kernel-support-for-the-user-level-management-of-parallelism/) -> context.
+- [Pop-up](https://www.includehelp.com/operating-systems/thread-Implementation.aspx) Threads
+### 1
+- ~~Unikernels diff exokernel where the former combines all together while the latter doesn't.~~
+  > A unikernel is a computer program statically linked with the operating system code on which it depends. Unikernels are built with a specialized compiler that identifies the *operating system services* that a program uses and *links it* with one or more library operating systems that provide them
+
+  so Unikernels don't need the OS
+  ![](https://raw.githubusercontent.com/cetic/unikernels/master/MEDIA/vms-containers-unikernels.PNG)
+  TODO what is Exokernel [diff](https://news.ycombinator.com/item?id=9846452) Unikernels
+### 2
+- [RCU](https://en.wikipedia.org/wiki/Read-copy-update#Name_and_overview) where copy ensures consistency.
+  "read-side critical sections" are just one specific critical section.
+### 3
+- [Memory Protection Key](https://www.computer.org/csdl/magazine/sp/2023/03/10077209/1LFQarjNLeo) is 
+  > offers *per-thread* memory protection with an affordable overhead
+  [Also](https://www.kernel.org/doc/html/next/core-api/protection-keys.html)
+- the working set algorithm is just R/M (reference/modified) method with the working set.
+- > all pages are in the working set, otherwise at least one write would  have  been  scheduled.
+  because
+  1. no write ~~means all clean~~ means not "the age is greater than $\tau$ and the page is clean" by 247/1185
+    > To  avoid a process switch, the write to nonvolatile storage is  scheduled
+    then if it isn't in the working set, it will be evicted before.
+    - so it may be "the age is less than $\tau$" but "the page is *dirty*".
+  2. > the  hand  comes  all  the  way  around  and  back
+     implies all elements conform to the above condition.
+- Segmentation implies the [mapping](https://stackoverflow.com/a/28281496/21294350).
+  > Again, every process works with its own virtual address space. This is where these segments can exist.
+- how Segmentation [sharing](https://codex.cs.yale.edu/avi/os-book/OS9/practice-exer-dir/8-web.pdf) of procedures between users -> 8.6.
+- segmentation eliminated "system call" because *local*.
+  > even though  it  was  quite  efficient because it eliminated system calls, turning them into lightning-fast procedure calls to the relevant address *within* a protected operating system segment.
+- > simplifies linking and sharing
+  simplifies sharing so simplifies linking.
+### 4
+I only read 4.5 figures without caring many of these details because
+1. they are old
+2. they have no codes at all.
+3. Seeing many implementations but not knowing why doesn't help.
+### 5
+only see contexts of bold words since no codes at all which doesn't help much for the development. 
+- > it  is  still  charged  for  a  full  tick,  even though  it  did  not  get  much  work  done
+  it also applies for "a  second  timer".
+- > albeit with an occasional missed deadline
+  i.e. $2\mu s$ events may be enlarged to $10\mu s$.
+- USB message pipes and stream pipes are in the [Middleware](https://www.keil.com/pack/doc/mw/USB/html/_u_s_b__endpoints.html)
+- USB raw  mode and [cooked mode](https://en.wikipedia.org/wiki/Terminal_mode#:~:text=In%20cooked%20mode%20data%20is,interprets%20special%20meaning%20from%20them.)
+- `man termios` -> LNEXT.
+- GDI [diff](https://community.khronos.org/t/gui-graphical-user-interface-gdi/21013/4) GUI
+- [DIB](https://learn.microsoft.com/en-us/windows/win32/gdi/device-independent-bitmaps)
+- [capacitive coupling](https://www.dush.co.jp/english/method-type/capacitive-touchscreen/#:~:text=Operating%20Principle&text=When%20a%20conductive%20material%20such,detected%20as%20the%20touch%20position.) with [capacitive touch](https://fieldscale.com/learn-capacitive-sensing/intro-to-capacitive-touch-sensors/)
+- why resistive screen [cannot multitouch](https://electronics.stackexchange.com/a/16827/341985)
+  same as the book says
+  > The resistance in precisely the same lines has changed, so the software has no way of telling *which of the two* scenarios holds
+- [Thin](https://www.baeldung.com/cs/distributed-systems-thin-vs-thick-clients) client
+  > Smartphones and browsers for the Internet are two instances of thin clients.
+- intel power [P-states](https://doc.opensuse.org/documentation/leap/archive/42.2/tuning/html/book.sle.tuning/cha.tuning.power.html#sec.tuning.power.cpu.pstates)
+  [C-state](https://www.intel.com/content/www/us/en/support/articles/000006619/processors/intel-core-processors.html)
+- p425 shows slower CPU sometimes is better.
+  > A much more attractive  solution  is  to  run  the  network  stack  on  a  slower  core,  so  that  it  is  con-stantly busy (and thus never sleeps)
+### 7
+- container [diff](https://aws.amazon.com/compare/the-difference-between-containers-and-virtual-machines/) virtual machines
+  > Container technology involves building self-sufficient *software* packages
+  TODO different from p480
+- [`POPF`](https://stackoverflow.com/a/32797308/21294350) is one of sensitive  instructions.
+- [straight-line sequence](https://gcekbpatna.ac.in/assets/documents/lecturenotes/module-1.pdf) of instructions
+- [paravirt ops](https://wiki.xenproject.org/wiki/XenParavirtOps)
+- ballooning just *syncs* between the guest and the hypervisor.
+  > In other words, the hypervisor tricks the operat-ing system into making tough decisions *for it*
+  so no need for two steps
+  > suppose  that  the  hypervisor  pages  out  a  page P
+  > the hyper-visor must first page the contents back into memory
+  - [deflate](https://www.usenix.org/legacy/publications/library/proceedings/osdi02/tech/full_papers/waldspurger/waldspurger_html/node6.html#:~:text=When%20the%20server%20wants%20to,to%20deallocate%20previously%2Dallocated%20pages.)
+- type 1 hypervisor [diff](https://medium.com/teamresellerclub/type-1-and-type-2-hypervisors-what-makes-them-different-6a1755d6ae2c) type 2 hypervisor
+- [virtual functions](https://en.wikipedia.org/wiki/Single-root_input/output_virtualization#Details)
+  > have a restricted set of configuration resources.
+  is a bit different from "do not  offer  such  configuration  options." as the book says.
+- [Elasticity](https://wa.aws.amazon.com/wellarchitected/2020-07-02T19-33-23/wat.concept.elasticity.en.html)
+- [Infrastructure as a Service](https://aws.amazon.com/what-is/iaas/) -> resource share.
+- [Function as a service](https://en.wikipedia.org/wiki/Function_as_a_service)
+  > *develop*, run, and manage application
+- [vendor lock-in](https://www.cloudflare.com/learning/cloud/what-is-vendor-lock-in/#:~:text=Vendor%20lock%2Din%20is%20when,or%20service%20is%20not%20practical.)
+  > Vendor lock-in refers to a situation where the *cost* of switching to a different vendor is so *high* that the customer is essentially stuck with the original vendor.
+- [application interoperability](https://aws.amazon.com/what-is/interoperability/)
+- [VMM VMX](https://kb.vmware.com/s/article/1019471)
+- [`popf`](https://www.felixcloutier.com/x86/popf:popfd:popfq) relation with the interrupt.
+  > The interrupt flag (IF) is altered only when executing at a level *at least as privileged as the IOPL*
+- p513 three bullets just mean the instruction is sensitive.
+  where [Real mode](https://en.wikipedia.org/wiki/Real_mode#:~:text=Real%20mode%20is%20characterized%20by,multitasking%2C%20or%20code%20privilege%20levels.) may be due to
+  > *unlimited direct* software access to all addressable memory
+- [Host-Only](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/network_hostonly.html#:~:text=Host%2Donly%20networking%20can%20be,through%20a%20physical%20Ethernet%20switch.) Networking, i.e. other guests (bridged) and host (internal).
+- notice VMX and VMM run in the user mode and the kernel mode each to keep isolation.
+- > a  normal  application  *does  not  have*  the  necessary  hooks  and  APIs necessary  for  a  hypervisor  to  multiplex the  CPU  and  *memory*  resources,
+  so VMM is separate from the host OS to offer the capability with the memory, etc.
+  > the  VMware  Workstation  installer simply  writes  its  component  files  onto  an  existing  host  file  system,  without  per-turbing  the  hardware  configuration  (no  reformatting  of  a  disk ...)
+  so VMX is separate from the VMM to keep the disk safe.
+- [SR-IOV](https://www.ibm.com/docs/en/power9?topic=networking-single-root-io-virtualization) -> *one* "PCIe device" to share.
+### 8
+- "UMA Multiprocessors Using Multistage Switching Networks" is also said in COD.
+- [`_mm_mwait`](https://learn.microsoft.com/en-us/cpp/intrinsics/x64-amd64-intrinsics-list?view=msvc-170) [example](https://cpp.hotexamples.com/examples/-/-/_mm_mwait/cpp-_mm_mwait-function-examples.html#0x2106ec03117424c4c99f10e5ae8c2aca36db523979bcd1ce129ac10e91c32bea-24,,32,) corresponding to the book which is for one [range](https://stackoverflow.com/a/72903153/21294350).
+- time sharing -> schedule *one* thread each time, so time sharing.
+- 4D hypercube is two 3D with corresponding points connected similar to 2D->3D.
+- RDMA [avoids overheads](https://core.vmware.com/resource/basics-remote-direct-memory-access-rdma-vsphere)
+### 9
+- `%n` [relation](https://stackoverflow.com/questions/3401156/what-is-the-use-of-the-n-format-specifier-in-c#comment108683120_3401156) with Turing-complete by overwriting -> [possible loop](https://github.com/carlini/printf-tac-toe/issues/1#issuecomment-639591933).
+- 9.5.3 should not happen due to the OS protection.
+- double fetch vulnerability just one special TOCTOU where
+  > the *kernel fetches* data from  user  processes  twice.
+- [out-of-band](https://security.stackexchange.com/a/145631) secret-key
+  > If you are sending the encrypted messages over the *internet*, calling up the other person on the *phone* and reading the key to them would be transmitting it "out of band"
+### 12
+- python goals
+  - [interviews](https://gvanrossum.github.io//interviews.html)
+  - why design ABC
+    > Based on this user feedback, ABC's designers tried to develop a different language.
+    > Maybe it was too early, *before there was an Internet* to do efficient distribution.
+  - python [goal](https://www.artima.com/articles/the-making-of-python)
+    1. > I decided to try to design a simple scripting language that possessed some of ABC's better properties, but *without its problems*.
+    > I created a simple *virtual machine*
+    2. > used *indentation* for statement grouping instead of curly braces or begin-end blocks
+    3. > I think my most innovative contribution to Python's success was making it easy to *extend*.
+    4. > I already knew we would want to use Python on different platforms
+    > I realized that each of those systems had certain functionality that was *consistent everywhere*
+    > But we'll also make it easy for third-party programmers to add their *own object types* to the system
+    5. > so I decided the module would be one of Python's major programming units
+    > You can write modules in Python, but you can also write a module entirely in *C* code.
+    > Python's import works slightly different from Java's import, but it has the *same idea* behind it.
+    > There's a search path.
+    > The way you use a *precompiled* machine code module is, from the Python point of view, exactly the same.
+    [part 2](https://www.artima.com/articles/pythons-design-goals)
+    > The first sound bite I had for Python was, "Bridge the gap between the shell and C."
+    problems of ABC
+    > They designed every language detail and there was *no way to add* to it.
+    > If you quit your session, all your *global variables* were saved by the system to a disk file.
+    > but there was no way to redirect IO to or from a *file*
+    > ABC had no concept of a standard *library*.
+  - Programming model can be thought as [modules](https://en.wikipedia.org/wiki/Programming_model) like Spark.
+  - functions diff procedures whether [return](https://byjus.com/gate/difference-between-function-and-procedure/#:~:text=A%20function%20would%20return%20the,calling%20function%20or%20the%20code.) *values*.
+- [model](https://link.springer.com/referenceworkentry/10.1007/978-0-387-30162-4_190#:~:text=The%20Input%2FOutput%20model%20(I,to%20hold%20M%20data%20items.) of I/O
+- Inertia means [reproduce](https://ec.europa.eu/programmes/erasmus-plus/project-result-content/ff5c27a4-33e1-4ece-9ff2-5f2e32474127/Understanding%20the%20inertia%20of%20a%20school%20system%20-%20EN.pdf) tendency.
+  > The attendance of some teachers in class can reproduce the behaviour they blame on their own students.
+- That HTTP itself is [*connectionless*](https://stackoverflow.com/a/13200206/21294350) maybe means reuse the connection.
+- [blank check](https://www.investopedia.com/terms/b/blankcheckcompany.asp)
+  > Blank check companies are shell companies that are commonly set up to go public, raise funds, and buy a private company
+### TODO
+#### 3
+- > The trouble is, we do not know which of them was referenced  last  in  the  interval  between  tick  1  and  tick  2
+  LRU just tracks the counter, so figure (e) is enough to differentiate.
+- WSClock also needs scan for each reference, so why only "working set" expensive?
+  >  maintaining the shift register and processing it at a page fault would both be prohibitively expensive
+#### 5
+- POSIX ["LNEXT" "Ctrl-v"](https://news.ycombinator.com/item?id=28146597)
+- how to use [`termcap`](https://www.gnu.org/software/termutils/manual/termcap-1.3/html_mono/termcap.html#SEC4)?
+#### 7
+- all-emulation diff trap-and-emulate
+#### 8
+- 8.1.1 doesn't say about how uniform is implemented.
+#### 9
+- how to use Format String Attacks by `fmtme.c`?
+  - others
+    ```bash
+    $ ./owasp.out "Hello World %p %p %p %p %p %p"
+    ```
+    the link says related with the stack, TODO related with the [source code](https://codebrowser.dev/glibc/glibc/stdio-common/vfprintf-internal.c.html#1178)
+    - [Also similar](https://ctf101.org/binary-exploitation/what-is-a-format-string-vulnerability/)
+- how [TDX](https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/best-practices/trusted-domain-security-guidance-for-developers.html) avoids microarchitectural attack?
+  [specification](https://www.intel.com/content/dam/develop/external/us/en/documents/intel-tdx-module-1eas.pdf)
+- page coloring in the book 
+  > it will *not normally affect* the cache activity of process 2
+  while the wikipedia [emphasizes](https://en.wikipedia.org/wiki/Cache_coloring)
+  > by selecting pages that do *not contend* with neighbor pages.
+#### 12
+- how clone system call share the  address  space, working directory ...?
+  `CLONE_FILES` -> file descriptor
+  `CLONE_CLEAR_SIGHAND` -> signal
 
 ---
 
