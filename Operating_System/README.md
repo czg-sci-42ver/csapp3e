@@ -6575,6 +6575,8 @@ It just use the structure in chapter 5/18.
 - Red-Black Trees to search
   - In short, it is based on the [binary cut](https://www.geeksforgeeks.org/introduction-to-red-black-tree/). See "Algorithm:".
 - reread this chapter green highlights.
+## Modern Operating Systems
+- why Hash table need [more](https://stackoverflow.com/a/61874924/21294350) space than Doubly linked lists
 # TODO after reading the compiler book
 - C6 1.c `preempt`, etc.
 - TODO reread [this](https://stackoverflow.com/a/16245669/21294350) after learning the compiler.
@@ -6582,6 +6584,7 @@ It just use the structure in chapter 5/18.
 - inline relations with stack and `call`, See this filesystems-distributed which uses this frequently.
 ## Modern Operating Systems
 - [Printed listing](https://www.ibm.com/docs/en/wsfz-and-o/1.1?topic=translator-printed-listing)
+- how Engler et al. (2000) designed the compiler derivatives?
 ## xv6
 - from [this](https://cs.stackexchange.com/questions/160004/why-do-we-use-main-function-in-almost-all-the-programming-languages#comment334807_160008), `_start` needs to be with `-e` to form `-e _start`.
   So `$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o umalloc.o` can't make `_forktest` executable maybe due to the above reasons. So it is followed by `$(OBJDUMP) -S _forktest > forktest.asm`.
@@ -7081,7 +7084,17 @@ many of these are just duplicate of before ...
   > access different types of concrete file systems in a uniform way
 - [PLIP](https://en.wikipedia.org/wiki/Parallel_Line_Internet_Protocol)
 - fork [doesn't share](https://unix.stackexchange.com/a/420902/568529) file-system info
-- extent is like indirect data pointer p703/1278.
+- extent is like indirect data pointer p703/1278 but specific to [contiguous](https://www.kernel.org/doc/html/latest/filesystems/ext4/dynamic.html#extent-tree).
+  > with extents, the mapping is reduced to a single struct ext4_extent with ee_len = 1000
+  [application](https://adil.medium.com/ext4-filesystem-extent-flex-bg-sparse-super-83f172d694c6)
+  ![](https://miro.medium.com/v2/resize:fit:720/format:webp/0*mz7fOBTdDNepwmDl.png)
+  - [MFT](http://ntfs.com/ntfs-mft.htm)
+    - [entry](http://www.c-jump.com/bcc/t256t/Week04NtfsReview/W01_0220_mft_entry_format.htm)
+- object handle as the [table-index](https://stackoverflow.com/a/70640752/21294350) windows
+- ["external namespace"](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#win32-device-namespaces) file names Windows
+- >  load  a  program  at  *some  memory  address*  and  relocate  it  to  run  there
+  i.e. physical and then virtual.
+- event [implies](https://softwareengineering.stackexchange.com/a/437696) both synchronous and asynchronous.
 ### Windows
 - [CFG](https://learn.microsoft.com/en-us/windows/win32/secbp/control-flow-guard#how-does-cfg-really-work) See the first object in the figure.
 - security reference monitor -> [ACL](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/windows-kernel-mode-security-reference-monitor)
@@ -7342,6 +7355,9 @@ only see contexts of bold words since no codes at all which doesn't help much fo
 - time sharing -> schedule *one* thread each time, so time sharing.
 - 4D hypercube is two 3D with corresponding points connected similar to 2D->3D.
 - RDMA [avoids overheads](https://core.vmware.com/resource/basics-remote-direct-memory-access-rdma-vsphere)
+- [SMT](https://en.wikipedia.org/wiki/Simultaneous_multithreading)
+  > In simultaneous multithreading, instructions from more than one thread can be executed in *any given pipeline stage* at a time.
+  [Also](https://courses.cs.washington.edu/courses/csep548/00sp/lectures/class4/sld058.htm)
 ### 9
 - `%n` [relation](https://stackoverflow.com/questions/3401156/what-is-the-use-of-the-n-format-specifier-in-c#comment108683120_3401156) with Turing-complete by overwriting -> [possible loop](https://github.com/carlini/printf-tac-toe/issues/1#issuecomment-639591933).
 - 9.5.3 should not happen due to the OS protection.
@@ -7383,6 +7399,8 @@ only see contexts of bold words since no codes at all which doesn't help much fo
 - That HTTP itself is [*connectionless*](https://stackoverflow.com/a/13200206/21294350) maybe means reuse the connection.
 - [blank check](https://www.investopedia.com/terms/b/blankcheckcompany.asp)
   > Blank check companies are shell companies that are commonly set up to go public, raise funds, and buy a private company
+- Linux set two alarm at the same time [impossible](https://stackoverflow.com/questions/49342439/set-two-alarm-and-handle-them-differently-unix-c#comment85685190_49342439)
+- system [integration](https://www.indeed.com/career-advice/career-development/system-integration-testing) testing -> interactions
 ### TODO
 #### 3
 - > The trouble is, we do not know which of them was referenced  last  in  the  interval  between  tick  1  and  tick  2
