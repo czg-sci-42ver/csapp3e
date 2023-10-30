@@ -11757,16 +11757,37 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Computer-Algorithms/zgb
 Thomas H. Cormen's book [CRLS](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) is 1st but teachyourselfcs says that it "a little too proof-heavy".
 Also see [this](https://www.amazon.com/Algorithm-Design-Manual-Computer-Science/dp/3030542556) where CRLS also 1st.
 - ["solving around 100 random leetcode"](https://teachyourselfcs.com/#algorithms)
+- maybe it is [not a good](https://qr.ae/pKsmXR) idea to find available solutions for the book.
+  - 4th CRLS solution
+    - [1](https://www.reddit.com/r/algorithms/comments/m3vy3v/a_c_implementation_for_all_clrs_exercises/?utm_source=share&utm_medium=web2x&context=3)
+  - better focus on the general math [instead of implementation](https://qr.ae/pKsmoj) by one specific language
+  - better CRLS [latter](https://www.reddit.com/r/compsci/comments/ulllh/comment/c4wgkbe/?utm_source=share&utm_medium=web2x&context=3) after The Algorithm Design Manual
+## CRLS
+- this is almost full [solutions](https://sites.math.rutgers.edu/~ajl213/CLRS/CLRS.html) for 3rd
+- 3->4 [changes](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/11599/transition_guide.pdf) from [this](http://mitpress.mit.edu/9780262046305/introduction-to-algorithms/)
+- [part](http://www.r-5.org/files/books/computers/algo-list/common/Cormen_Lin_Lee-Introduction_to_Algorithms_(Solutions)-EN.pdf) solutions for 2nd
+- 4th
+  - [wait](https://github.com/wojtask/clrs4e-solutions) for full
+## The Algorithm Design Manual
+- project number list
+  1. 2
+  3. 2
+- Since most of the exercises don't have solutions, this odd ones [skipped](https://www.algorist.com/algowiki/index.php/Solution_Wiki,_The_Algorithm_Design_Manual,_3rd_Edition) many odd, I didn't read this book although teachyourselfcs recommends.
 ## Discrete Mathematics
 Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zgbs/books/13913) where Rosen's book is 3rd but the 1st and 2nd is not totally about Discrete Mathematics.
 - see [1](https://qr.ae/pyWj8a) or [2](https://qr.ae/pyWjGR).
-  Also [math stackexchange](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics) (ignore the [1st ans](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics#comment2598012_1535))
+  Also [math stackexchange](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics) (~~ignore the [1st ans](https://math.stackexchange.com/questions/1533/what-is-the-best-book-for-studying-discrete-mathematics#comment2598012_1535)~~)
+  where [3rd](https://math.stackexchange.com/a/2312/1059606) recommends "Discrete Mathematics and its Applications".
 - 黑皮书 使用 
   1. ["Discrete Mathematics and its Applications"](https://www.suning.com/item/0071487071/12406300968.html) as this [edu](https://www.engineeringonline.ncsu.edu/course/csc-226-discrete-mathematics-for-computer-scientists/)
     - [solutions](https://github.com/idealclover/NJU-Review-Materials/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF%E7%B3%BB/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6%E9%BB%91%E7%9A%AE%E4%B9%A6%E7%AD%94%E6%A1%88/RosenIRG_Chap08.pdf)
+    - Also [see](https://www.reddit.com/r/textbookrequest/comments/qdoxej/comment/i80ryh5/?utm_source=share&utm_medium=web2x&context=3)
   2. ["Discrete Mathematics for Computer Scientists"](https://item.jd.com/10037867743124.html) which is [1st](https://www.amazon.com/Discrete-Mathematics-Computer-Scientists-Cliff/dp/0132122715) edition.
 - Or try [this](https://csci.williams.edu/discrete-mathematics-preparation/)
 - MIT [solutions](https://github.com/spamegg1/Math-for-CS-solutions/blob/master/inclass-questions/MIT6_042JS15_cp3_solutions.pdf)
+  notice it doesn't correspond to all problems in [2015](https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/resources/mit6_042js15_textbook/)
+  so also not [2018](https://courses.csail.mit.edu/6.042/spring18/mcs.pdf)
+  - Also I can't access the [official ones](https://learning-modules.mit.edu/materials/index.html?uuid=/course/6/sp18/6.042#materials)
 # C++
 16th in [best seller](https://www.amazon.com/Best-Sellers-C++-Programming/zgbs/digital-text/8288738011) maybe mainly due to the primer property.
 Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanley-B-Lippman/dp/0321714113#detailBulletsWrapper_feature_div) where maybe lists the *historical highest* rank.

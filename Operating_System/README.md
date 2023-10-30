@@ -7312,6 +7312,7 @@ only see contexts of bold words since no codes at all which doesn't help much fo
   [C-state](https://www.intel.com/content/www/us/en/support/articles/000006619/processors/intel-core-processors.html)
 - p425 shows slower CPU sometimes is better.
   > A much more attractive  solution  is  to  run  the  network  stack  on  a  slower  core,  so  that  it  is  con-stantly busy (and thus never sleeps)
+- Device-independent see 5.3
 ### 7
 - container [diff](https://aws.amazon.com/compare/the-difference-between-containers-and-virtual-machines/) virtual machines
   > Container technology involves building self-sufficient *software* packages
