@@ -22,9 +22,6 @@
 			"path": "../../../../../home/czg_arch/ostep-hw"
 		},
 		{
-			"path": "../../../../../home/czg_arch/xv6-public"
-		},
-		{
 			"path": "../../../../../home/czg_arch/ostep-homework"
 		},
 		{
@@ -38,6 +35,9 @@
 		},
 		{
 			"path": "../../../../../home/czg_arch/Discrete_Mathematics_and_Algorithm"
+		},
+		{
+			"path": "../../../../../home/czg_arch/Computer_Networking"
 		}
 	],
 	"settings": {

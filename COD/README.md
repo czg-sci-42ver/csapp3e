@@ -1,3 +1,9 @@
+I didn't do the homework because
+1. I have done all exercises in the csapp which from [teachyourselfcs](https://teachyourselfcs.com/#operating-systems) it is enough.
+   1. I focus on the software instead of hardware, so csapp may be enough by what teachyourselfcs says.
+2. I read this book only to complement csapp, so no need for redundant exercises
+3. I have read projects and labs in [CS61C](#cs61c-from-learn_self) which has much overlap with examples or exercises from COD and csapp.
+   1. TODO csapp labs may be better.
 # miscs
 - [mingw-w64](https://stackoverflow.com/a/25582293/21294350)
 # appendix
