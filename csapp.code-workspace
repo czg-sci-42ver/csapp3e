@@ -41,6 +41,9 @@
 		},
 		{
 			"path": "../../../../../home/czg_arch/regex_common_patterns"
+		},
+		{
+			"path": "../../../../../home/czg_arch/texfiles"
 		}
 	],
 	"settings": {
