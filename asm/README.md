@@ -7,6 +7,7 @@
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
 - also [this](https://github.com/pkuflyingpig/cs-self-learning/)
 - See [this](https://github.com/pezy/ReadingNotes)
+- Also see [gateoverflow](https://gateoverflow.in/) which is prepared for exams like GATE and book [list](https://gatecse.in/gate-cse-books-more-options/).
 # standards
 - [c++](https://www.iso-9899.info/wiki/The_Standard)
   [9899:2011](https://www.iso-9899.info/n1570.html)
@@ -9429,6 +9430,11 @@ Google:
     - Also [see](https://math.stackexchange.com/a/1920795/1059606) <a id="modular_overflow"></a>
       > arithmetic modulo n is a system of addition (and subtraction) in which *overflow and underflow* cause you to "*cycle back*" to a valu from 0 to n−1.
       *overflow and underflow* implies modular arithmetic
+      - it is related with 2's complement because of dropping the leading bit. ~~Also see csapp where $1\overbrace{\ldots 1}^{n}=1\overbrace{\ldots 1}^{n+1}$, so ~~
+        ~~for 8-bit integer, $-1+(-1)=$~~
+        With "Note 1", since after $0\overbrace{1\ldots 1}^{7}$, 
+        it cycles back to $-128=1\overbrace{0\ldots 0}^{7}$,
+        so we can **just add** 2's complement to get the rounded value.
   - > Such *correction operations* as envisaged above are *highly undesirable*, and it is natural to inquire whether any process exists whereby multiplica-tion can be performed in a *uniform manner* without the necessity of any special devices to examine the signs of the interacting numbers.
   - TODO 
     - here "Sign Correction in Modulus Conventio" is not included in [google scholar](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=T.+J.+R+E+Y+and+R.+E.+SPENCER%2C+Sign+Correction+in+Modulus+Conventio&btnG=).

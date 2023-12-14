@@ -1,9 +1,6 @@
 {
 	"folders": [
 		{
-			"path": "."
-		},
-		{
 			"path": "../automatic_command/arch_linux_init"
 		},
 		{
@@ -13,25 +10,7 @@
 			"path": "../automatic_command"
 		},
 		{
-			"path": "../../../../../home/czg_arch/ostep-code"
-		},
-		{
-			"path": "../../../../../home/czg_arch/ostep-projects"
-		},
-		{
-			"path": "../../../../../home/czg_arch/ostep-hw"
-		},
-		{
-			"path": "../../../../../home/czg_arch/ostep-homework"
-		},
-		{
-			"path": "../../../../../home/czg_arch/code-for-blog"
-		},
-		{
 			"path": "../CSAPP-3e-Solutions/site/content"
-		},
-		{
-			"path": "../../../../../home/czg_arch/.local/share/fcitx5/rime"
 		},
 		{
 			"path": "../../../../../home/czg_arch/Discrete_Mathematics_and_Algorithm"
@@ -43,7 +22,7 @@
 			"path": "../../../../../home/czg_arch/regex_common_patterns"
 		},
 		{
-			"path": "../../../../../home/czg_arch/texfiles"
+			"path": "."
 		}
 	],
 	"settings": {
