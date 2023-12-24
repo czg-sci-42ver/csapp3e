@@ -2,8 +2,33 @@
   Since it is too large to be rendered, newer contents [see](../COD/README.md).
 2. Not rename the downloaded paper name totally without keeping the original paper name substring.
 # what to learn
-- See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) ([i.e.](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/)) for what to learn.
+- See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) (i.e. [this](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/) where 1. 6.1200 is [same](http://student.mit.edu/catalog/m6a.html) as 18.062 2. needs 6.3260 Networks) for what to learn.
   [Also](http://catalog.mit.edu/subjects/6/)
+  - What To learn 
+    - 6.3800 Introduction to Inference
+    - 6.1020 Software Construction
+    - 6.4400 Computer Graphics AUS2
+    - 6.8301 "Advances in Computer Vision" [AI+D](https://eecsis.mit.edu/degree_requirements.html#track) / 6.C27 "Computational Imaging: Physics and Algorithms" from EE
+    - 6.3260 Networks ,6.3900 Introduction to Machine Learning from [EECS](https://eecsis.mit.edu/degree_requirements.html#EECS)
+  - Maybe not needed to learn based on what I have learned 
+    - 6.1910 may be same as computer architecture.
+    - "Two programming skills subjects", C is enough.
+    - 18.C06 [same](https://computing.mit.edu/cross-cutting/common-ground-for-computing-education/common-ground-subjects/c06-linear-algebra-optimization/) as [18.06](https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/) and [8.06](https://catalog.mit.edu/subjects/18/)
+    - 6.1010 may be same as 6.1210
+    - 6.1800 since [Computer Systems](https://softwareengineering.stackexchange.com/a/308473) have been covered with the operating system and the computer architecture.
+    - 6.1220 may be same as 6.1210
+    - [AUS2](https://eecsis.mit.edu/degree_requirements.html#AUS2)
+      - 6.1040 may be same as 6.1020
+    - [CIM2](https://eecsis.mit.edu/degree_requirements.html#CIM2)
+      - 6.1800
+      - 6.1850 may be same as 6.1800
+        - Also in [AI+D, CS, or EE Track](https://eecsis.mit.edu/degree_requirements.html#track)
+    - [II](https://eecsis.mit.edu/degree_requirements.html#II)
+      - 6.1040
+      - 6.1850
+    - [CS](https://eecsis.mit.edu/degree_requirements.html#track) 2 additional
+      - 6.5900 same as computer architecture.
+      - 6.5080 may be mostly covered in the operating system.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
 - also [this](https://github.com/pkuflyingpig/cs-self-learning/)
 - See [this](https://github.com/pezy/ReadingNotes)
