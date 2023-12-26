@@ -11819,6 +11819,8 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
   notice it doesn't correspond to all problems in [2015](https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/resources/mit6_042js15_textbook/)
   so also not [2018](https://courses.csail.mit.edu/6.042/spring18/mcs.pdf)
   - Also I can't access the [official ones](https://learning-modules.mit.edu/materials/index.html?uuid=/course/6/sp18/6.042#materials)
+## university
+- [nju](http://cslabcms.nju.edu.cn/problem_solving/index.php/2023%E7%BA%A7--%E6%8C%87%E5%AE%9A%E6%95%99%E6%9D%90)
 # C++
 16th in [best seller](https://www.amazon.com/Best-Sellers-C++-Programming/zgbs/digital-text/8288738011) maybe mainly due to the primer property.
 Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanley-B-Lippman/dp/0321714113#detailBulletsWrapper_feature_div) where maybe lists the *historical highest* rank.
