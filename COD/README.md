@@ -4,8 +4,43 @@ I didn't do the homework because
 2. I read this book only to complement csapp, so no need for redundant exercises
 3. I have read projects and labs in [CS61C](#cs61c-from-learn_self) which has much overlap with examples or exercises from COD and csapp.
    1. TODO csapp labs may be better.
+- The rest learning notes see [asm_doc] "[Computer organization and design David A. Patterson][MIPS_COD] ...".
 # miscs
 - [mingw-w64](https://stackoverflow.com/a/25582293/21294350)
+## QA
+- [Why do we need one jump after changing `PG` with `mov CR0, ...` when using non-completely serializing instruction?](https://stackoverflow.com/a/77743174/21294350)
+  - > release/acquire semantics happen for free on x86 due to LoadLoad and StoreStore ordering
+    [better](https://preshing.com/20120913/acquire-and-release-semantics/)
+    "LoadLoad and StoreStore ordering ... release/acquire semantics"
+  - > and the docs for the control-register bits imply it should work,
+    TODO how imply?
+  - > so old machine code could have already been fetched before seeing the flag that says new machine code has been stored
+    maybe new ... old
+  - [something *other* than "stale" code fetch that's relevant](https://stackoverflow.com/questions/77032256/why-do-we-need-one-jump-after-changing-pg-with-mov-cr0-when-using-non-c/77743174?noredirect=1#comment137060103_77743174)
+    1. set the Accessed bit
+    2. ensure the right decode
+  - Answer to these questions
+    1. [check the page-table for validity](https://stackoverflow.com/questions/77032256/why-do-we-need-one-jump-after-changing-pg-with-mov-cr0-when-using-non-c/77743174?noredirect=1#comment137059872_77743174)
+      Also [see](https://stackoverflow.com/a/17395717/21294350)
+      > flush the instruction prefetch unit by coding a jump instruction immediately after any write that modifies an instruction
+      - Notice in the newer CPU, there is no need for this `jmp`. See 2.
+    2. [code *prefetch buffers* / pipeline stages are discarded](https://stackoverflow.com/a/77743174/21294350)
+    3. [answer](https://chat.stackoverflow.com/transcript/message/56978879#56978879)
+      - Also [see](https://stackoverflow.com/a/77743174/21294350)
+        > lfence is sufficient if you don't need to wait for the *store buffer to drain*
+      - [This](https://chat.stackoverflow.com/transcript/message/56978917#56978917)
+        >  but it's still all based on machine code that was fetched *before* all effects (stores and system settings like CR0) from earlier instructions happened.
+        because
+        > since more stages of decoding are happening while *earlier instructions are still executing*
+        so decoding occurs earlier before the history instructions take *effects*.
+      - [this](https://chat.stackoverflow.com/transcript/message/56978895#56978895)
+        the key idea is to solve with "out-of-order".
+        - > If a CPU could keep track of in-flight instructions with *different CR0* values (for any of the bits), it would be by register renaming, same as it uses to execute multiple `mov eax, [rdi]` instructions in parallel on *different loop iterations*.
+          i.e. one `CR0` may be in different loop iterations, then each loop iteration shares the *same* instruction sequence, so we *can't differentiate them* if not using something like register renaming.
+      - [this](https://chat.stackoverflow.com/transcript/message/56978913#56978913)
+        > so they don't have to rename the privilege level
+        by [this](https://stackoverflow.com/a/15836140/21294350)
+        i.e. it doesn't need to *change* the privileged level.
 # appendix
 ## B
 ### CUDA
