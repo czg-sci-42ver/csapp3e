@@ -11756,6 +11756,20 @@ $ mv ~/.gdbinit_py_orig.py ~/.gdbinit_py_orig.gdb
 $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 >>> 
 ```
+# teachyourselfcs
+## [sicp](https://web.mit.edu/6.001/6.037/sicp.pdf)
+- better still use scheme [instead of JS](https://news.ycombinator.com/item?id=30018717)
+- [solution](https://github.com/xxyzz/SICP?tab=readme-ov-file)
+  Also [see](http://community.schemewiki.org/?SICP-Solutions) and [this](https://sicp-solutions.net/)
+  - Todo whether to use [Racket](https://news.ycombinator.com/item?id=25442005)
+    [Also](https://stackoverflow.com/a/3358638/21294350)
+- html text
+  - [1](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/full-text/book/book-Z-H-38.html#%_index_start)
+  - [2](https://sarabander.github.io/sicp/html/index.xhtml)
+## [Compilers: Principles, Techniques & Tools](http://www.cs.nthu.edu.tw/~ychung/slides/CSC4180/Alfred%20V.%20Aho,%20Monica%20S.%20Lam,%20Ravi%20Sethi,%20Jeffrey%20D.%20Ullman-Compilers%20-%20Principles,%20Techniques,%20and%20Tools-Pearson_Addison%20Wesley%20(2006).pdf) [or](https://www.dbscience.org/wp-content/uploads/2020/03/ALSUdragonbookcompilers.pdf)
+- [ans](https://dragon-book.jcf94.com/book/index.html)
+## [Designing Data-Intensive Applications](https://public.nikhil.io/Designing%20Data%20Intensive%20Applications.pdf)
+- no exercises for it but just introduction description.
 # Operating Systems
 ## textbook selection
 see [this](https://www.zhihu.com/question/27871198) (maybe [this](https://www.cnblogs.com/cxuanBlog/p/13320810.html)), [this](https://www.reddit.com/r/compsci/comments/1wazdm/looking_for_a_good_book_on_operating_systems/)
@@ -11832,6 +11846,12 @@ Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanle
   - [books](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk47rv8/?utm_source=share&utm_medium=web2x&context=3)
 # database
 although Amazon best seller is ["Designing Data-Intensive Applications"](https://www.amazon.com/Best-Sellers-Computer-Databases/zgbs/digital-text/156117011) but teachyourselfcs puts it in "Distributed Systems".
+- book by teachyourselfcs
+  - [Database Management Systems 1k+ pages](https://raw.githubusercontent.com/pforpallav/school/master/CPSC404/Ramakrishnan%20-%20Database%20Management%20Systems%203rd%20Edition.pdf) maybe skipped after CS 186
+  - [red book](http://www.redbook.io/pdf/redbook-5th-edition.pdf)
+  - see [this](https://t.me/c/1692715496/517) for the rest 2 books
+    1. Data and Reality
+    2. Transaction Processing: Concepts and Techniques
 # computer networking
 Amazon best seller seems to have [no relation](https://www.amazon.com/Best-Sellers-Computer-Networks/zgbs/books/3747) with networking.
 ignore [1](https://www.amazon.com/Networking-Dummies-Doug-Lowe/dp/1119648505/ref=zg_bs_g_3747_sccl_20/136-4911125-4000556?psc=1) which may focus on the application instead of theory and [2](https://www.amazon.com/Guide-Networking-Essentials-MindTap-Course/dp/0357118286/ref=zg_bs_g_3747_sccl_21/136-4911125-4000556?psc=1) which is offered by Cengage (maybe not good)
