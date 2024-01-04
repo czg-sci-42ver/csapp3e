@@ -11844,6 +11844,15 @@ Better see the book ["Product details"](https://www.amazon.com/Primer-5th-Stanle
 - [not](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk46hug/?utm_source=share&utm_medium=web2x&context=3) to learn C before C++, because [1](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk4uwu6/?utm_source=share&utm_medium=web2x&context=3)
   Also [this](https://stackoverflow.com/a/145098/21294350) which says about their differences from [this](https://stackoverflow.com/a/598555/21294350).
   - [books](https://www.reddit.com/r/learnprogramming/comments/6mtj64/comment/dk47rv8/?utm_source=share&utm_medium=web2x&context=3)
+## [learning path](https://stackoverflow.com/a/388282/21294350) See the [booklist](https://t.me/c/1692715496/522)
+- A Tour of C++ 2rd
+- Effective Modern C++
+- Intermediate: More Effective C++
+  - TODO
+    - is it ok to read only C++ 20 - The Complete Guide without others except More Effective C++ including C++ 17 - The Complete Guide?
+  - Notice this is [not](https://stackoverflow.com/a/34646973/21294350) [inherited](https://www.amazon.com/dp/020163371X) by Effective C++: 55 Specific Ways to ...
+- Advanced TODO after reading the before books.
+  - here I chose Modern C++ Design.
 # database
 although Amazon best seller is ["Designing Data-Intensive Applications"](https://www.amazon.com/Best-Sellers-Computer-Databases/zgbs/digital-text/156117011) but teachyourselfcs puts it in "Distributed Systems".
 - book by teachyourselfcs
