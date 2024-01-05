@@ -14,7 +14,7 @@
     - 6.1910 may be same as computer architecture.
     - "Two programming skills subjects", C is enough.
     - 18.C06 [same](https://computing.mit.edu/cross-cutting/common-ground-for-computing-education/common-ground-subjects/c06-linear-algebra-optimization/) as [18.06](https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/) and [8.06](https://catalog.mit.edu/subjects/18/)
-    - 6.1010 may be same as 6.1210
+    - 6.1010 may be same as 6.1210 Introduction to Algorithms
     - 6.1800 since [Computer Systems](https://softwareengineering.stackexchange.com/a/308473) have been covered with the operating system and the computer architecture.
     - 6.1220 may be same as 6.1210
     - [AUS2](https://eecsis.mit.edu/degree_requirements.html#AUS2)
@@ -30,6 +30,60 @@
       - 6.5900 same as computer architecture.
       - 6.5080 may be mostly covered in the operating system.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
+- [Mathematics with Computer Science](https://catalog.mit.edu/degree-charts/mathematics-computer-science-course-18-c/)
+  - [Roadmaps](https://math.mit.edu/academics/undergrad/roadmaps.html)
+  - [Calculation](https://catalog.mit.edu/degree-charts/mathematics-course-18/#generalmathematicstext) of "Total Units Beyond the GIRs Required for SB Degree" by $108+84-12$, So we only needs to care "Units in Major" without caring about "Unrestricted Electives" and "Units in Major That Also Satisfy the GIRs"
+  - skipped (some trivial skips like 18.06 are not shown)
+    - 18.03 due to learnt in calculus althouth partly
+    - 6.100A because I want to learn c++
+    - 18.400[J] and 18.410[J] are probably covered by algorithm
+  - To learn
+    - 6.1010 may be covered by sicp
+    - 6.1600 recommended for [Course 6](https://catalog.mit.edu/subjects/6/)
+      Or 6.5120 Formal Reasoning About Programs by searching "mathe"
+    - By [this](https://catalog.mit.edu/schools/science/mathematics/#undergraduatetext)
+      - 18.404 Theory of Computation
+        and
+        18.410[J] Design and Analysis of Algorithms
+        ~~should not be skipped~~ but may be covered by algorithm.
+      - 18.701 Algebra may be abstract algebra including [linear one](https://www.reddit.com/r/math/comments/14qslm/comment/c7fkdyb/?utm_source=share&utm_medium=web2x&context=3)
+        - [modern algebra](https://www.quora.com/Does-abstract-algebra-and-modern-algebra-mean-the-same-thing-or-not-in-mathematical-terms/answer/Joseph-Heavner) is same (Also see ["Subjects with *Essentially Similar* Content"](https://math.mit.edu/academics/undergrad/major/))
+      - 18.211 Combinatorial Analysis If having much blank time
+    - Course 18 (5 for Mathematics with Computer Science and 8+4+2 for Mathematics)
+      > must include at least five Course 18 subjects with a first decimal digit of 1 or higher.
+      - [This](https://math.mit.edu/academics/undergrad/major/index.html) shows 3 options all need to be considered
+      - See [Where to Begin](https://math.mit.edu/academics/undergrad/subjects/)
+        Here I skip 18.781 Theory of Numbers and 18.510 Introduction to Mathematical Logic and Set Theory because they are covered in discrete mathematics.
+        - See different distinct areas [outlines](https://math.mit.edu/academics/undergrad/subjects/181x.html)
+      - General Mathematics
+        - 18.701 Algebra I (*) which is one must in Pure Mathematics
+        - 18.125 Measure Theory and Analysis (*) because Measure Theory is somewhat significant.
+        - 18.101 (Analysis and Manifolds) (*) since I read one book which introduces Manifolds as the preq of 18.965 so it doesn't contradict with 18.102 ~~([contradicts](https://catalog.mit.edu/degree-charts/mathematics-course-18/#theoreticalmathematicstext) with 18.102)~~
+        - ~~18.212 Algebraic Combinatorics~~ [contradiction](https://catalog.mit.edu/schools/science/mathematics/#undergraduatetext)
+        - 18.225 Graph Theory and Additive Combinatorics (*)
+        - To decide choices
+          - 18.453 Combinatorial Optimization
+          - 18.676 Stochastic Calculus
+          - 18.705 Commutative Algebra
+          - 18.965 Geometry of Manifolds I
+      - Applied Mathematics
+        - 18.300	Principles of Continuum Applied Mathematics
+        - 18.200A Principles of Discrete Applied Mathematics
+        - 18.112	Functions of a Complex Variable
+        - Group I (*)
+          - 18.211
+          - 18.453 (Combinatorial Optimization)
+        - Group II (*)
+          - 18.330 (Introduction to Numerical Analysis)
+          - 18.353J (Nonlinear Dynamics: Chaos)
+      - Pure Mathematics TODO [choose 2](https://math.mit.edu/academics/undergrad/roadmaps.html)
+        - 18.100B	Real Analysis
+        - 18.702	Algebra II (After I)
+        - 18.901	Introduction to Topology
+        - 18.102 Introduction to Functional Analysis (This choice can be tuned)
+        - Maybe we can use the above Group I,II because they are already
+          > essentially different content, with the first decimal digit one or higher
+        - [18.950 (Differential Geometry)](https://math.mit.edu/academics/undergrad/subjects/189x.html) (*)
 - also [this](https://github.com/pkuflyingpig/cs-self-learning/)
 - See [this](https://github.com/pezy/ReadingNotes)
 - Also see [gateoverflow](https://gateoverflow.in/) which is prepared for exams like GATE and book [list](https://gatecse.in/gate-cse-books-more-options/).
