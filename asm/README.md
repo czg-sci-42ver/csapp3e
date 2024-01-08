@@ -87,6 +87,7 @@
 - also [this](https://github.com/pkuflyingpig/cs-self-learning/)
 - See [this](https://github.com/pezy/ReadingNotes)
 - Also see [gateoverflow](https://gateoverflow.in/) which is prepared for exams like GATE and book [list](https://gatecse.in/gate-cse-books-more-options/).
+- See [this](https://hbpms.blogspot.com/) for maths which is from [this](https://www.reddit.com/r/math/comments/bqbex/lets_list_all_the_useful_free_online_math/)
 # standards
 - [c++](https://www.iso-9899.info/wiki/The_Standard)
   [9899:2011](https://www.iso-9899.info/n1570.html)
