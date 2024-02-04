@@ -9,6 +9,9 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
   - [This](https://avepdf.com/pdf-ocr) is better
 - libgen 1k file torrent part search using [aria `aria2c --show-files ~/Downloads/r_963000.torrent | grep 13`](https://github.com/aria2/aria2/issues/843) or TODO by [calibre](https://www.reddit.com/r/libgen/comments/lxt7gu/ive_got_1000_books_now_what/)
   - or [this calibre search](https://www.reddit.com/r/Piracy/comments/wq03z7/a_calibre_plugin_that_allows_you_to_search_for/)
+##### how to find books
+- Use [annas](https://zh.annas-archive.org/) although it is just one mirror web.
+- Use [ebooksworld](https://dl.ebooksworld.ir/books/Artificial.Intelligence.A.Modern.Approach.4th.Edition.Peter.Norvig.%20Stuart.Russell.Pearson.9780134610993.EBooksWorld.ir.pdf)
 ### [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)

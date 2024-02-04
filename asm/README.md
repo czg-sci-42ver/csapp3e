@@ -2,7 +2,7 @@
   Since it is too large to be rendered, newer contents [see](../COD/README.md).
 2. Not rename the downloaded paper name totally without keeping the original paper name substring.
 # what to learn
-- See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) (i.e. [this](http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/) where 1. 6.1200 is [same](http://student.mit.edu/catalog/m6a.html) as 18.062 2. needs 6.3260 Networks) for what to learn.
+- See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) (i.e. [this][2023_MIT_Computer_Science_Degree_Chart] where 1. 6.1200 is [same](http://student.mit.edu/catalog/m6a.html) as 18.062 2. needs 6.3260 Networks) for what to learn.
   [Also](http://catalog.mit.edu/subjects/6/)
   - What To learn 
     - 6.3800 Introduction to Inference
@@ -11862,12 +11862,16 @@ Also see [this](https://www.amazon.com/Algorithm-Design-Manual-Computer-Science/
     - [1](https://www.reddit.com/r/algorithms/comments/m3vy3v/a_c_implementation_for_all_clrs_exercises/?utm_source=share&utm_medium=web2x&context=3)
   - better focus on the general math [instead of implementation](https://qr.ae/pKsmoj) by one specific language
   - better CRLS [latter](https://www.reddit.com/r/compsci/comments/ulllh/comment/c4wgkbe/?utm_source=share&utm_medium=web2x&context=3) after The Algorithm Design Manual
-## CRLS
+## CRLS by [MIT press](https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/)
 - this is almost full [solutions](https://sites.math.rutgers.edu/~ajl213/CLRS/CLRS.html) for 3rd
 - 3->4 [changes](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/11599/transition_guide.pdf) from [this](http://mitpress.mit.edu/9780262046305/introduction-to-algorithms/)
 - [part](http://www.r-5.org/files/books/computers/algo-list/common/Cormen_Lin_Lee-Introduction_to_Algorithms_(Solutions)-EN.pdf) solutions for 2nd
 - 4th
   - [wait](https://github.com/wojtask/clrs4e-solutions) for full
+### related course although they are not the latest
+- [6.046](https://csdiy.wiki/en/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/6.046/) [after](https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2015/pages/instructor-insights/) 6.006
+  And by [2023_MIT_Computer_Science_Degree_Chart], these 2 should be both learnt.
+- [6.006](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/pages/practice-problems/)
 ## The Algorithm Design Manual
 - project number list
   1. 2
@@ -12442,3 +12446,6 @@ Dump of assembler code for function _Z6kernelPfi:
 [Interaction_Between_Caching_Translation_Protection]:../Operating_System/Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
 
 [x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html
+
+<!-- MIT -->
+[2023_MIT_Computer_Science_Degree_Chart]:http://catalog.mit.edu/degree-charts/computer-science-engineering-course-6-3/

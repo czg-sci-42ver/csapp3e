@@ -41,6 +41,11 @@ I didn't do the homework because
         > so they don't have to rename the privilege level
         by [this](https://stackoverflow.com/a/15836140/21294350)
         i.e. it doesn't need to *change* the privileged level.
+### hardware
+- [This](https://electronics.stackexchange.com/a/688099/341985) shows no need to focus on the already *obsolete EPROMs*
+- [NOR to construct one multiplexor](https://electronics.stackexchange.com/q/675176/341985)
+- [How EEPROM and the other related works](https://electronics.stackexchange.com/q/675566/341985)
+- [Fused Multiply Add](https://electronics.stackexchange.com/q/676878/341985)
 # appendix
 ## B
 ### CUDA
