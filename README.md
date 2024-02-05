@@ -12,6 +12,8 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
 ##### how to find books
 - Use [annas](https://zh.annas-archive.org/) although it is just one mirror web.
 - Use [ebooksworld](https://dl.ebooksworld.ir/books/Artificial.Intelligence.A.Modern.Approach.4th.Edition.Peter.Norvig.%20Stuart.Russell.Pearson.9780134610993.EBooksWorld.ir.pdf)
+#### learning path
+- [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 ### [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)
