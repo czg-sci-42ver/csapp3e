@@ -46,6 +46,9 @@ I didn't do the homework because
 - [NOR to construct one multiplexor](https://electronics.stackexchange.com/q/675176/341985)
 - [How EEPROM and the other related works](https://electronics.stackexchange.com/q/675566/341985)
 - [Fused Multiply Add](https://electronics.stackexchange.com/q/676878/341985)
+#### links
+- [electronics-tutorials](https://www.electronics-tutorials.ws/category/boolean) for computer needs [chrome incognito](https://kinsta.com/knowledgebase/err_http2_protocol_error/) (firefox fails)
+  fine for iOS safari.
 # appendix
 ## B
 ### CUDA

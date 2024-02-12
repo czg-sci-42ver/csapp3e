@@ -112,7 +112,7 @@
 - reddit seems to unable to support the [whole math symbols](https://www.reddit.com/r/mathriddles/comments/34fxve/writing_math_on_reddit/)
   maybe [`[; ... ;]`](https://www.reddit.com/r/math/comments/12h42y/comment/c6v6lx2/?utm_source=share&utm_medium=web2x&context=3) only usable in r/math
   or use [this](https://editor.codecogs.com/)
-- archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike)
+- archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike) or [this](https://archive.md/) from one wikipedia [reference](https://en.wikipedia.org/wiki/Anchor_(brand)#cite_note-4)
 - edit [formulas](https://meta.stackexchange.com/a/76905/1355014) in SO
   newline in newer SO seems to be needed to use [`\`](https://stackoverflow.com/a/58465541/21294350) instead of just newline.
 - [`pandas`](https://qr.ae/pyx7P2) naming.
@@ -8001,8 +8001,9 @@ here cloud means "throuth web".
 
     Above is same as [this](#appendix_A_exercise_ans) says
   - $B \verb!^! C$ -> $B \cdot \overline{C} + C \cdot \overline{B}$ [See latex caret](https://tex.stackexchange.com/questions/77646/how-to-typeset-the-symbol-caret-circumflex-hat)
-- TODO learn the boolean algebra.
+- ~~TODO learn the boolean algebra.~~
   why AND,OR,inversion are enough to build the logic and one of "NOR and NAND" is enough -> See [this](https://en.wikipedia.org/wiki/NAND_logic#Making_other_gates_by_using_NAND_gates)
+  - By inspecting how the circuit are *constructed based on the truth table*, we know "AND,OR,inversion are enough".
 - "synthesize combinational logic" just means "combinational logic" can be ["converting ... into an optimized *gate-level* representation ..."](http://www.doe.carleton.ca/~shams/ELEC4708/Lab2SimulationsTut2014.pdf)
   [example](https://www.doe.carleton.ca/~shams/ELEC4708/Lab2SynthesisTut14.pdf)
 - "any logic function can be implemented with *only AND, OR, and NOT* functions" maybe can be thought as one [axiom](https://qr.ae/pyac5h).
@@ -8047,13 +8048,24 @@ here cloud means "throuth web".
     Better see [COD_RISCV_2nd_A_appendix] A-77 "field programmable gate arrays (FPGAs), which provide both combinational logic and *flip-flops*" (i.e. "possibly memory devices")
 
     Also see [PLC vs PLD "PLD is a *variable* logic device" "PLC is generally used for the *weak* point to *drive strong* electricity"](https://www.fpgakey.com/technology/details/on-the-difference-between-plc-and-pld#:~:text=PLD%20is%20the%20abbreviation%20of,can%20sometimes%20ignore%20the%20two.)
-- [Karnaugh map](https://en.wikipedia.org/wiki/Karnaugh_map#Solution) just use color to "cover" all *ones* by "grouping" 1s (here grouping just means "cover").
-  it can also solve by [grouping 0s](https://en.wikipedia.org/wiki/Karnaugh_map#Inverse) or more aggressive when [`X`](https://en.wikipedia.org/wiki/Karnaugh_map#Don't_cares) exists
+- [Karnaugh map](https://en.wikipedia.org/wiki/Karnaugh_map#Solution) just use color to "cover" all *ones* by "grouping" 1s (here grouping just means "cover") using $+$ to connect them.
+  it can also solve by [grouping 0s](https://en.wikipedia.org/wiki/Karnaugh_map#Inverse) which corresponds to *the inverse of the original function* or more aggressive when [`X`](https://en.wikipedia.org/wiki/Karnaugh_map#Don't_cares) exists
   Maxterm -> ["maximum area of 1s"](https://www.allaboutcircuits.com/textbook/digital/chpt-8/minterm-maxterm-solution/)
   - Race hazards just because changing from one *product* to another in [SOP][SOP] which cause one "potential glitch".
     Just use one new "additional term of $A\overline{D}$" to make *the states together*.
   - more ~~easy~~ [basic](https://en.wikipedia.org/wiki/Karnaugh_map#2-variable_map_examples) examples
   - Notice: here ["Elimination"](https://en.wikipedia.org/wiki/Karnaugh_map#Elimination) is based on *torus* so `0010` is adjacent with `0000` (the `ABCD` order).
+    - Also see "Above diagram with consensus terms added to avoid *race hazards*." where $AD'$ ~~crosses~~ is "wrapping around the top, bottom" of the rectangle.
+      It avoids
+      > moving from the blue state to the green state ... but because this transition is *not covered by a specific term* in the equation
+      (i.e. here no term can *hold* this state of 1.)
+      by 
+      > *bridging* between the green and blue output states or blue and red output states
+      - See [race condition](https://en.wikipedia.org/wiki/Race_condition) figure where both $A$ and $\overline{A}$ *can't hold* the state of 
+        $A\land \overline{A}$
+  - > Cells are also known as minterms
+    > which represent the terms of a canonical form of the logic in the original truth table
+    here ["the terms of a canonical form"](https://en.wikipedia.org/wiki/Canonical_normal_form) -> minterms or maxterms.
 - “multiple sources and uses” 
   sources -> multiple bits
   uses -> just as inputs of multiple multiplexors
@@ -11856,12 +11868,14 @@ It is used by [1](https://oslab.kaist.ac.kr/ostepslides/?ckattempt=1) and [ossu]
 Amazon [best seller](https://www.amazon.com/Best-Sellers-Computer-Algorithms/zgbs/books/491298) where 
 Thomas H. Cormen's book [CRLS](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) is 1st but teachyourselfcs says that it "a little too proof-heavy".
 Also see [this](https://www.amazon.com/Algorithm-Design-Manual-Computer-Science/dp/3030542556) where CRLS also 1st.
+- See [this](https://www.cs.nthu.edu.tw/~wkhon/ds/ds11/lecture/overview.pdf) p9
 - ["solving around 100 random leetcode"](https://teachyourselfcs.com/#algorithms)
 - maybe it is [not a good](https://qr.ae/pKsmXR) idea to find available solutions for the book.
   - 4th CRLS solution
     - [1](https://www.reddit.com/r/algorithms/comments/m3vy3v/a_c_implementation_for_all_clrs_exercises/?utm_source=share&utm_medium=web2x&context=3)
   - better focus on the general math [instead of implementation](https://qr.ae/pKsmoj) by one specific language
   - better CRLS [latter](https://www.reddit.com/r/compsci/comments/ulllh/comment/c4wgkbe/?utm_source=share&utm_medium=web2x&context=3) after The Algorithm Design Manual
+- [this](https://courses.engr.illinois.edu/cs374/fa2015/resources.html)
 ## CRLS by [MIT press](https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/)
 - this is almost full [solutions](https://sites.math.rutgers.edu/~ajl213/CLRS/CLRS.html) for 3rd
 - 3->4 [changes](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/11599/transition_guide.pdf) from [this](http://mitpress.mit.edu/9780262046305/introduction-to-algorithms/)
