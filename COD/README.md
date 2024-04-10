@@ -404,6 +404,7 @@ it may be more easier for the later radix-16 multipler.
   - TODO 
     - green highlights.
       Most of them are similar to CUDA PTX or intrinsic functions.
+      - Notice orange highlights are normal highlights.
     - [`splat`](https://reviews.llvm.org/D45683)
 - FIGURE D.29
   - TODO [DEC Floating-point](https://stackoverflow.com/questions/64760137/how-to-display-dec-floating-point-format-given-32-bits-in-ieee-standard)
