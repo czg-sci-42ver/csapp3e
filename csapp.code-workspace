@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "."
+		},
+		{
+			"path": "../../../../../home/czg_arch/.local/share/fcitx5/rime"
 		}
 	],
 	"settings": {
