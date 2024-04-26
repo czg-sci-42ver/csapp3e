@@ -11905,6 +11905,16 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
 - MIT [solutions](https://github.com/spamegg1/Math-for-CS-solutions/blob/master/inclass-questions/MIT6_042JS15_cp3_solutions.pdf)
   notice it doesn't correspond to all problems in [2015](https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/resources/mit6_042js15_textbook/)
   so also not [2018](https://courses.csail.mit.edu/6.042/spring18/mcs.pdf)
+  - As [its author](https://github.com/ossu/computer-science/issues/1090#issuecomment-1281242092) says, he doesn't intend to give all solutions.
+    Although it gives [much](https://github.com/ossu/computer-science/issues/1090#issuecomment-1302571477).
+    - It at least gives all solutions for [IN-CLASS QUESTIONS and ASSIGNMENTS](https://openlearninglibrary.mit.edu/courses/course-v1:OCW+6.042J+2T2019/9817b7d039b942c3aad1cdb9524b7c5d/)
+    - 2019 [video](https://github.com/ossu/computer-science/issues/1090#issuecomment-1281140676) -> [see](https://openlearninglibrary.mit.edu/courses/course-v1:OCW+6.042J+2T2019/courseware/144debec136a47d99038330db4dcdb04/320923e9f3ff4868923f2cc23d784d29/1?activate_block_id=block-v1%3AOCW%2B6.042J%2B2T2019%2Btype%40vertical%2Bblock%401124161bffe64467878b349ec36bd7f2)
+      - notice it uses [2015 pdf](https://people.csail.mit.edu/meyer/mcs.pdf)
+        Ths latest is [2018](https://courses.csail.mit.edu/6.042/spring18/mcs.pdf)
+      - So IN-CLASS QUESTIONS is only part of "Class Problems" in 2017/18 pdf
+        and some are in "Practice Problems" and "Homework Problems" of 2017/18 pdf
+        - And "Problem Set" are in "Class Problems" or "Homework Problems" of 2017/18 pdf
+          some are dropped like pset-1-4.
   - Also I can't access the [official ones](https://learning-modules.mit.edu/materials/index.html?uuid=/course/6/sp18/6.042#materials)
 ## university
 - [nju](http://cslabcms.nju.edu.cn/problem_solving/index.php/2023%E7%BA%A7--%E6%8C%87%E5%AE%9A%E6%95%99%E6%9D%90)

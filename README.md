@@ -14,10 +14,15 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
 - Use [ebooksworld](https://dl.ebooksworld.ir/books/Artificial.Intelligence.A.Modern.Approach.4th.Edition.Peter.Norvig.%20Stuart.Russell.Pearson.9780134610993.EBooksWorld.ir.pdf)
 - zlib notice [not use the scam websites](https://www.reddit.com/r/zlibrary/comments/16xtm67/if_you_cannot_download_any_books_then_youre_on/)
   - TODO I2P
+##### SE(Stack Exchange)
+- check [MathJax](https://math.stackexchange.com/a/671193/1059606)
 #### learning path
 - [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 #### valuable websites
 - [math communitys](https://forum.snap.berkeley.edu/t/derivatives-of-the-busy-beaver-function/13109/2)
+- [list](http://www.computersciencestudent.com/) from [this](http://williamstallings.com/OperatingSystems/OS9e-Student/) [read](https://stackoverflow.com/search?q=user%3A1131904+operating) by favq
+#### github
+- its code search is [not very good](https://www.reddit.com/r/github/comments/t6w4km/comment/hze0msr/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
 ### [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)
