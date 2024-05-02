@@ -16,6 +16,8 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
   - TODO I2P
 ##### SE(Stack Exchange)
 - check [MathJax](https://math.stackexchange.com/a/671193/1059606)
+##### proofwiki
+- some [symbols](https://proofwiki.org/wiki/Symbols:LaTeX_Commands/ProofWiki_Specific) may be needed to in [one line](https://proofwiki.org/wiki/Infinite_Set_has_Countably_Infinite_Subset/Proof_2)
 #### learning path
 - [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 #### valuable websites
