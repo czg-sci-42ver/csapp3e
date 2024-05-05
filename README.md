@@ -18,6 +18,7 @@ Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](h
 - check [MathJax](https://math.stackexchange.com/a/671193/1059606)
 ##### proofwiki
 - some [symbols](https://proofwiki.org/wiki/Symbols:LaTeX_Commands/ProofWiki_Specific) may be needed to in [one line](https://proofwiki.org/wiki/Infinite_Set_has_Countably_Infinite_Subset/Proof_2)
+- notice its timeline may be based on [GMT+0](https://24timezones.com/time-zone/gmt)
 #### learning path
 - [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 #### valuable websites
