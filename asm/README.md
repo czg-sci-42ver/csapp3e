@@ -11905,6 +11905,9 @@ Amazon [best seller](https://www.amazon.com/Best-Sellers-Discrete-Mathematics/zg
 - MIT [solutions](https://github.com/spamegg1/Math-for-CS-solutions/blob/master/inclass-questions/MIT6_042JS15_cp3_solutions.pdf)
   notice it doesn't correspond to all problems in [2015](https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/resources/mit6_042js15_textbook/)
   so also not [2018](https://courses.csail.mit.edu/6.042/spring18/mcs.pdf)
+  - [official solution](https://dspace.mit.edu/bitstream/handle/1721.1/104426/6-042j-spring-2010/contents/lecture-notes/index.htm) for 2010 although old but may [be still valuable](https://github.com/ossu/computer-science/issues/1090#issuecomment-1282809465).
+    - [problem set solution](https://github.com/frevib/mit-cs-math-6042-fall-2010-problems/blob/master/ps1-sol.pdf)
+      - also [see](https://www.studocu.com/en-us/document/massachusetts-institute-of-technology/mathematics-for-computer-science/problem-set-8-solutions/25335416?origin=course-trending-1)
   - As [its author](https://github.com/ossu/computer-science/issues/1090#issuecomment-1281242092) says, he doesn't intend to give all solutions.
     Although it gives [much](https://github.com/ossu/computer-science/issues/1090#issuecomment-1302571477).
     - It at least gives all solutions for [IN-CLASS QUESTIONS and ASSIGNMENTS](https://openlearninglibrary.mit.edu/courses/course-v1:OCW+6.042J+2T2019/9817b7d039b942c3aad1cdb9524b7c5d/)
