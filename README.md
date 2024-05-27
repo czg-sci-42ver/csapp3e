@@ -20,6 +20,8 @@ I read global edition although with small errors in that book.
 ##### proofwiki
 - some [symbols](https://proofwiki.org/wiki/Symbols:LaTeX_Commands/ProofWiki_Specific) may be needed to in [one line](https://proofwiki.org/wiki/Infinite_Set_has_Countably_Infinite_Subset/Proof_2)
 - notice its timeline may be based on [GMT+0](https://24timezones.com/time-zone/gmt)
+##### lsp (language server protocal)
+- [See](https://microsoft.github.io/language-server-protocol/implementors/servers/)
 #### learning path
 - [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 #### valuable websites
