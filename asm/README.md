@@ -2,6 +2,7 @@
   Since it is too large to be rendered, newer contents [see](../COD/README.md).
 2. Not rename the downloaded paper name totally without keeping the original paper name substring.
 # what to learn
+[roadmap](https://roadmap.sh/computer-science) from PKUFlyingPig/Self-learning-Computer-Science
 - See [this](https://www.eecs.mit.edu/academics/undergraduate-programs/curriculum/6-3-computer-science-and-engineering/) (i.e. [this][2023_MIT_Computer_Science_Degree_Chart] where 1. 6.1200 is [same](http://student.mit.edu/catalog/m6a.html) as 18.062 2. needs 6.3260 Networks) for what to learn.
   [Also](http://catalog.mit.edu/subjects/6/)
   - What To learn 
@@ -30,6 +31,21 @@
       - 6.5900 same as computer architecture.
       - 6.5080 may be mostly covered in the operating system.
   - If to learn [ML](https://www.xilinx.com/applications/ai-inference/difference-between-deep-learning-training-and-inference.html), then [learn](http://student.mit.edu/catalog/search.cgi?search=6.3800)
+- [master course](https://computing.mit.edu/academics/graduate-programs/)
+  - [computational science](https://cse.mit.edu/programs/sm/) is more about ["numerical methods"](https://qr.ae/pscgrv) including [Modeling methods](https://cs.meta.stackexchange.com/a/590/161388) which is different from Computer science
+  - [Course list](https://catalog.mit.edu/subjects/6/) See [G](https://www.eecs.mit.edu/academics/subject-numbering/)
+  - [Electrical Engineering and Computer Science](https://catalog.mit.edu/degree-charts/master-electrical-engineering-computer-science-course-6-p/)
+    - TODO
+      > A further 24 units of *electives* are chosen from a *restricted* departmental list of mathematics, science, and engineering subjects.
+      maybe it [mean](https://catalog.mit.edu/mit/graduate-education/general-degree-requirements/#mastersdegreetext)
+      > graduate-level restricted elective
+      but I [can't find](https://catalog.mit.edu/mit/undergraduate-education/general-institute-requirements/#restrequirementtext) one graduate-level
+    - Maybe [~~this Interdisciplinary Program "Computation and Cognition"~~](https://catalog.mit.edu/interdisciplinary/undergraduate-programs/degrees/computation-cognition/#:~:text=The%20Department%20of%20Electrical%20Engineering,brain%20science%2C%20cognition%2C%20and%20machine) is ~~the most~~ less appropriate for those with The Department of Electrical Engineering and Computer Science due to "graduate study in systems and cognitive neuroscience"
+      > artificial intelligence and machine learning, as well as further graduate study in systems and cognitive neuroscience
+      - [This Computer Science, Economics, and Data Science](https://catalog.mit.edu/interdisciplinary/undergraduate-programs/degrees/computer-science-economics-data-science/) is more appropriate although we can skip those merely about economics. They both have SB (undergraduate) and graduate parts.
+        > The economics side of the program includes subjects in *microeconomic theory and econometrics* and electives that expose students to how economists in various fields use *mathematical models and statistical evidence* to think about problems.
+        > The Course 6-14 major is also well suited to students whose primary interest is in *game theory* and mathematical modeling.
+        - It shares "Design and Analysis of Algorithms" with Computer Science and Engineering (Course 6-3) 
 - [Mathematics with Computer Science](https://catalog.mit.edu/degree-charts/mathematics-computer-science-course-18-c/)
   - [Roadmaps](https://math.mit.edu/academics/undergrad/roadmaps.html)
   - [Calculation](https://catalog.mit.edu/degree-charts/mathematics-course-18/#generalmathematicstext) of "Total Units Beyond the GIRs Required for SB Degree" by $108+84-12$, So we only needs to care "Units in Major" without caring about "Unrestricted Electives" and "Units in Major That Also Satisfy the GIRs"
