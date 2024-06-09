@@ -11841,10 +11841,10 @@ $ gdb -nx -ix=~/.gdbinit_py_orig.gdb
 ```
 # teachyourselfcs
 ## [sicp](https://web.mit.edu/6.001/6.037/sicp.pdf)
-- better still use scheme [instead of JS](https://news.ycombinator.com/item?id=30018717)
+- better still use scheme instead of [JS](https://news.ycombinator.com/item?id=30018717)
 - [solution](https://github.com/xxyzz/SICP?tab=readme-ov-file)
   Also [see](http://community.schemewiki.org/?SICP-Solutions) and [this](https://sicp-solutions.net/)
-  - Todo whether to use [Racket](https://news.ycombinator.com/item?id=25442005)
+  - Todo whether to use [Racket](https://news.ycombinator.com/item?id=25442005) which is used in 6.037
     [Also](https://stackoverflow.com/a/3358638/21294350)
 - html text
   - [1](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/full-text/book/book-Z-H-38.html#%_index_start)

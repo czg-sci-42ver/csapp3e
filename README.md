@@ -22,6 +22,8 @@ I read global edition although with small errors in that book.
 - notice its timeline may be based on [GMT+0](https://24timezones.com/time-zone/gmt)
 #### lsp (language server protocal)
 - [See](https://microsoft.github.io/language-server-protocol/implementors/servers/)
+#### where to find codes
+- https://rosettacode.org/wiki/Rosetta_Code
 ### learning path
 - [This](https://metacademy.org/graphs/concepts/deep_belief_networks) from [this](https://sharmaeklavya2.github.io/theoremdep/about.html)
 ### valuable websites
