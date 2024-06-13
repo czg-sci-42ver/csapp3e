@@ -3027,6 +3027,10 @@ $ gcc seta_setg_custom.s -o seta_setg_custom.o -g;record_pwngdb seta_setg_custom
   - in new cpu, this is [no needed](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean), (only old `gcc` [generate](https://stackoverflow.com/questions/20526361/what-does-rep-ret-mean#comment52568460_20526918) this instruction, clang [not](https://repzret.org/p/repzret/))
 ## `&&` [label](https://stackoverflow.com/questions/1777990/is-it-possible-to-store-the-address-of-a-label-in-a-variable-and-use-goto-to-jum) address
 ## book problem notes
+### 2.49 (reviewed after reading SICP exercise 1.7)
+- (a) Here to represent $x>2^{n+1}$ we at least need the expenent $2^{n+1}$
+  then ulp becomes $2^{n+1}\cdot 2^{-n}=2$ (See p149 $n=52$ for double-precision)
+  Also [see (I only read the middle part)](https://stackoverflow.com/a/1848762/21294350)
 ### 3.5
 ```bash
 $ gcc problem_3_5.c -S -o problem_3_5.s -O3
