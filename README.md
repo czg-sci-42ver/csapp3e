@@ -34,5 +34,6 @@ I read global edition although with small errors in that book.
 ### interesting community
 - [icourse ustc](https://icourse.club/)
 ## [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
+- In "What about AI/graphics/pet-topic-X?" it recommends 3 topics although I don't plan to learn them.
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)
