@@ -2667,7 +2667,7 @@ problem list:
     because no other valid works to do like thread switches.
     po This is mainly due to 1 that thread switch is not available.
   3. See "rip is to ..."
-- humanable SIGSEGV handler [example](https://stackoverflow.com/q/2663456/21294350)
+- readable SIGSEGV handler [example](https://stackoverflow.com/q/2663456/21294350)
 - TODO
   - [nodejs](https://www.freecodecamp.org/news/understanding-node-js-event-driven-architecture-223292fcbc2d/) "EVENT-BASED" CONCURRENCY
     maybe probably due to that its process has internal high dependency, so it can't proceed until I/O finishes (or partly finishes).

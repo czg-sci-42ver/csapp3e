@@ -37,3 +37,23 @@ I read global edition although with small errors in that book.
 - In "What about AI/graphics/pet-topic-X?" it recommends 3 topics although I don't plan to learn them.
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)
+## exercises
+- This is the 1st time I self-study one CS book. I wrote notes of those exercises with solutions in the book in one *paper notebook* which is already *lost*. Although it is a pity, I have learnt from all these exercises.
+## TODO
+https://www.cs.cmu.edu/~213/index.html
+> Grading	Composed from total lab performance (50%), total written assignment performance (20%) and final exam performance (30%).
+- do all labs (at least [those in 15-213](https://www.cs.cmu.edu/~213/labs.html))
+  Read [style including *GIT*](https://www.cs.cmu.edu/~213/codeStyle.html), https://www.cs.cmu.edu/~213/faq.html
+  - TODO 
+    - Cord Lab, Shark File System are not in [the official list](https://csapp.cs.cmu.edu/3e/labs.html)
+    - "Malloc (*checkpoint*)" meaning
+  - Buffer Lab, Architecture Lab, Architecture Lab (Y86), Performance Lab  are dropped in 15-213
+- From [syllabus (I give one brief reading based on headings)](https://www.cs.cmu.edu/~213/syllabus/syllabus.pdf)
+  > The only graded assignments in this class will be a set of eight labs and a set of eleven *written assignments*.
+  But I [can't access written assignments](https://www.cs.cmu.edu/~213/assignments.html). Part of them are [here](https://www.studocu.com/en-us/document/carnegie-mellon-university/introduction-to-computer-systems/written-assignment-7-solutions-1/21912728?origin=course-trending-7) needing VIP to full view (probably also for [this](https://www.coursehero.com/file/106613346/WA7pdf/))
+
+  maybe [due to](https://www.cs.cmu.edu/afs/cs/academic/class/15213-s12/www/assignments.html)
+  > Sharing written assignments or exams: Looking at, copying, or supplying an assignment or exam.
+- I skipped [sample exams](https://www.cs.cmu.edu/~213/exams.html).
+- To read
+  - https://csapp.cs.cmu.edu/3e/students.html Chapter ...
