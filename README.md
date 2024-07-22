@@ -40,7 +40,7 @@ I read global edition although with small errors in that book.
 ## exercises
 - This is the 1st time I self-study one CS book. I wrote notes of those exercises with solutions in the book in one *paper notebook* which is already *lost*. Although it is a pity, I have learnt from all these exercises.
 ## TODO
-https://www.cs.cmu.edu/~213/index.html
+https://www.cs.cmu.edu/~213/index.html and homework https://github.com/exajobs/university-courses-collection?tab=readme-ov-file 18-447
 > Grading	Composed from total lab performance (50%), total written assignment performance (20%) and final exam performance (30%).
 - do all labs (at least [those in 15-213](https://www.cs.cmu.edu/~213/labs.html))
   Read [style including *GIT*](https://www.cs.cmu.edu/~213/codeStyle.html), https://www.cs.cmu.edu/~213/faq.html
