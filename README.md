@@ -2,6 +2,8 @@ Delete Q1 (maybe my english comprehension is clumsy. The wikipedia doesn't mean 
 # csapp3e
 Source code from [*Computer Systems: A Programmer's Perspective*, 3rd Edition](http://csapp.cs.cmu.edu/3e/home.html) (2015) by [Randal E. Bryant](http://www.cs.cmu.edu/~bryant) and [David R. O'Hallaron](http://www.cs.cmu.edu/~droh).
 I read global edition although with small errors in that book.
+## book code location
+- Figure 12.26: `rw1.c`.
 ##  [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement#Theory)(where also says term origin 'The 'two' in the name' and one's complement 'all 1s') also see p132
 ## miscs
 - round to zero -> keep negative number division similar behavior as its absolute (i.e. abs(-5/4)=5/4)
@@ -57,3 +59,5 @@ https://www.cs.cmu.edu/~213/index.html and homework https://github.com/exajobs/u
 - I skipped [sample exams](https://www.cs.cmu.edu/~213/exams.html).
 - To read
   - https://csapp.cs.cmu.edu/3e/students.html Chapter ...
+# code review
+- Skip `12_19.c` (I don't remember the logic of that buggy codes).
