@@ -6876,7 +6876,25 @@ $ htop # shows /sbin/init with pid 1
   2. to avoid the deadlock/livelock, etc.
   3. to avoid starvation.
 - honest programming error may be due to not using [Honest functions](https://functionalprogrammingcsharp.com/honest-functions) from [this](https://stackoverflow.com/q/61015267/21294350)
-- for Peterson's Solution, `turn = i;` may be better to indicate the current turn hold by the thread self.
+- for Peterson's Solution, ~~`turn = i;` may be better to indicate the current turn hold by the thread self~~ (based on 'the "critical section" partial condition' the book one is better). This is same as [the paper][Peterson_algorithm] ([see](https://en.wikipedia.org/wiki/Peterson%27s_algorithm#:~:text=Peterson's%20algorithm%20(or%20Peterson's%20solution,Peterson%20in%201981.)) (TODO "Fig. 3. Simple n process solution") (the book one is same as wikipedia)
+  Here we only needs to ensure the set `turn = 1;` and the "critical section" partial condition `turn != 1` is different.
+  - proof see [Peterson_algorithm]
+    > As can be seen, the algorithm has a very simple structure. This results in an easy proof of correctness. First, *neither process can be locked out*. Consider PI, it has only one wait loop, and assume it can be forced to *remain there forever*. After a finite amount of time, Pz will be doing one of *three general things*: not trying to enter, waiting in its protocol, or repeatedly cycling through its protocols. In the first case, Pr notes that *Q2 is false* and proceeds. The second case is impossible due to *TURN being either 1 or 2*; and one of the processes will proceed. In the third case Pz will quickly set TURN to 2 and never change it back to 1, ahowiig PI to proceed.
+    we also need to prove "mutual exclusion"
+    > If mutual exclusion were not preserved and both processes could somehow end up in their critical sections at the same time, then we have *Ql = Q2 = true*. Their tests in their wait loops just prior to entering their critical sections at this point could *not have been at approximately the same time* as TURN would have been favorable to only one of the processes and the other part of the test would have failed for both. This implies that one process first passed its test, and the second did one or more assignments before passing its test by seeing TURN favorable to itself. However, the *last* assignment before testing sets TURN to an *unfavorable value*, the test is doomed to fail, and mutual exclusion is preserved
+    "*Ql = Q2 = true*": Here (f,t) pair is considered in the above "first case" where "mutual exclusion" is implied by Q1 functioning as mutex. (f,f) is impossible since one f implies one is not in "Critical Section", so conflict with "both processes could somehow end up in their critical sections".
+    "*not have been at approximately the same time*": ~~1. Assume they are at the same time, then the latter tests `TURN = 2` or `TURN = 1` can *only be true for one*. 2. Assume same as the paper, `TURN := 1` before `TURN := 2`, then to let P2 in "Critical Section" we can only `TURN = 1` test before `TURN := 2` or after the next P1 `TURN := 1` but the latter won't make P2 in "Critical Section".~~ 1. test at the same time, then `TURN` can be only one value and "Ql = Q2 = true", so only one passes the test. 2. WLOG P1 before P2, then based on "Ql = Q2 = true" we have `TURN := 1;` -> `TURN := 2;` -> `wait until not Q2 or TURN = 2;` (just think about where to insert `TURN := 2;`. Notice it can be parallel with wait, but wait is one loop so at last it will *end after* `TURN := 2;`. So here we actually consider the *ending time*.) to ensure P1 to be in "Critical Section;". Then P2 can't be in "Critical Section;". In a nutshell, "TURN ... favorable to only one of the processes".
+    ~~"did one or more assignments": IMHO this should be "wait loop".~~
+    > Both algorithms preserve mutual exclusion but both have deadlock.
+    1st: `TURN := 1` -> `wait until TURN = 2;` -> `TURN := 2;` -> `wait until TURN = 1;`
+      to make P1 deadlock, we can also `TURN := 2;` -> `TURN := 1` -> `wait until TURN = 2;`. But here if not considering symmetry, `wait until TURN = 1;` must end after `TURN := 1` so not deadlock.
+    2nd: `Ql := true` -> `Q2 := true` -> `wait until not Q2; wait until not Q1;`.
+    So "The waiting problems are disjoint and the correct algorithm is a *simple combination of the two.*" can be possible since the 1st needs P1 and P2 are not interleaved but the latter needs. So the 2 conditions can't both hold, i.e. both test pairs are false (implied by `or`). So no deadlock.
+    - "Simple n process"
+      proof similarly
+      - impossible for all of "process can be locked out":
+      - TODO [proof](https://dl.acm.org/doi/pdf/10.1145/90994.91002) from [this](https://en.wikipedia.org/wiki/Peterson%27s_algorithm#cite_ref-2)
+    - Also see https://en.wikipedia.org/wiki/Peterson%27s_algorithm#Bounded_waiting
 - figure 6.4
   - here turn order can be changed so that process 1 will be stuck and only process 0 runs.
   - this reorder makes turn order is still undetermined as original.
