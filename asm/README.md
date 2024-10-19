@@ -128,7 +128,8 @@
 - reddit seems to unable to support the [whole math symbols](https://www.reddit.com/r/mathriddles/comments/34fxve/writing_math_on_reddit/)
   maybe [`[; ... ;]`](https://www.reddit.com/r/math/comments/12h42y/comment/c6v6lx2/?utm_source=share&utm_medium=web2x&context=3) only usable in r/math
   or use [this](https://editor.codecogs.com/)
-- archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike) or [this](https://archive.md/) from one wikipedia [reference](https://en.wikipedia.org/wiki/Anchor_(brand)#cite_note-4)
+- archived web see wayback machine or [this](https://archive.is/) from [this](https://stackoverflow.com/users/1593077/ein-supports-moderator-strike) ~~or [this](https://archive.md/) from one wikipedia [reference](https://en.wikipedia.org/wiki/Anchor_(brand)#cite_note-4)~~
+  - Also see wikipedia [archive list](https://en.wikipedia.org/wiki/Wikipedia:List_of_web_archives_on_Wikipedia)
 - edit [formulas](https://meta.stackexchange.com/a/76905/1355014) in SO
   newline in newer SO seems to be needed to use [`\`](https://stackoverflow.com/a/58465541/21294350) instead of just newline.
 - [`pandas`](https://qr.ae/pyx7P2) naming.
