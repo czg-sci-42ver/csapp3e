@@ -1,7 +1,7 @@
 Process record: failed to record execution log.
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
-In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+In file: /mnt/ubuntu/home/hervey/csapp3e/asm/test_att_calc.s
    36         idivq %rsi #Divide by y
  ► 37         movq %rax, (%r8) #Store quotient at qp
    38         movq %rdx, (%rcx)
@@ -38,7 +38,7 @@ In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
 Process record: failed to record execution log.
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
-In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+In file: /mnt/ubuntu/home/hervey/csapp3e/asm/test_att_calc.s
    36         idivq %rsi #Divide by y
  ► 37         movq %rax, (%r8) #Store quotient at qp
    38         movq %rdx, (%rcx)
@@ -76,7 +76,7 @@ Already logging to gdb.txt.
 Process record: failed to record execution log.
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
-In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+In file: /mnt/ubuntu/home/hervey/csapp3e/asm/test_att_calc.s
    36         idivq %rsi #Divide by y
  ► 37         movq %rax, (%r8) #Store quotient at qp
    38         movq %rdx, (%rcx)
@@ -116,7 +116,7 @@ Process record is stopped and all execution logs are deleted.
 Process record: failed to record execution log.
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
-In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+In file: /mnt/ubuntu/home/hervey/csapp3e/asm/test_att_calc.s
    36         idivq %rsi #Divide by y
  ► 37         movq %rax, (%r8) #Store quotient at qp
    38         movq %rdx, (%rcx)
@@ -157,7 +157,7 @@ main () at test_att_calc.s:37
 37		movq %rax, (%r8) #Store quotient at qp
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 ──────────────────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────────────────────────────────────────────────────
-In file: /mnt/ubuntu/home/czg/csapp3e/asm/test_att_calc.s
+In file: /mnt/ubuntu/home/hervey/csapp3e/asm/test_att_calc.s
    36         idivq %rsi #Divide by y
  ► 37         movq %rax, (%r8) #Store quotient at qp
    38         movq %rdx, (%rcx)

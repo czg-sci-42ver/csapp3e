@@ -13,7 +13,7 @@
 ###########
 # perf record graph https://stackoverflow.com/questions/27742462/understanding-linux-perf-report-output
 ###########
-dir=/mnt/ubuntu/home/czg/csapp3e;\
+dir=/mnt/ubuntu/home/hervey/csapp3e;\
 file=no_prefetch_l2_opcache;\
 sub_dir=debug_block;\
 quotient_dir=debug_quotient;\

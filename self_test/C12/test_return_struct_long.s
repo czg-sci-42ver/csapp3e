@@ -1,7 +1,7 @@
 	.file	"test_return_struct.c"
 	.text
 .Ltext0:
-	.file 0 "/mnt/ubuntu/home/czg/csapp3e/self_test/C12" "test_return_struct.c"
+	.file 0 "/mnt/ubuntu/home/hervey/csapp3e/self_test/C12" "test_return_struct.c"
 	.globl	test1
 	.type	test1, @function
 test1:
@@ -520,7 +520,7 @@ main:
 	.string	"long long int"
 	.section	.debug_line_str,"MS",@progbits,1
 .LASF1:
-	.string	"/mnt/ubuntu/home/czg/csapp3e/self_test/C12"
+	.string	"/mnt/ubuntu/home/hervey/csapp3e/self_test/C12"
 .LASF0:
 	.string	"test_return_struct.c"
 	.ident	"GCC: (GNU) 12.2.1 20230201"

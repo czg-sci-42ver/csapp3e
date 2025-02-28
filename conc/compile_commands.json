@@ -13,9 +13,9 @@
       "../src/csapp.o",
       "../src/csapp.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/src/csapp.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/src/csapp.o"
   },
   {
     "arguments": [
@@ -32,9 +32,9 @@
       "hello",
       "hello.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/hello.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/hello"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/hello.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/hello"
   },
   {
     "arguments": [
@@ -49,9 +49,9 @@
       "badcnt",
       "badcnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/badcnt.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/badcnt"
   },
   {
     "arguments": [
@@ -63,8 +63,8 @@
       "-S",
       "badcnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/badcnt.c"
   },
   {
     "arguments": [
@@ -79,9 +79,9 @@
       "badcnt_intel.s",
       "badcnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/badcnt_intel.s"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/badcnt.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/badcnt_intel.s"
   },
   {
     "arguments": [
@@ -96,9 +96,9 @@
       "goodcnt",
       "goodcnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/goodcnt.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/goodcnt"
   },
   {
     "arguments": [
@@ -110,8 +110,8 @@
       "-S",
       "goodcnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/goodcnt.c"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/goodcnt.c"
   },
   {
     "arguments": [
@@ -128,9 +128,9 @@
       "echoclient",
       "echoclient.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoclient.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoclient"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoclient.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoclient"
   },
   {
     "arguments": [
@@ -146,9 +146,9 @@
       "echoservers.o",
       "echoservers.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservers.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservers.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservers.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservers.o"
   },
   {
     "arguments": [
@@ -164,9 +164,9 @@
       "echo.o",
       "echo.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echo.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echo.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echo.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echo.o"
   },
   {
     "arguments": [
@@ -182,9 +182,9 @@
       "echoserverp.o",
       "echoserverp.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoserverp.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoserverp.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoserverp.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoserverp.o"
   },
   {
     "arguments": [
@@ -200,9 +200,9 @@
       "echoservert.o",
       "echoservert.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert.o"
   },
   {
     "arguments": [
@@ -218,9 +218,9 @@
       "echoservert_cnt.o",
       "echoservert_cnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_cnt.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_cnt.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert_cnt.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert_cnt.o"
   },
   {
     "arguments": [
@@ -236,9 +236,9 @@
       "echo_cnt.o",
       "echo_cnt.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echo_cnt.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echo_cnt.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echo_cnt.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echo_cnt.o"
   },
   {
     "arguments": [
@@ -254,9 +254,9 @@
       "echoservert_pre.o",
       "echoservert_pre.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_pre.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/echoservert_pre.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert_pre.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/echoservert_pre.o"
   },
   {
     "arguments": [
@@ -272,9 +272,9 @@
       "sbuf.o",
       "sbuf.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/sbuf.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/sbuf.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/sbuf.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/sbuf.o"
   },
   {
     "arguments": [
@@ -291,9 +291,9 @@
       "ctime_ts",
       "ctime_ts.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/ctime_ts.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/ctime_ts"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/ctime_ts.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/ctime_ts"
   },
   {
     "arguments": [
@@ -310,9 +310,9 @@
       "race",
       "race.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/race.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/race"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/race.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/race"
   },
   {
     "arguments": [
@@ -329,9 +329,9 @@
       "norace",
       "norace.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/norace.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/norace"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/norace.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/norace"
   },
   {
     "arguments": [
@@ -348,9 +348,9 @@
       "sharing",
       "sharing.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/sharing.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/sharing"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/sharing.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/sharing"
   },
   {
     "arguments": [
@@ -367,9 +367,9 @@
       "rand",
       "rand.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rand.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rand"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rand.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rand"
   },
   {
     "arguments": [
@@ -386,9 +386,9 @@
       "rand_r",
       "rand_r.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rand_r.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rand_r"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rand_r.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rand_r"
   },
   {
     "arguments": [
@@ -405,9 +405,9 @@
       "threadunsafe",
       "threadunsafe.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/threadunsafe.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/threadunsafe"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/threadunsafe.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/threadunsafe"
   },
   {
     "arguments": [
@@ -424,9 +424,9 @@
       "hellobug",
       "hellobug.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/hellobug.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/hellobug"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/hellobug.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/hellobug"
   },
   {
     "arguments": [
@@ -442,9 +442,9 @@
       "tfgets-main.o",
       "tfgets-main.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/tfgets-main.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/tfgets-main.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/tfgets-main.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/tfgets-main.o"
   },
   {
     "arguments": [
@@ -460,9 +460,9 @@
       "select.o",
       "select.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/select.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/select.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/select.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/select.o"
   },
   {
     "arguments": [
@@ -479,9 +479,9 @@
       "psum-mutex",
       "psum-mutex.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-mutex.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-mutex"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-mutex.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-mutex"
   },
   {
     "arguments": [
@@ -498,9 +498,9 @@
       "psum-array",
       "psum-array.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-array.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-array"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-array.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-array"
   },
   {
     "arguments": [
@@ -517,9 +517,9 @@
       "psum-local",
       "psum-local.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-local.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/psum-local"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-local.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/psum-local"
   },
   {
     "arguments": [
@@ -535,9 +535,9 @@
       "rw0.o",
       "rw0.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw0.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw0.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw0.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw0.o"
   },
   {
     "arguments": [
@@ -553,9 +553,9 @@
       "rw1.o",
       "rw1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw1.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw1.o"
   },
   {
     "arguments": [
@@ -571,9 +571,9 @@
       "rw2.o",
       "rw2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw2.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw2.o"
   },
   {
     "arguments": [
@@ -589,8 +589,8 @@
       "rw3.o",
       "rw3.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/rw3.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/rw3.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw3.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/rw3.o"
   }
 ]

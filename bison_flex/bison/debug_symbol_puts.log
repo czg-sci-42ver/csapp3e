@@ -5,8 +5,8 @@
 #3  0x00007f0f2dc95859 in _IO_new_do_write (fp=fp@entry=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, data=<optimized out>, to_do=0x6) at fileops.c:425
 #4  0x00007f0f2dc95cf3 in _IO_new_file_overflow (f=0x7f0f2ddf26a0 <_IO_2_1_stdout_>, ch=0xa) at fileops.c:783
 #5  0x00007f0f2dc8a5ba in __GI__IO_puts (str=0x7ffe5e2cf530 "text") at ioputs.c:41
-#6  0x0000000000401dd2 in yyparse () at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
-#7  0x000000000040237a in main () at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:78
+#6  0x0000000000401dd2 in yyparse () at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.y:62
+#7  0x000000000040237a in main () at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.y:78
 
 ---
 
@@ -16,8 +16,8 @@
 [3] from 0x00007f181dba8859 in _IO_new_do_write+25 at fileops.c:425
 [4] from 0x00007f181dba8cf3 in _IO_new_file_overflow+259 at fileops.c:783
 [5] from 0x00007f181db9d5ba in __GI__IO_puts+506 at ioputs.c:41
-[6] from 0x0000000000401d86 in yyparse()+2016 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:57
-[7] from 0x000000000040232e in main(int, char**)+102 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:78
+[6] from 0x0000000000401d86 in yyparse()+2016 at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.y:57
+[7] from 0x000000000040232e in main(int, char**)+102 at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.y:78
 
 
 [0] from 0x00007f181dba9999 in __GI___overflow+73 at genops.c:203 -> _IO_new_file_overflow+0

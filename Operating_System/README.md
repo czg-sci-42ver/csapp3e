@@ -910,7 +910,7 @@ $ uname -r
   > allocation can be quite fast (in certain scenarios)
 
   TODO maybe not allocate once instead of many times for smaller blocks.
-- mmap [diff](https://stackoverflow.com/a/21311462/21294350) [`shmget` (id) -> `shmat` (mem_addr)](https://github.com/czg-sci-42ver/code-for-blog/blob/289b20976d4fcff85cf52a9b2ec57109a29a93a7/2018/futex-basics/futex-wait-timeout.c#L56C16-L56C22)
+- mmap [diff](https://stackoverflow.com/a/21311462/21294350) [`shmget` (id) -> `shmat` (mem_addr)](https://github.com/sci-42ver/code-for-blog/blob/289b20976d4fcff85cf52a9b2ec57109a29a93a7/2018/futex-basics/futex-wait-timeout.c#L56C16-L56C22)
   - See [this](#shm_open_mmap) for [`shm_open`](https://stackoverflow.com/questions/71806449/relation-between-shm-open-and-mmap#comment126894511_71806449)
     > does to shm_opened object the same as it does to opened file
 
@@ -1239,7 +1239,7 @@ This is mainly about atomic instructions which has been discussed in [COD_md].
     ...
     ==92634== Thread #1: Attempt to re-lock a non-recursive lock I already hold
     $ gcc MUTEX_RECURSIVE.c -o MUTEX_RECURSIVE.out                
-    [czg /mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/Concurrency]$ valgrind --tool=helgrind ./MUTEX_RECURSIVE.out -s
+    [hervey /mnt/ubuntu/home/hervey/csapp3e/Operating_System/code_test/Concurrency]$ valgrind --tool=helgrind ./MUTEX_RECURSIVE.out -s
     ==92697== Helgrind, a thread error detector
     ==92697== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
     ==92697== Using Valgrind-3.21.0 and LibVEX; rerun with -h for copyright info
@@ -1806,7 +1806,7 @@ TODO As the introduction says, it solves many problems.
     > the woken thread will run *immediately* upon being woken
 
   ```bash
-  [czg /mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/pseudo_code]$ diff Nonblocking_Mesa_cv.c blocking_Hoare_cv.c
+  [hervey /mnt/ubuntu/home/hervey/csapp3e/Operating_System/code_test/pseudo_code]$ diff Nonblocking_Mesa_cv.c blocking_Hoare_cv.c
   +schedule:
   +    if there is a thread on s
   +        select and remove one thread from s and restart it
@@ -2075,10 +2075,10 @@ In summary, stack is used for recursion.
   And `sem_wait(&rw->lock);` locks access to `rw->readers`.
 - > This approach works (as desired), but does have some negatives, espe-cially when it comes to *fairness*.
 
-  same as the csapp 12.20 homework. See two [12.20_fair*](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.20_fair_only_two_sem.c) codes and my [comments](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.20/#comment-6273427059).
+  same as the csapp 12.20 homework. See two [12.20_fair*](https://github.com/sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.20_fair_only_two_sem.c) codes and my [comments](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.20/#comment-6273427059).
   > prevent more readers from entering the lock *once a writer is waiting.*
 
-  similar to csapp 12.19 homework (See my [fix code](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.19_fix.c)), but "stronger priority to writers" instead of readers.
+  similar to csapp 12.19 homework (See my [fix code](https://github.com/sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/chapter12/code/12.19_fix.c)), but "stronger priority to writers" instead of readers.
 - "Big" meaning in "Big and dumb is better" in [H87](https://www2.eecs.berkeley.edu/Pubs/TechRpts/1987/CSD-87-381.pdf)
 - > The contention for these forks, and the *synchronization* problems that *ensue*
 
@@ -2102,7 +2102,7 @@ In summary, stack is used for recursion.
       then `P3` will be always able to hold the `f4` after holding the `f3` and proceed -> the waiting cycle is broken.
 - > decide upon a threshold for “too many”
 
-  ~~Maybe see my [optimized code](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/c5eb9b45f5fc86c0b74f4464f9347b0cd4e24924/site/content/chapter12/code/12.20_fair_only_two_sem.c#L25)~~
+  ~~Maybe see my [optimized code](https://github.com/sci-42ver/CSAPP-3e-Solutions/blob/c5eb9b45f5fc86c0b74f4464f9347b0cd4e24924/site/content/chapter12/code/12.20_fair_only_two_sem.c#L25)~~
   [T99](https://yarchive.net/comp/linux/semaphores.html) just use the *bounded* buffer (i.e. throttling mechanism).
 - Figure 31.17 is similar to [D08] p265
   but it has no `wakeup`.
@@ -3035,15 +3035,15 @@ curproc->ofile[fd] = f;
   so `struct file` pointers `f` (i.e. entry) in `ftable` are shared across processes.
 - ~~can't be~~ [removed](https://unix.stackexchange.com/a/29572/568529) from the `wheel` group which is related with [`sudo`](https://en.wikipedia.org/wiki/Wheel_(computing)#Wheel_group) (this is just one convention and needs [visudo](https://superuser.com/a/1082668/1658455) modification to take effect)
 ```bash
-$ sudo gpasswd -d czg_arch wheel
-Removing user czg_arch from group wheel
-gpasswd: user 'czg_arch' is not a member of 'wheel'
-[czg_arch ~/czg_tmp]$ id
-uid=1000(czg_arch) gid=1004(czg_arch) groups=1004(czg_arch),964(docker),991(lp),998(wheel)
-[czg_arch ~/czg_tmp]$ id czg_arch 
-uid=1000(czg_arch) gid=1004(czg_arch) groups=1004(czg_arch),991(lp),964(docker) # weird: different from above.
-[czg_arch ~/czg_tmp]$ whoami 
-czg_arch
+$ sudo gpasswd -d hervey_arch wheel
+Removing user hervey_arch from group wheel
+gpasswd: user 'hervey_arch' is not a member of 'wheel'
+[hervey_arch ~/hervey_tmp]$ id
+uid=1000(hervey_arch) gid=1004(hervey_arch) groups=1004(hervey_arch),964(docker),991(lp),998(wheel)
+[hervey_arch ~/hervey_tmp]$ id hervey_arch 
+uid=1000(hervey_arch) gid=1004(hervey_arch) groups=1004(hervey_arch),991(lp),964(docker) # weird: different from above.
+[hervey_arch ~/hervey_tmp]$ whoami 
+hervey_arch
 
 $ sudo -i
 $ visudo
@@ -3052,7 +3052,7 @@ $ visudo
 # %wheel ALL=(ALL:ALL) ALL
 %wheel ALL=(ALL:ALL) NOPASSWD: ALL # no need for passwd to use the "sudo"
 
-# after roobot, the czg_arch has no sudo permission even with the password.
+# after roobot, the hervey_arch has no sudo permission even with the password.
 ```
 ## File System Implementation
 - > unlike our development of CPU and memory virtualization, we will not be adding hardware features
@@ -3712,7 +3712,7 @@ find: ‘/proc/1475/net’: Invalid argument
 - > how a context switch takes place
 
   by `swtch(&(c->scheduler), p->context);`
-  and patch can skip the loop by [something](https://github.com/czg-sci-42ver/ostep-hw/blob/3c63eee8e7517c1069e04636f99bb63d05c7c334/projects/scheduling-xv6-lottery/scheduling-xv6-lottery_comment.patch#L216C8-L216C30) before switching to select which to switch.
+  and patch can skip the loop by [something](https://github.com/sci-42ver/ostep-hw/blob/3c63eee8e7517c1069e04636f99bb63d05c7c334/projects/scheduling-xv6-lottery/scheduling-xv6-lottery_comment.patch#L216C8-L216C30) before switching to select which to switch.
 - TODO
   - > how to make processes *return a proper error code* when exiting, and to be able to *access that error* code through the wait() system call.
 
@@ -3823,7 +3823,7 @@ this [issues](https://github.com/xxyzz/ostep-hw/issues/19#issuecomment-163679144
 3. longer; 
   This implies "job length" means the time length.
 1. longer; the longest time slice as the longest one length of the workloads.
-  See [this](https://github.com/czg-sci-42ver/ostep-hw/blob/master/7/README.md) for correct answer of 7 where `(n - 1) * jt`.
+  See [this](https://github.com/sci-42ver/ostep-hw/blob/master/7/README.md) for correct answer of 7 where `(n - 1) * jt`.
 ### C8
 - introduction 
   - `ioFreq`
@@ -3872,7 +3872,7 @@ this [issues](https://github.com/xxyzz/ostep-hw/issues/19#issuecomment-163679144
   [ time 32 ] Run JOB 1 at PRIORITY 0 [ TICKS 9 ALLOT 1 TIME 38 (of 50) ]
   ```
 ### C9
-See [this doc](https://github.com/czg-sci-42ver/ostep-hw/blob/master/9/README.md)
+See [this doc](https://github.com/sci-42ver/ostep-hw/blob/master/9/README.md)
 1. `./lottery.py -j 3 -s 0` by changing `-s 1`, etc.
 2. search `Run 0` in `./lottery.py -l 10:1,10:100 -s 0 -c`
   - just "imbalanced"
@@ -3933,7 +3933,7 @@ valgrind-3.21.0
     - TODO "amortized"?
       "Excess space"
 ### C15
-from [this](https://github.com/czg-sci-42ver/ostep-homework/blob/master/vm-mechanism/README.md), how the stack and heap are located in the address space is just defined manually. This is also said in the chapter summary footnotes.
+from [this](https://github.com/sci-42ver/ostep-homework/blob/master/vm-mechanism/README.md), how the stack and heap are located in the address space is just defined manually. This is also said in the chapter summary footnotes.
 1. `python ./relocation.py -s 1 -n 10 -l 100 -b 16285 -a 1k -p 32k -c`
 ### C16
 from the homework python script `paddr = nbase1 + (vaddr - asize)`, the offset should be based on the address space instead of the *limit*.
@@ -4211,7 +4211,7 @@ here `.acquire` is *splitted* which causes both threads run `mov  $1, flag`.
 ```bash
 $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
 505
-[czg ~/ostep-homework/threads-locks]$ ./x86.py -p test-and-set.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
+[hervey ~/ostep-homework/threads-locks]$ ./x86.py -p test-and-set.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
 554
 ```
 15. avoid one more `xchg %ax, mutex     # atomic swap of 1 and mutex` sometimes.
@@ -4319,7 +4319,7 @@ $ ./x86.py -p yield.s -M mutex,count -R ax,bx -c -a bx=10 -i 10 -c -t 3 | wc -l
     > If you see a *long gap* between two timestamp readings
 
   ```bash
-  [czg ~/ostep-hw/29]$ sudo turbostat ./btree_1.out
+  [hervey ~/ostep-hw/29]$ sudo turbostat ./btree_1.out
       # not show SMI column https://www.mankier.com/8/turbostat#
   $ perf stat -a -A -e r02B -- sleep 2
       # all 0
@@ -4410,7 +4410,7 @@ related with [Benchmark_IA_64] but more focus on `rdstc` self
 - [check](https://stackoverflow.com/a/6577896/21294350) `clflush` inspired by [this](https://stackoverflow.com/questions/51818655/clflush-to-invalidate-cache-line-via-c-function/51830976#comment120428630_51818806)
 ```bash
 # https://stackoverflow.com/questions/51818655/clflush-to-invalidate-cache-line-via-c-function/51830976#comment120428630_51818806
-[/mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/miscs] $ gcc clflush_test_availability.c -o clflush_test_availability.out
+[/mnt/ubuntu/home/hervey/csapp3e/Operating_System/code_test/miscs] $ gcc clflush_test_availability.c -o clflush_test_availability.out
 took 116 ticks
 took 87 ticks
 flush: took 58 ticks
@@ -4441,7 +4441,7 @@ not too much because "32 threads" still works when only 16 physical threads avai
 is to avoid expansion error when used in `if` with *semicolon after* or similar.
 where `f(corge), g(corge)` or `if(1){...}else` also work.
 - On my machine, "1024 threshold" is the best among all thresholds.
-- Same as the [README](https://github.com/czg-sci-42ver/ostep-hw/blob/master/29/README.md), contrary to the book, `Approximate` is worse maybe due to the data size isn't large enough.
+- Same as the [README](https://github.com/sci-42ver/ostep-hw/blob/master/29/README.md), contrary to the book, `Approximate` is worse maybe due to the data size isn't large enough.
 their call nums are similar. So obviously the overheads may be *too high compared with acquiring the lock*.
 - So
   > A *rough* version of an approximate counter
@@ -5075,7 +5075,7 @@ TOTALS      Seek:200  Rotate:295  Transfer:240  Total: 735
 ### raid
 RAID-1 choices, notice by `LOG_RAID_1_off=True`, it is based on the offset even or odd, instead of logical address even or odd.
 > for *even*-numbered logical blocks, the RAID chooses the *even*-numbered disk in the pair; the odd disk is used for odd-numbered logical blocks.
-1. [left-asymmetric](https://misc.openbsd.narkive.com/CZgMVNjF/why-left-asymmetric-layout-for-raid-5#post3) can avoid some overlap (See the [figure](https://www.reclaime-pro.com/posters/raid-layouts.pdf)) (i.e. `3,4` use two disks in left-symmetric but 3 in left-asymmetric -> the latter more parallel in some way)
+1. [left-asymmetric](https://misc.openbsd.narkive.com/herveyMVNjF/why-left-asymmetric-layout-for-raid-5#post3) can avoid some overlap (See the [figure](https://www.reclaime-pro.com/posters/raid-layouts.pdf)) (i.e. `3,4` use two disks in left-symmetric but 3 in left-asymmetric -> the latter more parallel in some way)
   default `ARG numDisks 4`.
 - here `16` is 17th logical address, so `17/3=5,17%3=2` -> disk `2-1=1` (beacuse first is disk 0) and offset 5.
 ```bash
@@ -5122,9 +5122,9 @@ STAT totalTime 259.8999999999999
 - TODO `100 * 10 / 4` in [ostep_hw]
 maybe "seek" counts?
 ```bash
-[czg_arch ~/ostep-homework/file-raid]$ ./raid.py -t -n 100 -c -w 100 -L 0 | grep seekTime | wc -l
+[hervey_arch ~/ostep-homework/file-raid]$ ./raid.py -t -n 100 -c -w 100 -L 0 | grep seekTime | wc -l
 92
-[czg_arch ~/ostep-homework/file-raid]$ ./raid.py -t -n 100 -c -w 100 -L 1 | grep seekTime | wc -l
+[hervey_arch ~/ostep-homework/file-raid]$ ./raid.py -t -n 100 -c -w 100 -L 1 | grep seekTime | wc -l
 190
 ```
 - `(N − 1) · S` with the Sequential Write of RAID-5 is only the *worst case* (where always read the different track so that *different parity disks*) in "Figure 38.8".
@@ -5140,10 +5140,10 @@ the sequential property *amortizes* somewhat.
 $ ./raid.py -L 4 -t -n 100 -c -w 100 -W seq | tail -n 2
 STAT totalTime 13.399999999999988
 
-[czg_arch ~/ostep-homework/file-raid]$ ./raid.py -L 4 -t -n 1000 -c -w 100 -W seq | tail -n 2
+[hervey_arch ~/ostep-homework/file-raid]$ ./raid.py -L 4 -t -n 1000 -c -w 100 -W seq | tail -n 2
 STAT totalTime 43.40000000000037
 
-[czg_arch ~/ostep-homework/file-raid]$ ./raid.py -L 4 -t -n 10000 -c -w 100 -W seq | tail -n 2
+[hervey_arch ~/ostep-homework/file-raid]$ ./raid.py -L 4 -t -n 10000 -c -w 100 -W seq | tail -n 2
 STAT totalTime 343.4000000000096
 ```
 - TODO make `$ ./raid.py -L 4 -t -n 40000 -c -w 100 -W seq | tail -n 2` work.
@@ -5171,10 +5171,10 @@ STAT totalTime 1010.0000000001611
 $ sudo ls -al sed  
 total 4
 dr--r--r-- 1 root     root      10 Jul 27 10:07 .
-$ ./myfind.out -d 1 -n 'c' ~/czg_tmp/sed/
+$ ./myfind.out -d 1 -n 'c' ~/hervey_tmp/sed/
 optind:3
 optind:5 pattern:c
-/home/czg_arch/czg_tmp/sed/
+/home/hervey_arch/hervey_tmp/sed/
 
 # the 'x' mode doesn't influence read of the dir, but the 'r' does.
 $ sudo chmod o-r sed
@@ -5182,11 +5182,11 @@ $ sudo ls -al sed
 total 4
 dr--r----- 1 root     root      10 Jul 27 10:07 .
 ...
-$ ./myfind.out -d 1 -n 'c' ~/czg_tmp/sed/
+$ ./myfind.out -d 1 -n 'c' ~/hervey_tmp/sed/
 optind:3
 optind:5 pattern:c
-/home/czg_arch/czg_tmp/sed/
-myfind: '/home/czg_arch/czg_tmp/sed/': Permission denied
+/home/hervey_arch/hervey_tmp/sed/
+myfind: '/home/hervey_arch/hervey_tmp/sed/': Permission denied
 ```
 ### File System Implementation
 - `refCnt = 2` makes the dir default "r:2", but `stat` with dir is not this case, also after creating the subdir.
@@ -5679,7 +5679,7 @@ $ ./afs.py -A oa1:w1:c1,oa1:r1:c1 -c -S 001011
 ```bash
 $ ./afs.py -A oa1:w1:c1,oa1:w1:c1 -S 001110 -c | tail -n 1
 file:a contains:1
-[czg_arch ~/ostep-homework/dist-afs]$ ./afs.py -A oa1:w1:c1,oa1:w1:c1 -S 000111 -c | tail -n 1
+[hervey_arch ~/ostep-homework/dist-afs]$ ./afs.py -A oa1:w1:c1,oa1:w1:c1 -S 000111 -c | tail -n 1
 file:a contains:2
 ```
 ## TODO
@@ -5705,7 +5705,7 @@ try reading [this](https://github.com/YehudaShapira/xv6-explained/blob/master/Ex
 - read about [`alltraps`](https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md)
 - weird installation with `qemu-full-8.0.3-1`.
   ```bash
-  [czg ~/xv6-public]$ make TOOLPREFIX=i386-elf- qemu-nox
+  [hervey ~/xv6-public]$ make TOOLPREFIX=i386-elf- qemu-nox
   Booting from Hard Disk..QEMU: Terminated # this is an endless loop
   ```
   - Most of instruction guides are similar to [this](https://www.assistedcoding.eu/2017/11/06/install-vx6-operating-system/).
@@ -5758,10 +5758,10 @@ the above patch at least works with `qemu v8.0.4/v5.0.1/v4.0.1`
 #### debug with installation of `qemu`
 ```bash
 $ ps aux | grep qemu   
-czg_arch  146986  0.2  0.0  15528  4352 pts/5    S+   12:13   0:00 make qemu-nox
-czg_arch  146997  117  0.4 1100496 77684 pts/5   Sl+  12:13   0:08 qemu-system-i386 -nographic -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 512
-czg_arch  147176  0.0  0.0  11288  3072 pts/7    S+   12:13   0:00 grep --color=always qemu
-[czg_arch ~/xv6-public]$ gdb -p 146997
+hervey_arch  146986  0.2  0.0  15528  4352 pts/5    S+   12:13   0:00 make qemu-nox
+hervey_arch  146997  117  0.4 1100496 77684 pts/5   Sl+  12:13   0:08 qemu-system-i386 -nographic -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 512
+hervey_arch  147176  0.0  0.0  11288  3072 pts/7    S+   12:13   0:00 grep --color=always qemu
+[hervey_arch ~/xv6-public]$ gdb -p 146997
 ...
    41 #ifdef __ASSUME_TIME64_SYSCALLS
  ► 42   return SYSCALL_CANCEL (ppoll_time64, fds, nfds, timeout, sigmask,
@@ -5795,7 +5795,7 @@ $3 = {
   3. [`-Ttext`](https://stackoverflow.com/a/34627664/21294350)
   4. `./mkfs fs.img README _cat _echo _forktest _grep _init _kill _ln _ls _test_1 _test_2 _mkdir _rm _sh _stressfs _test_readcount _usertests _wc _zombie ` will make the `test_1` executable in the `fs.img`.
   - TODO read after "20:40".
-- [`traps.h`](https://github.com/czg-sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) defines the error code.
+- [`traps.h`](https://github.com/sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) defines the error code.
 - `argint` or `argptr` See `syscall.c` related comments.
   - so `argptr` return `pp` (`void **`) which points to some memory `void *`.
     > Fetch the nth word-sized system call argument as a *pointer to a block of memory* of size bytes
@@ -5821,7 +5821,7 @@ $3 = {
 - `filedup` similar to [`dup2`](https://github1s.com/bminor/glibc/blob/master/sysdeps/unix/sysv/linux/dup2.c#L29-L30) in csapp which has the `f->ref` count.
   See [this](#dup_inc)
 ```bash
-/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_35 $ cd cgi-bin;make --always-make;cd ..;make --always-make;gdb -ex 'br dup2' -ex 'r' --args ./tiny 8080
+/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_35 $ cd cgi-bin;make --always-make;cd ..;make --always-make;gdb -ex 'br dup2' -ex 'r' --args ./tiny 8080
 # browser http://127.0.0.1:8080/cgi-bin/adder?1&2 (not use https because not support)
 pwndbg> si 2
 ...
@@ -5870,7 +5870,7 @@ pwndbg> si 2
 ### getreadcount
 - just
   ```bash
-  [czg ~/xv6-public]$ git apply readcount_mod.patch # remove `Werror` based on readcount.patch
+  [hervey ~/xv6-public]$ git apply readcount_mod.patch # remove `Werror` based on readcount.patch
   $ diff *.patch                                                       
     --- readcount_mod.patch 2023-08-22 20:36:20.590593632 +0800
     +++ readcount.patch     2023-08-22 20:36:25.077241409 +0800
@@ -5914,7 +5914,7 @@ pwndbg> si 2
   7. "usys.S" also by [background_md]
 - `lk->cpu = 0;` implies better using the `CPU=1` parameter.
 ### vm-xv6-intro
-- `test2.c` is the [`null`](https://github.com/czg-sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) program.
+- `test2.c` is the [`null`](https://github.com/sci-42ver/ostep-hw/blob/master/projects/vm-xv6-intro/README.md) program.
   So
   > Thus, if you dereference a null pointer, you will not see an exception (as you might expect)
 
@@ -5938,7 +5938,7 @@ pwndbg> si 2
     compare the two using diff, cmp, or related tools to debug, e.g.:
     prompt> diff tests/2.out tests-out/2.out
     See tests/2.run for what is being run
-  [czg ~/ostep-projects/vm-xv6-intro]$ diff tests/2.out tests-out/2.out
+  [hervey ~/ostep-projects/vm-xv6-intro]$ diff tests/2.out tests-out/2.out
   --- tests/2.out 2023-08-29 16:29:01.942459722 +0800
   +++ tests-out/2.out     2023-08-29 16:39:30.146201478 +0800
   @@ -1 +1 @@
@@ -5963,7 +5963,7 @@ pwndbg> si 2
   - here `stdout` [->](https://unix.stackexchange.com/questions/597623/what-does-it-mean-when-a-file-descriptor-is-a-link-to-a-pipe) `FD_PIPE`.
     ```bash
     $ ls -l /proc/3272/fd/1 
-     l-wx------ 1 czg czg 64 Aug 29 17:58 /proc/3272/fd/1 -> 'pipe:[42661]'
+     l-wx------ 1 hervey hervey 64 Aug 29 17:58 /proc/3272/fd/1 -> 'pipe:[42661]'
     ```
   - TODO how `p->data[p->nwrite++ % PIPESIZE] = addr[i];` return `-1`.
 2. Here `*(int *)4096` will always init the same value.
@@ -5997,7 +5997,7 @@ pwndbg> si 2
 +  *sp = 0xffffffff;        // fake return PC
 ```
   where the last `sp` stores the fake return which corresponds to `fcn`.
-  and `+ 4` above is probably to store the syscall return address, which can be seen in `/mnt/ubuntu/home/czg/csapp3e/Operating_System/code_test/miscs/call_arg_stack/call_arg_stack.out`
+  and `+ 4` above is probably to store the syscall return address, which can be seen in `/mnt/ubuntu/home/hervey/csapp3e/Operating_System/code_test/miscs/call_arg_stack/call_arg_stack.out`
 ##### TODO
 - How to align `void *stack = malloc(PGSIZE);`?
 #### linux and glibc thread implementation
@@ -6032,7 +6032,7 @@ pwndbg> si 2
 ##### solution
 - use the lock as the `xv6` does. See `~/ostep-hw/projects/concurrency-xv6-threads/threads_asm.patch`
 ```bash
-[czg_arch ~/xv6-public]$ git rev-parse HEAD
+[hervey_arch ~/xv6-public]$ git rev-parse HEAD
 eeb7b415dbcb12cc362d0783e41c3d1f44066b17
 # I use qemu 8.1.0
 $ yay -Qi qemu-base
@@ -6122,7 +6122,7 @@ number: 300
   notice to regenerate the patch after modifying the source files because the **`index` has changed**.
 ```bash
 $ idi ~/tmp.patch ~/ostep-hw/projects/filesystems-check/xv6_patch/mkfs.c.patch
-/home/czg_arch/tmp.patch                                                                  /home/czg_arch/ostep-hw/projects/filesystems-check/xv6_patch/mkfs.c.patch                
+/home/hervey_arch/tmp.patch                                                                  /home/hervey_arch/ostep-hw/projects/filesystems-check/xv6_patch/mkfs.c.patch                
 +CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -f  +CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -f 
 no-omit-frame-pointer                                                                     no-omit-frame-pointer                                                                    
  CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo    CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo  
@@ -6687,8 +6687,8 @@ for example the following [anon_7ffff0000] can be also used for heap if requesti
 ## vim
 - [replace](https://stackoverflow.com/questions/19195503/vim-replace-n-with-n1) `n` with `n+1`
 ## makefile
-- See this [template](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
-- [`-rm`](https://www.gnu.org/software/make/manual/html_node/Cleanup.html) to avoid errors which is done in [here](https://github.com/czg-sci-42ver/CSAPP-3e-Solutions/blob/1488b2ece5fbe65d8439095240f2b6e699d7e105/site/content/chapter12/code/12.36/makefile#L19) by other methods.
+- See this [template](https://github.com/sci-42ver/CSAPP-3e-Solutions/blob/master/site/content/Makefile) for how to clean recursively.
+- [`-rm`](https://www.gnu.org/software/make/manual/html_node/Cleanup.html) to avoid errors which is done in [here](https://github.com/sci-42ver/CSAPP-3e-Solutions/blob/1488b2ece5fbe65d8439095240f2b6e699d7e105/site/content/chapter12/code/12.36/makefile#L19) by other methods.
 ## linux
 - What is the [first](https://unix.stackexchange.com/a/352315/568529) digit in umask value
   - See [this](https://www.scaler.com/topics/special-permissions-in-linux/)
@@ -7456,10 +7456,10 @@ only see contexts of bold words since no codes at all which doesn't help much fo
 
 <!-- ostep related -->
 [Introduction_to_Computing_Systems_book]:./Introduction_to_Computing_Systems/Introduction_to_Computing_Systems.pdf
-[ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw
+[ostep_hw]:https://github.com/sci-42ver/ostep-hw
 [ostep_book]:./Operating_Systems_Three_Easy_Pieces_by_R.pdf
 [background_md]:https://github.com/remzi-arpacidusseau/ostep-projects/blob/master/initial-xv6/background.md
-[ostep_homework]:https://github.com/czg-sci-42ver/ostep-homework/blob/master/vm-freespace/README.md
+[ostep_homework]:https://github.com/sci-42ver/ostep-homework/blob/master/vm-freespace/README.md
 
 [xv6_book]:https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf
 [asm_md]:../asm/README.md

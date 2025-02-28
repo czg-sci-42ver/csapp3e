@@ -13,9 +13,9 @@
       "../src/csapp.o",
       "../src/csapp.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/src/csapp.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/src/csapp.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/src/csapp.o"
   },
   {
     "arguments": [
@@ -31,9 +31,9 @@
       "fragments.o",
       "fragments.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fragments.o"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fragments.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fragments.o"
   },
   {
     "arguments": [
@@ -50,9 +50,9 @@
       "waitforsignal",
       "waitforsignal.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitforsignal"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitforsignal.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitforsignal"
   },
   {
     "arguments": [
@@ -69,9 +69,9 @@
       "sigsuspend",
       "sigsuspend.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsuspend"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigsuspend.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigsuspend"
   },
   {
     "arguments": [
@@ -88,9 +88,9 @@
       "orphan",
       "orphan.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/orphan.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/orphan"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/orphan.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/orphan"
   },
   {
     "arguments": [
@@ -107,9 +107,9 @@
       "blockone",
       "blockone.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/blockone.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/blockone"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/blockone.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/blockone"
   },
   {
     "arguments": [
@@ -126,9 +126,9 @@
       "procmask1",
       "procmask1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/procmask1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/procmask1"
   },
   {
     "arguments": [
@@ -145,9 +145,9 @@
       "procmask2",
       "procmask2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/procmask2"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/procmask2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/procmask2"
   },
   {
     "arguments": [
@@ -164,9 +164,9 @@
       "counterprob",
       "counterprob.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/counterprob"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/counterprob.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/counterprob"
   },
   {
     "arguments": [
@@ -183,9 +183,9 @@
       "waitprob0",
       "waitprob0.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob0"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob0.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob0"
   },
   {
     "arguments": [
@@ -202,9 +202,9 @@
       "waitprob1",
       "waitprob1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob1"
   },
   {
     "arguments": [
@@ -221,9 +221,9 @@
       "waitprob3",
       "waitprob3.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitprob3"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob3.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitprob3"
   },
   {
     "arguments": [
@@ -240,9 +240,9 @@
       "fork1",
       "fork1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork1"
   },
   {
     "arguments": [
@@ -259,9 +259,9 @@
       "fork2",
       "fork2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork2"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork2"
   },
   {
     "arguments": [
@@ -278,9 +278,9 @@
       "fork3",
       "fork3.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork3.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork3"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork3.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork3"
   },
   {
     "arguments": [
@@ -297,9 +297,9 @@
       "forkprob1",
       "forkprob1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob1"
   },
   {
     "arguments": [
@@ -316,9 +316,9 @@
       "forkprob2",
       "forkprob2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob2"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob2"
   },
   {
     "arguments": [
@@ -335,9 +335,9 @@
       "forkprob3",
       "forkprob3.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob3"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob3.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob3"
   },
   {
     "arguments": [
@@ -354,9 +354,9 @@
       "forkprob4",
       "forkprob4.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob4"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob4.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob4"
   },
   {
     "arguments": [
@@ -373,9 +373,9 @@
       "forkprob5",
       "forkprob5.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob5"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob5.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob5"
   },
   {
     "arguments": [
@@ -392,9 +392,9 @@
       "forkprob6",
       "forkprob6.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob6"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob6.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob6"
   },
   {
     "arguments": [
@@ -411,9 +411,9 @@
       "forkprob7",
       "forkprob7.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob7"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob7.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob7"
   },
   {
     "arguments": [
@@ -430,9 +430,9 @@
       "forkprob8",
       "forkprob8.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob8"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob8.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob8"
   },
   {
     "arguments": [
@@ -449,9 +449,9 @@
       "setjmp",
       "setjmp.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/setjmp.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/setjmp"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/setjmp.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/setjmp"
   },
   {
     "arguments": [
@@ -468,9 +468,9 @@
       "alarm",
       "alarm.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/alarm.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/alarm"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/alarm.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/alarm"
   },
   {
     "arguments": [
@@ -487,9 +487,9 @@
       "restart",
       "restart.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/restart.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/restart"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/restart.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/restart"
   },
   {
     "arguments": [
@@ -506,9 +506,9 @@
       "signal1",
       "signal1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal1"
   },
   {
     "arguments": [
@@ -525,9 +525,9 @@
       "signal2",
       "signal2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal2"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal2"
   },
   {
     "arguments": [
@@ -544,9 +544,9 @@
       "signal3",
       "signal3.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal3.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal3"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal3.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal3"
   },
   {
     "arguments": [
@@ -563,9 +563,9 @@
       "signal4",
       "signal4.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal4.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signal4"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal4.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signal4"
   },
   {
     "arguments": [
@@ -582,9 +582,9 @@
       "sigint",
       "sigint.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigint.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigint"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigint.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigint"
   },
   {
     "arguments": [
@@ -601,9 +601,9 @@
       "sigintsafe",
       "sigintsafe.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigintsafe"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigintsafe.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigintsafe"
   },
   {
     "arguments": [
@@ -620,9 +620,9 @@
       "shellex",
       "shellex.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/shellex.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/shellex"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/shellex.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/shellex"
   },
   {
     "arguments": [
@@ -639,9 +639,9 @@
       "kill",
       "kill.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/kill.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/kill"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/kill.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/kill"
   },
   {
     "arguments": [
@@ -658,9 +658,9 @@
       "psignal",
       "psignal.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/psignal.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/psignal"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/psignal.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/psignal"
   },
   {
     "arguments": [
@@ -677,9 +677,9 @@
       "getpid",
       "getpid.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/getpid"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/getpid.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/getpid"
   },
   {
     "arguments": [
@@ -696,9 +696,9 @@
       "fork",
       "fork.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/fork"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/fork"
   },
   {
     "arguments": [
@@ -715,9 +715,9 @@
       "waitpid1",
       "waitpid1.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid1"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitpid1.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitpid1"
   },
   {
     "arguments": [
@@ -734,9 +734,9 @@
       "waitpid2",
       "waitpid2.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/waitpid2"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitpid2.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/waitpid2"
   },
   {
     "arguments": [
@@ -753,9 +753,9 @@
       "myecho",
       "myecho.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/myecho.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/myecho"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/myecho.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/myecho"
   },
   {
     "arguments": [
@@ -772,9 +772,9 @@
       "stack",
       "stack.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/stack.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/stack"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/stack.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/stack"
   },
   {
     "arguments": [
@@ -791,9 +791,9 @@
       "sigfpe",
       "sigfpe.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigfpe"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigfpe.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigfpe"
   },
   {
     "arguments": [
@@ -810,9 +810,9 @@
       "sigbus",
       "sigbus.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigbus.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigbus"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigbus.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigbus"
   },
   {
     "arguments": [
@@ -829,9 +829,9 @@
       "sigsegv",
       "sigsegv.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/sigsegv"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigsegv.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/sigsegv"
   },
   {
     "arguments": [
@@ -848,9 +848,9 @@
       "forkprob0",
       "forkprob0.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/forkprob0"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob0.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/forkprob0"
   },
   {
     "arguments": [
@@ -867,9 +867,9 @@
       "signalprob0",
       "signalprob0.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/signalprob0"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signalprob0.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/signalprob0"
   },
   {
     "arguments": [
@@ -886,9 +886,9 @@
       "snooze",
       "snooze.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/snooze.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/snooze"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/snooze.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/snooze"
   },
   {
     "arguments": [
@@ -905,9 +905,9 @@
       "test",
       "test.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/test.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/test"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/test.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/test"
   },
   {
     "arguments": [
@@ -924,9 +924,9 @@
       "pg",
       "pg.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pg.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/pg"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/pg.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/pg"
   },
   {
     "arguments": [
@@ -943,9 +943,9 @@
       "pgchild",
       "pgchild.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/pgchild.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/pgchild"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/pgchild.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/pgchild"
   },
   {
     "arguments": [
@@ -962,9 +962,9 @@
       "hello",
       "hello.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/hello.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/hello"
   },
   {
     "arguments": [
@@ -975,8 +975,8 @@
       "hello-asm32",
       "hello-asm32.s"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/ecf",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello-asm32.s",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/ecf/hello-asm32"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/ecf",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/ecf/hello-asm32.s",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/ecf/hello-asm32"
   }
 ]

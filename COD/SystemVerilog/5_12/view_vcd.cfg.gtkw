@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.115 (w)1999-2023 BSI
 [*] Wed Jun 21 08:33:24 2023
 [*]
-[dumpfile] "/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12/whole.vcd"
+[dumpfile] "/mnt/ubuntu/home/hervey/csapp3e/COD/SystemVerilog/5_12/whole.vcd"
 [dumpfile_mtime] "Wed Jun 21 06:48:07 2023"
 [dumpfile_size] 278302
-[savefile] "/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12/view_vcd.cfg.gtkw"
+[savefile] "/mnt/ubuntu/home/hervey/csapp3e/COD/SystemVerilog/5_12/view_vcd.cfg.gtkw"
 [timestart] 0
 [size] 1846 1019
 [pos] -1 -1

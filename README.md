@@ -35,8 +35,25 @@ I read global edition although with small errors in that book.
 - its code search is [not very good](https://www.reddit.com/r/github/comments/t6w4km/comment/hze0msr/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
 ### interesting community
 - [icourse ustc](https://icourse.club/)
-## [More](https://teachyourselfcs.com/) to read from [this](https://news.ycombinator.com/item?id=22286340)
+## [More](https://teachyourselfcs.com/) to read (from [this](https://news.ycombinator.com/item?id=22286340))
 - In "What about AI/graphics/pet-topic-X?" it recommends 3 topics although I don't plan to learn them.
+- For the starting language, C++ is [fine](https://stackoverflow.com/a/713735/21294350)
+  > I found myself actually not starting with C++... because I showed them *BF* first.
+  > An experienced C++ coder can do e.g. *Java* at full speed in a matter of weeks.
+  > But if you build on a foundation of C++, you will always be on a *secure* footing.
+  - [Stop Teaching C](./references/Stop%20Teaching%20C%20-%20Kate%20Gregory%20-%20CppCon%202015.pptx) just means C should be one prerequisite of C++
+    > Just because you can learn C++ as an add-on to C doesn’t mean those who know neither should learn C first
+  - [compared with rust](https://users.rust-lang.org/t/is-it-a-good-idea-to-learn-rust-as-a-first-language/46476) (although most is about C)
+    > The difference is in C you often don't find the mistake until you run the program and trigger a bug, where Rust would have *pointed it out to you with extremely detailed error messages* and suggested a fix.
+    - The discussion between gbutler69 and ZiCog [strays](https://users.rust-lang.org/t/is-it-a-good-idea-to-learn-rust-as-a-first-language/46476/14)
+    - Also said by [this "编译器"](https://ramsayleung.github.io/zh/post/2023/rspotify_%E4%B8%80%E4%B8%AA%E7%94%A8%E7%88%B1%E5%8F%91%E7%94%B5%E4%BA%94%E5%B9%B4%E7%9A%84%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE/) (We can use translate to read this)
+      > 我*用C++已经混了三年的饭吃*了，但还只能看到C++的门槛，没法说入了C++的门。
+      > 
+      > 同理，虽然距离我学习Rust已经过去6年了，我*依然感觉我还不会Rust，都是编译器教我写代码*。
+    - > And very important, something I read earlier on my career on Stroustrup’s book : focus on programming techniques, not language features.
+      [see](https://www.stroustrup.com/bs_faq.html)
+      > Focus on concepts and techniques rather than language-technical details.
+    - 
 ## most of notes in this [md](./asm/README.md)
 > how do I know [csapp](https://www.zhihu.com/question/19627054?utm_id=0)
 ## exercises
@@ -61,3 +78,6 @@ https://www.cs.cmu.edu/~213/index.html and homework https://github.com/exajobs/u
   - https://csapp.cs.cmu.edu/3e/students.html Chapter ...
 # code review
 - Skip `12_19.c` (I don't remember the logic of that buggy codes).
+# log
+- I updated something all to something like `hervey` except for files in `.git,Windows.vim,*.pem,RECORD,*.reg,*.ipynb,*.code-workspace,*.eps,flypy_phrase.dict.yaml`
+  - `*.code-workspace` needs updates.

@@ -11,9 +11,9 @@
       "adder",
       "adder.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/cgi-bin",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/cgi-bin/adder"
   },
   {
     "arguments": [
@@ -26,8 +26,8 @@
       "-c",
       "csapp.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/csapp.c"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/csapp.c"
   },
   {
     "arguments": [
@@ -43,9 +43,9 @@
       "tiny",
       "tiny.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/tiny.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/tiny"
   },
   {
     "arguments": [
@@ -61,8 +61,8 @@
       "tiny",
       "./sbuf.c"
     ],
-    "directory": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38",
-    "file": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/sbuf.c",
-    "output": "/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38/tiny"
+    "directory": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38",
+    "file": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/sbuf.c",
+    "output": "/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38/tiny"
   }
 ]

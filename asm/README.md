@@ -422,11 +422,11 @@ pwndbg> bt
 ### mcount
 ```bash
 $ gcc check_cet_supported.c -o check_cet_supported.out -g -no-pie -fno-pic -p -pg
-$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gdb ./check_cet_supported.out -ex 'start' -ex 'set record full stop-at-limit off' -nx -iex "source ~/.gdbinit_pwndbg_voltron.gdb" -ex 'wa $rdi' -ex 'target record-full'
+$ cd /mnt/ubuntu/home/hervey/csapp3e/asm;gdb ./check_cet_supported.out -ex 'start' -ex 'set record full stop-at-limit off' -nx -iex "source ~/.gdbinit_pwndbg_voltron.gdb" -ex 'wa $rdi' -ex 'target record-full'
 ...
 0x40118f<cpu_supports_cet_shadow_stack+9>    call   mcount@plt                      <mcount@plt>
         rdi: 0x1
-        rsi: 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+        rsi: 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
         rdx: 0x7fffffffe028 —▸ 0x7fffffffe4b9 ◂— 'BEMENU_BACKEND=wayland'
         rcx: 0x403de0 —▸ 0x401150 ◂— endbr64
 ```
@@ -490,7 +490,7 @@ pwndbg> bt
 ```
 ### callee reg (continue after above)
 ```bash
-$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gdb ./check_cet_supported.out -ex 'br *40123e' -ex 'r' -ex 'set record full stop-at-limit off' -nx -iex "source ~/.gdbinit_pwndbg_voltron.gdb" -ex '' -ex 'br *401242' -ex 'c' -ex 'wa $rbp' -ex 'wa $rsp' -ex 'awatch $rsp' -ex 'target record-full' -ex "wm rsp"
+$ cd /mnt/ubuntu/home/hervey/csapp3e/asm;gdb ./check_cet_supported.out -ex 'br *40123e' -ex 'r' -ex 'set record full stop-at-limit off' -nx -iex "source ~/.gdbinit_pwndbg_voltron.gdb" -ex '' -ex 'br *401242' -ex 'c' -ex 'wa $rbp' -ex 'wa $rsp' -ex 'awatch $rsp' -ex 'target record-full' -ex "wm rsp"
 pwndbg> d-- 0x7ffff7fda6ed
    0x00007ffff7fda6e4:  41 55                   push   r13
    0x00007ffff7fda6e6:  45 31 c9                xor    r9d,r9d
@@ -500,7 +500,7 @@ pwndbg> d-- 0x7ffff7fda6ed
 => 0x00007ffff7fda6ed:  48 89 fb                mov    rbx,rdi
 # after 4 `push`
 ──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
-00:0000│ rsp 0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+00:0000│ rsp 0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 01:0008│     0x7fffffffdb20 —▸ 0x7fffffffdf00 ◂— 0x1
 02:0010│     0x7fffffffdb28 ◂— 0x0
 03:0018│     0x7fffffffdb30 —▸ 0x7fffffffe028 —▸ 0x7fffffffe4b9 ◂— 'BEMENU_BACKEND=wayland'
@@ -511,7 +511,7 @@ pwndbg> d-- 0x7ffff7fda6ed
 00:0000│ rsp 0x7fffffffdb00 —▸ 0x7fffffffdc40 —▸ 0x7ffff7e744e5 (sbrk+149) ◂— test eax,eax
 01:0008│     0x7fffffffdb08 —▸ 0x7ffff7fca9d8 ◂— 0x10001100000243
 02:0010│     0x7fffffffdb10 ◂— 0x6
-03:0018│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+03:0018│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 pwndbg> wm rsp
 Watchpoint 19: *(long long *)$rsp
 # do anything subroutine want to do, also push/change stack 
@@ -520,7 +520,7 @@ Watchpoint 19: *(long long *)$rsp
 00:0000│ rsi rsp 0x7fffffffdb00 —▸ 0x400470 ◂— 0x120000002f /* '/' */
 01:0008│         0x7fffffffdb08 —▸ 0x7ffff7fca9d8 ◂— 0x10001100000243
 02:0010│         0x7fffffffdb10 ◂— 0x6
-03:0018│         0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+03:0018│         0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 04:0020│         0x7fffffffdb20 —▸ 0x7fffffffdf00 ◂— 0x1
 05:0028│         0x7fffffffdb28 ◂— 0x0
 06:0030│         0x7fffffffdb30 —▸ 0x7fffffffe028 —▸ 0x7fffffffe4b9 ◂— 'BEMENU_BACKEND=wayland'
@@ -542,7 +542,7 @@ Dump of assembler code from 0x7ffff7fda7c9 to 0x7ffff7fda7d3:
 02:0010│ rsi 0x7fffffffdb00 —▸ 0x400470 ◂— 0x120000002f /* '/' */
 03:0018│     0x7fffffffdb08 —▸ 0x7ffff7fca9d8 ◂— 0x10001100000243
 04:0020│     0x7fffffffdb10 ◂— 0x6
-05:0028│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+05:0028│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 06:0030│     0x7fffffffdb20 —▸ 0x7fffffffdf00 ◂— 0x1
 07:0038│     0x7fffffffdb28 ◂— 0x0
 # '0x7ffff7fda7dd' call ‘0x7ffff7fd4180’
@@ -558,7 +558,7 @@ pwndbg> si
 03:0018│ rdx 0x7fffffffdb00 —▸ 0x400470 ◂— 0x120000002f /* '/' */
 04:0020│     0x7fffffffdb08 —▸ 0x7ffff7fca9d8 ◂— 0x10001100000243
 05:0028│     0x7fffffffdb10 ◂— 0x6
-06:0030│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+06:0030│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 07:0038│     0x7fffffffdb20 —▸ 0x7fffffffdf00 ◂— 0x1
 ────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
  ►0x7ffff7fd4180  endbr64 
@@ -620,7 +620,7 @@ pwndbg>c
 01:0008│     0x7fffffffdb00 —▸ 0x7ffff7d8b058 ◂— 0xf0022000079d3
 02:0010│     0x7fffffffdb08 —▸ 0x7ffff7fca9d8 ◂— 0x10001100000243
 03:0018│     0x7fffffffdb10 ◂— 0x6
-04:0020│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+04:0020│     0x7fffffffdb18 —▸ 0x7fffffffdee0 —▸ 0x7fffffffe018 —▸ 0x7fffffffe480 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 05:0028│     0x7fffffffdb20 —▸ 0x7fffffffdf00 ◂— 0x1
 06:0030│     0x7fffffffdb28 ◂— 0x0
 07:0038│     0x7fffffffdb30 —▸ 0x7fffffffe028 —▸ 0x7fffffffe4b9 ◂— 'BEMENU_BACKEND=wayland'
@@ -670,7 +670,7 @@ pwndbg> telescope 0x7ffffffde000 0x3d00
 ...
 pwndbg> stack
 00:0000│ r13 rsp 0x7fffffffe0a0 ◂— 0x1
-01:0008│         0x7fffffffe0a8 —▸ 0x7fffffffe510 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/check_cet_supported.out'
+01:0008│         0x7fffffffe0a8 —▸ 0x7fffffffe510 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/check_cet_supported.out'
 02:0010│         0x7fffffffe0b0 ◂— 0x0
 03:0018│ rcx     0x7fffffffe0b8 —▸ 0x7fffffffe549 ◂— 'BEMENU_BACKEND=wayland'
 04:0020│         0x7fffffffe0c0 —▸ 0x7fffffffe560 ◂— 'BROWSER=google-chrome-stable'
@@ -727,7 +727,7 @@ pwndbg> info symbol 0x7ffff7dc7e00
 printf in section .text of /usr/lib/libc.so.6
 # this is true instead of current `$rsp+0x2fc2`
 pwndbg> info symbol 0x404008
-printf@got[plt] in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
+printf@got[plt] in section .got.plt of /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 ```
 # computer basics
 ## miscs
@@ -795,7 +795,7 @@ $ objdump -d 010-mstore.o
 - TODO: notice p530 [EBX] is data in [memory](https://hackmd.io/@paolieri/x86_64) referenced by `EBX`
   but above `89` in `%rax,(%rbx)` -> `r/m64,r64`, so the latter should be register instead of data in memory ? 
 ### 1.3
-- [call](https://stackoverflow.com/questions/65926175/why-does-e8-f2-ff-ff-ff-translate-to-call-0xfffffff7), so above `e8 ee fe ff ff          call   1030 <_init+0x30>` (here little endien can be tested in `file /mnt/ubuntu/home/czg/csapp3e/asm/010-mstore.o` output `LSB pie executable` ) just means jump to `p/x (signed)0xfffffeee+0x1142`(in gdb) -> `0x1030`
+- [call](https://stackoverflow.com/questions/65926175/why-does-e8-f2-ff-ff-ff-translate-to-call-0xfffffff7), so above `e8 ee fe ff ff          call   1030 <_init+0x30>` (here little endien can be tested in `file /mnt/ubuntu/home/hervey/csapp3e/asm/010-mstore.o` output `LSB pie executable` ) just means jump to `p/x (signed)0xfffffeee+0x1142`(in gdb) -> `0x1030`
 ### 1.4
 - memory address unit is [byte -> 'associated 8 bits of data' in link](https://sourceware.org/gdb/onlinedocs/gdb/Memory.html)
 ## 2
@@ -912,7 +912,7 @@ or `att`
     [0x555555558000] __stack_chk_fail@GLIBC_2.4 -> 0x555555555036 (__stack_chk_fail@plt+6) ◂— push 0 /* 'h' */
     [0x555555558008] printf@GLIBC_2.2.5 -> 0x555555555046 (printf@plt+6) ◂— push 1
     ; above 0x555555558008 -> below 000000004008
-    [czg /mnt/ubuntu/home/czg/csapp3e/asm]$ readelf --relocs ./prog 
+    [hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ readelf --relocs ./prog 
 
     Relocation section '.rela.dyn' at offset 0x5a0 contains 8 entries:
       Offset          Info           Type           Sym. Value    Sym. Name + Addend
@@ -971,7 +971,7 @@ $ nm ./test_got
 0000000000403fe8 d _GLOBAL_OFFSET_TABLE_
                  w __gmon_start__
 ...
-$ r2 -AA -d /mnt/ubuntu/home/czg/csapp3e/asm/test_got
+$ r2 -AA -d /mnt/ubuntu/home/hervey/csapp3e/asm/test_got
 ...
 [0x7f0a71588ed0]> is~GLOBAL_
 5   0x00002fe8 0x00403fe8 LOCAL  OBJ    0        _GLOBAL_OFFSET_TABLE_
@@ -1005,7 +1005,7 @@ $ r2 -AA -d /mnt/ubuntu/home/czg/csapp3e/asm/test_got
 ```
 ### dynamic link( whether `-no-pie` and `checksec` no canary or not ,all fine [use two `printf/puts` to make two `dc` work without quit])
 ```asm
-[czg ~/czg_scripts]$ cat test_got.c
+[hervey ~/hervey_scripts]$ cat test_got.c
 // Build with: gcc -m32 -no-pie -g -o plt plt.c
 
 #include <stdio.h>
@@ -1016,8 +1016,8 @@ int main(int argc, char **argv) {
   puts("Hello world!");
   exit(0);
 }
-[czg ~/czg_scripts]$ gcc -g -o test_got test_got.c # -no-pie to make address same every execute
-[czg ~/czg_scripts]$ r2 -A -d ~/czg_scripts/test_got
+[hervey ~/hervey_scripts]$ gcc -g -o test_got test_got.c # -no-pie to make address same every execute
+[hervey ~/hervey_scripts]$ r2 -A -d ~/hervey_scripts/test_got
 INFO: Analyze all flags starting with sym. and entry0 (aa)
 INFO: Analyze all functions arguments/locals (afva@@@F)
 INFO: Analyze function calls (aac)
@@ -1027,23 +1027,23 @@ INFO: Skipping type matching analysis in debugger mode (aaft)
 INFO: Propagate noreturn information (aanr0x5653c8441000ytes>@<offset>.  For example: 3x20@0x33 will show 3 hexdumps of 20 bytes at 0x33
 [0x7f840813fed0]> db sym.imp.puts;dc;pxr 20@reloc.puts
 INFO: hit breakpoint at: 0x5653c843e030
-0x5653c8441000 0x00005653c843e036   6.C.SV.. @ reloc.puts /home/czg/czg_scripts/test_got .plt program R X 'push 0' 'test_got'
-0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/czg/czg_scripts/test_got .plt program R X 'push 1' 'test_got'
+0x5653c8441000 0x00005653c843e036   6.C.SV.. @ reloc.puts /home/hervey/hervey_scripts/test_got .plt program R X 'push 0' 'test_got'
+0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/hervey/hervey_scripts/test_got .plt program R X 'push 1' 'test_got'
 [0x5653c843e030]> dc;pxr 20@reloc.puts
 Hello world!
 INFO: hit breakpoint at: 0x5653c843e030
 0x5653c8441000 0x00007f8407f4bc10   ........ @ reloc.puts
-0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/czg/czg_scripts/test_got .plt program R X 'push 1' 'test_got'
+0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/hervey/hervey_scripts/test_got .plt program R X 'push 1' 'test_got'
 [0x5653c843e030]> dmi libc ; tell r2 libc location for comment https://reverseengineering.stackexchange.com/questions/18819/radare2-debugging-how-to-get-into-lazy-imported-functions dynamic link
 Do you want to print 3041 lines? (y/N)n
 [0x5653c843e030]> pxr 20@reloc.puts
 0x5653c8441000 0x00007f8407f4bc10   ........ @ reloc.puts /usr/lib/libc.so.6 library R X 'endbr64' 'libc.so.6'
-0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/czg/czg_scripts/test_got .plt program R X 'push 1' 'test_got'
+0x5653c8441008 0x00005653c843e046   F.C.SV.. @ reloc.exit /home/hervey/hervey_scripts/test_got .plt program R X 'push 1' 'test_got'
 ```
 
 ```asm
 $ gcc -g -no-pie -o test_got test_got.c # -no-pie to make address same every execute
-[czg ~/czg_scripts]$ r2 -A -d ~/czg_scripts/test_got
+[hervey ~/hervey_scripts]$ r2 -A -d ~/hervey_scripts/test_got
 [0x7fef740cced0]> afl~puts
 0x00401030    1      6 sym.imp.puts
 [0x7fef740cced0]> iS~plt
@@ -1100,7 +1100,7 @@ INFO: hit breakpoint at: 0x401030
 ### endbr64 (also ~~see~~ has contents related with dynamic link with `pxr @ reloc.printf`)
 ```asm
 $ gcc -Og -o prog 010-main.c 010-mstore.c -g3 -no-pie
-$ r2 -A -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+$ r2 -A -d /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 ...
 [0x00401040]> dc
 2 * 3 --> 6
@@ -1216,11 +1216,11 @@ pwndbg> tele 0x401026+0x2fca
 pwndbg> vmmap
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
              Start                End Perm     Size Offset File
-          0x400000           0x401000 r--p     1000      0 /mnt/ubuntu/home/czg/csapp3e/asm/prog
-          0x401000           0x402000 r-xp     1000   1000 /mnt/ubuntu/home/czg/csapp3e/asm/prog
-          0x402000           0x403000 r--p     1000   2000 /mnt/ubuntu/home/czg/csapp3e/asm/prog
-          0x403000           0x404000 r--p     1000   2000 /mnt/ubuntu/home/czg/csapp3e/asm/prog
-          0x404000           0x405000 rw-p     1000   3000 /mnt/ubuntu/home/czg/csapp3e/asm/prog
+          0x400000           0x401000 r--p     1000      0 /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+          0x401000           0x402000 r-xp     1000   1000 /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+          0x402000           0x403000 r--p     1000   2000 /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+          0x403000           0x404000 r--p     1000   2000 /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+          0x404000           0x405000 rw-p     1000   3000 /mnt/ubuntu/home/hervey/csapp3e/asm/prog
     0x7ffff7c8d000     0x7ffff7c90000 rw-p     3000      0 [anon_7ffff7c8d]
     0x7ffff7c90000     0x7ffff7c9e000 r--p     e000      0 /usr/lib/libm.so.6
     0x7ffff7c9e000     0x7ffff7d18000 r-xp    7a000   e000 /usr/lib/libm.so.6
@@ -1254,7 +1254,7 @@ pwndbg> apropos section
 maintenance info sections -- List the BFD sections of the exec and core files.
 ...
 pwndbg> maintenance info sections
-Exec file: `/mnt/ubuntu/home/czg/csapp3e/asm/prog', file type elf64-x86-64.
+Exec file: `/mnt/ubuntu/home/hervey/csapp3e/asm/prog', file type elf64-x86-64.
  [0]      0x00400318->0x00400334 at 0x00000318: .interp ALLOC LOAD READONLY DATA HAS_CONTENTS
  [1]      0x00400338->0x00400378 at 0x00000338: .note.gnu.property ALLOC LOAD READONLY DATA HAS_CONTENTS
  [2]      0x00400378->0x0040039c at 0x00000378: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS
@@ -1315,7 +1315,7 @@ From '/lib64/ld-linux-x86-64.so.2', file type elf64-x86-64:
 ```
 #### in `r2` (notice with `no-pie` only code is static, lib related with `ld` all diff)
 ```asm
-$ r2 -A -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+$ r2 -A -d /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 [0x00401020]> pd 3
             ;-- section..plt:
             ;-- rip:
@@ -1329,7 +1329,7 @@ $ r2 -A -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
 22  0x00002fc8    0x20 0x00403fc8    0x20 -rw- PROGBITS    .got
 23  0x00002fe8    0x28 0x00403fe8    0x28 -rw- PROGBITS    .got.plt
 [0x00401020]> pxr 0x10@0x00403fe8
-0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
 0x00403ff0 0x00007f06543ff2c0   ..?T.... /usr/lib/ld-linux-x86-64.so.2 library R W 0x0 ; here is above `pwndbg` '_GLOBAL_OFFSET_TABLE_+8'
 ```
 ##### view stack (continue after above)
@@ -1342,7 +1342,7 @@ $ r2 -A -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
 0x7fff5846fd30  0100 0000 0000 0000 7511 4000 0000 0000  ........u.@.....
 [0x00401020]> pxr 0x10@rsp
 0x7fff5846fd30 0x0000000000000001   ........ @ rsp 1 .comment rbp
-0x7fff5846fd38 0x0000000000401175   u.@..... 4198773 /mnt/ubuntu/home/czg/csapp3e/asm/prog .text dbg.main program R X 'mov rsi, qword [rsp]' 'prog'
+0x7fff5846fd38 0x0000000000401175   u.@..... 4198773 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .text dbg.main program R X 'mov rsi, qword [rsp]' 'prog'
 [0x00401020]> ds
 [0x00401020]> pxr 0x10@rsp
 0x7fff5846fd28 0x00007f06543ff2c0   ..?T.... @ rsp /usr/lib/ld-linux-x86-64.so.2 library R W 0x0
@@ -1360,7 +1360,7 @@ uint32  8
 > TODO more [datailed](https://unix.stackexchange.com/questions/453749/what-sets-fs0x28-stack-canary) with TLS
 > > how fs:0x28 check overflow (try making program overflow and see)
 ```bash
-[czg ~]$ cat czg_scripts/test_fs_reg.c 
+[hervey ~]$ cat hervey_scripts/test_fs_reg.c 
 // Build with: gcc -m32 -no-pie -g -o plt plt.c
 
 #include <stdio.h>
@@ -1369,10 +1369,10 @@ uint32  8
 int main(int argc, char **argv) {
   exit(0);
 }
-$ echo "test_fs_reg" | xargs -I@ gcc -fstack-protector-strong -g -no-pie -fno-pic -o czg_scripts/@ czg_scripts/@.c # https://stackoverflow.com/questions/10325713/why-does-this-memory-address-fs0x28-fs0x28-have-a-random-value/10325915#10325915
+$ echo "test_fs_reg" | xargs -I@ gcc -fstack-protector-strong -g -no-pie -fno-pic -o hervey_scripts/@ hervey_scripts/@.c # https://stackoverflow.com/questions/10325713/why-does-this-memory-address-fs0x28-fs0x28-have-a-random-value/10325915#10325915
 # if nothing done in main then no linker run, so below is same with above code.
-$ echo "test_fs_reg" | xargs -I@ gcc -g -no-pie -fno-pic -o czg_scripts/@ czg_scripts/@.c
-[czg ~]$ r2 -AA -qc "pdf @ main" czg_scripts/test_fs_reg 
+$ echo "test_fs_reg" | xargs -I@ gcc -g -no-pie -fno-pic -o hervey_scripts/@ hervey_scripts/@.c
+[hervey ~]$ r2 -AA -qc "pdf @ main" hervey_scripts/test_fs_reg 
 INFO: Analyze all flags starting with sym. and entry0 (aa)
 INFO: Analyze all functions arguments/locals (afva@@@F)
 INFO: Analyze function calls (aac)
@@ -1400,12 +1400,12 @@ INFO: Enable anal.types.constraint for experimental type propagation
 └           0x0040113a      e8f1feffff     call sym.imp.exit           ; calls a subroutine, push eip into the stack (esp) ; void exit(int status)
 # here no canary
 
-$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gcc -fno-pic -Og -o prog 010-main.c 010-mstore.c -g3 -no-pie -fno-stack-protector 
-$ r2 -AA -qc "pdf @ main>./no_canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/prog
-# in /mnt/ubuntu/home/czg/csapp3e/asm/prog/no_canary_prog.asm
+$ cd /mnt/ubuntu/home/hervey/csapp3e/asm;gcc -fno-pic -Og -o prog 010-main.c 010-mstore.c -g3 -no-pie -fno-stack-protector 
+$ r2 -AA -qc "pdf @ main>./no_canary_prog.asm" /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+# in /mnt/ubuntu/home/hervey/csapp3e/asm/prog/no_canary_prog.asm
 # in asm here not use `rax`
 ...
-$ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/prog
+$ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 ```
 
 #### fs related opcode
@@ -1462,7 +1462,7 @@ $ r2 -AA -qc "pdf @ main>./canary_prog.asm" /mnt/ubuntu/home/czg/csapp3e/asm/pro
             0x00400616      0000           add byte [rax], al          ; adds src and dst, stores result on dst ; rbp
             0x00400618      0000           add byte [rax], al          ; adds src and dst, stores result on dst ; rb
 [0x00401000]> pxr @0x404008
-0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/czg/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
+0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
 0x00404010 ..[ null bytes ]..   00000000 loc.__data_start
 [0x00401000]> axt 0x404008
 sym.imp.printf 0x401040 [DATA:--x] jmp qword [reloc.printf]
@@ -1480,10 +1480,10 @@ dbg.main 0x40117d [CALL:--x] call sym.imp.printf
         ╰─< 0x0040104b      e9d0ffffff     jmp section..plt            ; jump
 ; and also got has the same table with `.rela.plt` at the beginning
 [0x7f2361666ed0]> pxr @0x0000000000403fe8
-0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R W 0x1
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R W 0x1
 0x00403ff0 ..[ null bytes ]..   00000000 
-0x00404000 0x0000000000401036   6.@..... @ reloc.__stack_chk_fail 4198454 /mnt/ubuntu/home/czg/csapp3e/asm/prog .plt program R X 'push 0' 'prog'
-0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/czg/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
+0x00404000 0x0000000000401036   6.@..... @ reloc.__stack_chk_fail 4198454 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .plt program R X 'push 0' 'prog'
+0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
 0x00404010 ..[ null bytes ]..   00000000 loc.__data_start
 [0x7f2361666ed0]> iS~403
 19  0x00002de8     0x8 0x00403de8     0x8 -rw- INIT_ARRAY  .init_array
@@ -1565,17 +1565,17 @@ pwndbg> hexdump 0x404008
 ; here no got for __libc_start_main
 [0x00403fc8]> pxr 
 0x00403fc8 ..[ null bytes ]..   00000000 reloc.__libc_start_main
-0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R W 0x1
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R W 0x1
 0x00403ff0 ..[ null bytes ]..   00000000 
-0x00404000 0x0000000000401036   6.@..... @ reloc.__stack_chk_fail 4198454 /mnt/ubuntu/home/czg/csapp3e/asm/prog .plt program R X 'push 0' 'prog'
-0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/czg/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
+0x00404000 0x0000000000401036   6.@..... @ reloc.__stack_chk_fail 4198454 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .plt program R X 'push 0' 'prog'
+0x00404008 0x0000000000401046   F.@..... @ reloc.printf 4198470 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .plt program R X 'push 1' 'prog'
 0x00404010 ..[ null bytes ]..   00000000 loc.__data_start
 ; after link
 [0x00403fc8]> pxr
 0x00403fc8 0x00007fde0eac77c0   .w...... @ reloc.__libc_start_main /usr/lib/libc.so.6 library R X 'endbr64' 'libc.so.6'
 ; others still zero
 0x00403fd0 ..[ null bytes ]..   00000000 reloc._ITM_deregisterTMCloneTable
-0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/hervey/csapp3e/asm/prog .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
 [0x00403fc8]> pd 4
             ;-- section..got:
             ;-- reloc.__libc_start_main:
@@ -1598,7 +1598,7 @@ nth paddr       size vaddr       vsize perm type     name
 0   0x00002fc8  0x20 0x00403fc8   0x20 -rw- PROGBITS .got
 
 ;readelf
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ readelf -r prog
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ readelf -r prog
 
 Relocation section '.rela.dyn' at offset 0x578 contains 4 entries:
   Offset          Info           Type           Sym. Value    Sym. Name + Addend
@@ -1615,7 +1615,7 @@ Relocation section '.rela.plt' at offset 0x5d8 contains 2 entries:
 pwndbg> info symbol 0x00403fc8
 No symbol matches 0x00403fc8.
 pwndbg> info symbol 0x0000000000404000
-__stack_chk_fail@got.plt in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm/prog
+__stack_chk_fail@got.plt in section .got.plt of /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 ```
 ## 9
 ```asm
@@ -1641,8 +1641,8 @@ __stack_chk_fail@got.plt in section .got.plt of /mnt/ubuntu/home/czg/csapp3e/asm
 02:0010│         0x7fffffffdfd0 —▸ 0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 ◂— 0x0
 03:0018│         0x7fffffffdfd8 —▸ 0x401196 (main) ◂— push rbp
 04:0020│         0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
-05:0028│         0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
-06:0030│         0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+05:0028│         0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
+06:0030│         0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 07:0038│         0x7fffffffdff8 ◂— 0xa8242b04de4995fd
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
   0x401197<main+1>   mov    rbp,rsp
@@ -1667,8 +1667,8 @@ Dump of assembler code for function main:
 01:0008│     0x7fffffffdfd0 —▸ 0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 ◂— 0x0
 02:0010│     0x7fffffffdfd8 —▸ 0x401196 (main) ◂— push rbp
 03:0018│     0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
-04:0020│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
-05:0028│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+04:0020│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
+05:0028│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 06:0030│     0x7fffffffdff8 ◂— 0x6b2a7c5df1500785
 07:0038│     0x7fffffffe000 ◂— 0x0
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
@@ -1681,8 +1681,8 @@ Dump of assembler code for function main:
 01:0008│     0x7fffffffdfd0 —▸ 0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2c0 ◂— 0x0
 02:0010│     0x7fffffffdfd8 —▸ 0x401196 (main) ◂— push rbp
 03:0018│     0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
-04:0020│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
-05:0028│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+04:0020│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
+05:0028│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe548 ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 06:0030│     0x7fffffffdff8 ◂— 0xe9b166c2d1e3c3da
 07:0038│     0x7fffffffe000 ◂— 0x0
 ────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────
@@ -1757,7 +1757,7 @@ Dump of assembler code for function main:
 00:0000│ rsp 0x7fffffffdfb0 ◂— 0x0
 # `0xace30b97c80c7c00` is canary `fs:[0x28]`
 01:0008│     0x7fffffffdfb8 ◂— 0xace30b97c80c7c00
-02:0010│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+02:0010│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 # return address (the next instruction)
 03:0018│     0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
 pwndbg> dga main
@@ -1795,12 +1795,12 @@ Num     Type           Disp Enb Address            What
 ──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
 00:0000│ rdx rsp 0x7fffffffdfb0 ◂— 0x0
 01:0008│         0x7fffffffdfb8 ◂— 0xb30961705bab4800
-02:0010│         0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+02:0010│         0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 03:0018│         0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
 04:0020│         0x7fffffffdfd0 —▸ 0x7fffffffe0c0 —▸ 0x7fffffffe0c8 ◂— 0x38 /* '8' */
 05:0028│         0x7fffffffdfd8 —▸ 0x401136 (main) ◂— sub rsp,0x18
 06:0030│         0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
-07:0038│         0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+07:0038│         0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 ────────────────────────────────────────────────────────────────────────[ DISASM / x86-64 / set emulate on ]─────────────────────────────────────────────────────────────────────────
   0x401165<main+47>   mov    rdx,rsp
  ►0x401168<main+50>   mov    esi,3
@@ -1820,7 +1820,7 @@ Dump of assembler code for function multstore:
    0x00000000004011c4 <+0>:     53                      push   rbx
 => 0x00000000004011c5 <+1>:     48 89 d3                mov    rbx,rdx
 ──────────────────────────────────────────────────────────────────────────────────────[ STACK ]──────────────────────────────────────────────────────────────────────────────────────
-00:0000│ rsp 0x7fffffffdfa0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+00:0000│ rsp 0x7fffffffdfa0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 01:0008│     0x7fffffffdfa8 —▸ 0x401177 (main+65) ◂— mov rsi,qwordptr[rsp]
 02:0010│ rdx 0x7fffffffdfb0 ◂— 0x0
 pwndbg> dr
@@ -1847,7 +1847,7 @@ End of assembler dump.
 ```
 ### here `rbx` is redundant to use, use `r2` to change binary exe because [not](https://stackoverflow.com/questions/44534733/why-copy-the-same-value-to-rax-that-he-already-has) optimized to be better debugged
 ```asm
-$ r2 -AAq -c 'db sym.multstore;dc;wx 90909090@0x004011c4;wx 488902@0x004011cd;wx 90@0x004011d0;db 0x000000000040118a;dc;pd 4@0x004011cd;pd 8@0x004011c4;pd-- 1@0x004011d0;dc;dc' -d /mnt/ubuntu/home/czg/csapp3e/asm/prog 
+$ r2 -AAq -c 'db sym.multstore;dc;wx 90909090@0x004011c4;wx 488902@0x004011cd;wx 90@0x004011d0;db 0x000000000040118a;dc;pd 4@0x004011cd;pd 8@0x004011c4;pd-- 1@0x004011d0;dc;dc' -d /mnt/ubuntu/home/hervey/csapp3e/asm/prog 
 2 * 3 --> 0
 test: 2.468000
 INFO: hit breakpoint at: 0x4011c4
@@ -1969,13 +1969,13 @@ pwndbg> telescope $rsp 0x1f
 00:0000│ rsp 0x7fffffffdfa8 —▸ 0x40107f (main+47) ◂— mov rdx,rsp
 01:0008│     0x7fffffffdfb0 ◂— 0x0
 02:0010│     0x7fffffffdfb8 ◂— 0xd0c30a3adaf82800
-03:0018│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+03:0018│     0x7fffffffdfc0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 04:0020│     0x7fffffffdfc8 —▸ 0x7ffff7d9b790 ◂— mov edi,eax
 05:0028│     0x7fffffffdfd0 —▸ 0x7fffffffe0c0 —▸ 0x7fffffffe0c8 ◂— 0x38 /* '8' */
 06:0030│     0x7fffffffdfd8 —▸ 0x401050 (main) ◂— sub rsp,0x18
 07:0038│     0x7fffffffdfe0 ◂— 0x100400040 /* '@' */
-08:0040│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
-09:0048│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+08:0040│     0x7fffffffdfe8 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
+09:0048│     0x7fffffffdff0 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 0a:0050│     0x7fffffffdff8 ◂— 0xee0fb9aaeca58ca7
 0b:0058│     0x7fffffffe000 ◂— 0x0
 0c:0060│     0x7fffffffe008 —▸ 0x7fffffffe0e8 —▸ 0x7fffffffe570 ◂— 'BEMENU_BACKEND=wayland'
@@ -1985,7 +1985,7 @@ pwndbg> telescope $rsp 0x1f
 10:0080│     0x7fffffffe028 ◂— 0x11f05619822f8ca7
 11:0088│     0x7fffffffe030 ◂— 0x0
 ... ↓        2 skipped
-14:00a0│     0x7fffffffe048 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/czg/csapp3e/asm/prog'
+14:00a0│     0x7fffffffe048 —▸ 0x7fffffffe0d8 —▸ 0x7fffffffe54a ◂— '/mnt/ubuntu/home/hervey/csapp3e/asm/prog'
 15:00a8│     0x7fffffffe050 ◂— 0x1
 16:00b0│     0x7fffffffe058 ◂— 0xd0c30a3adaf82800
 17:00b8│     0x7fffffffe060 ◂— 0x0
@@ -1996,7 +1996,7 @@ pwndbg> telescope $rsp 0x1f
 ... ↓        2 skipped
 1e:00f0│     0x7fffffffe098 —▸ 0x4010d0 (_start) ◂— endbr64 
 ```
-- `rsp+0x18` -> ... -> '/mnt/ubuntu/home/czg/csapp3e/asm/prog' which is overwrited by `rax = 0x1`
+- `rsp+0x18` -> ... -> '/mnt/ubuntu/home/hervey/csapp3e/asm/prog' which is overwrited by `rax = 0x1`
 - clear rax after save it
 - `rsp+0xe0` addr -> rax -> `rsp+0x8`
 - `rsp` -> `rdx` (caller reg save)
@@ -2092,18 +2092,18 @@ pwndbg> telescope 0x403fc8
 ## TODO why vdso&vdrr location diff between gdb and r2
 - [maybe this](https://manpages.ubuntu.com/manpages/xenial/man7/vdso.7.html), but why location state related with [stack] always same.
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ pstree -apnh | grep prog     
-  |   |       |   `-r2,18110 -AA -c db sym.multstore;dc -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ pstree -apnh | grep prog     
+  |   |       |   `-r2,18110 -AA -c db sym.multstore;dc -d /mnt/ubuntu/home/hervey/csapp3e/asm/prog
   |   |       |       `-prog,18111
   |   |       |   `-gdb,19446 -q ./prog -ex starti -ex set record full stop-at-limit off -nx -iex ...
   |   |       |       `-prog,19480
   |   |           `-grep,19619 --color=auto prog
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ sudo cat /proc/19480/maps -vv
-00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ sudo cat /proc/19480/maps -vv
+00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 7ffff7c8d000-7ffff7c90000 rw-p 00000000 00:00 0 
 ...
 7ffff7f7d000-7ffff7f85000 r--p 00000000 00:18 333519                     /usr/lib/liblua.so.5.4.4
@@ -2122,12 +2122,12 @@ pwndbg> telescope 0x403fc8
 7ffffffde000-7ffffffff000 rw-p 00000000 00:00 0                          [stack]
 ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
 
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ sudo cat /proc/18111/maps -vv
-00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
-00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/czg/csapp3e/asm/prog
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ sudo cat /proc/18111/maps -vv
+00400000-00401000 r--p 00000000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00401000-00402000 r-xp 00001000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00402000-00403000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00403000-00404000 r--p 00002000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
+00404000-00405000 rw-p 00003000 103:08 2105174                           /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 012bb000-012dc000 rw-p 00000000 00:00 0                                  [heap]
 ...
 7f9e67f5b000-7f9e67f5c000 rw-p 00044000 00:18 333519                     /usr/lib/liblua.so.5.4.4
@@ -2163,17 +2163,17 @@ pwndbg> vmmap
 ## view virtual address space structure
 ```bash
 $ cc -Og -Wall -I ../include -I . select.c ../src/csapp.o echo.o  -lpthread -lm -o select
-$ /mnt/ubuntu/home/czg/csapp3e/conc/select 1111
+$ /mnt/ubuntu/home/hervey/csapp3e/conc/select 1111
 $ ps aux | grep sele                           
-czg         5263  0.0  0.0   3704  2048 pts/2    S+   09:40   0:00 ./select 1111
+hervey         5263  0.0  0.0   3704  2048 pts/2    S+   09:40   0:00 ./select 1111
 $ cat /proc/5263/maps                          
-562935e6d000-562935e6f000 r--p 00000000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
-562935e6f000-562935e71000 r-xp 00002000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
-562935e71000-562935e73000 r--p 00004000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
-562935e73000-562935e74000 r--p 00005000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
-562935e74000-562935e75000 rw-p 00006000 103:08 2145565                   /mnt/ubuntu/home/czg/csapp3e/conc/select
+562935e6d000-562935e6f000 r--p 00000000 103:08 2145565                   /mnt/ubuntu/home/hervey/csapp3e/conc/select
+562935e6f000-562935e71000 r-xp 00002000 103:08 2145565                   /mnt/ubuntu/home/hervey/csapp3e/conc/select
+562935e71000-562935e73000 r--p 00004000 103:08 2145565                   /mnt/ubuntu/home/hervey/csapp3e/conc/select
+562935e73000-562935e74000 r--p 00005000 103:08 2145565                   /mnt/ubuntu/home/hervey/csapp3e/conc/select
+562935e74000-562935e75000 rw-p 00006000 103:08 2145565                   /mnt/ubuntu/home/hervey/csapp3e/conc/select
 562936ba1000-562936bc2000 rw-p 00000000 00:00 0                          [heap]
-$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep ptr -A 20 -B 20
+$ objdump -D /mnt/ubuntu/home/hervey/csapp3e/conc/sharing | grep ptr -A 20 -B 20
 Disassembly of section .bss:
 
 0000000000007280 <stderr@GLIBC_2.2.5>:
@@ -2183,7 +2183,7 @@ Disassembly of section .bss:
         ...
 
 0000000000007298 <cnt.0>:
-$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep text -A 20     
+$ objdump -D /mnt/ubuntu/home/hervey/csapp3e/conc/sharing | grep text -A 20     
 Disassembly of section .text:
 
 0000000000002500 <_start>:
@@ -2197,21 +2197,21 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> hex(0x7290-0x2500)
 '0x4d90'
 >>> hex(0x0000562935e6d000+0x4d90)
-'0x562935e71d90' # in 562935e71000-562935e73000 r--p -> /mnt/ubuntu/home/czg/csapp3e/conc/select
+'0x562935e71d90' # in 562935e71000-562935e73000 r--p -> /mnt/ubuntu/home/hervey/csapp3e/conc/select
 ```
 ### need using `-fno-pic -no-pie` to view
 ```bash
 $ cc -Og -Wall -I ../include -I . -fno-pic -no-pie select.c ../src/csapp.o ../src/echo.o  -lpthread -lm -o select
 ...
 $ cat /proc/9152/maps 
-00400000-00402000 r--p 00000000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
-00402000-00404000 r-xp 00002000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
-00404000-00406000 r--p 00004000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
-00406000-00407000 r--p 00005000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
-00407000-00408000 rw-p 00006000 103:08 2145537                           /mnt/ubuntu/home/czg/csapp3e/conc/select
+00400000-00402000 r--p 00000000 103:08 2145537                           /mnt/ubuntu/home/hervey/csapp3e/conc/select
+00402000-00404000 r-xp 00002000 103:08 2145537                           /mnt/ubuntu/home/hervey/csapp3e/conc/select
+00404000-00406000 r--p 00004000 103:08 2145537                           /mnt/ubuntu/home/hervey/csapp3e/conc/select
+00406000-00407000 r--p 00005000 103:08 2145537                           /mnt/ubuntu/home/hervey/csapp3e/conc/select
+00407000-00408000 rw-p 00006000 103:08 2145537                           /mnt/ubuntu/home/hervey/csapp3e/conc/select
 01cee000-01d0f000 rw-p 00000000 00:00 0                                  [heap]
 # here is largely different from above with `pic` especially with segment size.
-$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep bss -A 20        
+$ objdump -D /mnt/ubuntu/home/hervey/csapp3e/conc/sharing | grep bss -A 20        
 Disassembly of section .bss:
 
 0000000000407280 <stderr@GLIBC_2.2.5>:
@@ -2224,7 +2224,7 @@ Disassembly of section .bss:
 # so bss is 00407000-00408000 rw-p
 
 # 00402000-00404000 r-xp begin
-$ objdump -D /mnt/ubuntu/home/czg/csapp3e/conc/sharing | grep 402000 -A 20 
+$ objdump -D /mnt/ubuntu/home/hervey/csapp3e/conc/sharing | grep 402000 -A 20 
 0000000000402000 <_init>:
 ```
 ## bigger return value unable fit in `rax`
@@ -2427,7 +2427,7 @@ check 12.34
 find: False
 ```
 ## COD <a id="COD"></a>
-### [see matrix-matrix-multiply](https://github.com/czg-sci-42ver/matrix-matrix-multiply)
+### [see matrix-matrix-multiply](https://github.com/sci-42ver/matrix-matrix-multiply)
 - `data16 cs nop WORD PTR [rax+rax*1+0x0]`
   - [disable](https://stackoverflow.com/questions/4486301/gcc-function-padding-value) alignment manually
   - here `cs` just to align, can be any [segment register](#segment) po.
@@ -2488,19 +2488,19 @@ pwndbg> |vmmap|grep sta
     0x7ffffffde000     0x7ffffffff000 rw-p    21000      0 [stack]
 
 $ ps aux | grep gdb
-czg         4285  0.0  0.1  93736 24768 pts/4    Sl+  09:01   0:00 vim /home/czg/.gdbinit.d/func_pwndbg.gdb -c vs -c e ~/.gdbinit.d/func.gdb
-czg         7381  0.4  1.1 1537832 174348 pts/5  Sl+  10:06   0:26 gdb ./check_cet_supported.out -ex br 6 -ex br 12 -ex br *0x0000555555555040 -ex set record full stop-at-limit off -ex target record-full -ex r -nx -iex source ~/.gdbinit_pwndbg_voltron.gdb
-czg        10060  0.0  0.6 1473544 101436 pts/1  Sl+  11:03   0:00 gdb ./check_cet_supported.out -ex starti -ex set record full stop-at-limit off -nx -iex source ~/.gdbinit_pwndbg_voltron.gdb -ex wa $rdi -ex
-czg        11233  0.0  0.0  10856  2944 pts/13   S+   11:42   0:00 grep --color=auto gdb
+hervey         4285  0.0  0.1  93736 24768 pts/4    Sl+  09:01   0:00 vim /home/hervey/.gdbinit.d/func_pwndbg.gdb -c vs -c e ~/.gdbinit.d/func.gdb
+hervey         7381  0.4  1.1 1537832 174348 pts/5  Sl+  10:06   0:26 gdb ./check_cet_supported.out -ex br 6 -ex br 12 -ex br *0x0000555555555040 -ex set record full stop-at-limit off -ex target record-full -ex r -nx -iex source ~/.gdbinit_pwndbg_voltron.gdb
+hervey        10060  0.0  0.6 1473544 101436 pts/1  Sl+  11:03   0:00 gdb ./check_cet_supported.out -ex starti -ex set record full stop-at-limit off -nx -iex source ~/.gdbinit_pwndbg_voltron.gdb -ex wa $rdi -ex
+hervey        11233  0.0  0.0  10856  2944 pts/13   S+   11:42   0:00 grep --color=auto gdb
 $ ls /proc/7381/fd -al
 total 0
-dr-x------ 2 czg czg 20 Apr 14 10:06 .
-dr-xr-xr-x 9 czg czg  0 Apr 14 10:06 ..
-lrwx------ 1 czg czg 64 Apr 14 10:06 0 -> /dev/pts/5
-lrwx------ 1 czg czg 64 Apr 14 10:06 1 -> /dev/pts/5
-l-wx------ 1 czg czg 64 Apr 14 11:43 10 -> 'pipe:[140131]'
-lr-x------ 1 czg czg 64 Apr 14 11:43 11 -> 'pipe:[138023]'
-l-wx------ 1 czg czg 64 Apr 14 11:43 12 -> 'pipe:[138023]'
+dr-x------ 2 hervey hervey 20 Apr 14 10:06 .
+dr-xr-xr-x 9 hervey hervey  0 Apr 14 10:06 ..
+lrwx------ 1 hervey hervey 64 Apr 14 10:06 0 -> /dev/pts/5
+lrwx------ 1 hervey hervey 64 Apr 14 10:06 1 -> /dev/pts/5
+l-wx------ 1 hervey hervey 64 Apr 14 11:43 10 -> 'pipe:[140131]'
+lr-x------ 1 hervey hervey 64 Apr 14 11:43 11 -> 'pipe:[138023]'
+l-wx------ 1 hervey hervey 64 Apr 14 11:43 12 -> 'pipe:[138023]'
 ...
 ```
 ### tip
@@ -2539,7 +2539,7 @@ $ gdb -p 109772 -ex 'handle SIGINT pass' -ex 'p filter_str_list[0]' -ex 'p filte
 ...
 The target architecture is set to "i386:x86-64".
 Attaching to process 109772
-Reading symbols from /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_map_heap_to_stack...
+Reading symbols from /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_map_heap_to_stack...
 Reading symbols from /usr/lib/liblua5.4.so...
 (No debugging symbols found in /usr/lib/liblua5.4.so)
 ...
@@ -2559,11 +2559,11 @@ $ gdb -p 124802 -ex 'handle SIGINT pass' -ex 'p filter_str_list[0]' -ex 'p filte
 ...
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
              Start                End Perm     Size Offset File
-    0x55c1b6a26000     0x55c1b6a28000 r--p     2000      0 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
-    0x55c1b6a28000     0x55c1b6a2b000 r-xp     3000   2000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
-    0x55c1b6a2b000     0x55c1b6a2d000 r--p     2000   5000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
-    0x55c1b6a2d000     0x55c1b6a2e000 r--p     1000   6000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
-    0x55c1b6a2e000     0x55c1b6a2f000 rw-p     1000   7000 /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a26000     0x55c1b6a28000 r--p     2000      0 /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a28000     0x55c1b6a2b000 r-xp     3000   2000 /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2b000     0x55c1b6a2d000 r--p     2000   5000 /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2d000     0x55c1b6a2e000 r--p     1000   6000 /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
+    0x55c1b6a2e000     0x55c1b6a2f000 rw-p     1000   7000 /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/tiny_proxy_mhtsfrginm_sim
     0x55c1b7147000     0x55c1b71cd000 rw-p    86000      0 [heap]
 
 ```
@@ -2580,7 +2580,7 @@ LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 - `up` and `down` to change frame not change process context, at least most fo registers [unchanged](https://stackoverflow.com/questions/62697912/can-gdb-false-recreate-frames-registers)
 - temporarily header demangle no use, although [old version with specific language](https://sourceware.org/pipermail/gdb-patches/2020-July/170823.html) works
 ## rizin(version:`9ab709bc34843f04ffde3b63322c809596123e77`)
-- history in `/home/czg/.cache/rizin/history` or `/home/czg/.cache/radare2/history`
+- history in `/home/hervey/.cache/rizin/history` or `/home/hervey/.cache/radare2/history`
 ## r2(radare2)
 - [wiki](https://r2wiki.readthedocs.io/en/latest/home/misc/cheatsheet/) or [blog](https://rehex.ninja/posts/radare2-rizin-cheatsheet/)
   - also can see official book
@@ -2699,7 +2699,7 @@ asl read
 ### `dsb`
 - [this](https://reverseengineering.stackexchange.com/questions/31804/can-radare2-skip-syscall-when-db-maindtsdc/31805#31805)
 ```bash
-r2 -c "dcu main;dsu -1;ood;dcu main;dts+;3ds;dr rip;dr edi;dsb;dsb;dr rip;dr edi" -d /mnt/ubuntu/home/czg/csapp3e/asm/prog
+r2 -c "dcu main;dsu -1;ood;dcu main;dts+;3ds;dr rip;dr edi;dsb;dsb;dr rip;dr edi" -d /mnt/ubuntu/home/hervey/csapp3e/asm/prog
 ...
 0x00401071
 0x00402004 # edi modified
@@ -2750,9 +2750,9 @@ pwndbg> x/g $rbp-0x1c
 ## Problem 3.3 (show how to disassemble & assemble att syntax without `rasm2`(it doesn't support att))
 - although access 32bit mem %ebx is a bit weird in 64bit, but if possible having the rights, no problem. 
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ gcc -g -no-pie -nostdlib test_ebx.s && ./a.out
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ gcc -g -no-pie -nostdlib test_ebx.s && ./a.out
 zsh: segmentation fault (core dumped)  ./a.out # here is because no rights to write 0x1 mem
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ objdump -d ./a.out                            
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ objdump -d ./a.out                            
 
 ./a.out:     file format elf64-x86-64
 
@@ -2768,7 +2768,7 @@ Disassembly of section .text:
 ### use `sed` to [test](https://stackoverflow.com/questions/32223572/sed-copy-lines-from-a-file-to-specific-line-in-another-file)
 - see how sed [work](https://www.gnu.org/software/sed/manual/html_node/sed-script-overview.html) (similar to vim) 
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_4_add.s 
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ cat 3_4_add.s 
 
         movq    -24(%rbp),%rdi
         movq    -16(%rbp),%rsi
@@ -2802,7 +2802,7 @@ $ sed -n -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e '/\(movq\t%rax, -16(%r
         je      .L3
         call    __stack_chk_fail@PLT
 # not use egrep,https://stackoverflow.com/questions/1825552/grep-a-tab-in-unix
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_4.s|grep -P 'movq\t%rax, -16' -A 20
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ cat 3_4.s|grep -P 'movq\t%rax, -16' -A 20
         movq    %rax, -16(%rbp)
 
         movq    -24(%rbp),%rdi
@@ -2822,7 +2822,7 @@ $ sed -n -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e '/\(movq\t%rax, -16(%r
         je      .L3
         call    __stack_chk_fail@PLT
 # begin use sed
-$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie
+$ cd /mnt/ubuntu/home/hervey/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie
 $ sed -n -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e 'p' 3_4.s > 3_4_char_int.s
 $ file="3_4_char_int";gcc -g $file.s -o $file;pwngdb ./$file -ex 'start' -ex 'target record-full'
 ```
@@ -2871,7 +2871,7 @@ $ cat ./3_4_add.s
         movzbl (%rdi), %eax
         movq %rax, (%rdx)
 # end
-$ cd /mnt/ubuntu/home/czg/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie;sed -n -f ./sed_3_4.sh -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e 'p' 3_4.s > 3_4_char_int.s;file="3_4_char_int";gcc -g $file.s -o $file;pwngdb ./$file -ex 'start' -ex 'target record-full' -ex 'br *0x0000555555555173' -ex '' -ex 'si 2' -ex 'x/b $rdi' -ex 'x/w $rsi' -ex 'wa $rdx' -ex 'c'
+$ cd /mnt/ubuntu/home/hervey/csapp3e/asm;gcc -S -o 3_4.s problem_3_4.c -no-pie;sed -n -f ./sed_3_4.sh -e '/\(movq\t%rax, -16(%rbp)\)/r ./3_4_add.s' -e 'p' 3_4.s > 3_4_char_int.s;file="3_4_char_int";gcc -g $file.s -o $file;pwngdb ./$file -ex 'start' -ex 'target record-full' -ex 'br *0x0000555555555173' -ex '' -ex 'si 2' -ex 'x/b $rdi' -ex 'x/w $rsi' -ex 'wa $rdx' -ex 'c'
 ...
 ```
 ### subquesion 4
@@ -3082,8 +3082,8 @@ Dump of assembler code for function test_mul_args:
    0x0000555555555187 <+62>:    8b 45 20                mov    eax,DWORD PTR [rbp+0x20]
    0x000055555555518a <+65>:    01 d0                   add    eax,edx
 # clearly in 
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ file=3_34;gcc $file.c -o $file.s -S -fverbose-asm                        
-[czg /mnt/ubuntu/home/czg/csapp3e/asm]$ cat 3_34.s 
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ file=3_34;gcc $file.c -o $file.s -S -fverbose-asm                        
+[hervey /mnt/ubuntu/home/hervey/csapp3e/asm]$ cat 3_34.s 
         movl    -16(%rbp), %r9d # test[8], _1
         movl    -20(%rbp), %r8d # test[7], _2
         movl    -24(%rbp), %edi # test[6], _3
@@ -3253,7 +3253,7 @@ $ r2 -c 'dcu main;dm~ld;pxr 0x18 @0x00403fe8;iS~dyna' -d prog2r
 0x00007ff47d501000 - 0x00007ff47d50b000 - usr    40K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r__
 0x00007ff47d50b000 - 0x00007ff47d50d000 - usr     8K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.rw_
 0x00007ff47d50d000 - 0x00007ff47d50f000 - usr     8K s rw- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
-0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/czg/csapp3e/link/prog2r .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403fe8 0x0000000000403df8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210168 /mnt/ubuntu/home/hervey/csapp3e/link/prog2r .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
 0x00403ff0 0x00007ff47d50e2c0   ..P}.... /usr/lib/ld-linux-x86-64.so.2 library R W 0x0
 0x00403ff8 0x00007ff47d4ecb50   P.N}.... /usr/lib/ld-linux-x86-64.so.2 library R X 'endbr64' 'ld-linux-x86-64.so.2'
 21  0x00002df8  0x1d0 0x00403df8  0x1d0 -rw- DYNAMIC     .dynamic
@@ -3323,11 +3323,11 @@ $ r2 -c 'dcu main;dm~ld;pxr 0x58 @0x00403fe8;iS~dyna;iS~plt;db sym.imp.addvec;pd
 0x00007f85754a6000 - 0x00007f85754b0000 - usr    40K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.r__
 0x00007f85754b0000 - 0x00007f85754b2000 - usr     8K s r-- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 ; map._usr_lib_ld_linux_x86_64.so.2.rw_
 0x00007f85754b2000 - 0x00007f85754b4000 - usr     8K s rw- /usr/lib/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
-0x00403fe8 0x0000000000403de8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210152 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
+0x00403fe8 0x0000000000403de8   .=@..... @ obj._GLOBAL_OFFSET_TABLE_ 4210152 /mnt/ubuntu/home/hervey/csapp3e/link/prog2l .dynamic section..dynamic,segment.DYNAMIC,_DYNAMIC program R 0x1
 0x00403ff0 0x00007f85754b32c0   .2Ku.... /usr/lib/ld-linux-x86-64.so.2 library R W 0x0
 0x00403ff8 0x00007f8575491b50   P.Iu.... /usr/lib/ld-linux-x86-64.so.2 library R X 'endbr64' 'ld-linux-x86-64.so.2'
-0x00404000 0x0000000000401036   6.@..... @ reloc.printf 4198454 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .plt program R X 'push 0' 'prog2l'
-0x00404008 0x0000000000401046   F.@..... @ reloc.addvec 4198470 /mnt/ubuntu/home/czg/csapp3e/link/prog2l .plt program R X 'push 1' 'prog2l'
+0x00404000 0x0000000000401036   6.@..... @ reloc.printf 4198454 /mnt/ubuntu/home/hervey/csapp3e/link/prog2l .plt program R X 'push 0' 'prog2l'
+0x00404008 0x0000000000401046   F.@..... @ reloc.addvec 4198470 /mnt/ubuntu/home/hervey/csapp3e/link/prog2l .plt program R X 'push 1' 'prog2l'
 ...
 21  0x00002de8  0x1e0 0x00403de8  0x1e0 -rw- DYNAMIC     .dynamic
 11  0x000005c0   0x30 0x004005c0   0x30 -r-- RELA        .rela.plt
@@ -3350,7 +3350,7 @@ $ r2 -c 'dcu main;dm~ld;pxr 0x58 @0x00403fe8;iS~dyna;iS~plt;db sym.imp.addvec;pd
 ### `7.13.3`
 - original `mymalloc.c` :LD_PRELOAD with `printf` will stuck in infinite loop (seen by `sudo coredumpctl gdb` where `bt` is too too long ) and caused segmentation fault
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/link/interpose]$ gcc -DRUNTIME -shared -fpic -ldl -o mymalloc.so mymalloc.c
+[hervey /mnt/ubuntu/home/hervey/csapp3e/link/interpose]$ gcc -DRUNTIME -shared -fpic -ldl -o mymalloc.so mymalloc.c
 $ cat mymalloc.c | grep RUN -A 20
 ...
     fprintf(stderr, "fprintf malloc(%d) = %p\n", size, ptr);
@@ -3496,7 +3496,7 @@ Pthread_create(&tid, NULL, thread, &connfd);
 - need `\n` as EOF and return 0 if encounter it even if at the end of line.
   (instead of using `rio_read` to simulate real network where we keep reading after `\n`, fetch multiple lines and block at `Rio_readlineb` in one `connfd`.)
   so that we can receive multiple client requests.
-- this one can't run in browser because server send wrong responce not consistent with the protocal (just echo but not process the messages, detailed see `/mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code/12.22_origin_change.c`).
+- this one can't run in browser because server send wrong responce not consistent with the protocal (just echo but not process the messages, detailed see `/mnt/ubuntu/home/hervey/CSAPP-3e-Solutions/site/content/chapter12/code/12.22_origin_change.c`).
 ### [12.27](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.27/)
 - here says two condition
   first: the second `fclose` would close one closed fd (paragrph 1).
@@ -3522,7 +3522,7 @@ Pthread_create(&tid, NULL, thread, &connfd);
 (main reason is to use more threads by decreasing `SBUFSIZE` to make that buf frame full happen more)
 > here, because server not terminate automatically, so `gprof` may not generate output when program terminates by sending the program `SIGKILL`
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_36]$ ./tiny_citsf_scope 5000 1
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_36]$ ./tiny_citsf_scope 5000 1
 
 $ wrk -d4 -c10 http://localhost:5000
 Running 4s test @ http://localhost:5000
@@ -3535,7 +3535,7 @@ Requests/sec:  50070.09
 Transfer/sec:     10.93MB
 # range from 9-11MB
 
-[czg /mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code]$ ./12.38/main
+[hervey /mnt/ubuntu/home/hervey/CSAPP-3e-Solutions/site/content/chapter12/code]$ ./12.38/main
 
 $ wrk -d4 -c10 http://localhost:5000
 Running 4s test @ http://localhost:5000
@@ -3549,7 +3549,7 @@ Transfer/sec:      7.74MB
 ```
 #### not use `else if` where speed will decrease just as csapp book says by half.
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ export file=tiny_check_in_thread_correct;./$file 5000 1 > ./$file.txt
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38]$ export file=tiny_check_in_thread_correct;./$file 5000 1 > ./$file.txt
 
 $ wrk -d4 -c10 http://localhost:5000
 Running 4s test @ http://localhost:5000
@@ -3581,16 +3581,16 @@ Running 4s test @ http://localhost:5000
   196770 requests in 4.02s, 42.97MB read
 Requests/sec:  49001.32
 Transfer/sec:     10.70MB
-# $ git rev-parse czg/master                                               
+# $ git rev-parse hervey/master                                               
 # 57a7b40bccf3c10049de2982417a03508fd670b3
-$ git rev-parse czg/master                         
+$ git rev-parse hervey/master                         
 6bee37d933eeb23610d97c444d965614978309a9
 ```
 ##### not add ~~too much calculation~~ `if` conditional block in loop (see `tiny_citcwei_conditional_move.c`)
 - here whether use conditional move is fine all.
 ```bash
 $ ./12.38/main
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
 Running 4s test @ http://localhost:5000
   2 threads and 10 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -3601,7 +3601,7 @@ Requests/sec:  31985.19
 Transfer/sec:      6.99MB
 # without USE_UPDATE_IF in `tiny_citcwei_conditional_move.c`
 $ export file=tiny_citcwei_conditional_move;./$file 5000 1
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38]$ wrk -d4 -c10 http://localhost:5000
 Running 4s test @ http://localhost:5000
   2 threads and 10 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -4014,7 +4014,7 @@ vcvtsi2ss %edi, %xmm1, %xmm2
 - lazy binding, see above GOT / PLT, or `RTLD_LAZY` in `man dlopen` / csapp
 - view [got](https://stackoverflow.com/questions/39785280/how-shared-library-finds-got-section) in shared lib
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/link]$ objdump -R libvector.so
+[hervey /mnt/ubuntu/home/hervey/csapp3e/link]$ objdump -R libvector.so
 $ LD_DEBUG=all ./prog2r 2>&1 |less
 ```
 - negated [errno](https://softwareengineering.stackexchange.com/questions/170694/why-error-codes-are-negated)
@@ -4023,7 +4023,7 @@ $ LD_DEBUG=all ./prog2r 2>&1 |less
   - [fflush(stdin)](https://www.geeksforgeeks.org/use-fflushstdin-c/#)
   - `%[^\n]s` , [this](https://www.geeksforgeeks.org/use-fflushstdin-c/) is wrong, [see](https://stackoverflow.com/questions/40038538/how-does-scanf-n-str-work-in-c-programming) 
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/test]$ cat flush_stdin.c
+[hervey /mnt/ubuntu/home/hervey/csapp3e/test]$ cat flush_stdin.c
 $ cat flush_stdin.c                                 
 ...
                 //scanf("%[^\n]s", str);
@@ -4101,9 +4101,9 @@ $ stty -icanon && vim
 - whether use `Waitpid(-1, NULL, 0);`
   - below `signalprob0_mod_0` check after child terminates by receiving `SIGUSR1`, between reception of signal and into handler1, the child may be have been reaped by kernel.
   ```bash
-  [czg /mnt/ubuntu/home/czg/csapp3e/ecf]$ ./signalprob0_mod_0
+  [hervey /mnt/ubuntu/home/hervey/csapp3e/ecf]$ ./signalprob0_mod_0
   23Waitpid error: No child processes
-  [czg /mnt/ubuntu/home/czg/csapp3e/ecf]$ ./signalprob0      
+  [hervey /mnt/ubuntu/home/hervey/csapp3e/ecf]$ ./signalprob0      
   213%   
   $ diff signalprob0_mod_0.c signalprob0.c
   --- signalprob0_mod_0.c 2023-05-20 12:22:57.853316323 +0800
@@ -4127,7 +4127,7 @@ $ stty -icanon && vim
 
   - more detailed see `tiny_sigprocmask.c` comments
   ```bash
-  [/mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35]$ git rev-parse czg/master 
+  [/mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12.35]$ git rev-parse hervey/master 
   a517a18def6af63d775dd521c661000490ae9657
   ```
 ### network
@@ -4380,7 +4380,7 @@ $ bash -c 'time ./psum-array 8 30'
 real    0m1.735s
 user    0m13.123s
 sys     0m0.001s
-[czg /mnt/ubuntu/home/czg/csapp3e/conc]$ bash -c 'time ./psum-array 4 30'
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc]$ bash -c 'time ./psum-array 4 30'
 
 real    0m3.352s
 user    0m12.626s
@@ -4388,7 +4388,7 @@ sys     0m0.000s
 ```
 - `read` seems to not change file position related with [stream](https://www.gnu.org/software/libc/manual/html_node/File-Positioning.html).
 ```cpp
-/* /mnt/ubuntu/home/czg/csapp3e/conc/homework/tfgets-select_comment_1.c */
+/* /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tfgets-select_comment_1.c */
 printf("%p\npos: %ld\n",readptr,ftell (stream));
 ```
 - check client without closing it after receiving one message, by checking `fd` duplicate after `fd` is manipulated by kernel once `connfd` related with some client is closed by client itself.
@@ -4414,7 +4414,7 @@ $ objdump -D badcnt | grep 2609 -A 20
 - struct dot before variable like [struct timeval t = {.tv_sec = 5};](https://dreamanddead.github.io/CSAPP-3e-Solutions/chapter12/12.32/#comment-6161315337)
 - not to overlap dst and src str although csapp `tiny.c` use, and here if move `%s` after const str like `sprintf(buf, "Server: Tiny Web Server%s\r\n", buf); ` , then generate weird wrong result. 
 ```bash
-[czg /mnt/ubuntu/home/czg/csapp3e/netp/tiny]$ cat tiny.c | grep sprin
+[hervey /mnt/ubuntu/home/hervey/csapp3e/netp/tiny]$ cat tiny.c | grep sprin
   sprintf(buf, "HTTP/1.0 200 OK\r\n");  // line:netp:servestatic:beginserve
   sprintf(buf, "%sServer: Tiny Web Server\r\n", buf); 
 $ man sprintf
@@ -4423,7 +4423,7 @@ NOTES
 
            sprintf(buf, "%s some further text", buf);
            ...
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35]$ cat tiny_bug.c | grep sprin
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12.35]$ cat tiny_bug.c | grep sprin
     sprintf(buf, "%d", pid);
     sprintf(buf,"%s reaping",buf);
     sprintf() 
@@ -4433,7 +4433,7 @@ NOTES
 - [near](https://www.geeksforgeeks.org/what-are-near-far-and-huge-pointers/),(type modifiers also applies to variable, not just ptr)[far](https://stackoverflow.com/questions/33373701/use-of-type-modifiersnear-far-huge-with-normal-variables) (A2: '"non-far variables" in the stack' related with stack/local variable),  
   - 'safely ignore them'
 ## Makefile
-- /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12.35/Makefile
+- /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12.35/Makefile
   - use [shell](https://stackoverflow.com/questions/65518363/how-to-append-to-a-list-of-variables-in-a-makefile)
   - [+=](https://stackoverflow.com/questions/55500865/how-to-append-lists-in-makefile-using-loops)
 - why `clean` has [*~](https://stackoverflow.com/questions/38002190/what-is-happening-in-this-make-clean) (which is emacs backup)
@@ -4441,7 +4441,7 @@ NOTES
 - clang-format not change Include order<a id="format"></a> [1](https://unix.stackexchange.com/questions/32908/how-to-insert-the-content-of-a-file-into-another-file-before-a-pattern-marker) 2
 - using [variable](https://stackoverflow.com/questions/16267379/variables-in-makefile-prerequisites)
 ```bash
-[/mnt/ubuntu/home/czg/CSAPP-3e-Solutions/site/content/chapter12/code]$ tail makefile 
+[/mnt/ubuntu/home/hervey/CSAPP-3e-Solutions/site/content/chapter12/code]$ tail makefile 
         (cd 12.39; make clean)
         find . -type f -executable -print0 | xargs -0 rm -f --
 
@@ -4546,29 +4546,29 @@ $ git ls-files -c | grep '\.so'
 ```bash
 # only manipulate added dir
 $ cat ~/.histfile | grep csapp3e | grep cd | grep -v ";" | uniq
-cd /mnt/ubuntu/home/czg/csapp3e/
-cd /mnt/ubuntu/home/czg/csapp3e/asm
-#cd /mnt/ubuntu/home/czg/csapp3e/asm
-cd /mnt/ubuntu/home/czg/csapp3e/asm
-cd /mnt/ubuntu/home/czg/csapp3e/asm/
-cd /mnt/ubuntu/home/czg/csapp3e
-cd /mnt/ubuntu/home/czg/csapp3e/ecf
-cd /mnt/ubuntu/home/czg/csapp3e/ecf/../include
-cd /mnt/ubuntu/home/czg/csapp3e/ecf/
-cd /mnt/ubuntu/home/czg/csapp3e/ecf/l
-cd /mnt/ubuntu/home/czg/csapp3e/ecf/
-cd /mnt/ubuntu/home/czg/csapp3e/vm
-cd /mnt/ubuntu/home/czg/csapp3e/references/
-cd /mnt/ubuntu/home/czg/csapp3e/vm/malloc/
-cd /mnt/ubuntu/home/czg/csapp3e/io/
-cd /mnt/ubuntu/home/czg/csapp3e/netp
-cd /mnt/ubuntu/home/czg/csapp3e/conc
-cd /mnt/ubuntu/home/czg/csapp3e/ecf
-cd /mnt/ubuntu/home/czg/csapp3e/conc
-cd /mnt/ubuntu/home/czg/csapp3e/ecf
-cd /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_38
-cd /mnt/ubuntu/home/czg/csapp3e/io
-cd /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39/
+cd /mnt/ubuntu/home/hervey/csapp3e/
+cd /mnt/ubuntu/home/hervey/csapp3e/asm
+#cd /mnt/ubuntu/home/hervey/csapp3e/asm
+cd /mnt/ubuntu/home/hervey/csapp3e/asm
+cd /mnt/ubuntu/home/hervey/csapp3e/asm/
+cd /mnt/ubuntu/home/hervey/csapp3e
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf/../include
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf/
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf/l
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf/
+cd /mnt/ubuntu/home/hervey/csapp3e/vm
+cd /mnt/ubuntu/home/hervey/csapp3e/references/
+cd /mnt/ubuntu/home/hervey/csapp3e/vm/malloc/
+cd /mnt/ubuntu/home/hervey/csapp3e/io/
+cd /mnt/ubuntu/home/hervey/csapp3e/netp
+cd /mnt/ubuntu/home/hervey/csapp3e/conc
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf
+cd /mnt/ubuntu/home/hervey/csapp3e/conc
+cd /mnt/ubuntu/home/hervey/csapp3e/ecf
+cd /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_38
+cd /mnt/ubuntu/home/hervey/csapp3e/io
+cd /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39/
 cat ~/.histfile | grep csapp3e | grep cd | uniq
 
 # remove cache to see how work
@@ -4579,14 +4579,14 @@ $ git status --ignored .
 
 # https://www.cyberciti.biz/faq/linux-unix-copy-a-file-to-multiple-directories-using-cp-command/
 $ xargs -n 1 cp -v asm/.gitignore <<< "ecf/ vm/ io/ netp/ conc/"
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework]$ xargs -n 1 cp -v ../../asm/.gitignore <<< $(ls | grep tiny)
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework]$ xargs -n 1 cp -v ../../asm/.gitignore <<< $(ls | grep tiny)
 
 # debug current dir: https://stackoverflow.com/questions/466764/git-command-to-show-which-specific-files-are-ignored-by-gitignore,https://stackoverflow.com/questions/46714324/how-to-check-if-a-file-is-git-ignored
-[czg /mnt/ubuntu/home/czg/csapp3e/conc]$ git check-ignore -v *
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc]$ git check-ignore -v *
 # debug start by `.` dir/file
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v .*
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v .*
 conc/homework/.gitignore:3:.cache/      .cache
-[czg /mnt/ubuntu/home/czg/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v * | grep '\.ca'
+[hervey /mnt/ubuntu/home/hervey/csapp3e/conc/homework/tiny_12_39]$ git check-ignore -v * | grep '\.ca'
 # nothing
 # better use 
 $ ls -a | xargs  git check-ignore -v
@@ -5997,8 +5997,8 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
     >>> br *dgemm_blocked_avx256+487
     >>> c
     >>> si # view the stack in dashboard. Here inline `do_block_avx_256` in `dgemm_blocked_avx256`
-    [0] from 0x0000564374a9e447 in do_block_avx_256+412 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87
-    [1] from 0x0000564374a9e447 in dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+487 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:117
+    [0] from 0x0000564374a9e447 in do_block_avx_256+412 at /home/hervey/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87
+    [1] from 0x0000564374a9e447 in dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+487 at /home/hervey/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:117
     ...
     >>> disassemble dgemm_blocked_avx256
     ...
@@ -6010,13 +6010,13 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
        0x0000564374a9e308 <+168>:   mov    ebx,r13d # find the last r14 assignment before the jump target.
     ...
        0x0000564374a9e41d <+445>:   vmovapd YMMWORD PTR [r8],ymm1
-       0x0000564374a9e422 <+450>:   jne    0x564374a9e34a <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+234 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:93>
+       0x0000564374a9e422 <+450>:   jne    0x564374a9e34a <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+234 at /home/hervey/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:93>
     ...
        0x0000564374a9e444 <+484>:   dec    r14d
-    => 0x0000564374a9e447 <+487>:   jne    0x564374a9e308 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+168 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:89>
+    => 0x0000564374a9e447 <+487>:   jne    0x564374a9e308 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+168 at /home/hervey/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:89>
     ...
        0x0000564374a9e45b <+507>:   cmp    r15d,esi
-       0x0000564374a9e45e <+510>:   jb     0x564374a9e2e6 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+134 at /home/czg/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87> # this is similar to how above is analysised.
+       0x0000564374a9e45e <+510>:   jb     0x564374a9e2e6 <dgemm_blocked_avx256(unsigned int, double const*, double const*, double*)+134 at /home/hervey/matrix-matrix-multiply/src/dgemm_blocked_avx256.cpp:87> # this is similar to how above is analysised.
     ```
   - [turbo -> single core](https://qr.ae/pyObYW)
 - p468
@@ -6896,11 +6896,11 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   - "statements for decisions" -> `if`,etc. <a id="decisions_and_loops"></a>
 - 110
   - [auto](https://www.geeksforgeeks.org/storage-classes-in-c/) is default -> just [random values](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment115456392_15326621) which may result from [stack](https://stackoverflow.com/questions/15326611/how-garbage-values-are-assigned-to-variables-in-c#comment21642064_15326611).
-  - view "/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static" `static.c` is same as `no-static.`
+  - view "/mnt/ubuntu/home/hervey/csapp3e/self_test/miscs_test/static" `static.c` is same as `no-static.`
     ```bash
     $ id2c \      
-    "objdump_base -d /mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static/static.o" \
-    "objdump_base -d /mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/static/no-static.o" 
+    "objdump_base -d /mnt/ubuntu/home/hervey/csapp3e/self_test/miscs_test/static/static.o" \
+    "objdump_base -d /mnt/ubuntu/home/hervey/csapp3e/self_test/miscs_test/static/no-static.o" 
     ```
 - p121
   - "enhanced language of the *assembler*" help "break large constants into pieces" and "memory addresses".
@@ -7224,7 +7224,7 @@ from [this](https://stackoverflow.com/questions/62117622/mips-pipeline-stalls-sw
   Address $1$ -> 1 
   Then choose C
 - [ ] A-22: 2,3,4 -> 15*16
-  1. Z can be checked in "/mnt/ubuntu/home/czg/csapp3e/self_test/verilog/A_22.v"
+  1. Z can be checked in "/mnt/ubuntu/home/hervey/csapp3e/self_test/verilog/A_22.v"
 - [x] A-26 0,1
 - [ ] A-37 1
   > 1. No change. You can calculate NAND quickly using the current ALU since $\overline{(a ⋅ b)} = \overline{a} + \overline{b}$ and we already have NOT a, NOT b, and OR.
@@ -7566,7 +7566,7 @@ This "controversial" is due to "von Neumann" refused to use floating.
   also see [this](https://stackoverflow.com/questions/45662113/guard-round-sticky-bits-floating-point#comment78287551_45662113) which says "sticky bit remains a 1 ("sticks" at 1)" and [this Q&A_2](https://stackoverflow.com/questions/76709959/is-there-one-way-to-alleviate-roundoff-errors)
   - sticky bit
     - See [this][sticky_bit]
-  Codes see "/mnt/ubuntu/home/czg/csapp3e/self_test/miscs_test/Guard_digit".
+  Codes see "/mnt/ubuntu/home/hervey/csapp3e/self_test/miscs_test/Guard_digit".
 
   It may be also one problem of the compiler "*Without compiler* support, these features have *atrophied*".
   ```bash
@@ -7926,8 +7926,8 @@ here cloud means "throuth web".
       # https://v0dro.in/blog/2020/02/27/interpreting-stream-benchmarks/
     
     $ gcc -O3 -fopenmp -DSTREAM_ARRAY_SIZE=4194304 stream.c -o stream.o
-    [czg /mnt/ubuntu/home/czg/csapp3e/self_test/benchmark]$ export OMP_NUM_THREADS=1                                                                           
-    [czg /mnt/ubuntu/home/czg/csapp3e/self_test/benchmark]$ ./stream.o
+    [hervey /mnt/ubuntu/home/hervey/csapp3e/self_test/benchmark]$ export OMP_NUM_THREADS=1                                                                           
+    [hervey /mnt/ubuntu/home/hervey/csapp3e/self_test/benchmark]$ ./stream.o
     Function    Best Rate MB/s  Avg time     Min time     Max time
     Copy:           26886.5     0.002572     0.002496     0.002890
     Scale:          18345.5     0.003793     0.003658     0.004389
@@ -9342,7 +9342,7 @@ See [this](#notice)
       And also for one thread *output* may change the other thread *input*. Just see the "Figure 1".
 
       Here double buffer *swap* at the end to make the *current out* is next *in*. 
-      This is same as [this problem](https://forums.developer.nvidia.com/t/what-is-the-advantage-of-rotate-streams-and-swap-events-at-the-end-of-the-loop/261648?u=czgf2v)
+      This is same as [this problem](https://forums.developer.nvidia.com/t/what-is-the-advantage-of-rotate-streams-and-swap-events-at-the-end-of-the-loop/261648?u=herveyf2v)
 
       Also see [application](https://gameprogrammingpatterns.com/double-buffer.html) of `swap` in GPU
       > a swap operation swaps the *next and current* buffers instantly so that the new buffer is now *publicly visible*
@@ -10427,7 +10427,7 @@ based on 'FIGURE 4.33' p548, see 'COD/verilog' dir
 ```bash
 $ rustup show                              
 Default host: x86_64-unknown-linux-gnu
-rustup home:  /home/czg/.rustup
+rustup home:  /home/hervey/.rustup
 
 stable-x86_64-unknown-linux-gnu (default)
 rustc 1.70.0 (90c541806 2023-05-31)
@@ -10486,7 +10486,7 @@ Module = "intel_rapl_msr"
   <a id="bison"></a>
   flex [only support `/**/`](https://www.cs.virginia.edu/~cr4bd/flex-manual/Comments-in-the-Input.html) but not `//` C-style comments at the file **begin location**.
   [skenz][skenz_flex_bison]
-  - flex and bison are just based **regex** (they are mostly connected by **tokens**, [see](#token)), see [skenz_flex_bison] first example and this [concrete repo](https://github.com/czg-sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
+  - flex and bison are just based **regex** (they are mostly connected by **tokens**, [see](#token)), see [skenz_flex_bison] first example and this [concrete repo](https://github.com/sci-42ver/Lex-FLex) which has `%s/%x` concrete examples.
     - from the above repo, flex also has one *Prologue section* as bison has.
   - highly recommend this [Q&A](https://stackoverflow.com/questions/34495544/using-flex-and-bison-together) which explains **lex(scanner/lexer) and yacc(parser)** (i.e. flex and bison) relation (also see [this](https://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)). Based on the following, reread the 'bison_flex/skenz' codes. They are more understandable now. <a id="parser"></a>
     > A file such as exercise4.l is the input to flex which defines the **mapping** from lexemes to tokens, and exercise4.y would be the input to bison which defines the **order** of the tokens in a grammar. 
@@ -10592,7 +10592,7 @@ Module = "intel_rapl_msr"
     - `nonterminal` just means matching maybe *nonterminal*, also see [manual "syntactically equivalent *groupings*" ](https://www.gnu.org/software/bison/manual/html_node/Symbols.html)
       Also [see the figure](https://en.wikipedia.org/wiki/Context-free_grammar) 
       ```bash
-      [/mnt/ubuntu/home/czg/csapp3e/bison_flex/bison]$ flex -d snazzle.l;bison -d snazzle.y;g++ -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main;./main
+      [/mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison]$ flex -d snazzle.l;bison -d snazzle.y;g++ -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main;./main
       ...
       Entering state 5
       Stack now 0 1 5
@@ -10874,7 +10874,7 @@ $ perf report -i ~/perf_log/almost_all_cache.log --group --stdio
 ## TODO what `l2_request_g2.group1` and `l2_request_g1.group2` measures. See this [Q&A_1](https://stackoverflow.com/questions/76601866). Also see [this Q&A](https://unix.stackexchange.com/posts/750399/timeline#history_8a66734e-9ee0-40e4-bdeb-9e4ff000021e) and [miscs_py_script] script.
 - not use `l2_request_g1.group2` it may cause sampling failure. And also above weird samples <a id="percent_error"></a>
 ```bash
-$ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_all_cache.log.report | less -S
+$ cat /mnt/ubuntu/home/hervey/csapp3e/debug/sample_all_cache.log.report | less -S
            729         800         754         416         768         126         718           0           0         779           0         793          45         341         135          69         157         747         800          21           0         407         803         410         215         784         443         821         828         233           0           0         801         322         717           0           0         707          48         652           0           0           0          39           5           8           0           0         755         701          37         436         134           4           0         716           0         688  dgemm    dgemm                 [.] dgemm_basic_blocked
             |
             ---dgemm_basic_blocked # here has one weird `779           0`, so `group2` not sampled. But the above percentage still count it.
@@ -10998,8 +10998,8 @@ $ cd;perf record -g --call-graph fp -e l2_request_g1.rd_blk_l,l2_request_g1.rd_b
 ,l2_request_g1.l2_hw_pf\
  ~/matrix-matrix-multiply/build/src/dgemm;\
 mv perf.data ~/perf_log/l2_request_g1.log
-$ file=l2_request_g1;perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > /mnt/ubuntu/home/czg/csapp3e/debug/${file}.report
-$ cd /mnt/ubuntu/home/czg/csapp3e;file=l2_request_g1;python debug/perf_report_post.py -i debug/${file}.report -o debug/sample_${file}.report
+$ file=l2_request_g1;perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > /mnt/ubuntu/home/hervey/csapp3e/debug/${file}.report
+$ cd /mnt/ubuntu/home/hervey/csapp3e;file=l2_request_g1;python debug/perf_report_post.py -i debug/${file}.report -o debug/sample_${file}.report
 $ cat debug/sample_${file}.report
 ...
    26773       12993       19163       11995        1335           0       26645        dgemm  
@@ -11090,12 +11090,12 @@ $ cat debug/sample_${file}.report
   2nd 3 columns: still because unit size -> `dgemm_avx256` > `dgemm_unrolled_avx256` > `dgemm_blocked_avx256` (here similar `ls_mabresp_lcl_dram` with less `ls_mabresp_lcl_cache` is better.)
   openmp split -> more share inside *home node*.
 ```bash
-$ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh | grep events= -A 5
+$ cat /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block.sh | grep events= -A 5
 events=l2_cache_req_stat.ls_rd_blk_c\
 ,l2_request_g1.l2_hw_pf\
 ,ls_refills_from_sys.ls_mabresp_lcl_cache,ls_refills_from_sys.ls_mabresp_lcl_dram\
 ,ls_refills_from_sys.ls_mabresp_lcl_l2\
-$ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh | grep select_column_str=     
+$ cat /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block.sh | grep select_column_str=     
 -v select_column_str="3,5;3,4" \
 $
 10:
@@ -11130,7 +11130,7 @@ func      dgemm_blocked_avx256:   862,  1205,   0.715353;   862,   836,     1.03
   ,ls_refills_from_sys.ls_mabresp_lcl_l2\
   ,ls_refills_from_sys.ls_mabresp_rmt_cache,ls_refills_from_sys.ls_mabresp_rmt_dram\
     ~/matrix-matrix-multiply/build/src/dgemm;
-  $ cat /mnt/ubuntu/home/czg/csapp3e/debug/sample_prefetch.report
+  $ cat /mnt/ubuntu/home/hervey/csapp3e/debug/sample_prefetch.report
   ...
   # Event count (approx.): 2926555774
   ...
@@ -11218,7 +11218,7 @@ dgemm_blocked_avx256 -> 0.01
   `dgemm_basic_blocked` is based on the [block](#block), so even load more from cache.
 ## `l2_cache_req_stat` (not including L2 Prefetch) and `de_dis_uops_from_decoder`, `l2_pf_miss_l2_hit_l3`,`l2_pf_miss_l2_l3`, `l2_wcb_req`
 ```bash
-$ dir=/mnt/ubuntu/home/czg/csapp3e;\                                                 
+$ dir=/mnt/ubuntu/home/hervey/csapp3e;\                                                 
 file=no_prefetch_l2_opcache;\
 events=l2_cache_req_stat.ls_rd_blk_c,l2_cache_req_stat.ls_rd_blk_cs\
 ,l2_cache_req_stat.ls_rd_blk_l_hit_s,l2_cache_req_stat.ls_rd_blk_l_hit_x\
@@ -11230,7 +11230,7 @@ cd;perf record -g --call-graph fp -e ${events}\
 mv perf.data ~/perf_log/${file}.log;\
 perf report -i ~/perf_log/${file}.log --group --stdio -n --hierarchy > ${dir}/debug/${file}.report
 python ${dir}/debug/perf_report_post.py -i ${dir}/debug/${file}.report -o ${dir}/debug/sample_num_${file}.report -n ${events_num}
-$ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.report
+$ less -S /mnt/ubuntu/home/hervey/csapp3e/debug/sample_num_no_prefetch_l2_opcache.report
    26682       16215       13184       26815       12390       26813       18476        dgemm  
        26588       15359       12276       26764       11692       26770       16997        dgemm               
           13891        8187        7173       13914        8837       13692        9066        [.] dgemm_basic
@@ -11245,7 +11245,7 @@ $ less -S /mnt/ubuntu/home/czg/csapp3e/debug/sample_num_no_prefetch_l2_opcache.r
   ```bash
   $ git rev-parse HEAD                                                        
   6d7767c463ff8e069e6ee5d5be7d88ce7e8a5330
-  $ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh
+  $ . /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block.sh
       # change events to l3 
   $ cat ../sample_num_no_prefetch_l2_opcache_10.report
   # Samples: 157K of events 'l2_cache_req_stat.ls_rd_blk_c, l2_cache_req_stat.ls_rd_blk_cs, l2_cache_req_stat.ls_rd_blk_l_hit_s, l2_cache_req_stat.ls_rd_blk_l_hit_x, l2_cache_req_stat.ls_rd_blk_x, l2_pf_miss_l2_hit_l3, l2_pf_miss_l2_l3'
@@ -11304,7 +11304,7 @@ also see locality and successful prefetch [inverse proportion "generate a lot of
 ```bash
 $ git rev-parse HEAD                                   
 5baa17aeddab268007100aa3ed68f360fee165ff
-$ . /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh 
+$ . /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block.sh 
 $ cat sample_num_no_prefetch_l2_opcache_quotient.report
 func dgemm_basic: 8144, 4669, 1.74427
 func dgemm_avx256: 2150, 1369, 1.57049
@@ -11461,7 +11461,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
         So have the following result:
         The `dgemm_blocked_avx256` hot path is **longer** although it has one more regular path and average the `de_dis_uops_from_decoder` among them, so its `de_dis_uops_from_decoder.decoder_dispatched` is larger. 
         See [opcache_patent] p26 fig3 and p11 related description, **longer** hot path may cause the opcache unable to store the significant instructions after storing too many redundant data like duplicate `mov,add` and same registers.
-        Notice: above source code is based on `641a164` of `git@github.com:czg-sci-42ver/matrix-matrix-multiply.git` where use three `#pragma GCC unroll 1` and allow `inline` in both `do_block_avx_256` and `do_block`.
+        Notice: above source code is based on `641a164` of `git@github.com:sci-42ver/matrix-matrix-multiply.git` where use three `#pragma GCC unroll 1` and allow `inline` in both `do_block_avx_256` and `do_block`.
         ```bash
          # same as above, see the last two column num 
          253        1018          13         819         628        [.] dgemm_blocked_avx256
@@ -11512,7 +11512,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
       - tested with correction from `UNROLL * 8` to `UNROLL * 4`
         changing `BLOCK_DENOMINATOR`:
         ```bash
-          $ cat /mnt/ubuntu/home/czg/csapp3e/debug/debug_block/quotient/sample_num_no_prefetch_l2_opcache_quotient.report 
+          $ cat /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block/quotient/sample_num_no_prefetch_l2_opcache_quotient.report 
           1:
           func dgemm_unrolled_avx256: 961, 464, 2.07112
           func dgemm_blocked_avx256: 1118, 633, 1.76619
@@ -11557,7 +11557,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
           7b1ff8da81e6bb59d69c60558e43326b04712d99
           $ env OMP_PLACES="{0:3}" ./debug_block.sh # this may be similar to above.
              # https://stackoverflow.com/questions/10856129/setting-an-environment-variable-before-a-command-in-bash-is-not-working-for-the
-          $ OMP_PLACES="{0:3}" eval 'echo ${OMP_PLACES};. /mnt/ubuntu/home/czg/csapp3e/debug/debug_block.sh'
+          $ OMP_PLACES="{0:3}" eval 'echo ${OMP_PLACES};. /mnt/ubuntu/home/hervey/csapp3e/debug/debug_block.sh'
           $ env OMP_PLACES="{0:4}" ./debug_block.sh # this will make `dgemm_openmp_256` higher than `dgemm_blocked_avx256`
           ```
 
@@ -11615,7 +11615,7 @@ DSB also [see](https://llvm.org/devmtg/2016-11/Slides/Ansari-Code-Alignment.pdf)
               ```bash
               $ git rev-parse HEAD                                                                                 
               634c69e2bb639ded35537635811024381aa7babc
-              $ less -R /mnt/ubuntu/home/czg/csapp3e/debug/debug_annotate/no_prefetch_l2_opcache_10_annotated.report
+              $ less -R /mnt/ubuntu/home/hervey/csapp3e/debug/debug_annotate/no_prefetch_l2_opcache_10_annotated.report
                   #  in dgemm_basic_blocked
               4450:   test   edi,edi
               ...
@@ -11848,7 +11848,7 @@ Better read more [examples](https://sites.cs.ucsb.edu/~sherwood/awk/array2html.a
 $ git rev-parse HEAD 
 93a5a9c9497b26121cc0e21deb35793229d262d3 # this commit has changed `snazzle.tab.c` and `lex.yy.c` which are used in debug.
 $ cp ~/.gdbinit ~/.gdbinit.bk;cp ~/.gdbinit_py_orig.py ~/.gdbinit # pwndbg still can't use `rr` with `2f3438ddb245dfdcc8e1a65548f858966cb1011e`
-$ cd /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison # must change dir, because `FILE *myfile = fopen("a.snazzle.file", "r");` in `snazzle.y`
+$ cd /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison # must change dir, because `FILE *myfile = fopen("a.snazzle.file", "r");` in `snazzle.y`
 $ git rev-parse HEAD
 06e04ff4fc958d5749f90fe7484688facc3bcd93
 # use `2>&1` to redirect stderr to pipe
@@ -11867,7 +11867,7 @@ enable 2
 awd stdout->_IO_write_end
 rc
 $ g++ -fno-omit-frame-pointer -fno-pie -no-pie -DYYDEBUG=1 snazzle.tab.c lex.yy.c -o main -g;rr record ./main
-/mnt/ubuntu/home/czg/csapp3e/bison_flex/bison $ rr replay # use gdb dashboard; use `rr replay -x debug.gdb` the running order is unexpected.
+/mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison $ rr replay # use gdb dashboard; use `rr replay -x debug.gdb` the running order is unexpected.
 >>> source ./debug.gdb
 ...
 ─── Stack ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -11875,7 +11875,7 @@ $ g++ -fno-omit-frame-pointer -fno-pie -no-pie -DYYDEBUG=1 snazzle.tab.c lex.yy.
 [1] from 0x00007f85b87a7e0c in _IO_new_file_xsputn+54 at fileops.c:1235
 [2] from 0x00007f85b87a7e0c in _IO_new_file_xsputn+92 at fileops.c:1196
 [3] from 0x00007f85b879c279 in __GI__IO_fwrite+201 at /usr/src/debug/glibc/glibc/libio/libioP.h:946
-[4] from 0x00000000004026e6 in yylex()+801 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.l:27
+[4] from 0x00000000004026e6 in yylex()+801 at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.l:27
 # here snazzle.l:27 -> showed where stdout end changed.
 $ grep "27 " -r *.c -A 2
 lex.yy.c:#line 27 "snazzle.l"
@@ -11903,7 +11903,7 @@ lex.yy.c-// ;
         [1] from 0x00007f85b87a8859 in _IO_new_do_write+25 at fileops.c:425
         [2] from 0x00007f85b87a8cf3 in _IO_new_file_overflow+259 at fileops.c:783
         [3] from 0x00007f85b879d5ba in __GI__IO_puts+506 at ioputs.c:41
-        [4] from 0x0000000000401dd2 in yyparse()+2076 at /mnt/ubuntu/home/czg/csapp3e/bison_flex/bison/snazzle.y:62
+        [4] from 0x0000000000401dd2 in yyparse()+2076 at /mnt/ubuntu/home/hervey/csapp3e/bison_flex/bison/snazzle.y:62
         ```
         normally, the `_IO_write_...` should be same. But with `fwrite` changing `_IO_write_ptr` maybe, it is [not the case](#_IO_write_ptr).
         ```bash
@@ -11978,7 +11978,7 @@ stdout->_IO_write_ptr = 0x5f6541 "et str text copyed to text\n": 0x65
 $ rr replay -o '-nx -ix=~/.gdbinit_py_orig.py'       
 gdb: unrecognized option '-nx -ix=~/.gdbinit_py_orig.py'
 $ gdb -nx -ix=~/.gdbinit_py_orig.py
-  File "/home/czg/.gdbinit_py_orig.py", line 2332
+  File "/home/hervey/.gdbinit_py_orig.py", line 2332
     source ~/gdb_scripts/func.gdb
            ^
 SyntaxError: invalid syntax
@@ -12183,7 +12183,7 @@ Notice [OPENGL compatibility](https://forums.developer.nvidia.com/t/how-to-write
   Then run `makepkg -si --skipinteg` (Just use `yay -Rsn` to uninstall).
   See [modified PKGBUILD](../CUDA/nsight-graphics/PKGBUILD)
 ## optimization
-- CUDA [occupancy](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485/5?u=czgf2v) tested with [Occupancy Calculator "Launching from the Profiler Report"](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator)
+- CUDA [occupancy](https://forums.developer.nvidia.com/t/does-cuda-run-more-threads-than-physical-threads-transparently/261485/5?u=herveyf2v) tested with [Occupancy Calculator "Launching from the Profiler Report"](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator)
   [definition](https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/achievedoccupancy.htm): "the ratio of active warps on an SM ..."
   - [installation](https://aur.archlinux.org/packages/nsight-graphics#comment-927000) of nsight_compute
     Then launch Nsight Compute which is part of [nvtx](https://docs.nvidia.com/gameworks/index.html#gameworkslibrary/nvtx/nvidia_tools_extension_library_nvtx.htm) `/opt/cuda/nsight_compute/ncu-ui` connect -> profile. See `cudaSaxpy.report.ncu-rep` file.
@@ -12191,7 +12191,7 @@ Notice [OPENGL compatibility](https://forums.developer.nvidia.com/t/how-to-write
 - whether coalesced depends on the [code implementation](https://stackoverflow.com/a/5044424/21294350). Also [see](#access_global_memory).
 - 
 ### Nsight Compute
-- show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=czgf2v) by `nvcc async.cu -g --generate-line-info`.
+- show [`SASS`](https://forums.developer.nvidia.com/t/how-to-see-ptx-cu-source-code/220043/2?u=herveyf2v) by `nvcc async.cu -g --generate-line-info`.
 ## API
 - [runtime doc](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ge37112fc1ac88d0f6bab7a945e48760a)
 - [extended API](https://nvidia.github.io/libcudacxx/extended_api/thread_groups.html) with `ThreadGroup`
@@ -12543,7 +12543,7 @@ Dump of assembler code for function _Z6kernelPfi:
 [sticky_bit]:https://stackoverflow.com/a/76858612/21294350
 
 <!-- repo -->
-[mat_mat_mul]:https://github.com/czg-sci-42ver/matrix-matrix-multiply
+[mat_mat_mul]:https://github.com/sci-42ver/matrix-matrix-multiply
 
 [skenz_flex_bison]:https://www.skenz.it/compilers/flex_bison
 
@@ -12638,7 +12638,7 @@ Dump of assembler code for function _Z6kernelPfi:
 
 <!-- ostep -->
 [ostep_vm_segmentation]:../Operating_System/ostep_new_version_chapter/Virtualization_part_2/vm-segmentation.pdf
-[ostep_hw]:https://github.com/czg-sci-42ver/ostep-hw/blob/master/15/README.md
+[ostep_hw]:https://github.com/sci-42ver/ostep-hw/blob/master/15/README.md
 [Interaction_Between_Caching_Translation_Protection]:../Operating_System/Ostep_papers/Interaction_Between_Caching_Translation_Protection.pdf
 
 [x86_asm_Constraints]:https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html

@@ -75,7 +75,7 @@
 #### verilator debug
 - 1
 ```bash
-/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12 $ cat E5_12_1_2.sv
+/mnt/ubuntu/home/hervey/csapp3e/COD/SystemVerilog/5_12 $ cat E5_12_1_2.sv
 typedef struct packed {
     bit [9:0] index;
     //10-bit index
@@ -91,7 +91,7 @@ $ num=4; verilator --binary -j 0 E5_12_$num.sv --Mdir E5_12_$num
 Archive ar -rcs VE5_12_4__ALL.a VE5_12_4__ALL.o
 g++     verilated.o verilated_threads.o VE5_12_4__ALL.a    -pthread -lpthread -latomic   -o VE5_12_4
 rm VE5_12_4__ALL.verilator_deplist.tmp
-make: Leaving directory '/mnt/ubuntu/home/czg/csapp3e/COD/SystemVerilog/5_12/E5_12_4'
+make: Leaving directory '/mnt/ubuntu/home/hervey/csapp3e/COD/SystemVerilog/5_12/E5_12_4'
 ```
 - `program` seems to not [share](https://www.chipverify.com/systemverilog/systemverilog-program-block) local variables with parent module. See [this](../SystemVerilog/5_12/5.12_testbench/testbench.sv)
 #### iverilog
