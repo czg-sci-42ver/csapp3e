@@ -4,7 +4,7 @@
       "path": "../automatic_command/arch_linux_init"
     },
     {
-      "path": "../../../../../home/czg_arch/pwndbg"
+      "path": "../../../../../home/hervey_arch/pwndbg"
     },
     {
       "path": "../automatic_command"
@@ -13,25 +13,25 @@
       "path": "../CSAPP-3e-Solutions/site/content"
     },
     {
-      "path": "../../../../../home/czg_arch/Discrete_Mathematics_and_Algorithm"
+      "path": "../../../../../home/hervey_arch/Discrete_Mathematics_and_Algorithm"
     },
     {
-      "path": "../../../../../home/czg_arch/Computer_Networking"
+      "path": "../../../../../home/hervey_arch/Computer_Networking"
     },
     {
-      "path": "../../../../../home/czg_arch/regex_common_patterns"
+      "path": "../../../../../home/hervey_arch/regex_common_patterns"
     },
     {
       "path": "."
     },
     {
-      "path": "../../../../../home/czg_arch/.local/share/fcitx5/rime"
+      "path": "../../../../../home/hervey_arch/.local/share/fcitx5/rime"
     },
     {
-      "path": "../../../../../home/czg_arch/clrs4e-solutions"
+      "path": "../../../../../home/hervey_arch/clrs4e-solutions"
     },
     {
-      "path": "../../../../../home/czg_arch/SICP_SDF"
+      "path": "../../../../../home/hervey_arch/SICP_SDF"
     }
   ],
 	"settings": {
